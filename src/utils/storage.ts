@@ -1,39 +1,92 @@
-import { CustomPhrase } from '../data/phrases';
+import { CustomPhrase, Language, Sector } from '../data/phrases';
+import { Subcategory } from '../data/subcategories';
+import { supabase } from '../lib/supabase';
 
-const STORAGE_KEY = 'langaccess_custom_phrases';
-
-export const loadCustomPhrases = (): CustomPhrase[] => {
+export const loadCustomPhrases = async (
+  language: Language,
+  sector: Sector,
+  subcategory: Subcategory
+): Promise<CustomPhrase[]> => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    const { data, error } = await supabase
+      .from('custom_phrases')
+      .select('*')
+      .eq('language', language)
+      .eq('sector', sector)
+      .eq('subcategory', subcategory)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading custom phrases:', error);
+      return [];
+    }
+
+    return (data || []).map(row => ({
+      id: row.id,
+      english: row.english,
+      translation: row.translation,
+      language: row.language as Language,
+      sector: row.sector as Sector,
+      subcategory: row.subcategory as Subcategory,
+      createdAt: new Date(row.created_at).getTime(),
+    }));
   } catch (error) {
     console.error('Error loading custom phrases:', error);
     return [];
   }
 };
 
-export const saveCustomPhrases = (phrases: CustomPhrase[]): void => {
+export const addCustomPhrase = async (
+  phrase: Omit<CustomPhrase, 'id' | 'createdAt'>
+): Promise<CustomPhrase | null> => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(phrases));
+    const { data, error } = await supabase
+      .from('custom_phrases')
+      .insert({
+        english: phrase.english,
+        translation: phrase.translation,
+        language: phrase.language,
+        sector: phrase.sector,
+        subcategory: phrase.subcategory,
+      })
+      .select()
+      .maybeSingle();
+
+    if (error || !data) {
+      console.error('Error adding custom phrase:', error);
+      return null;
+    }
+
+    return {
+      id: data.id,
+      english: data.english,
+      translation: data.translation,
+      language: data.language as Language,
+      sector: data.sector as Sector,
+      subcategory: data.subcategory as Subcategory,
+      createdAt: new Date(data.created_at).getTime(),
+    };
   } catch (error) {
-    console.error('Error saving custom phrases:', error);
+    console.error('Error adding custom phrase:', error);
+    return null;
   }
 };
 
-export const addCustomPhrase = (phrase: Omit<CustomPhrase, 'id' | 'createdAt'>): CustomPhrase => {
-  const phrases = loadCustomPhrases();
-  const newPhrase: CustomPhrase = {
-    ...phrase,
-    id: crypto.randomUUID(),
-    createdAt: Date.now(),
-  };
-  phrases.push(newPhrase);
-  saveCustomPhrases(phrases);
-  return newPhrase;
-};
+export const deleteCustomPhrase = async (id: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase
+      .from('custom_phrases')
+      .delete()
+      .eq('id', id);
 
-export const deleteCustomPhrase = (id: string): void => {
-  const phrases = loadCustomPhrases();
-  const filtered = phrases.filter(p => p.id !== id);
-  saveCustomPhrases(filtered);
+    if (error) {
+      console.error('Error deleting custom phrase:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting custom phrase:', error);
+    return false;
+  }
 };

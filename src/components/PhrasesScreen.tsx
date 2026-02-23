@@ -24,9 +24,11 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
   const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
-    const loadedPhrases = loadCustomPhrases();
-    const filtered = loadedPhrases.filter(p => p.language === language && p.sector === sector && p.subcategory === subcategory);
-    setCustomPhrases(filtered);
+    const loadPhrases = async () => {
+      const loaded = await loadCustomPhrases(language, sector, subcategory);
+      setCustomPhrases(loaded);
+    };
+    loadPhrases();
   }, [language, sector, subcategory]);
 
   useEffect(() => {
@@ -118,26 +120,30 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
     setExpandedPhrases(newExpanded);
   };
 
-  const handleAddCustomPhrase = (e: React.FormEvent) => {
+  const handleAddCustomPhrase = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newEnglish.trim() && newTranslation.trim()) {
-      const newPhrase = addCustomPhrase({
+      const newPhrase = await addCustomPhrase({
         english: newEnglish.trim(),
         translation: newTranslation.trim(),
         language,
         sector,
         subcategory,
       });
-      setCustomPhrases([...customPhrases, newPhrase]);
-      setNewEnglish('');
-      setNewTranslation('');
-      setShowAddForm(false);
+      if (newPhrase) {
+        setCustomPhrases([newPhrase, ...customPhrases]);
+        setNewEnglish('');
+        setNewTranslation('');
+        setShowAddForm(false);
+      }
     }
   };
 
-  const handleDeleteCustomPhrase = (id: string) => {
-    deleteCustomPhrase(id);
-    setCustomPhrases(customPhrases.filter(p => p.id !== id));
+  const handleDeleteCustomPhrase = async (id: string) => {
+    const success = await deleteCustomPhrase(id);
+    if (success) {
+      setCustomPhrases(customPhrases.filter(p => p.id !== id));
+    }
   };
 
   const handleSpeak = async (text: string) => {
