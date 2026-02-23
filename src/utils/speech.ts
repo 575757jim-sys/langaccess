@@ -139,9 +139,10 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
     try {
       await loadVoices();
 
-      window.speechSynthesis.cancel();
-
-      await new Promise(r => setTimeout(r, 50));
+      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+        window.speechSynthesis.cancel();
+        await new Promise(r => setTimeout(r, 100));
+      }
 
       const utterance = new SpeechSynthesisUtterance(text);
       const langCode = getLanguageCode(language);
@@ -149,9 +150,6 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
       const voice = findBestVoice(langCode);
       if (voice) {
         utterance.voice = voice;
-        console.log('Using voice:', voice.name, voice.lang);
-      } else {
-        console.warn('No voice found for:', langCode);
       }
 
       utterance.lang = langCode;
@@ -169,27 +167,25 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
       };
 
       utterance.onerror = (event) => {
-        console.error('Speech synthesis error:', event);
         if (!hasEnded) {
           hasEnded = true;
-          resolve(false);
+          if (event.error === 'interrupted' || event.error === 'canceled') {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
         }
-      };
-
-      utterance.onstart = () => {
-        console.log('Speech started');
       };
 
       window.speechSynthesis.speak(utterance);
 
-      await new Promise(r => setTimeout(r, 100));
-
-      if (!window.speechSynthesis.speaking && !hasEnded) {
-        hasEnded = true;
-        resolve(true);
-      }
+      setTimeout(() => {
+        if (!hasEnded && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+          hasEnded = true;
+          resolve(true);
+        }
+      }, 150);
     } catch (error) {
-      console.error('Speech error:', error);
       resolve(false);
     }
   });
