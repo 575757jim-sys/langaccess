@@ -13,20 +13,45 @@ export const getLanguageCode = (lang: Language): string => {
 
 const findBestVoice = (langCode: string): SpeechSynthesisVoice | null => {
   const voices = window.speechSynthesis.getVoices();
-
-  const exactMatch = voices.find(voice => voice.lang === langCode);
-  if (exactMatch) return exactMatch;
-
   const langPrefix = langCode.split('-')[0];
-  const langMatch = voices.find(voice => voice.lang.startsWith(langPrefix));
-  if (langMatch) return langMatch;
 
-  const alternateMatch = voices.find(voice =>
+  const matchingVoices = voices.filter(voice =>
+    voice.lang === langCode ||
+    voice.lang.startsWith(langPrefix + '-') ||
     voice.lang.toLowerCase().includes(langPrefix.toLowerCase())
   );
-  if (alternateMatch) return alternateMatch;
 
-  return null;
+  if (matchingVoices.length === 0) return null;
+
+  const qualityScore = (voice: SpeechSynthesisVoice): number => {
+    let score = 0;
+    const name = voice.name.toLowerCase();
+    const lang = voice.lang.toLowerCase();
+
+    if (name.includes('enhanced') || name.includes('premium')) score += 100;
+
+    if (langPrefix === 'es' && name.includes('paulina')) score += 90;
+    if (langPrefix === 'zh' && (name.includes('ting-ting') || name.includes('meijia'))) score += 90;
+    if (langPrefix === 'vi' && name.includes('linh')) score += 90;
+    if (langPrefix === 'fil' && name.includes('rosa')) score += 90;
+
+    if (name.includes('samantha')) score += 80;
+    if (name.includes('google')) score += 70;
+    if (name.includes('microsoft')) score += 60;
+
+    if (voice.localService) score += 50;
+
+    if (lang === langCode) score += 40;
+    else if (lang.startsWith(langPrefix + '-')) score += 30;
+
+    if (name.includes('compact') || name.includes('low') || name.includes('novelty')) score -= 30;
+
+    return score;
+  };
+
+  matchingVoices.sort((a, b) => qualityScore(b) - qualityScore(a));
+
+  return matchingVoices[0];
 };
 
 export const speakText = (text: string, language: Language): Promise<boolean> => {
