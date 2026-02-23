@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase } from '../data/phrases';
+import { Subcategory, subcategoryPhrases } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
 
 interface PhrasesScreenProps {
   language: Language;
   sector: Sector;
+  subcategory: Subcategory;
   onBack: () => void;
 }
 
-export default function PhrasesScreen({ language, sector, onBack }: PhrasesScreenProps) {
+export default function PhrasesScreen({ language, sector, subcategory, onBack }: PhrasesScreenProps) {
   const data = languageData[language];
+  const phrases = subcategoryPhrases[subcategory]?.[language] || [];
   const [fullscreenTranslation, setFullscreenTranslation] = useState<string | null>(null);
   const [expandedPhrases, setExpandedPhrases] = useState<Set<number>>(new Set());
   const [customPhrases, setCustomPhrases] = useState<CustomPhrase[]>([]);
@@ -20,10 +23,10 @@ export default function PhrasesScreen({ language, sector, onBack }: PhrasesScree
   const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
-    const phrases = loadCustomPhrases();
-    const filtered = phrases.filter(p => p.language === language && p.sector === sector);
+    const loadedPhrases = loadCustomPhrases();
+    const filtered = loadedPhrases.filter(p => p.language === language && p.sector === sector && p.subcategory === subcategory);
     setCustomPhrases(filtered);
-  }, [language, sector]);
+  }, [language, sector, subcategory]);
 
   useEffect(() => {
     if (!newEnglish.trim() || !showAddForm) {
@@ -122,6 +125,7 @@ export default function PhrasesScreen({ language, sector, onBack }: PhrasesScree
         translation: newTranslation.trim(),
         language,
         sector,
+        subcategory,
       });
       setCustomPhrases([...customPhrases, newPhrase]);
       setNewEnglish('');
@@ -154,7 +158,7 @@ export default function PhrasesScreen({ language, sector, onBack }: PhrasesScree
 
         <div className="max-w-4xl mx-auto px-4 py-8 pb-12">
           <div className="space-y-6">
-            {data.phrases.map((phrase, index) => {
+            {phrases.map((phrase, index) => {
               const isExpanded = expandedPhrases.has(index);
               return (
                 <div

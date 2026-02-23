@@ -1,8 +1,10 @@
 import { Languages, Heart, GraduationCap, HardHat, ArrowLeft } from 'lucide-react';
 import { Language, Sector } from '../data/phrases';
+import { Subcategory } from '../data/subcategories';
 
 interface HomeScreenProps {
   selectedSector: Sector | null;
+  selectedSubcategory?: Subcategory | null;
   onSelectSector: (sector: Sector) => void;
   onSelectLanguage: (language: Language) => void;
   onBackToSectorSelection: () => void;
@@ -10,6 +12,7 @@ interface HomeScreenProps {
 
 export default function HomeScreen({
   selectedSector,
+  selectedSubcategory,
   onSelectSector,
   onSelectLanguage,
   onBackToSectorSelection

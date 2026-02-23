@@ -19,6 +19,7 @@ export interface CustomPhrase {
   translation: string;
   language: Language;
   sector: Sector;
+  subcategory?: string;
   createdAt: number;
 }
 
