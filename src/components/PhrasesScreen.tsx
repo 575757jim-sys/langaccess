@@ -22,6 +22,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
   const [newEnglish, setNewEnglish] = useState('');
   const [newTranslation, setNewTranslation] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   useEffect(() => {
     const loadPhrases = async () => {
@@ -135,6 +136,11 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
         setNewEnglish('');
         setNewTranslation('');
         setShowAddForm(false);
+        setShowSuccessToast(true);
+        setTimeout(() => setShowSuccessToast(false), 3000);
+        await handleSpeak(newPhrase.translation);
+      } else {
+        alert('Failed to save phrase. Please check your internet connection and try again.');
       }
     }
   };
@@ -421,6 +427,15 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
             </p>
             <p className="text-xl text-slate-500 mt-8">Tap anywhere to dismiss</p>
           </div>
+        </div>
+      )}
+
+      {showSuccessToast && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2 animate-fade-in">
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+          Phrase saved successfully
         </div>
       )}
     </>

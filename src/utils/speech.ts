@@ -44,15 +44,17 @@ const findBestVoice = (langCode: string): SpeechSynthesisVoice | null => {
     }
 
     if (langPrefix === 'fil' || langPrefix === 'tl') {
+      if (name.includes('google')) score += 150;
+
       if (name.includes('amelie') || name.includes('amélie')) score += 100;
       else if (name.includes('rosa')) score += 95;
-      else if (name.includes('siri female')) score += 90;
-      else if (name.includes('filipino female') || name.includes('tagalog female')) score += 85;
+      else if (name.includes('siri')) score += 90;
+      else if (name.includes('filipino') || name.includes('tagalog')) score += 85;
       else if (name.includes('female')) score += 70;
 
-      if (name.includes('google') && !name.includes('compact')) score += 40;
-      if (name.includes('compact')) score -= 150;
-      if (name.includes('premium')) score -= 50;
+      if (name.includes('quality') || name.includes('enhanced')) score += 60;
+      if (name.includes('compact')) score -= 200;
+      if (name.includes('premium') && name.includes('compact')) score -= 150;
     }
 
     if (langPrefix === 'vi') {
