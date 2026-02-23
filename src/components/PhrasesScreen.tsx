@@ -140,10 +140,10 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
     setCustomPhrases(customPhrases.filter(p => p.id !== id));
   };
 
-  const handleSpeak = (text: string) => {
-    const success = speakText(text, language);
+  const handleSpeak = async (text: string) => {
+    const success = await speakText(text, language);
     if (!success) {
-      console.warn('Speech synthesis not supported');
+      console.warn('Speech synthesis failed');
     }
   };
 
