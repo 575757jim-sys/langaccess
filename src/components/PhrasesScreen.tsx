@@ -17,12 +17,58 @@ export default function PhrasesScreen({ language, sector, onBack }: PhrasesScree
   const [showAddForm, setShowAddForm] = useState(false);
   const [newEnglish, setNewEnglish] = useState('');
   const [newTranslation, setNewTranslation] = useState('');
+  const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
     const phrases = loadCustomPhrases();
     const filtered = phrases.filter(p => p.language === language && p.sector === sector);
     setCustomPhrases(filtered);
   }, [language, sector]);
+
+  useEffect(() => {
+    if (!newEnglish.trim() || !showAddForm) {
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      await translateText(newEnglish);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [newEnglish, showAddForm, language]);
+
+  const getLanguageCode = (lang: Language): string => {
+    const codes: Record<Language, string> = {
+      spanish: 'es',
+      tagalog: 'tl',
+      vietnamese: 'vi',
+      mandarin: 'zh-CN',
+      cantonese: 'zh-TW'
+    };
+    return codes[lang];
+  };
+
+  const translateText = async (text: string) => {
+    if (!text.trim()) return;
+
+    setIsTranslating(true);
+    try {
+      const targetLang = getLanguageCode(language);
+      const encodedText = encodeURIComponent(text);
+      const url = `https://api.mymemory.translated.net/get?q=${encodedText}&langpair=en|${targetLang}`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.responseData && data.responseData.translatedText) {
+        setNewTranslation(data.responseData.translatedText);
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   const getShowToLabel = () => {
     switch (sector) {
@@ -215,12 +261,15 @@ export default function PhrasesScreen({ language, sector, onBack }: PhrasesScree
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
                       {data.name} Translation
+                      {isTranslating && (
+                        <span className="ml-2 text-xs text-blue-600 italic">Translating...</span>
+                      )}
                     </label>
                     <input
                       type="text"
                       value={newTranslation}
                       onChange={(e) => setNewTranslation(e.target.value)}
-                      placeholder="Enter translation"
+                      placeholder="Translation will appear automatically"
                       className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
                     />
