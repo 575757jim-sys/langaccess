@@ -4,6 +4,7 @@ import { Language, Sector, languageData, CustomPhrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
 import { speakText, isSpeechSupported } from '../utils/speech';
+import { supabase } from '../lib/supabase';
 
 interface PhrasesScreenProps {
   language: Language;
@@ -23,6 +24,23 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
   const [newTranslation, setNewTranslation] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error'>('checking');
+
+  useEffect(() => {
+    const testConnection = async () => {
+      if (!supabase) {
+        setDbStatus('error');
+        return;
+      }
+      try {
+        const { error } = await supabase.from('custom_phrases').select('count').limit(1);
+        setDbStatus(error ? 'error' : 'connected');
+      } catch {
+        setDbStatus('error');
+      }
+    };
+    testConnection();
+  }, []);
 
   useEffect(() => {
     const loadPhrases = async () => {
@@ -160,6 +178,16 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        {dbStatus === 'error' && (
+          <div className="bg-red-500 text-white px-4 py-2 text-center text-sm">
+            Database connection failed. Custom phrases will not work. Check console for details.
+          </div>
+        )}
+        {dbStatus === 'checking' && (
+          <div className="bg-yellow-500 text-white px-4 py-2 text-center text-sm">
+            Connecting to database...
+          </div>
+        )}
         <div className="sticky top-0 bg-white shadow-md z-10">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <button

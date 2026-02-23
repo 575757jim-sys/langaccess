@@ -18,4 +18,19 @@ if (!supabase) {
   console.error('CRITICAL: Supabase client failed to initialize!');
 } else {
   console.log('Supabase client initialized successfully');
+
+  supabase
+    .from('custom_phrases')
+    .select('count')
+    .limit(1)
+    .then(({ data, error }) => {
+      if (error) {
+        console.error('Supabase connection test FAILED:', error);
+      } else {
+        console.log('Supabase connection test PASSED');
+      }
+    })
+    .catch((err) => {
+      console.error('Supabase connection test ERROR:', err);
+    });
 }
