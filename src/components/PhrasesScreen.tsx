@@ -139,8 +139,6 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
         setShowSuccessToast(true);
         setTimeout(() => setShowSuccessToast(false), 3000);
         await handleSpeak(newPhrase.translation);
-      } else {
-        alert('Failed to save phrase. Please check your internet connection and try again.');
       }
     }
   };

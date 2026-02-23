@@ -44,10 +44,14 @@ export const addCustomPhrase = async (
   phrase: Omit<CustomPhrase, 'id' | 'createdAt'>
 ): Promise<CustomPhrase | null> => {
   if (!supabase) {
+    console.error('Supabase client not initialized');
+    alert('Database connection not available. Please refresh the page.');
     return null;
   }
 
   try {
+    console.log('Attempting to save phrase:', phrase);
+
     const { data, error } = await supabase
       .from('custom_phrases')
       .insert({
@@ -60,10 +64,24 @@ export const addCustomPhrase = async (
       .select()
       .maybeSingle();
 
-    if (error || !data) {
-      console.error('Error adding custom phrase:', error);
+    if (error) {
+      console.error('Supabase error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+      });
+      alert(`Database error: ${error.message}`);
       return null;
     }
+
+    if (!data) {
+      console.error('No data returned from insert');
+      alert('Failed to save phrase: No data returned');
+      return null;
+    }
+
+    console.log('Phrase saved successfully:', data);
 
     return {
       id: data.id,
@@ -75,7 +93,8 @@ export const addCustomPhrase = async (
       createdAt: new Date(data.created_at).getTime(),
     };
   } catch (error) {
-    console.error('Error adding custom phrase:', error);
+    console.error('Exception while adding custom phrase:', error);
+    alert(`Error saving phrase: ${error instanceof Error ? error.message : 'Unknown error'}`);
     return null;
   }
 };
