@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { ArrowLeft, Eye, X } from 'lucide-react';
-import { Language, Sector, languageData } from '../data/phrases';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
+import { Language, Sector, languageData, CustomPhrase } from '../data/phrases';
+import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
 
 interface PhrasesScreenProps {
   language: Language;
@@ -11,6 +12,17 @@ interface PhrasesScreenProps {
 export default function PhrasesScreen({ language, sector, onBack }: PhrasesScreenProps) {
   const data = languageData[language];
   const [fullscreenTranslation, setFullscreenTranslation] = useState<string | null>(null);
+  const [expandedPhrases, setExpandedPhrases] = useState<Set<number>>(new Set());
+  const [customPhrases, setCustomPhrases] = useState<CustomPhrase[]>([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newEnglish, setNewEnglish] = useState('');
+  const [newTranslation, setNewTranslation] = useState('');
+
+  useEffect(() => {
+    const phrases = loadCustomPhrases();
+    const filtered = phrases.filter(p => p.language === language && p.sector === sector);
+    setCustomPhrases(filtered);
+  }, [language, sector]);
 
   const getShowToLabel = () => {
     switch (sector) {
@@ -25,12 +37,56 @@ export default function PhrasesScreen({ language, sector, onBack }: PhrasesScree
     }
   };
 
+  const getResponseLabel = () => {
+    switch (sector) {
+      case 'healthcare':
+        return 'Patient May Respond With';
+      case 'education':
+        return 'Student or Parent May Respond With';
+      case 'construction':
+        return 'Worker May Respond With';
+      default:
+        return 'Responses';
+    }
+  };
+
   const handleShowTranslation = (translation: string) => {
     setFullscreenTranslation(translation);
   };
 
   const handleDismissFullscreen = () => {
     setFullscreenTranslation(null);
+  };
+
+  const toggleExpanded = (index: number) => {
+    const newExpanded = new Set(expandedPhrases);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
+    } else {
+      newExpanded.add(index);
+    }
+    setExpandedPhrases(newExpanded);
+  };
+
+  const handleAddCustomPhrase = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newEnglish.trim() && newTranslation.trim()) {
+      const newPhrase = addCustomPhrase({
+        english: newEnglish.trim(),
+        translation: newTranslation.trim(),
+        language,
+        sector,
+      });
+      setCustomPhrases([...customPhrases, newPhrase]);
+      setNewEnglish('');
+      setNewTranslation('');
+      setShowAddForm(false);
+    }
+  };
+
+  const handleDeleteCustomPhrase = (id: string) => {
+    deleteCustomPhrase(id);
+    setCustomPhrases(customPhrases.filter(p => p.id !== id));
   };
 
   return (
@@ -52,38 +108,186 @@ export default function PhrasesScreen({ language, sector, onBack }: PhrasesScree
 
         <div className="max-w-4xl mx-auto px-4 py-8 pb-12">
           <div className="space-y-6">
-            {data.phrases.map((phrase, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow"
+            {data.phrases.map((phrase, index) => {
+              const isExpanded = expandedPhrases.has(index);
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow"
+                >
+                  <div className="p-6 space-y-3">
+                    <div>
+                      <p className="text-sm font-medium text-slate-500 mb-1">English</p>
+                      <p className="text-2xl font-semibold text-slate-800 leading-relaxed">
+                        {phrase.english}
+                      </p>
+                    </div>
+                    <div className="border-t border-slate-200 pt-3">
+                      <p className="text-sm font-medium text-slate-500 mb-1">{data.name}</p>
+                      <p className="text-2xl font-semibold text-blue-700 leading-relaxed">
+                        {phrase.translation}
+                      </p>
+                    </div>
+                    {sector === 'healthcare' && (
+                      <div className="pt-2">
+                        <button
+                          onClick={() => handleShowTranslation(phrase.translation)}
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        >
+                          <Eye className="w-5 h-5" />
+                          {getShowToLabel()}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t border-slate-200">
+                    <button
+                      onClick={() => toggleExpanded(index)}
+                      className="w-full px-6 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                    >
+                      <span className="text-sm font-medium text-slate-700">
+                        {getResponseLabel()}
+                      </span>
+                      {isExpanded ? (
+                        <ChevronUp className="w-5 h-5 text-slate-500" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-slate-500" />
+                      )}
+                    </button>
+
+                    {isExpanded && (
+                      <div className="px-6 pb-6 pt-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {phrase.responses.map((response, responseIndex) => (
+                            <div
+                              key={responseIndex}
+                              className="bg-slate-50 rounded-lg p-4 border border-slate-200"
+                            >
+                              <p className="text-lg font-semibold text-blue-700 mb-1">
+                                {response.translation}
+                              </p>
+                              <p className="text-sm text-slate-600 italic mb-1">
+                                [{response.pronunciation}]
+                              </p>
+                              <p className="text-sm text-slate-700">
+                                {response.english}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-12">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-slate-800">Custom Phrases</h3>
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
               >
-                <div className="space-y-3">
+                <Plus className="w-5 h-5" />
+                Add Phrase
+              </button>
+            </div>
+
+            {showAddForm && (
+              <form onSubmit={handleAddCustomPhrase} className="bg-white rounded-xl shadow-md p-6 mb-6">
+                <div className="space-y-4">
                   <div>
-                    <p className="text-sm font-medium text-slate-500 mb-1">English</p>
-                    <p className="text-2xl font-semibold text-slate-800 leading-relaxed">
-                      {phrase.english}
-                    </p>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      English Phrase
+                    </label>
+                    <input
+                      type="text"
+                      value={newEnglish}
+                      onChange={(e) => setNewEnglish(e.target.value)}
+                      placeholder="Enter English phrase"
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
                   </div>
-                  <div className="border-t border-slate-200 pt-3">
-                    <p className="text-sm font-medium text-slate-500 mb-1">{data.name}</p>
-                    <p className="text-2xl font-semibold text-blue-700 leading-relaxed">
-                      {phrase.translation}
-                    </p>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      {data.name} Translation
+                    </label>
+                    <input
+                      type="text"
+                      value={newTranslation}
+                      onChange={(e) => setNewTranslation(e.target.value)}
+                      placeholder="Enter translation"
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
                   </div>
-                  {sector === 'healthcare' && (
-                    <div className="pt-2">
+                  <div className="flex gap-3">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                      Save Phrase
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAddForm(false);
+                        setNewEnglish('');
+                        setNewTranslation('');
+                      }}
+                      className="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </form>
+            )}
+
+            {customPhrases.length > 0 ? (
+              <div className="space-y-4">
+                {customPhrases.map((phrase) => (
+                  <div
+                    key={phrase.id}
+                    className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 space-y-3">
+                        <div>
+                          <p className="text-sm font-medium text-slate-500 mb-1">English</p>
+                          <p className="text-2xl font-semibold text-slate-800 leading-relaxed">
+                            {phrase.english}
+                          </p>
+                        </div>
+                        <div className="border-t border-slate-200 pt-3">
+                          <p className="text-sm font-medium text-slate-500 mb-1">{data.name}</p>
+                          <p className="text-2xl font-semibold text-blue-700 leading-relaxed">
+                            {phrase.translation}
+                          </p>
+                        </div>
+                      </div>
                       <button
-                        onClick={() => handleShowTranslation(phrase.translation)}
-                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        onClick={() => handleDeleteCustomPhrase(phrase.id)}
+                        className="ml-4 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete phrase"
                       >
-                        <Eye className="w-5 h-5" />
-                        {getShowToLabel()}
+                        <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
-                  )}
-                </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className="bg-white rounded-xl shadow-md p-8 text-center">
+                <p className="text-slate-500">
+                  No custom phrases yet. Click "Add Phrase" to create your own translations.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
