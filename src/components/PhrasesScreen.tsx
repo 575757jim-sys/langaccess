@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2 } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
+import { speakText, isSpeechSupported } from '../utils/speech';
 
 interface PhrasesScreenProps {
   language: Language;
@@ -139,6 +140,13 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
     setCustomPhrases(customPhrases.filter(p => p.id !== id));
   };
 
+  const handleSpeak = (text: string) => {
+    const success = speakText(text, language);
+    if (!success) {
+      console.warn('Speech synthesis not supported');
+    }
+  };
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -174,9 +182,22 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                     </div>
                     <div className="border-t border-slate-200 pt-3">
                       <p className="text-sm font-medium text-slate-500 mb-1">{data.name}</p>
-                      <p className="text-2xl font-semibold text-blue-700 leading-relaxed">
-                        {phrase.translation}
-                      </p>
+                      <div className="flex items-center gap-3">
+                        <p className="text-2xl font-semibold text-blue-700 leading-relaxed flex-1">
+                          {phrase.translation}
+                        </p>
+                        {isSpeechSupported() ? (
+                          <button
+                            onClick={() => handleSpeak(phrase.translation)}
+                            className="flex-shrink-0 p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Play audio"
+                          >
+                            <Volume2 className="w-6 h-6" />
+                          </button>
+                        ) : (
+                          <span className="text-xs text-slate-400">Audio unavailable</span>
+                        )}
+                      </div>
                     </div>
                     {sector === 'healthcare' && (
                       <div className="pt-2">
@@ -214,9 +235,22 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                               key={responseIndex}
                               className="bg-slate-50 rounded-lg p-4 border border-slate-200"
                             >
-                              <p className="text-lg font-semibold text-blue-700 mb-1">
-                                {response.translation}
-                              </p>
+                              <div className="flex items-start gap-2 mb-1">
+                                <p className="text-lg font-semibold text-blue-700 flex-1">
+                                  {response.translation}
+                                </p>
+                                {isSpeechSupported() ? (
+                                  <button
+                                    onClick={() => handleSpeak(response.translation)}
+                                    className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded transition-colors"
+                                    title="Play audio"
+                                  >
+                                    <Volume2 className="w-5 h-5" />
+                                  </button>
+                                ) : (
+                                  <span className="text-xs text-slate-400">Unavailable</span>
+                                )}
+                              </div>
                               <p className="text-sm text-slate-600 italic mb-1">
                                 [{response.pronunciation}]
                               </p>
@@ -318,9 +352,22 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                         </div>
                         <div className="border-t border-slate-200 pt-3">
                           <p className="text-sm font-medium text-slate-500 mb-1">{data.name}</p>
-                          <p className="text-2xl font-semibold text-blue-700 leading-relaxed">
-                            {phrase.translation}
-                          </p>
+                          <div className="flex items-center gap-3">
+                            <p className="text-2xl font-semibold text-blue-700 leading-relaxed flex-1">
+                              {phrase.translation}
+                            </p>
+                            {isSpeechSupported() ? (
+                              <button
+                                onClick={() => handleSpeak(phrase.translation)}
+                                className="flex-shrink-0 p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="Play audio"
+                              >
+                                <Volume2 className="w-6 h-6" />
+                              </button>
+                            ) : (
+                              <span className="text-xs text-slate-400">Audio unavailable</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <button
