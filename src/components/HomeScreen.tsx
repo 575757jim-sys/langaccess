@@ -1,11 +1,25 @@
-import { Languages } from 'lucide-react';
-import { Language } from '../data/phrases';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft } from 'lucide-react';
+import { Language, Sector } from '../data/phrases';
 
 interface HomeScreenProps {
+  selectedSector: Sector | null;
+  onSelectSector: (sector: Sector) => void;
   onSelectLanguage: (language: Language) => void;
+  onBackToSectorSelection: () => void;
 }
 
-export default function HomeScreen({ onSelectLanguage }: HomeScreenProps) {
+export default function HomeScreen({
+  selectedSector,
+  onSelectSector,
+  onSelectLanguage,
+  onBackToSectorSelection
+}: HomeScreenProps) {
+  const sectors = [
+    { id: 'healthcare' as Sector, label: 'Healthcare', Icon: Heart, color: 'bg-blue-600 hover:bg-blue-700' },
+    { id: 'education' as Sector, label: 'Education', Icon: GraduationCap, color: 'bg-green-600 hover:bg-green-700' },
+    { id: 'construction' as Sector, label: 'Construction', Icon: HardHat, color: 'bg-orange-600 hover:bg-orange-700' }
+  ];
+
   const languages: { id: Language; label: string; color: string }[] = [
     { id: 'spanish', label: 'Spanish', color: 'bg-blue-600 hover:bg-blue-700' },
     { id: 'tagalog', label: 'Tagalog', color: 'bg-green-600 hover:bg-green-700' },
@@ -13,6 +27,10 @@ export default function HomeScreen({ onSelectLanguage }: HomeScreenProps) {
     { id: 'mandarin', label: 'Mandarin', color: 'bg-orange-600 hover:bg-orange-700' },
     { id: 'cantonese', label: 'Cantonese', color: 'bg-teal-600 hover:bg-teal-700' }
   ];
+
+  const getSectorLabel = (sectorId: Sector) => {
+    return sectors.find(s => s.id === sectorId)?.label || '';
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
@@ -22,20 +40,51 @@ export default function HomeScreen({ onSelectLanguage }: HomeScreenProps) {
             <Languages className="w-16 h-16 text-slate-700" />
           </div>
           <h1 className="text-5xl font-bold text-slate-800 mb-3">LangAccess</h1>
-          <p className="text-xl text-slate-600">Healthcare Communication Aid</p>
+          <p className="text-xl text-slate-600">
+            {selectedSector ? `${getSectorLabel(selectedSector)} Communication Aid` : 'Communication Aid'}
+          </p>
         </div>
 
-        <div className="w-full space-y-4">
-          {languages.map((lang) => (
+        {!selectedSector ? (
+          <div className="w-full space-y-4">
+            <h2 className="text-2xl font-semibold text-slate-700 text-center mb-6">Select Your Sector</h2>
+            {sectors.map((sector) => {
+              const Icon = sector.Icon;
+              return (
+                <button
+                  key={sector.id}
+                  onClick={() => onSelectSector(sector.id)}
+                  className={`w-full ${sector.color} text-white rounded-2xl py-6 px-8 text-2xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-4`}
+                >
+                  <Icon className="w-8 h-8" />
+                  {sector.label}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="w-full">
             <button
-              key={lang.id}
-              onClick={() => onSelectLanguage(lang.id)}
-              className={`w-full ${lang.color} text-white rounded-2xl py-6 px-8 text-2xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95`}
+              onClick={onBackToSectorSelection}
+              className="flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-colors mb-6"
             >
-              {lang.label}
+              <ArrowLeft className="w-5 h-5" />
+              <span className="text-lg font-medium">Change Sector</span>
             </button>
-          ))}
-        </div>
+            <h2 className="text-2xl font-semibold text-slate-700 text-center mb-6">Select Language</h2>
+            <div className="space-y-4">
+              {languages.map((lang) => (
+                <button
+                  key={lang.id}
+                  onClick={() => onSelectLanguage(lang.id)}
+                  className={`w-full ${lang.color} text-white rounded-2xl py-6 px-8 text-2xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 export type Language = 'spanish' | 'tagalog' | 'vietnamese' | 'mandarin' | 'cantonese';
+export type Sector = 'healthcare' | 'education' | 'construction';
 
 export interface Phrase {
   english: string;
@@ -8,6 +9,14 @@ export interface Phrase {
 export interface LanguageData {
   name: string;
   phrases: Phrase[];
+}
+
+export interface SectorInfo {
+  id: Sector;
+  label: string;
+  icon: string;
+  color: string;
+  showToLabel: string;
 }
 
 export const languageData: Record<Language, LanguageData> = {
