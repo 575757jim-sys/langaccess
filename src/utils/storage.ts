@@ -7,6 +7,10 @@ export const loadCustomPhrases = async (
   sector: Sector,
   subcategory: Subcategory
 ): Promise<CustomPhrase[]> => {
+  if (!supabase) {
+    return [];
+  }
+
   try {
     const { data, error } = await supabase
       .from('custom_phrases')
@@ -39,6 +43,10 @@ export const loadCustomPhrases = async (
 export const addCustomPhrase = async (
   phrase: Omit<CustomPhrase, 'id' | 'createdAt'>
 ): Promise<CustomPhrase | null> => {
+  if (!supabase) {
+    return null;
+  }
+
   try {
     const { data, error } = await supabase
       .from('custom_phrases')
@@ -73,6 +81,10 @@ export const addCustomPhrase = async (
 };
 
 export const deleteCustomPhrase = async (id: string): Promise<boolean> => {
+  if (!supabase) {
+    return false;
+  }
+
   try {
     const { error } = await supabase
       .from('custom_phrases')
