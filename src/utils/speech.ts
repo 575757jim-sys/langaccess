@@ -44,12 +44,15 @@ const findBestVoice = (langCode: string): SpeechSynthesisVoice | null => {
     }
 
     if (langPrefix === 'fil' || langPrefix === 'tl') {
-      if (name.includes('amelie') || name.includes('amélie')) score += 95;
-      if (name.includes('rosa')) score += 90;
+      if (name.includes('amelie') || name.includes('amélie')) score += 100;
+      else if (name.includes('rosa')) score += 95;
+      else if (name.includes('siri female')) score += 90;
       else if (name.includes('filipino female') || name.includes('tagalog female')) score += 85;
-      else if (name.includes('female')) score += 80;
+      else if (name.includes('female')) score += 70;
 
-      if (name.includes('compact') || name.includes('premium')) score -= 100;
+      if (name.includes('google') && !name.includes('compact')) score += 40;
+      if (name.includes('compact')) score -= 150;
+      if (name.includes('premium')) score -= 50;
     }
 
     if (langPrefix === 'vi') {
@@ -132,6 +135,7 @@ const loadVoices = (): Promise<void> => {
 export const speakText = (text: string, language: Language): Promise<boolean> => {
   return new Promise(async (resolve) => {
     if (!('speechSynthesis' in window)) {
+      console.error('Speech synthesis not supported');
       resolve(false);
       return;
     }
@@ -144,29 +148,43 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
         await new Promise(r => setTimeout(r, 100));
       }
 
-      const utterance = new SpeechSynthesisUtterance(text);
       const langCode = getLanguageCode(language);
-
       const voice = findBestVoice(langCode);
+
+      console.log('Selected voice:', voice?.name || 'default', 'for language:', langCode);
+      console.log('Available voices:', window.speechSynthesis.getVoices().length);
+
+      const utterance = new SpeechSynthesisUtterance(text);
+
       if (voice) {
         utterance.voice = voice;
+        utterance.lang = voice.lang;
+      } else {
+        utterance.lang = langCode;
       }
 
-      utterance.lang = langCode;
-      utterance.rate = 0.85;
+      utterance.rate = 0.9;
       utterance.pitch = 1.0;
       utterance.volume = 1.0;
 
       let hasEnded = false;
+      let hasStarted = false;
+
+      utterance.onstart = () => {
+        hasStarted = true;
+        console.log('Speech started');
+      };
 
       utterance.onend = () => {
         if (!hasEnded) {
           hasEnded = true;
+          console.log('Speech ended normally');
           resolve(true);
         }
       };
 
       utterance.onerror = (event) => {
+        console.error('Speech error:', event.error);
         if (!hasEnded) {
           hasEnded = true;
           if (event.error === 'interrupted' || event.error === 'canceled') {
@@ -180,12 +198,21 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
       window.speechSynthesis.speak(utterance);
 
       setTimeout(() => {
+        if (!hasStarted && !hasEnded) {
+          console.warn('Speech did not start within 3 seconds, resuming...');
+          window.speechSynthesis.resume();
+        }
+      }, 3000);
+
+      setTimeout(() => {
         if (!hasEnded && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
           hasEnded = true;
+          console.log('Speech ended via timeout');
           resolve(true);
         }
-      }, 150);
+      }, 500);
     } catch (error) {
+      console.error('Speech error:', error);
       resolve(false);
     }
   });
@@ -194,3 +221,45 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
 export const isSpeechSupported = (): boolean => {
   return 'speechSynthesis' in window;
 };
+
+export const debugVoices = async (): Promise<void> => {
+  await loadVoices();
+  const voices = window.speechSynthesis.getVoices();
+
+  console.log('=== Available Voices ===');
+  console.log('Total voices:', voices.length);
+
+  const groupedByLang: Record<string, SpeechSynthesisVoice[]> = {};
+  voices.forEach(voice => {
+    const lang = voice.lang.split('-')[0];
+    if (!groupedByLang[lang]) groupedByLang[lang] = [];
+    groupedByLang[lang].push(voice);
+  });
+
+  Object.keys(groupedByLang).sort().forEach(lang => {
+    console.log(`\n${lang.toUpperCase()}:`);
+    groupedByLang[lang].forEach(voice => {
+      console.log(`  - ${voice.name} (${voice.lang}) ${voice.localService ? '[local]' : '[remote]'}`);
+    });
+  });
+
+  console.log('\n=== Tagalog/Filipino Voices ===');
+  const tagalogVoices = voices.filter(v =>
+    v.lang.toLowerCase().includes('fil') ||
+    v.lang.toLowerCase().includes('tl') ||
+    v.name.toLowerCase().includes('tagalog') ||
+    v.name.toLowerCase().includes('filipino')
+  );
+
+  if (tagalogVoices.length === 0) {
+    console.warn('No Tagalog/Filipino voices found!');
+  } else {
+    tagalogVoices.forEach(voice => {
+      console.log(`  - ${voice.name} (${voice.lang})`);
+    });
+  }
+};
+
+if (typeof window !== 'undefined') {
+  (window as any).debugVoices = debugVoices;
+}
