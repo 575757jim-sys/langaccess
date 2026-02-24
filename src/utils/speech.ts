@@ -22,11 +22,14 @@ const findBestVoice = (langCode: string): SpeechSynthesisVoice | null => {
     return voiceLang === langCode.toLowerCase() ||
            voiceLang.startsWith(langPrefix + '-') ||
            voiceLangPrefix === langPrefix ||
-           (langPrefix === 'fil' && (voiceLangPrefix === 'tl' || voiceLang.includes('tagalog'))) ||
-           (langPrefix === 'tl' && (voiceLangPrefix === 'fil' || voiceLang.includes('filipino')));
+           (langPrefix === 'fil' && (voiceLangPrefix === 'tl' || voiceLang.includes('tagalog') || voiceLang.includes('fil-ph') || voiceLang.includes('tl-ph'))) ||
+           (langPrefix === 'tl' && (voiceLangPrefix === 'fil' || voiceLang.includes('filipino') || voiceLang.includes('fil-ph') || voiceLang.includes('tl-ph')));
   });
 
-  if (matchingVoices.length === 0) return null;
+  if (matchingVoices.length === 0) {
+    console.warn(`No voices found for ${langCode}. Available voices:`, voices.map(v => `${v.name} (${v.lang})`));
+    return null;
+  }
 
   const qualityScore = (voice: SpeechSynthesisVoice): number => {
     let score = 0;
@@ -165,15 +168,9 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
         utterance.lang = langCode;
       }
 
-      if (language === 'tagalog') {
-        utterance.rate = 0.45;
-        utterance.pitch = 0.9;
-        utterance.volume = 1.0;
-      } else {
-        utterance.rate = 0.9;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-      }
+      utterance.rate = 0.45;
+      utterance.pitch = 0.9;
+      utterance.volume = 1.0;
 
       let hasEnded = false;
       let hasStarted = false;
@@ -195,12 +192,18 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
         console.error('Speech error:', event.error);
         if (!hasEnded) {
           hasEnded = true;
+          window.speechSynthesis.cancel();
           if (event.error === 'interrupted' || event.error === 'canceled') {
             resolve(true);
           } else {
             resolve(false);
           }
         }
+      };
+
+      utterance.onpause = () => {
+        console.log('Speech paused, resuming...');
+        window.speechSynthesis.resume();
       };
 
       window.speechSynthesis.speak(utterance);
@@ -212,13 +215,15 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
         }
       }, 3000);
 
+      const maxDuration = Math.ceil(text.length / 10) * 1000 + 10000;
       setTimeout(() => {
-        if (!hasEnded && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+        if (!hasEnded) {
           hasEnded = true;
-          console.log('Speech ended via timeout');
+          console.log('Speech ended via safety timeout');
+          window.speechSynthesis.cancel();
           resolve(true);
         }
-      }, 500);
+      }, maxDuration);
     } catch (error) {
       console.error('Speech error:', error);
       resolve(false);
@@ -268,6 +273,35 @@ export const debugVoices = async (): Promise<void> => {
   }
 };
 
+const initializeSpeechSynthesis = () => {
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.getVoices();
+
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        console.log('Voices loaded:', window.speechSynthesis.getVoices().length);
+      };
+    }
+
+    const utterance = new SpeechSynthesisUtterance('');
+    utterance.volume = 0;
+    window.speechSynthesis.speak(utterance);
+    window.speechSynthesis.cancel();
+  }
+};
+
 if (typeof window !== 'undefined') {
   (window as any).debugVoices = debugVoices;
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSpeechSynthesis);
+  } else {
+    initializeSpeechSynthesis();
+  }
+
+  window.addEventListener('click', () => {
+    if (window.speechSynthesis.getVoices().length === 0) {
+      initializeSpeechSynthesis();
+    }
+  }, { once: true });
 }
