@@ -284,7 +284,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
         phrases: [
           {
             english: 'Where does it hurt?',
-            translation: 'Saan ka masakit?',
+            translation: 'Saan, ka masakit?',
             responses: [
               { translation: 'Ulo', pronunciation: 'OO-loh', english: 'Head' },
               { translation: 'Dibdib', pronunciation: 'deeb-DEEB', english: 'Chest' },
@@ -294,32 +294,32 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
           },
           {
             english: 'On a scale of 1 to 10, how bad is the pain?',
-            translation: 'Sa scale na 1 hanggang 10, gaano kasakit?',
+            translation: 'Sa scale na, isa hanggang sampu, gaano, kasakit?',
             responses: [
               { translation: 'Lima', pronunciation: 'lee-MAH', english: 'Five' },
               { translation: 'Walo', pronunciation: 'wah-LOH', english: 'Eight' },
               { translation: 'Sampu', pronunciation: 'sahm-POO', english: 'Ten' },
-              { translation: 'Sobrang sakit', pronunciation: 'soh-BRAHNG sah-KEET', english: 'Very painful' }
+              { translation: 'Sobrang, sakit', pronunciation: 'soh-BRAHNG sah-KEET', english: 'Very painful' }
             ]
           },
           {
             english: 'When did the pain start?',
-            translation: 'Kailan nagsimula ang sakit?',
+            translation: 'Kailan, nagsimula, ang sakit?',
             responses: [
               { translation: 'Ngayon', pronunciation: 'ngah-YOHN', english: 'Today' },
               { translation: 'Kahapon', pronunciation: 'kah-hah-POHN', english: 'Yesterday' },
-              { translation: 'Isang linggo na', pronunciation: 'ee-SAHNG leeng-GOH nah', english: 'A week ago' },
-              { translation: 'Hindi ko alam', pronunciation: 'heen-DEE koh ah-LAHM', english: "I don't know" }
+              { translation: 'Isang linggo, na', pronunciation: 'ee-SAHNG leeng-GOH nah', english: 'A week ago' },
+              { translation: 'Hindi ko, alam', pronunciation: 'heen-DEE koh ah-LAHM', english: "I don't know" }
             ]
           },
           {
             english: 'Is the pain constant or does it come and go?',
-            translation: 'Tuloy-tuloy ba ang sakit o pumapasok at umaalis?',
+            translation: 'Tuloy-tuloy ba, ang sakit, o pumapasok, at umaalis?',
             responses: [
               { translation: 'Tuloy-tuloy', pronunciation: 'too-LOY too-LOY', english: 'Constant' },
-              { translation: 'Pumapasok at umaalis', pronunciation: 'poo-mah-PAH-sok aht oo-mah-ah-LEES', english: 'Comes and goes' },
-              { translation: 'Paminsan-minsan lang', pronunciation: 'pah-meen-SAHN meen-SAHN lahng', english: 'Only sometimes' },
-              { translation: 'Kapag gumagalaw', pronunciation: 'kah-PAHG goo-mah-GAH-law', english: 'When I move' }
+              { translation: 'Pumapasok, at umaalis', pronunciation: 'poo-mah-PAH-sok aht oo-mah-ah-LEES', english: 'Comes and goes' },
+              { translation: 'Paminsan-minsan, lang', pronunciation: 'pah-meen-SAHN meen-SAHN lahng', english: 'Only sometimes' },
+              { translation: 'Kapag, gumagalaw', pronunciation: 'kah-PAHG goo-mah-GAH-law', english: 'When I move' }
             ]
           }
         ]
@@ -329,7 +329,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
         phrases: [
           {
             english: 'I need to check your blood pressure',
-            translation: 'Kailangan kong suriin ang iyong blood pressure',
+            translation: 'Kailangan kong, suriin, ang iyong, blood pressure',
             responses: [
               { translation: 'Okay lang', pronunciation: 'oh-KAY lahng', english: 'That\'s fine' },
               { translation: 'Sige', pronunciation: 'see-GEH', english: 'Go ahead' },
@@ -339,32 +339,32 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
           },
           {
             english: 'I need to take your temperature',
-            translation: 'Kailangan kong kunin ang iyong temperatura',
+            translation: 'Kailangan kong, kunin, ang iyong, temperatura',
             responses: [
               { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
-              { translation: 'May lagnat ako', pronunciation: 'may lahg-NAHT ah-KOH', english: 'I have a fever' },
-              { translation: 'Mainit ako', pronunciation: 'mah-EE-neet ah-KOH', english: 'I feel hot' },
+              { translation: 'May lagnat, ako', pronunciation: 'may lahg-NAHT ah-KOH', english: 'I have a fever' },
+              { translation: 'Mainit, ako', pronunciation: 'mah-EE-neet ah-KOH', english: 'I feel hot' },
               { translation: 'Sige', pronunciation: 'see-GEH', english: 'Go ahead' }
             ]
           },
           {
             english: 'Please breathe normally',
-            translation: 'Huminga ka ng normal',
+            translation: 'Huminga ka, ng normal',
             responses: [
               { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
-              { translation: 'Hirap huminga', pronunciation: 'hee-RAHP hoo-mee-NGAH', english: 'Hard to breathe' },
+              { translation: 'Hirap, huminga', pronunciation: 'hee-RAHP hoo-mee-NGAH', english: 'Hard to breathe' },
               { translation: 'Ganito', pronunciation: 'gah-nee-TOH', english: 'Like this' },
               { translation: 'Sige', pronunciation: 'see-GEH', english: 'Okay' }
             ]
           },
           {
             english: 'Your heart rate is normal',
-            translation: 'Normal ang iyong heart rate',
+            translation: 'Normal, ang iyong, heart rate',
             responses: [
               { translation: 'Salamat', pronunciation: 'sah-lah-MAHT', english: 'Thank you' },
               { translation: 'Mabuti', pronunciation: 'mah-BOO-tee', english: 'Good' },
               { translation: 'Okay', pronunciation: 'oh-KAY', english: 'Okay' },
-              { translation: 'Salamat sa Diyos', pronunciation: 'sah-lah-MAHT sah dee-YOHS', english: 'Thank God' }
+              { translation: 'Salamat, sa Diyos', pronunciation: 'sah-lah-MAHT sah dee-YOHS', english: 'Thank God' }
             ]
           }
         ]
@@ -374,7 +374,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
         phrases: [
           {
             english: 'Do you have any allergies?',
-            translation: 'Mayroon ka bang allergy?',
+            translation: 'Mayroon ka, bang allergy?',
             responses: [
               { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
               { translation: 'Wala', pronunciation: 'wah-LAH', english: 'No' },
@@ -384,30 +384,30 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
           },
           {
             english: 'Are you taking any medications?',
-            translation: 'Umiinom ka ba ng gamot?',
+            translation: 'Umiinom ka ba, ng gamot?',
             responses: [
               { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
               { translation: 'Hindi', pronunciation: 'heen-DEE', english: 'No' },
-              { translation: 'Para sa diabetes', pronunciation: 'pah-RAH sah dee-ah-BEH-tes', english: 'For diabetes' },
-              { translation: 'Para sa puso', pronunciation: 'pah-RAH sah poo-SOH', english: 'For the heart' }
+              { translation: 'Para sa, diabetes', pronunciation: 'pah-RAH sah dee-ah-BEH-tes', english: 'For diabetes' },
+              { translation: 'Para sa, puso', pronunciation: 'pah-RAH sah poo-SOH', english: 'For the heart' }
             ]
           },
           {
             english: 'Have you had surgery before?',
-            translation: 'Naoperahan ka na ba dati?',
+            translation: 'Naoperahan ka, na ba, dati?',
             responses: [
               { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
               { translation: 'Hindi', pronunciation: 'heen-DEE', english: 'No' },
-              { translation: 'Matagal na', pronunciation: 'mah-tah-GAHL nah', english: 'Long time ago' },
-              { translation: 'Hindi ko matandaan', pronunciation: 'heen-DEE koh mah-tahn-dah-AHN', english: "I don't remember" }
+              { translation: 'Matagal, na', pronunciation: 'mah-tah-GAHL nah', english: 'Long time ago' },
+              { translation: 'Hindi ko, matandaan', pronunciation: 'heen-DEE koh mah-tahn-dah-AHN', english: "I don't remember" }
             ]
           },
           {
             english: 'Do you have any chronic conditions?',
-            translation: 'Mayroon ka bang chronic condition?',
+            translation: 'Mayroon ka, bang chronic condition?',
             responses: [
               { translation: 'Diabetes', pronunciation: 'dee-ah-BEH-tes', english: 'Diabetes' },
-              { translation: 'Mataas na blood pressure', pronunciation: 'mah-tah-AHS nah blood PREH-shur', english: 'High blood pressure' },
+              { translation: 'Mataas na, blood pressure', pronunciation: 'mah-tah-AHS nah blood PREH-shur', english: 'High blood pressure' },
               { translation: 'Hika', pronunciation: 'hee-KAH', english: 'Asthma' },
               { translation: 'Wala', pronunciation: 'wah-LAH', english: 'No' }
             ]
@@ -419,7 +419,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
         phrases: [
           {
             english: 'I need to examine you',
-            translation: 'Kailangan kitang suriin',
+            translation: 'Kailangan, kitang suriin',
             responses: [
               { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
               { translation: 'Sige', pronunciation: 'see-GEH', english: 'Go ahead' },
@@ -429,31 +429,31 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
           },
           {
             english: 'We need to do blood tests',
-            translation: 'Kailangan nating mag-blood test',
+            translation: 'Kailangan nating, mag-blood test',
             responses: [
               { translation: 'Okay lang', pronunciation: 'oh-KAY lahng', english: 'That\'s fine' },
               { translation: 'Bakit', pronunciation: 'bah-KEET', english: 'Why' },
-              { translation: 'Takot ako', pronunciation: 'tah-KOHT ah-KOH', english: 'I\'m afraid' },
+              { translation: 'Takot, ako', pronunciation: 'tah-KOHT ah-KOH', english: 'I\'m afraid' },
               { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' }
             ]
           },
           {
             english: 'Please sign this consent form',
-            translation: 'Paki-pirma ang consent form na ito',
+            translation: 'Paki-pirma, ang consent form, na ito',
             responses: [
-              { translation: 'Saan ako pipirma', pronunciation: 'sah-AHN ah-KOH pee-peer-MAH', english: 'Where do I sign' },
-              { translation: 'Ano ang nakasulat', pronunciation: 'ah-NOH ahng nah-kah-soo-LAHT', english: 'What does it say' },
-              { translation: 'Kailangan ko ng tulong', pronunciation: 'kah-ee-LAH-ngahn koh nahng too-LOHNG', english: 'I need help' },
+              { translation: 'Saan, ako pipirma', pronunciation: 'sah-AHN ah-KOH pee-peer-MAH', english: 'Where do I sign' },
+              { translation: 'Ano, ang nakasulat', pronunciation: 'ah-NOH ahng nah-kah-soo-LAHT', english: 'What does it say' },
+              { translation: 'Kailangan ko, ng tulong', pronunciation: 'kah-ee-LAH-ngahn koh nahng too-LOHNG', english: 'I need help' },
               { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' }
             ]
           },
           {
             english: 'This procedure will take about 30 minutes',
-            translation: 'Ang procedure na ito ay aabot ng 30 minuto',
+            translation: 'Ang procedure na ito, ay aabot ng, tatlumpu minuto',
             responses: [
               { translation: 'Okay lang', pronunciation: 'oh-KAY lahng', english: 'That\'s fine' },
-              { translation: 'Gaano katagal', pronunciation: 'gah-ah-NOH kah-tah-GAHL', english: 'How long' },
-              { translation: 'Masakit ba', pronunciation: 'mah-sah-KEET bah', english: 'Will it hurt' },
+              { translation: 'Gaano, katagal', pronunciation: 'gah-ah-NOH kah-tah-GAHL', english: 'How long' },
+              { translation: 'Masakit, ba', pronunciation: 'mah-sah-KEET bah', english: 'Will it hurt' },
               { translation: 'Sige', pronunciation: 'see-GEH', english: 'Okay' }
             ]
           }
@@ -464,40 +464,40 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
         phrases: [
           {
             english: 'Take this medication twice a day',
-            translation: 'Inumin ang gamot na ito dalawang beses sa isang araw',
+            translation: 'Inumin, ang gamot na ito, dalawang beses, sa isang araw',
             responses: [
-              { translation: 'Naiintindihan ko', pronunciation: 'nah-ee-een-teen-dee-HAHN koh', english: 'I understand' },
-              { translation: 'Kasama ng pagkain', pronunciation: 'kah-sah-MAH nahng pahg-kah-EEN', english: 'With food' },
-              { translation: 'Anong oras', pronunciation: 'ah-NOHNG oh-RAHS', english: 'What time' },
+              { translation: 'Naiintindihan, ko', pronunciation: 'nah-ee-een-teen-dee-HAHN koh', english: 'I understand' },
+              { translation: 'Kasama ng, pagkain', pronunciation: 'kah-sah-MAH nahng pahg-kah-EEN', english: 'With food' },
+              { translation: 'Anong, oras', pronunciation: 'ah-NOHNG oh-RAHS', english: 'What time' },
               { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' }
             ]
           },
           {
             english: 'Come back if symptoms worsen',
-            translation: 'Bumalik kung lumala ang sintomas',
+            translation: 'Bumalik, kung lumala, ang sintomas',
             responses: [
               { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
-              { translation: 'Naiintindihan ko', pronunciation: 'nah-ee-een-teen-dee-HAHN koh', english: 'I understand' },
-              { translation: 'Kailan ako babalik', pronunciation: 'kah-ee-LAHN ah-KOH bah-bah-LEEK', english: 'When should I return' },
+              { translation: 'Naiintindihan, ko', pronunciation: 'nah-ee-een-teen-dee-HAHN koh', english: 'I understand' },
+              { translation: 'Kailan, ako babalik', pronunciation: 'kah-ee-LAHN ah-KOH bah-bah-LEEK', english: 'When should I return' },
               { translation: 'Salamat', pronunciation: 'sah-lah-MAHT', english: 'Thank you' }
             ]
           },
           {
             english: 'Rest for the next 24 hours',
-            translation: 'Magpahinga sa loob ng 24 oras',
+            translation: 'Magpahinga, sa loob ng, dalawampu at apat na oras',
             responses: [
               { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
-              { translation: 'Pwede ba akong magtrabaho', pronunciation: 'PWEH-deh bah ah-KOHNG mahg-trah-bah-HOH', english: 'Can I work' },
-              { translation: 'Naiintindihan ko', pronunciation: 'nah-ee-een-teen-dee-HAHN koh', english: 'I understand' },
+              { translation: 'Pwede ba, akong magtrabaho', pronunciation: 'PWEH-deh bah ah-KOHNG mahg-trah-bah-HOH', english: 'Can I work' },
+              { translation: 'Naiintindihan, ko', pronunciation: 'nah-ee-een-teen-dee-HAHN koh', english: 'I understand' },
               { translation: 'Sige', pronunciation: 'see-GEH', english: 'Okay' }
             ]
           },
           {
             english: 'Follow up with your doctor in one week',
-            translation: 'Bumalik sa doktor mo sa loob ng isang linggo',
+            translation: 'Bumalik, sa doktor mo, sa loob ng, isang linggo',
             responses: [
               { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
-              { translation: 'Wala akong doktor', pronunciation: 'wah-LAH ah-KOHNG dohk-TOHR', english: 'I don\'t have a doctor' },
+              { translation: 'Wala, akong doktor', pronunciation: 'wah-LAH ah-KOHNG dohk-TOHR', english: 'I don\'t have a doctor' },
               { translation: 'Saan', pronunciation: 'sah-AHN', english: 'Where' },
               { translation: 'Salamat', pronunciation: 'sah-lah-MAHT', english: 'Thank you' }
             ]

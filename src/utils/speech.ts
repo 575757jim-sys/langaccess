@@ -165,9 +165,15 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
         utterance.lang = langCode;
       }
 
-      utterance.rate = 0.9;
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
+      if (language === 'tagalog') {
+        utterance.rate = 0.45;
+        utterance.pitch = 0.9;
+        utterance.volume = 1.0;
+      } else {
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+      }
 
       let hasEnded = false;
       let hasStarted = false;
