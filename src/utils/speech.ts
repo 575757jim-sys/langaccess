@@ -180,28 +180,14 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
     }
 
     try {
+      // SPEECH QUEUE FIX: Cancel at the very first line
+      window.speechSynthesis.cancel();
+
       await loadVoices();
 
       const voiceCount = window.speechSynthesis.getVoices().length;
       console.log(`🔊 DIAGNOSTIC: Voices found: ${voiceCount}`);
       alert(`Voices found: ${voiceCount}`);
-
-      // CRITICAL FIX 1: Unlock audio context - cancel clears the queue
-      console.log('🔓 Unlocking audio context with user interaction...');
-      window.speechSynthesis.cancel();
-
-      // CRITICAL FIX 2: Resume context multiple times
-      window.speechSynthesis.resume();
-      await new Promise(r => setTimeout(r, 50));
-
-      // CRITICAL FIX 3: Empty string kickstart to wake up engine
-      console.log('🎬 Triggering empty kickstart utterance...');
-      const kickstart = new SpeechSynthesisUtterance('');
-      kickstart.volume = 0.01;
-      kickstart.rate = 1;
-      kickstart.pitch = 1;
-      window.speechSynthesis.speak(kickstart);
-      await new Promise(r => setTimeout(r, 150));
 
       const langCode = getLanguageCode(language);
       const voice = findBestVoice(langCode);
@@ -213,18 +199,25 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
       console.log('Total available voices:', voiceCount);
       console.log('Text length:', text.length, 'characters');
 
+      // Create utterance object
       const utterance = new SpeechSynthesisUtterance(text);
 
+      // Set language with forced fallback
       if (voice) {
         utterance.voice = voice;
         utterance.lang = voice.lang;
         console.log('🎯 Using voice:', voice.name, voice.lang);
       } else {
-        utterance.lang = langCode;
-        console.log('⚠️ No voice selected, using default with lang:', langCode);
+        // Force tl-PH or fil-PH as primary, en-US as fallback
+        if (langCode === 'fil-PH') {
+          utterance.lang = 'tl-PH';
+          console.log('⚠️ No voice selected, forcing tl-PH');
+        } else {
+          utterance.lang = langCode || 'en-US';
+          console.log('⚠️ No voice selected, using:', langCode || 'en-US');
+        }
       }
 
-      // CRITICAL FIX 4: Force volume and state reset
       utterance.rate = 0.45;
       utterance.pitch = 0.9;
       utterance.volume = 1.0;
@@ -264,15 +257,12 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
         window.speechSynthesis.resume();
       };
 
-      // CRITICAL FIX 3: Resume again right before speak
-      window.speechSynthesis.resume();
-      window.speechSynthesis.speak(utterance);
-      console.log('🎤 Speech command sent');
-
-      // Resume after a short delay to handle Chrome suspension
+      // SPEECH QUEUE FIX: 50ms delay before calling speak()
+      console.log('⏱️ Waiting 50ms before speak...');
       setTimeout(() => {
-        window.speechSynthesis.resume();
-      }, 100);
+        window.speechSynthesis.speak(utterance);
+        console.log('🎤 Speech command sent');
+      }, 50);
 
       setTimeout(() => {
         if (!hasStarted && !hasEnded) {
