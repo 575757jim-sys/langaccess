@@ -27,8 +27,9 @@ const findBestVoice = (langCode: string): SpeechSynthesisVoice | null => {
   });
 
   if (matchingVoices.length === 0) {
-    console.warn(`No voices found for ${langCode}. Available voices:`, voices.map(v => `${v.name} (${v.lang})`));
-    return null;
+    console.warn(`No ${langCode} voices found. Falling back to default system voice.`);
+    console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+    return voices.length > 0 ? voices[0] : null;
   }
 
   const qualityScore = (voice: SpeechSynthesisVoice): number => {
@@ -148,16 +149,18 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
     try {
       await loadVoices();
 
-      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
-        window.speechSynthesis.cancel();
-        await new Promise(r => setTimeout(r, 100));
-      }
+      window.speechSynthesis.cancel();
+      await new Promise(r => setTimeout(r, 150));
 
       const langCode = getLanguageCode(language);
       const voice = findBestVoice(langCode);
 
-      console.log('Selected voice:', voice?.name || 'default', 'for language:', langCode);
-      console.log('Available voices:', window.speechSynthesis.getVoices().length);
+      console.log('=== Speech Debug Info ===');
+      console.log('Target language:', langCode);
+      console.log('Selected voice:', voice?.name || 'system default');
+      console.log('Voice language:', voice?.lang || 'auto');
+      console.log('Total available voices:', window.speechSynthesis.getVoices().length);
+      console.log('Text length:', text.length, 'characters');
 
       const utterance = new SpeechSynthesisUtterance(text);
 
@@ -275,18 +278,45 @@ export const debugVoices = async (): Promise<void> => {
 
 const initializeSpeechSynthesis = () => {
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-    window.speechSynthesis.getVoices();
+    console.log('🔊 Initializing speech synthesis engine...');
+
+    window.speechSynthesis.cancel();
+
+    const voices = window.speechSynthesis.getVoices();
+    console.log(`📢 Found ${voices.length} voices on initial load`);
 
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = () => {
-        console.log('Voices loaded:', window.speechSynthesis.getVoices().length);
+        const loadedVoices = window.speechSynthesis.getVoices();
+        console.log(`📢 Voices changed event: ${loadedVoices.length} voices now available`);
+
+        console.log('\n=== Available Voices ===');
+        loadedVoices.forEach((voice, index) => {
+          console.log(`${index + 1}. ${voice.name} (${voice.lang}) ${voice.localService ? '[Local]' : '[Remote]'}`);
+        });
+
+        const tagalogVoices = loadedVoices.filter(v =>
+          v.lang.toLowerCase().includes('fil') ||
+          v.lang.toLowerCase().includes('tl') ||
+          v.name.toLowerCase().includes('tagalog') ||
+          v.name.toLowerCase().includes('filipino')
+        );
+        console.log(`\n🇵🇭 Tagalog/Filipino voices: ${tagalogVoices.length}`);
+        tagalogVoices.forEach(v => console.log(`   - ${v.name} (${v.lang})`));
       };
     }
 
-    const utterance = new SpeechSynthesisUtterance('');
-    utterance.volume = 0;
-    window.speechSynthesis.speak(utterance);
-    window.speechSynthesis.cancel();
+    const dummyUtterance = new SpeechSynthesisUtterance('');
+    dummyUtterance.volume = 0;
+    dummyUtterance.rate = 1;
+    dummyUtterance.pitch = 1;
+
+    window.speechSynthesis.speak(dummyUtterance);
+
+    setTimeout(() => {
+      window.speechSynthesis.cancel();
+      console.log('✅ Speech engine wake-up complete');
+    }, 100);
   }
 };
 
