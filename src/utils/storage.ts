@@ -7,10 +7,6 @@ export const loadCustomPhrases = async (
   sector: Sector,
   subcategory: Subcategory
 ): Promise<CustomPhrase[]> => {
-  if (!supabase) {
-    return [];
-  }
-
   try {
     const { data, error } = await supabase
       .from('custom_phrases')
@@ -43,12 +39,6 @@ export const loadCustomPhrases = async (
 export const addCustomPhrase = async (
   phrase: Omit<CustomPhrase, 'id' | 'createdAt'>
 ): Promise<CustomPhrase | null> => {
-  if (!supabase) {
-    console.error('Supabase client not initialized');
-    alert('Database connection not available. Please refresh the page.');
-    return null;
-  }
-
   try {
     console.log('Attempting to save phrase:', phrase);
 
@@ -100,10 +90,6 @@ export const addCustomPhrase = async (
 };
 
 export const deleteCustomPhrase = async (id: string): Promise<boolean> => {
-  if (!supabase) {
-    return false;
-  }
-
   try {
     const { error } = await supabase
       .from('custom_phrases')

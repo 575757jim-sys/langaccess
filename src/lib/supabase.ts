@@ -1,40 +1,25 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://vquilyemhhmszyclhwdr.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxdWlseWVtaGhtc3p5Y2xod2RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4Nzk3NzAsImV4cCI6MjA4NzQ1NTc3MH0.5gT6rlfgcs7O-XMmZUWLtIW92JMIVQ-KnCvDMNabl-A';
 
-console.log('=== ENVIRONMENT VARIABLES DEBUG ===');
-console.log('All env vars:', import.meta.env);
-console.log('VITE_SUPABASE_URL:', supabaseUrl);
-console.log('VITE_SUPABASE_ANON_KEY:', supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'MISSING');
-console.log('Supabase Config Check:', {
-  hasUrl: !!supabaseUrl,
-  hasKey: !!supabaseAnonKey,
-  url: supabaseUrl || 'MISSING',
-  keyLength: supabaseAnonKey?.length || 0,
-});
+console.log('Supabase initializing with URL:', supabaseUrl);
 
-export const supabase = (supabaseUrl && supabaseAnonKey)
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-if (!supabase) {
-  console.error('CRITICAL: Supabase client failed to initialize!');
-} else {
-  console.log('Supabase client initialized successfully');
+console.log('Supabase client created successfully');
 
-  supabase
-    .from('custom_phrases')
-    .select('count')
-    .limit(1)
-    .then(({ data, error }) => {
-      if (error) {
-        console.error('Supabase connection test FAILED:', error);
-      } else {
-        console.log('Supabase connection test PASSED');
-      }
-    })
-    .catch((err) => {
-      console.error('Supabase connection test ERROR:', err);
-    });
-}
+supabase
+  .from('custom_phrases')
+  .select('count')
+  .limit(1)
+  .then(({ data, error }) => {
+    if (error) {
+      console.error('Supabase connection test FAILED:', error);
+    } else {
+      console.log('Supabase connection test PASSED');
+    }
+  })
+  .catch((err) => {
+    console.error('Supabase connection test ERROR:', err);
+  });
