@@ -1,4 +1,4 @@
-import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass } from 'lucide-react';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
 
@@ -9,6 +9,7 @@ interface HomeScreenProps {
   onSelectLanguage: (language: Language) => void;
   onBackToSectorSelection: () => void;
   onOpenPolicy?: () => void;
+  onOpenCommunityNavigator?: () => void;
 }
 
 export default function HomeScreen({
@@ -16,7 +17,8 @@ export default function HomeScreen({
   onSelectSector,
   onSelectLanguage,
   onBackToSectorSelection,
-  onOpenPolicy
+  onOpenPolicy,
+  onOpenCommunityNavigator
 }: HomeScreenProps) {
   const sectors = [
     { id: 'healthcare' as Sector, label: 'Healthcare', Icon: Heart, color: 'bg-blue-600 hover:bg-blue-700' },
@@ -65,6 +67,24 @@ export default function HomeScreen({
                 </button>
               );
             })}
+
+            <div className="pt-3">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1 h-px bg-slate-300" />
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest whitespace-nowrap">Community Access</span>
+                <div className="flex-1 h-px bg-slate-300" />
+              </div>
+              <button
+                onClick={onOpenCommunityNavigator}
+                className="w-full bg-slate-800 hover:bg-slate-700 text-white rounded-2xl py-5 px-8 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-4"
+              >
+                <Compass className="w-8 h-8 text-amber-400" />
+                <div className="text-left">
+                  <div className="text-2xl font-semibold">Community Navigator</div>
+                  <div className="text-sm text-slate-300 font-normal mt-0.5">Find food, shelter, and services near you.</div>
+                </div>
+              </button>
+            </div>
           </div>
         ) : (
           <div className="w-full">

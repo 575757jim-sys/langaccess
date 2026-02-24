@@ -3,6 +3,7 @@ import HomeScreen from './components/HomeScreen';
 import PhrasesScreen from './components/PhrasesScreen';
 import SubcategorySelector from './components/SubcategorySelector';
 import LanguageAccessPolicy from './components/LanguageAccessPolicy';
+import CommunityNavigator from './components/CommunityNavigator';
 import { Language, Sector } from './data/phrases';
 import {
   Subcategory,
@@ -11,7 +12,7 @@ import {
   constructionSubcategories
 } from './data/subcategories';
 
-type AppView = 'home' | 'subcategory' | 'language' | 'phrases' | 'policy';
+type AppView = 'home' | 'subcategory' | 'language' | 'phrases' | 'policy' | 'community';
 
 function App() {
   const [view, setView] = useState<AppView>('home');
@@ -71,6 +72,10 @@ function App() {
     return <LanguageAccessPolicy onBack={() => setView('home')} />;
   }
 
+  if (view === 'community') {
+    return <CommunityNavigator onBack={() => setView('home')} />;
+  }
+
   if (view === 'phrases' && selectedLanguage && selectedSector && selectedSubcategory) {
     return (
       <PhrasesScreen
@@ -91,6 +96,7 @@ function App() {
         onSelectLanguage={handleSelectLanguage}
         onBackToSectorSelection={handleBackFromLanguage}
         onOpenPolicy={() => setView('policy')}
+        onOpenCommunityNavigator={() => setView('community')}
       />
     );
   }
@@ -113,6 +119,7 @@ function App() {
       onSelectLanguage={handleSelectLanguage}
       onBackToSectorSelection={handleBackToHome}
       onOpenPolicy={() => setView('policy')}
+      onOpenCommunityNavigator={() => setView('community')}
     />
   );
 }
