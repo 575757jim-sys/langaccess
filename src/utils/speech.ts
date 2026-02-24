@@ -109,29 +109,51 @@ const loadVoices = (): Promise<void> => {
   voicesLoadPromise = new Promise((resolve) => {
     const voices = window.speechSynthesis.getVoices();
     if (voices.length > 0) {
+      console.log('✅ Voices already loaded:', voices.length);
       voicesLoaded = true;
       resolve();
       return;
     }
 
+    console.log('⏳ Waiting for voices to load...');
     let resolved = false;
-    const timeout = setTimeout(() => {
-      if (!resolved) {
-        resolved = true;
-        voicesLoaded = true;
-        resolve();
-      }
-    }, 2000);
 
+    // Method 1: onvoiceschanged event
     window.speechSynthesis.onvoiceschanged = () => {
       if (!resolved) {
+        const loadedVoices = window.speechSynthesis.getVoices();
+        console.log('✅ Voices loaded via event:', loadedVoices.length);
         resolved = true;
-        clearTimeout(timeout);
         voicesLoaded = true;
         resolve();
       }
     };
 
+    // Method 2: Polling every 500ms as fallback
+    const pollInterval = setInterval(() => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0 && !resolved) {
+        console.log('✅ Voices loaded via polling:', voices.length);
+        clearInterval(pollInterval);
+        resolved = true;
+        voicesLoaded = true;
+        resolve();
+      }
+    }, 500);
+
+    // Safety timeout after 5 seconds
+    setTimeout(() => {
+      if (!resolved) {
+        const voices = window.speechSynthesis.getVoices();
+        console.warn('⚠️ Voice loading timeout. Found:', voices.length);
+        clearInterval(pollInterval);
+        resolved = true;
+        voicesLoaded = true;
+        resolve();
+      }
+    }, 5000);
+
+    // Trigger voice loading
     window.speechSynthesis.getVoices();
   });
 
@@ -142,6 +164,7 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
   return new Promise(async (resolve) => {
     if (!('speechSynthesis' in window)) {
       console.error('Speech synthesis not supported');
+      alert('Speech synthesis not supported in this browser');
       resolve(false);
       return;
     }
@@ -149,8 +172,25 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
     try {
       await loadVoices();
 
+      const voiceCount = window.speechSynthesis.getVoices().length;
+      console.log(`🔊 DIAGNOSTIC: Voices found: ${voiceCount}`);
+      alert(`Voices found: ${voiceCount}`);
+
+      // CRITICAL FIX 1: Resume context before anything else
+      window.speechSynthesis.resume();
+
+      // Cancel any pending speech
       window.speechSynthesis.cancel();
       await new Promise(r => setTimeout(r, 150));
+
+      // CRITICAL FIX 2: Empty string kickstart
+      console.log('🎬 Triggering empty kickstart utterance...');
+      const kickstart = new SpeechSynthesisUtterance('');
+      kickstart.volume = 0.01;
+      kickstart.rate = 1;
+      kickstart.pitch = 1;
+      window.speechSynthesis.speak(kickstart);
+      await new Promise(r => setTimeout(r, 100));
 
       const langCode = getLanguageCode(language);
       const voice = findBestVoice(langCode);
@@ -159,7 +199,7 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
       console.log('Target language:', langCode);
       console.log('Selected voice:', voice?.name || 'system default');
       console.log('Voice language:', voice?.lang || 'auto');
-      console.log('Total available voices:', window.speechSynthesis.getVoices().length);
+      console.log('Total available voices:', voiceCount);
       console.log('Text length:', text.length, 'characters');
 
       const utterance = new SpeechSynthesisUtterance(text);
@@ -180,19 +220,19 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
 
       utterance.onstart = () => {
         hasStarted = true;
-        console.log('Speech started');
+        console.log('✅ Speech started successfully');
       };
 
       utterance.onend = () => {
         if (!hasEnded) {
           hasEnded = true;
-          console.log('Speech ended normally');
+          console.log('✅ Speech ended normally');
           resolve(true);
         }
       };
 
       utterance.onerror = (event) => {
-        console.error('Speech error:', event.error);
+        console.error('❌ Speech error:', event.error);
         if (!hasEnded) {
           hasEnded = true;
           window.speechSynthesis.cancel();
@@ -205,15 +245,23 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
       };
 
       utterance.onpause = () => {
-        console.log('Speech paused, resuming...');
+        console.log('⏸️ Speech paused, resuming...');
         window.speechSynthesis.resume();
       };
 
+      // CRITICAL FIX 3: Resume again right before speak
+      window.speechSynthesis.resume();
       window.speechSynthesis.speak(utterance);
+      console.log('🎤 Speech command sent');
+
+      // Resume after a short delay to handle Chrome suspension
+      setTimeout(() => {
+        window.speechSynthesis.resume();
+      }, 100);
 
       setTimeout(() => {
         if (!hasStarted && !hasEnded) {
-          console.warn('Speech did not start within 3 seconds, resuming...');
+          console.warn('⚠️ Speech did not start within 3 seconds, forcing resume...');
           window.speechSynthesis.resume();
         }
       }, 3000);
@@ -222,13 +270,14 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
       setTimeout(() => {
         if (!hasEnded) {
           hasEnded = true;
-          console.log('Speech ended via safety timeout');
+          console.log('⏱️ Speech ended via safety timeout');
           window.speechSynthesis.cancel();
           resolve(true);
         }
       }, maxDuration);
     } catch (error) {
-      console.error('Speech error:', error);
+      console.error('❌ Speech error:', error);
+      alert(`Speech error: ${error}`);
       resolve(false);
     }
   });
