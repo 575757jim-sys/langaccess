@@ -2,6 +2,7 @@ import { useState } from 'react';
 import HomeScreen from './components/HomeScreen';
 import PhrasesScreen from './components/PhrasesScreen';
 import SubcategorySelector from './components/SubcategorySelector';
+import LanguageAccessPolicy from './components/LanguageAccessPolicy';
 import { Language, Sector } from './data/phrases';
 import {
   Subcategory,
@@ -10,7 +11,10 @@ import {
   constructionSubcategories
 } from './data/subcategories';
 
+type AppView = 'home' | 'subcategory' | 'language' | 'phrases' | 'policy';
+
 function App() {
+  const [view, setView] = useState<AppView>('home');
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
@@ -18,29 +22,35 @@ function App() {
   const handleSelectSector = (sector: Sector) => {
     setSelectedSector(sector);
     setSelectedSubcategory(null);
+    setView('subcategory');
   };
 
   const handleSelectSubcategory = (subcategory: string) => {
     setSelectedSubcategory(subcategory as Subcategory);
+    setView('language');
   };
 
   const handleSelectLanguage = (language: Language) => {
     setSelectedLanguage(language);
+    setView('phrases');
   };
 
   const handleBackFromPhrases = () => {
     setSelectedLanguage(null);
+    setView('language');
   };
 
-  const handleBackFromSubcategory = () => {
+  const handleBackFromLanguage = () => {
     setSelectedSubcategory(null);
     setSelectedLanguage(null);
+    setView('subcategory');
   };
 
-  const handleBackToSectorSelection = () => {
+  const handleBackToHome = () => {
     setSelectedSector(null);
     setSelectedSubcategory(null);
     setSelectedLanguage(null);
+    setView('home');
   };
 
   const getSubcategories = () => {
@@ -57,39 +67,53 @@ function App() {
     return '';
   };
 
+  if (view === 'policy') {
+    return <LanguageAccessPolicy onBack={() => setView('home')} />;
+  }
+
+  if (view === 'phrases' && selectedLanguage && selectedSector && selectedSubcategory) {
+    return (
+      <PhrasesScreen
+        language={selectedLanguage}
+        sector={selectedSector}
+        subcategory={selectedSubcategory}
+        onBack={handleBackFromPhrases}
+      />
+    );
+  }
+
+  if (view === 'language' && selectedSector && selectedSubcategory) {
+    return (
+      <HomeScreen
+        selectedSector={selectedSector}
+        selectedSubcategory={selectedSubcategory}
+        onSelectSector={handleSelectSector}
+        onSelectLanguage={handleSelectLanguage}
+        onBackToSectorSelection={handleBackFromLanguage}
+        onOpenPolicy={() => setView('policy')}
+      />
+    );
+  }
+
+  if (view === 'subcategory' && selectedSector) {
+    return (
+      <SubcategorySelector
+        subcategories={getSubcategories()}
+        sectorLabel={getSectorLabel()}
+        onSelectSubcategory={handleSelectSubcategory}
+        onBack={handleBackToHome}
+      />
+    );
+  }
+
   return (
-    <>
-      {selectedLanguage && selectedSector && selectedSubcategory ? (
-        <PhrasesScreen
-          language={selectedLanguage}
-          sector={selectedSector}
-          subcategory={selectedSubcategory}
-          onBack={handleBackFromPhrases}
-        />
-      ) : selectedSector && selectedSubcategory ? (
-        <HomeScreen
-          selectedSector={selectedSector}
-          selectedSubcategory={selectedSubcategory}
-          onSelectSector={handleSelectSector}
-          onSelectLanguage={handleSelectLanguage}
-          onBackToSectorSelection={handleBackFromSubcategory}
-        />
-      ) : selectedSector ? (
-        <SubcategorySelector
-          subcategories={getSubcategories()}
-          sectorLabel={getSectorLabel()}
-          onSelectSubcategory={handleSelectSubcategory}
-          onBack={handleBackToSectorSelection}
-        />
-      ) : (
-        <HomeScreen
-          selectedSector={selectedSector}
-          onSelectSector={handleSelectSector}
-          onSelectLanguage={handleSelectLanguage}
-          onBackToSectorSelection={handleBackToSectorSelection}
-        />
-      )}
-    </>
+    <HomeScreen
+      selectedSector={null}
+      onSelectSector={handleSelectSector}
+      onSelectLanguage={handleSelectLanguage}
+      onBackToSectorSelection={handleBackToHome}
+      onOpenPolicy={() => setView('policy')}
+    />
   );
 }
 

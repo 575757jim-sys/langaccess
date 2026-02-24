@@ -1,4 +1,4 @@
-import { Languages, Heart, GraduationCap, HardHat, ArrowLeft } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus } from 'lucide-react';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
 
@@ -8,14 +8,15 @@ interface HomeScreenProps {
   onSelectSector: (sector: Sector) => void;
   onSelectLanguage: (language: Language) => void;
   onBackToSectorSelection: () => void;
+  onOpenPolicy?: () => void;
 }
 
 export default function HomeScreen({
   selectedSector,
-  selectedSubcategory,
   onSelectSector,
   onSelectLanguage,
-  onBackToSectorSelection
+  onBackToSectorSelection,
+  onOpenPolicy
 }: HomeScreenProps) {
   const sectors = [
     { id: 'healthcare' as Sector, label: 'Healthcare', Icon: Heart, color: 'bg-blue-600 hover:bg-blue-700' },
@@ -46,7 +47,6 @@ export default function HomeScreen({
           <p className="text-xl text-slate-600">
             {selectedSector ? `${getSectorLabel(selectedSector)} Communication Aid` : 'Communication Aid'}
           </p>
-
         </div>
 
         {!selectedSector ? (
@@ -90,6 +90,27 @@ export default function HomeScreen({
           </div>
         )}
       </div>
+
+      <footer className="border-t border-slate-200 bg-white py-4 px-6">
+        <div className="max-w-2xl mx-auto flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
+          <button
+            onClick={onOpenPolicy}
+            className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors"
+          >
+            <FileText className="w-4 h-4" />
+            Language Access Policy
+          </button>
+          <button
+            onClick={onOpenPolicy}
+            className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors"
+          >
+            <MessageSquarePlus className="w-4 h-4" />
+            Request a Language
+          </button>
+          <span className="text-slate-300 hidden sm:inline">|</span>
+          <span className="text-slate-400">California LEP Compliance Toolkit v1.0</span>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2 } from 'lucide-react';
-import { Language, Sector, languageData, CustomPhrase } from '../data/phrases';
-import { Subcategory, subcategoryPhrases } from '../data/subcategories';
+import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Filter, Download, ShieldAlert } from 'lucide-react';
+import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
+import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
 import { speakText, isSpeechSupported } from '../utils/speech';
+import { exportPhrasesToCSV } from '../utils/exportToCSV';
 import { supabase } from '../lib/supabase';
+
+const DEFAULT_REVIEWED_BY = 'LangAccess Editorial Review';
+const DEFAULT_VERSION = '1.0';
+const DEFAULT_LAST_REVIEWED = '2026-02-24';
 
 interface PhrasesScreenProps {
   language: Language;
@@ -15,7 +20,8 @@ interface PhrasesScreenProps {
 
 export default function PhrasesScreen({ language, sector, subcategory, onBack }: PhrasesScreenProps) {
   const data = languageData[language];
-  const phraseGroups = subcategoryPhrases[subcategory]?.[language] || [];
+  const phraseGroups: PhraseGroup[] = subcategoryPhrases[subcategory]?.[language] || [];
+
   const [fullscreenTranslation, setFullscreenTranslation] = useState<string | null>(null);
   const [expandedPhrases, setExpandedPhrases] = useState<Set<string>>(new Set());
   const [customPhrases, setCustomPhrases] = useState<CustomPhrase[]>([]);
@@ -25,6 +31,10 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
   const [isTranslating, setIsTranslating] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error'>('checking');
+  const [vitalOnly, setVitalOnly] = useState(false);
+  const [chineseScript, setChineseScript] = useState<'traditional' | 'simplified'>('traditional');
+
+  const isChineseLang = language === 'mandarin' || language === 'cantonese';
 
   useEffect(() => {
     const testConnection = async () => {
@@ -83,10 +93,10 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
       const url = `https://api.mymemory.translated.net/get?q=${encodedText}&langpair=en|${targetLang}`;
 
       const response = await fetch(url);
-      const data = await response.json();
+      const responseData = await response.json();
 
-      if (data.responseData && data.responseData.translatedText) {
-        setNewTranslation(data.responseData.translatedText);
+      if (responseData.responseData && responseData.responseData.translatedText) {
+        setNewTranslation(responseData.responseData.translatedText);
       }
     } catch (error) {
       console.error('Translation error:', error);
@@ -95,30 +105,47 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
     }
   };
 
+  const getDisplayTranslation = (phrase: Phrase): string => {
+    if (!isChineseLang || !phrase.translations) return phrase.translation;
+    if (chineseScript === 'simplified') {
+      return phrase.translations.zh_simplified || phrase.translation;
+    }
+    return phrase.translations.zh_traditional || phrase.translation;
+  };
+
   const getShowToLabel = () => {
     switch (sector) {
-      case 'healthcare':
-        return 'Show to Patient';
-      case 'education':
-        return 'Show to Student/Parent';
-      case 'construction':
-        return 'Show to Worker';
-      default:
-        return 'Show';
+      case 'healthcare': return 'Show to Patient';
+      case 'education': return 'Show to Student/Parent';
+      case 'construction': return 'Show to Worker';
+      default: return 'Show';
     }
   };
 
   const getResponseLabel = () => {
     switch (sector) {
-      case 'healthcare':
-        return 'Patient May Respond With';
-      case 'education':
-        return 'Student or Parent May Respond With';
-      case 'construction':
-        return 'Worker May Respond With';
-      default:
-        return 'Responses';
+      case 'healthcare': return 'Patient May Respond With';
+      case 'education': return 'Student or Parent May Respond With';
+      case 'construction': return 'Worker May Respond With';
+      default: return 'Responses';
     }
+  };
+
+  const getFilteredGroups = (): PhraseGroup[] => {
+    if (!vitalOnly) return phraseGroups;
+    return phraseGroups.map(group => ({
+      ...group,
+      phrases: group.phrases.filter((p: Phrase) => p.isVital === true),
+    })).filter(group => group.phrases.length > 0);
+  };
+
+  const getReviewMetadata = () => {
+    const firstPhrase: Phrase | undefined = phraseGroups[0]?.phrases[0];
+    return {
+      reviewedBy: firstPhrase?.reviewedBy || DEFAULT_REVIEWED_BY,
+      lastReviewed: firstPhrase?.lastReviewed || DEFAULT_LAST_REVIEWED,
+      version: firstPhrase?.version || DEFAULT_VERSION,
+    };
   };
 
   const handleShowTranslation = (translation: string) => {
@@ -172,6 +199,13 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
     speakText(text, language);
   };
 
+  const handleExportCSV = () => {
+    exportPhrasesToCSV(getFilteredGroups(), language, sector, subcategory);
+  };
+
+  const filteredGroups = getFilteredGroups();
+  const meta = getReviewMetadata();
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -194,8 +228,46 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
               <ArrowLeft className="w-6 h-6" />
               <span className="text-lg font-medium">Back</span>
             </button>
-            <h2 className="text-3xl font-bold text-slate-800 mt-3">{data.name} Phrases</h2>
-            <p className="text-sm text-slate-600 mt-1 capitalize">{sector} Sector</p>
+            <div className="flex items-start justify-between mt-3 gap-4">
+              <div>
+                <h2 className="text-3xl font-bold text-slate-800">{data.name} Phrases</h2>
+                <p className="text-sm text-slate-600 mt-1 capitalize">{sector} Sector</p>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                {isChineseLang && (
+                  <div className="flex rounded-lg overflow-hidden border border-slate-300 text-sm font-medium">
+                    <button
+                      onClick={() => setChineseScript('traditional')}
+                      className={`px-3 py-1.5 transition-colors ${chineseScript === 'traditional' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700 hover:bg-slate-50'}`}
+                    >
+                      Traditional
+                    </button>
+                    <button
+                      onClick={() => setChineseScript('simplified')}
+                      className={`px-3 py-1.5 transition-colors border-l border-slate-300 ${chineseScript === 'simplified' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700 hover:bg-slate-50'}`}
+                    >
+                      Simplified
+                    </button>
+                  </div>
+                )}
+                <button
+                  onClick={() => setVitalOnly(!vitalOnly)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${vitalOnly ? 'bg-red-600 text-white border-red-600' : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'}`}
+                >
+                  <ShieldAlert className="w-4 h-4" />
+                  {vitalOnly ? 'Vital Only' : 'Show Vital Only'}
+                </button>
+                {phraseGroups.length > 0 && (
+                  <button
+                    onClick={handleExportCSV}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                    Export CSV
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -213,118 +285,141 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                 <strong>Spanish is 100% complete:</strong> All Healthcare, Education, and Construction phrases available with 20 phrases per subcategory
               </p>
             </div>
+          ) : filteredGroups.length === 0 ? (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-8 text-center mb-8">
+              <Filter className="w-10 h-10 text-blue-400 mx-auto mb-3" />
+              <p className="text-lg text-blue-900 mb-2">
+                <strong>No vital phrases in this category</strong>
+              </p>
+              <p className="text-blue-700 text-sm">
+                No phrases have been marked as vital content in this subcategory yet.
+              </p>
+              <button
+                onClick={() => setVitalOnly(false)}
+                className="mt-4 text-sm text-blue-600 hover:text-blue-800 underline"
+              >
+                Show all phrases
+              </button>
+            </div>
           ) : (
             <div className="space-y-8">
-              {phraseGroups.map((group, groupIndex) => (
-              <div key={groupIndex} className="space-y-4">
-                <h3 className="text-xl font-bold text-slate-700 border-b-2 border-blue-500 pb-2">
-                  {group.groupLabel}
-                </h3>
-                <div className="space-y-4">
-                  {group.phrases.map((phrase, phraseIndex) => {
-                    const phraseId = `${groupIndex}-${phraseIndex}`;
-                    const isExpanded = expandedPhrases.has(phraseId);
-                    return (
-                      <div
-                        key={phraseId}
-                        className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow"
-                      >
-                        <div className="p-6 space-y-3">
-                          <div>
-                            <p className="text-sm font-medium text-slate-500 mb-1">English</p>
-                            <p className="text-2xl font-semibold text-slate-800 leading-relaxed">
-                              {phrase.english}
-                            </p>
-                          </div>
-                          <div className="border-t border-slate-200 pt-3">
-                            <p className="text-sm font-medium text-slate-500 mb-1">{data.name}</p>
-                            <div className="flex items-center gap-3">
-                              <p className="text-2xl font-semibold text-blue-700 leading-relaxed flex-1">
-                                {phrase.translation}
-                              </p>
-                              {isSpeechSupported() ? (
-                                <button
-                                  onClick={() => handleSpeak(phrase.translation)}
-                                  className="flex-shrink-0 p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                                  title="Play audio"
-                                >
-                                  <Volume2 className="w-6 h-6" />
-                                </button>
-                              ) : (
-                                <span className="text-xs text-slate-400">Audio unavailable</span>
-                              )}
-                            </div>
-                          </div>
-                          {sector === 'healthcare' && (
-                            <div className="pt-2">
-                              <button
-                                onClick={() => handleShowTranslation(phrase.translation)}
-                                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                              >
-                                <Eye className="w-5 h-5" />
-                                {getShowToLabel()}
-                              </button>
+              {filteredGroups.map((group, groupIndex) => (
+                <div key={groupIndex} className="space-y-4">
+                  <h3 className="text-xl font-bold text-slate-700 border-b-2 border-blue-500 pb-2">
+                    {group.groupLabel}
+                  </h3>
+                  <div className="space-y-4">
+                    {group.phrases.map((phrase, phraseIndex) => {
+                      const phraseId = `${groupIndex}-${phraseIndex}`;
+                      const isExpanded = expandedPhrases.has(phraseId);
+                      const displayTranslation = getDisplayTranslation(phrase);
+                      return (
+                        <div
+                          key={phraseId}
+                          className={`bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow ${phrase.isVital ? 'ring-2 ring-red-400 ring-offset-1' : ''}`}
+                        >
+                          {phrase.isVital && (
+                            <div className="px-6 pt-3 pb-0 flex items-center gap-1.5">
+                              <ShieldAlert className="w-4 h-4 text-red-500" />
+                              <span className="text-xs font-semibold text-red-600 uppercase tracking-wide">Vital Content</span>
                             </div>
                           )}
-                        </div>
-
-                        <div className="border-t border-slate-200">
-                          <button
-                            onClick={() => toggleExpanded(phraseId)}
-                            className="w-full px-6 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
-                          >
-                            <span className="text-sm font-medium text-slate-700">
-                              {getResponseLabel()}
-                            </span>
-                            {isExpanded ? (
-                              <ChevronUp className="w-5 h-5 text-slate-500" />
-                            ) : (
-                              <ChevronDown className="w-5 h-5 text-slate-500" />
-                            )}
-                          </button>
-
-                          {isExpanded && (
-                            <div className="px-6 pb-6 pt-2">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {phrase.responses.map((response, responseIndex) => (
-                                  <div
-                                    key={responseIndex}
-                                    className="bg-slate-50 rounded-lg p-4 border border-slate-200"
+                          <div className="p-6 space-y-3">
+                            <div>
+                              <p className="text-sm font-medium text-slate-500 mb-1">English</p>
+                              <p className="text-2xl font-semibold text-slate-800 leading-relaxed">
+                                {phrase.english}
+                              </p>
+                            </div>
+                            <div className="border-t border-slate-200 pt-3">
+                              <p className="text-sm font-medium text-slate-500 mb-1">{data.name}</p>
+                              <div className="flex items-center gap-3">
+                                <p className="text-2xl font-semibold text-blue-700 leading-relaxed flex-1">
+                                  {displayTranslation}
+                                </p>
+                                {isSpeechSupported() ? (
+                                  <button
+                                    onClick={() => handleSpeak(displayTranslation)}
+                                    className="flex-shrink-0 p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                                    title="Play audio"
                                   >
-                                    <div className="flex items-start gap-2 mb-1">
-                                      <p className="text-lg font-semibold text-blue-700 flex-1">
-                                        {response.translation}
-                                      </p>
-                                      {isSpeechSupported() ? (
-                                        <button
-                                          onClick={() => handleSpeak(response.translation)}
-                                          className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded transition-colors"
-                                          title="Play audio"
-                                        >
-                                          <Volume2 className="w-5 h-5" />
-                                        </button>
-                                      ) : (
-                                        <span className="text-xs text-slate-400">Unavailable</span>
-                                      )}
-                                    </div>
-                                    <p className="text-sm text-slate-600 italic mb-1">
-                                      [{response.pronunciation}]
-                                    </p>
-                                    <p className="text-sm text-slate-700">
-                                      {response.english}
-                                    </p>
-                                  </div>
-                                ))}
+                                    <Volume2 className="w-6 h-6" />
+                                  </button>
+                                ) : (
+                                  <span className="text-xs text-slate-400">Audio unavailable</span>
+                                )}
                               </div>
                             </div>
-                          )}
+                            {sector === 'healthcare' && (
+                              <div className="pt-2">
+                                <button
+                                  onClick={() => handleShowTranslation(displayTranslation)}
+                                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                                >
+                                  <Eye className="w-5 h-5" />
+                                  {getShowToLabel()}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="border-t border-slate-200">
+                            <button
+                              onClick={() => toggleExpanded(phraseId)}
+                              className="w-full px-6 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                            >
+                              <span className="text-sm font-medium text-slate-700">
+                                {getResponseLabel()}
+                              </span>
+                              {isExpanded ? (
+                                <ChevronUp className="w-5 h-5 text-slate-500" />
+                              ) : (
+                                <ChevronDown className="w-5 h-5 text-slate-500" />
+                              )}
+                            </button>
+
+                            {isExpanded && (
+                              <div className="px-6 pb-6 pt-2">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {phrase.responses.map((response, responseIndex) => (
+                                    <div
+                                      key={responseIndex}
+                                      className="bg-slate-50 rounded-lg p-4 border border-slate-200"
+                                    >
+                                      <div className="flex items-start gap-2 mb-1">
+                                        <p className="text-lg font-semibold text-blue-700 flex-1">
+                                          {response.translation}
+                                        </p>
+                                        {isSpeechSupported() ? (
+                                          <button
+                                            onClick={() => handleSpeak(response.translation)}
+                                            className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded transition-colors"
+                                            title="Play audio"
+                                          >
+                                            <Volume2 className="w-5 h-5" />
+                                          </button>
+                                        ) : (
+                                          <span className="text-xs text-slate-400">Unavailable</span>
+                                        )}
+                                      </div>
+                                      <p className="text-sm text-slate-600 italic mb-1">
+                                        [{response.pronunciation}]
+                                      </p>
+                                      <p className="text-sm text-slate-700">
+                                        {response.english}
+                                      </p>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
             </div>
           )}
 
@@ -455,6 +550,14 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
               <strong>Disclaimer:</strong> This app is a communication aid only. For certified interpretation, contact your institutional interpreter service.
             </p>
           </div>
+
+          {phraseGroups.length > 0 && (
+            <div className="mt-4 p-3 bg-slate-100 border border-slate-200 rounded-lg">
+              <p className="text-xs text-slate-500 text-center">
+                Content reviewed by <strong>{meta.reviewedBy}</strong> on {meta.lastReviewed} &nbsp;|&nbsp; Version {meta.version}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
