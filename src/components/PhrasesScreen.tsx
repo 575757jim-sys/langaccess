@@ -209,11 +209,11 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                 <strong>Content Coming Soon</strong>
               </p>
               <p className="text-yellow-800">
-                Phrases for this subcategory and language combination are currently being developed.
-                Please check back soon or try another language/subcategory combination.
+                Phrases for this language combination are currently being developed.
+                Please check back soon or try Spanish which has complete coverage.
               </p>
               <p className="text-sm text-yellow-700 mt-4">
-                Available now: Physical Health and Mental Health in Spanish
+                <strong>Spanish is 100% complete:</strong> All Healthcare, Education, and Construction phrases available with 20 phrases per subcategory
               </p>
             </div>
           ) : (
