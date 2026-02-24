@@ -156,7 +156,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
         setShowAddForm(false);
         setShowSuccessToast(true);
         setTimeout(() => setShowSuccessToast(false), 3000);
-        await handleSpeak(newPhrase.translation);
+        handleSpeak(newPhrase.translation);
       }
     }
   };
@@ -168,11 +168,8 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
     }
   };
 
-  const handleSpeak = async (text: string) => {
-    const success = await speakText(text, language);
-    if (!success) {
-      console.warn('Speech synthesis failed');
-    }
+  const handleSpeak = (text: string) => {
+    speakText(text, language);
   };
 
   return (
