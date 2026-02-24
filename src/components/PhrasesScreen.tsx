@@ -15,9 +15,9 @@ interface PhrasesScreenProps {
 
 export default function PhrasesScreen({ language, sector, subcategory, onBack }: PhrasesScreenProps) {
   const data = languageData[language];
-  const phrases = subcategoryPhrases[subcategory]?.[language] || [];
+  const phraseGroups = subcategoryPhrases[subcategory]?.[language] || [];
   const [fullscreenTranslation, setFullscreenTranslation] = useState<string | null>(null);
-  const [expandedPhrases, setExpandedPhrases] = useState<Set<number>>(new Set());
+  const [expandedPhrases, setExpandedPhrases] = useState<Set<string>>(new Set());
   const [customPhrases, setCustomPhrases] = useState<CustomPhrase[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newEnglish, setNewEnglish] = useState('');
@@ -129,12 +129,12 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
     setFullscreenTranslation(null);
   };
 
-  const toggleExpanded = (index: number) => {
+  const toggleExpanded = (id: string) => {
     const newExpanded = new Set(expandedPhrases);
-    if (newExpanded.has(index)) {
-      newExpanded.delete(index);
+    if (newExpanded.has(id)) {
+      newExpanded.delete(id);
     } else {
-      newExpanded.add(index);
+      newExpanded.add(id);
     }
     setExpandedPhrases(newExpanded);
   };
@@ -203,108 +203,133 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
         </div>
 
         <div className="max-w-4xl mx-auto px-4 py-8 pb-12">
-          <div className="space-y-6">
-            {phrases.map((phrase, index) => {
-              const isExpanded = expandedPhrases.has(index);
-              return (
-                <div
-                  key={index}
-                  className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow"
-                >
-                  <div className="p-6 space-y-3">
-                    <div>
-                      <p className="text-sm font-medium text-slate-500 mb-1">English</p>
-                      <p className="text-2xl font-semibold text-slate-800 leading-relaxed">
-                        {phrase.english}
-                      </p>
-                    </div>
-                    <div className="border-t border-slate-200 pt-3">
-                      <p className="text-sm font-medium text-slate-500 mb-1">{data.name}</p>
-                      <div className="flex items-center gap-3">
-                        <p className="text-2xl font-semibold text-blue-700 leading-relaxed flex-1">
-                          {phrase.translation}
-                        </p>
-                        {isSpeechSupported() ? (
-                          <button
-                            onClick={() => handleSpeak(phrase.translation)}
-                            className="flex-shrink-0 p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="Play audio"
-                          >
-                            <Volume2 className="w-6 h-6" />
-                          </button>
-                        ) : (
-                          <span className="text-xs text-slate-400">Audio unavailable</span>
-                        )}
-                      </div>
-                    </div>
-                    {sector === 'healthcare' && (
-                      <div className="pt-2">
-                        <button
-                          onClick={() => handleShowTranslation(phrase.translation)}
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                        >
-                          <Eye className="w-5 h-5" />
-                          {getShowToLabel()}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="border-t border-slate-200">
-                    <button
-                      onClick={() => toggleExpanded(index)}
-                      className="w-full px-6 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
-                    >
-                      <span className="text-sm font-medium text-slate-700">
-                        {getResponseLabel()}
-                      </span>
-                      {isExpanded ? (
-                        <ChevronUp className="w-5 h-5 text-slate-500" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-slate-500" />
-                      )}
-                    </button>
-
-                    {isExpanded && (
-                      <div className="px-6 pb-6 pt-2">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {phrase.responses.map((response, responseIndex) => (
-                            <div
-                              key={responseIndex}
-                              className="bg-slate-50 rounded-lg p-4 border border-slate-200"
-                            >
-                              <div className="flex items-start gap-2 mb-1">
-                                <p className="text-lg font-semibold text-blue-700 flex-1">
-                                  {response.translation}
-                                </p>
-                                {isSpeechSupported() ? (
-                                  <button
-                                    onClick={() => handleSpeak(response.translation)}
-                                    className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded transition-colors"
-                                    title="Play audio"
-                                  >
-                                    <Volume2 className="w-5 h-5" />
-                                  </button>
-                                ) : (
-                                  <span className="text-xs text-slate-400">Unavailable</span>
-                                )}
-                              </div>
-                              <p className="text-sm text-slate-600 italic mb-1">
-                                [{response.pronunciation}]
+          {phraseGroups.length === 0 ? (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-8 text-center mb-8">
+              <p className="text-lg text-yellow-900 mb-2">
+                <strong>Content Coming Soon</strong>
+              </p>
+              <p className="text-yellow-800">
+                Phrases for this subcategory and language combination are currently being developed.
+                Please check back soon or try another language/subcategory combination.
+              </p>
+              <p className="text-sm text-yellow-700 mt-4">
+                Available now: Physical Health and Mental Health in Spanish
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {phraseGroups.map((group, groupIndex) => (
+              <div key={groupIndex} className="space-y-4">
+                <h3 className="text-xl font-bold text-slate-700 border-b-2 border-blue-500 pb-2">
+                  {group.groupLabel}
+                </h3>
+                <div className="space-y-4">
+                  {group.phrases.map((phrase, phraseIndex) => {
+                    const phraseId = `${groupIndex}-${phraseIndex}`;
+                    const isExpanded = expandedPhrases.has(phraseId);
+                    return (
+                      <div
+                        key={phraseId}
+                        className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow"
+                      >
+                        <div className="p-6 space-y-3">
+                          <div>
+                            <p className="text-sm font-medium text-slate-500 mb-1">English</p>
+                            <p className="text-2xl font-semibold text-slate-800 leading-relaxed">
+                              {phrase.english}
+                            </p>
+                          </div>
+                          <div className="border-t border-slate-200 pt-3">
+                            <p className="text-sm font-medium text-slate-500 mb-1">{data.name}</p>
+                            <div className="flex items-center gap-3">
+                              <p className="text-2xl font-semibold text-blue-700 leading-relaxed flex-1">
+                                {phrase.translation}
                               </p>
-                              <p className="text-sm text-slate-700">
-                                {response.english}
-                              </p>
+                              {isSpeechSupported() ? (
+                                <button
+                                  onClick={() => handleSpeak(phrase.translation)}
+                                  className="flex-shrink-0 p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                                  title="Play audio"
+                                >
+                                  <Volume2 className="w-6 h-6" />
+                                </button>
+                              ) : (
+                                <span className="text-xs text-slate-400">Audio unavailable</span>
+                              )}
                             </div>
-                          ))}
+                          </div>
+                          {sector === 'healthcare' && (
+                            <div className="pt-2">
+                              <button
+                                onClick={() => handleShowTranslation(phrase.translation)}
+                                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                              >
+                                <Eye className="w-5 h-5" />
+                                {getShowToLabel()}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="border-t border-slate-200">
+                          <button
+                            onClick={() => toggleExpanded(phraseId)}
+                            className="w-full px-6 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                          >
+                            <span className="text-sm font-medium text-slate-700">
+                              {getResponseLabel()}
+                            </span>
+                            {isExpanded ? (
+                              <ChevronUp className="w-5 h-5 text-slate-500" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5 text-slate-500" />
+                            )}
+                          </button>
+
+                          {isExpanded && (
+                            <div className="px-6 pb-6 pt-2">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {phrase.responses.map((response, responseIndex) => (
+                                  <div
+                                    key={responseIndex}
+                                    className="bg-slate-50 rounded-lg p-4 border border-slate-200"
+                                  >
+                                    <div className="flex items-start gap-2 mb-1">
+                                      <p className="text-lg font-semibold text-blue-700 flex-1">
+                                        {response.translation}
+                                      </p>
+                                      {isSpeechSupported() ? (
+                                        <button
+                                          onClick={() => handleSpeak(response.translation)}
+                                          className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded transition-colors"
+                                          title="Play audio"
+                                        >
+                                          <Volume2 className="w-5 h-5" />
+                                        </button>
+                                      ) : (
+                                        <span className="text-xs text-slate-400">Unavailable</span>
+                                      )}
+                                    </div>
+                                    <p className="text-sm text-slate-600 italic mb-1">
+                                      [{response.pronunciation}]
+                                    </p>
+                                    <p className="text-sm text-slate-700">
+                                      {response.english}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
-                    )}
-                  </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            ))}
+            </div>
+          )}
 
           <div className="mt-12">
             <div className="flex items-center justify-between mb-6">
