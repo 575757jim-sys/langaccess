@@ -180,7 +180,8 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
     }
 
     try {
-      // SPEECH QUEUE FIX: Cancel at the very first line
+      // SPEECH QUEUE FIX: Resume first, then cancel to unblock Chrome
+      window.speechSynthesis.resume();
       window.speechSynthesis.cancel();
 
       await loadVoices();
@@ -257,12 +258,12 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
         window.speechSynthesis.resume();
       };
 
-      // SPEECH QUEUE FIX: 50ms delay before calling speak()
-      console.log('⏱️ Waiting 50ms before speak...');
+      // SPEECH QUEUE FIX: 100ms delay before calling speak()
+      console.log('⏱️ Waiting 100ms before speak...');
       setTimeout(() => {
         window.speechSynthesis.speak(utterance);
         console.log('🎤 Speech command sent');
-      }, 50);
+      }, 100);
 
       setTimeout(() => {
         if (!hasStarted && !hasEnded) {
