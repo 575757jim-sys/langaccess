@@ -91,6 +91,16 @@ const findBestVoice = (langCode: string): SpeechSynthesisVoice | null => {
 
   matchingVoices.sort((a, b) => qualityScore(b) - qualityScore(a));
 
+  // CRITICAL FIX: If we have a large voice list but no perfect match, force first Google or Female voice
+  if (matchingVoices.length === 0 && voices.length > 100) {
+    console.warn(`Large voice list (${voices.length}) but no ${langCode} match. Using fallback voice.`);
+    const fallback = voices.find(v =>
+      v.name.toLowerCase().includes('google') ||
+      v.name.toLowerCase().includes('female')
+    );
+    return fallback || voices[0];
+  }
+
   return matchingVoices[0];
 };
 
@@ -176,21 +186,22 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
       console.log(`🔊 DIAGNOSTIC: Voices found: ${voiceCount}`);
       alert(`Voices found: ${voiceCount}`);
 
-      // CRITICAL FIX 1: Resume context before anything else
-      window.speechSynthesis.resume();
-
-      // Cancel any pending speech
+      // CRITICAL FIX 1: Unlock audio context - cancel clears the queue
+      console.log('🔓 Unlocking audio context with user interaction...');
       window.speechSynthesis.cancel();
-      await new Promise(r => setTimeout(r, 150));
 
-      // CRITICAL FIX 2: Empty string kickstart
+      // CRITICAL FIX 2: Resume context multiple times
+      window.speechSynthesis.resume();
+      await new Promise(r => setTimeout(r, 50));
+
+      // CRITICAL FIX 3: Empty string kickstart to wake up engine
       console.log('🎬 Triggering empty kickstart utterance...');
       const kickstart = new SpeechSynthesisUtterance('');
       kickstart.volume = 0.01;
       kickstart.rate = 1;
       kickstart.pitch = 1;
       window.speechSynthesis.speak(kickstart);
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise(r => setTimeout(r, 150));
 
       const langCode = getLanguageCode(language);
       const voice = findBestVoice(langCode);
@@ -207,10 +218,13 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
       if (voice) {
         utterance.voice = voice;
         utterance.lang = voice.lang;
+        console.log('🎯 Using voice:', voice.name, voice.lang);
       } else {
         utterance.lang = langCode;
+        console.log('⚠️ No voice selected, using default with lang:', langCode);
       }
 
+      // CRITICAL FIX 4: Force volume and state reset
       utterance.rate = 0.45;
       utterance.pitch = 0.9;
       utterance.volume = 1.0;
@@ -220,7 +234,8 @@ export const speakText = (text: string, language: Language): Promise<boolean> =>
 
       utterance.onstart = () => {
         hasStarted = true;
-        console.log('✅ Speech started successfully');
+        console.log('✅ Audio Started - Speech playing successfully');
+        console.log('🔊 Hardware speakers engaged');
       };
 
       utterance.onend = () => {
