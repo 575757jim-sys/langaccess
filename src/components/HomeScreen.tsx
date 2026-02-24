@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, Volume2 } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft } from 'lucide-react';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
 
@@ -18,46 +17,6 @@ export default function HomeScreen({
   onSelectLanguage,
   onBackToSectorSelection
 }: HomeScreenProps) {
-  const [audioEnabled, setAudioEnabled] = useState(false);
-
-  const handleEnableAudio = () => {
-    console.log('🎵 User requesting audio initialization...');
-
-    if ('speechSynthesis' in window) {
-      // Cancel and reset
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.resume();
-
-      // Trigger empty utterance to initialize engine
-      const init = new SpeechSynthesisUtterance('');
-      init.volume = 0.01;
-      init.rate = 1;
-      init.pitch = 1;
-
-      init.onstart = () => {
-        console.log('✅ Audio engine initialized successfully');
-        setAudioEnabled(true);
-
-        // Load voices
-        const voices = window.speechSynthesis.getVoices();
-        console.log(`📢 ${voices.length} voices available after initialization`);
-      };
-
-      init.onerror = (e) => {
-        console.error('❌ Audio initialization error:', e.error);
-      };
-
-      window.speechSynthesis.speak(init);
-
-      // Fallback in case onstart doesn't fire
-      setTimeout(() => {
-        if (!audioEnabled) {
-          console.log('✅ Audio enabled (fallback)');
-          setAudioEnabled(true);
-        }
-      }, 500);
-    }
-  };
   const sectors = [
     { id: 'healthcare' as Sector, label: 'Healthcare', Icon: Heart, color: 'bg-blue-600 hover:bg-blue-700' },
     { id: 'education' as Sector, label: 'Education', Icon: GraduationCap, color: 'bg-green-600 hover:bg-green-700' },
@@ -88,22 +47,6 @@ export default function HomeScreen({
             {selectedSector ? `${getSectorLabel(selectedSector)} Communication Aid` : 'Communication Aid'}
           </p>
 
-          {!audioEnabled && 'speechSynthesis' in window && (
-            <button
-              onClick={handleEnableAudio}
-              className="mt-6 inline-flex items-center gap-3 bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-xl text-lg font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95"
-            >
-              <Volume2 className="w-6 h-6" />
-              Enable Audio
-            </button>
-          )}
-
-          {audioEnabled && (
-            <div className="mt-6 inline-flex items-center gap-2 bg-green-100 text-green-800 px-6 py-3 rounded-xl text-sm font-medium">
-              <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
-              Audio Enabled
-            </div>
-          )}
         </div>
 
         {!selectedSector ? (
