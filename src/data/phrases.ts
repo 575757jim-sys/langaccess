@@ -7,10 +7,20 @@ export interface Response {
   english: string;
 }
 
+export interface ChineseTranslations {
+  zh_traditional?: string;
+  zh_simplified?: string;
+}
+
 export interface Phrase {
   english: string;
   translation: string;
+  translations?: ChineseTranslations;
   responses: Response[];
+  reviewedBy?: string;
+  lastReviewed?: string;
+  version?: string;
+  isVital?: boolean;
 }
 
 export interface CustomPhrase {
