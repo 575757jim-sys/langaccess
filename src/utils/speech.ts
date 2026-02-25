@@ -8,6 +8,9 @@ const LANG_CODE: Record<Language, string> = {
   cantonese:  'zh-TW',
 };
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
 let player: HTMLAudioElement | null = null;
 
 const getPlayer = (): HTMLAudioElement => {
@@ -24,7 +27,7 @@ const getPlayer = (): HTMLAudioElement => {
 
 const buildUrl = (text: string, language: Language): string => {
   const tl = LANG_CODE[language];
-  return `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(text)}&tl=${encodeURIComponent(tl)}`;
+  return `${SUPABASE_URL}/functions/v1/tts-proxy?q=${encodeURIComponent(text)}&tl=${encodeURIComponent(tl)}`;
 };
 
 export type AudioStatus = 'idle' | 'loading' | 'playing' | 'error';
@@ -47,7 +50,6 @@ export const speakText = (text: string, language: Language): void => {
 
   setStatus('loading');
 
-  audio.oncanplay = null;
   audio.onplaying = null;
   audio.onerror = null;
   audio.onended = null;
@@ -56,9 +58,25 @@ export const speakText = (text: string, language: Language): void => {
   audio.onerror = () => setStatus('error');
   audio.onended = () => setStatus('idle');
 
-  audio.src = buildUrl(text, language);
-  audio.load();
-  audio.play().catch(() => setStatus('error'));
+  const url = buildUrl(text, language);
+  audio.src = url;
+
+  const reqHeaders = new Headers({
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+  });
+
+  fetch(url, { headers: reqHeaders })
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.blob();
+    })
+    .then(blob => {
+      const objectUrl = URL.createObjectURL(blob);
+      audio.src = objectUrl;
+      audio.load();
+      return audio.play();
+    })
+    .catch(() => setStatus('error'));
 };
 
 export const preloadVoices = (): void => {};
