@@ -3,7 +3,7 @@ import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Filte
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
-import { speakText, isSpeechSupported } from '../utils/speech';
+import { speakText, isSpeechSupported, preloadVoices } from '../utils/speech';
 import { exportPhrasesToCSV } from '../utils/exportToCSV';
 import { supabase } from '../lib/supabase';
 
@@ -35,6 +35,10 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
   const [chineseScript, setChineseScript] = useState<'traditional' | 'simplified'>('traditional');
 
   const isChineseLang = language === 'mandarin' || language === 'cantonese';
+
+  useEffect(() => {
+    preloadVoices();
+  }, []);
 
   useEffect(() => {
     const testConnection = async () => {
