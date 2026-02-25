@@ -8,6 +8,8 @@ const TTS_LANG_MAP: Record<Language, string> = {
   cantonese: 'zh-HK',
 };
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+
 let audioEl: HTMLAudioElement | null = null;
 
 const getAudio = (): HTMLAudioElement => {
@@ -19,15 +21,11 @@ const getAudio = (): HTMLAudioElement => {
   return audioEl;
 };
 
-const buildTTSUrl = (text: string, lang: string): string => {
-  const encoded = encodeURIComponent(text);
-  return `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encoded}&tl=${lang}`;
-};
-
 export const speakText = (text: string, language: Language): void => {
   const audio = getAudio();
   const lang = TTS_LANG_MAP[language];
-  audio.src = buildTTSUrl(text, lang);
+  const proxyUrl = `${SUPABASE_URL}/functions/v1/tts-proxy?q=${encodeURIComponent(text)}&tl=${encodeURIComponent(lang)}`;
+  audio.src = proxyUrl;
   audio.load();
   audio.play().catch(() => {});
 };
