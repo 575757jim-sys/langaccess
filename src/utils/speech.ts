@@ -15,6 +15,7 @@ let audioEl: HTMLAudioElement | null = null;
 const getAudio = (): HTMLAudioElement => {
   if (!audioEl) {
     audioEl = document.createElement('audio');
+    audioEl.loop = false;
     audioEl.style.display = 'none';
     document.body.appendChild(audioEl);
   }
@@ -25,9 +26,15 @@ export const speakText = (text: string, language: Language): void => {
   const audio = getAudio();
   const lang = TTS_LANG_MAP[language];
   const proxyUrl = `${SUPABASE_URL}/functions/v1/tts-proxy?q=${encodeURIComponent(text)}&tl=${encodeURIComponent(lang)}`;
+
+  audio.pause();
+  audio.loop = false;
   audio.src = proxyUrl;
   audio.load();
-  audio.play().catch(() => {});
+
+  setTimeout(() => {
+    audio.play().catch(() => {});
+  }, 100);
 };
 
 export const isSpeechSupported = (): boolean => true;
