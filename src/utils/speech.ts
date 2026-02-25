@@ -29,20 +29,23 @@ const findBestVoice = (langCode: string): SpeechSynthesisVoice | null => {
   };
 
   const matches = voices.filter(isMatch);
-  if (matches.length === 0) return voices[0];
+  if (matches.length === 0) return null;
 
   const score = (voice: SpeechSynthesisVoice): number => {
     let s = 0;
     const n = voice.name.toLowerCase();
     const l = voice.lang.toLowerCase();
-    if (n.includes('enhanced') || n.includes('neural')) s += 120;
-    if (n.includes('google') && !n.includes('compact')) s += 85;
-    if (n.includes('microsoft') && !n.includes('compact')) s += 70;
-    if (!voice.localService) s += 60;
+    if (n.includes('neural')) s += 150;
+    if (n.includes('enhanced')) s += 130;
+    if (n.includes('google') && !n.includes('compact')) s += 100;
+    if (n.includes('microsoft') && !n.includes('compact')) s += 80;
+    if (!voice.localService) s += 70;
     if (l === langCode.toLowerCase()) s += 50;
     else if (l.startsWith(langPrefix + '-')) s += 40;
-    if (n.includes('compact')) s -= 100;
-    if (n.includes('low') || n.includes('novelty')) s -= 80;
+    if (n.includes('premium')) s += 60;
+    if (n.includes('compact')) s -= 120;
+    if (n.includes('low') || n.includes('novelty')) s -= 100;
+    if (voice.localService && !n.includes('enhanced') && !n.includes('neural')) s -= 30;
     return s;
   };
 
@@ -67,7 +70,12 @@ export const speakText = (text: string, language: Language): void => {
   utterance.pitch = pitch;
   utterance.volume = 1.0;
 
+  let hasSpoken = false;
+
   const applyVoiceAndSpeak = () => {
+    if (hasSpoken) return;
+    hasSpoken = true;
+
     const voice = findBestVoice(langCode);
     if (voice) {
       utterance.voice = voice;
@@ -89,8 +97,7 @@ export const speakText = (text: string, language: Language): void => {
     };
     window.speechSynthesis.getVoices();
     setTimeout(() => {
-      if (window.speechSynthesis.pending || window.speechSynthesis.speaking) return;
-      applyVoiceAndSpeak();
+      if (!hasSpoken) applyVoiceAndSpeak();
     }, 500);
   }
 };
