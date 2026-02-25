@@ -10,7 +10,6 @@ const buildTTSUrls = (text: string, lang: string): string[] => {
   const q = encodeURIComponent(text);
   const tl = encodeURIComponent(lang);
   return [
-    `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${q}&tl=${tl}&ttsspeed=0.8`,
     `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&q=${q}&tl=${tl}`,
     `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${q}&tl=${tl}`,
   ];
@@ -18,7 +17,6 @@ const buildTTSUrls = (text: string, lang: string): string[] => {
 
 const USER_AGENTS = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
 ];
 
@@ -49,7 +47,6 @@ Deno.serve(async (req: Request) => {
             "Referer": "https://translate.google.com/",
             "Accept": "audio/mpeg, audio/mp3, audio/*, */*",
             "Accept-Language": "en-US,en;q=0.9",
-            "Cache-Control": "no-cache",
           },
           redirect: "follow",
         });
