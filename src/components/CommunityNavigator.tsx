@@ -2,14 +2,17 @@ import { useState, useRef } from 'react';
 import {
   ArrowLeft, Phone, MessageSquare, Utensils, Stethoscope, Droplets,
   BatteryCharging, Home, Package, Wifi, WifiOff, ShieldCheck,
-  Upload, Trash2, Eye, X, Camera
+  Upload, Trash2, Eye, X, Camera, ChevronDown, Building2
 } from 'lucide-react';
+import CityResources from './CityResources';
+import { cityResources, CITY_KEYS, CityKey } from '../data/cityResources';
 
 interface CommunityNavigatorProps {
   onBack: () => void;
 }
 
 const LANG_KEY = 'langaccess_nav_lang';
+const CITY_KEY_STORAGE = 'langaccess_nav_city';
 
 type LangCode = 'en' | 'es' | 'vi' | 'tl';
 
@@ -53,13 +56,6 @@ const RESOURCE_CATEGORIES: { id: keyof LangStrings; Icon: React.FC<{ className?:
   { id: 'lockers', Icon: Package, color: 'bg-orange-500 hover:bg-orange-400' },
 ];
 
-const OUTREACH_CONTACTS = [
-  { label: 'SF HOT Team', number: '4153557401', display: '(415) 355-7401', region: 'San Francisco' },
-  { label: 'Oakland Street Medicine', number: '5108918950', display: '(510) 891-8950', region: 'Oakland' },
-  { label: 'San Jose HomeFirst', number: '4085107600', display: '(408) 510-7600', region: 'San Jose' },
-  { label: 'Sacramento Hope Cooperative', number: '9164410166', display: '(916) 441-0166', region: 'Sacramento' },
-];
-
 const ID_VAULT_KEY = 'langaccess_id_vault';
 
 interface StoredDoc {
@@ -87,8 +83,16 @@ function loadLang(): LangCode {
   return 'en';
 }
 
+function loadCity(): CityKey {
+  const saved = localStorage.getItem(CITY_KEY_STORAGE);
+  if (saved && CITY_KEYS.includes(saved as CityKey)) return saved as CityKey;
+  return 'san-jose';
+}
+
 export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) {
   const [lang, setLang] = useState<LangCode>(loadLang);
+  const [selectedCity, setSelectedCity] = useState<CityKey>(loadCity);
+  const [hospitalMode, setHospitalMode] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [vaultDocs, setVaultDocs] = useState<StoredDoc[]>(loadVault);
   const [previewDoc, setPreviewDoc] = useState<StoredDoc | null>(null);
@@ -97,6 +101,7 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
 
   const isOnline = navigator.onLine;
   const t = languageMap[lang];
+  const city = cityResources[selectedCity];
 
   const handleLangChange = (code: LangCode) => {
     setLang(code);
@@ -104,6 +109,17 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
     if (typeof document !== 'undefined') {
       document.documentElement.lang = speechLangMap[code];
     }
+  };
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value as CityKey;
+    setSelectedCity(val);
+    localStorage.setItem(CITY_KEY_STORAGE, val);
+    setSelectedCategory(null);
+  };
+
+  const categoryLabel = (id: string): string => {
+    return t[id as keyof LangStrings] ?? id;
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,6 +198,33 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
             ))}
           </div>
         </div>
+
+        <div className="max-w-2xl mx-auto px-4 pb-4 flex items-center gap-3">
+          <div className="relative flex-1">
+            <select
+              value={selectedCity}
+              onChange={handleCityChange}
+              className="w-full appearance-none bg-gray-900 border border-gray-700 text-white text-sm font-semibold rounded-xl px-4 py-2.5 pr-9 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 cursor-pointer"
+            >
+              {CITY_KEYS.map(key => (
+                <option key={key} value={key}>{cityResources[key].label}</option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          </div>
+          <button
+            onClick={() => setHospitalMode(m => !m)}
+            title="Hospital Staff View"
+            className={`flex items-center gap-2 text-xs font-bold px-3 py-2.5 rounded-xl border transition-all duration-150 flex-shrink-0 ${
+              hospitalMode
+                ? 'bg-blue-600 border-blue-500 text-white'
+                : 'bg-gray-900 border-gray-700 text-gray-400 hover:text-white hover:border-gray-500'
+            }`}
+          >
+            <Building2 className="w-4 h-4" />
+            <span className="hidden sm:inline">Hospital View</span>
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 space-y-8">
@@ -200,7 +243,29 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
         </a>
 
         <section>
-          <h2 className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-4">Find Resources</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-bold text-amber-400 uppercase tracking-widest">
+              {city.label} Resources
+            </h2>
+            <a
+              href={`tel:${city.outreachPhone}`}
+              className="flex items-center gap-1.5 text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors"
+            >
+              <Phone className="w-3.5 h-3.5" />
+              {city.outreachLabel}
+            </a>
+          </div>
+          <CityResources
+            city={city}
+            hospitalMode={hospitalMode}
+            activeCategory={selectedCategory}
+            onCategorySelect={setSelectedCategory}
+            categoryLabel={categoryLabel}
+          />
+        </section>
+
+        <section>
+          <h2 className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-4">Quick Category Dial</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {RESOURCE_CATEGORIES.map(({ id, Icon, color }) => (
               <button
@@ -213,60 +278,22 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
               </button>
             ))}
           </div>
-          {selectedCategory && (
-            <div className="mt-4 bg-gray-900 border border-gray-700 rounded-xl p-5">
-              <p className="text-amber-300 font-semibold text-sm mb-2">
-                Finding {t[selectedCategory as keyof LangStrings]} near you
-              </p>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Call <strong className="text-white">211</strong> or visit <strong className="text-white">211.org</strong> for a live directory of nearby {t[selectedCategory as keyof LangStrings].toLowerCase()} resources. Updated daily with real-time availability.
-              </p>
-              <a
-                href="tel:211"
-                className="mt-3 inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors"
-              >
-                <Phone className="w-4 h-4" />
-                {t.call211}
-              </a>
-            </div>
-          )}
         </section>
 
         <section>
-          <h2 className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-4">Direct Outreach</h2>
-          <div className="space-y-3">
-            {OUTREACH_CONTACTS.map((contact) => (
-              <a
-                key={contact.number}
-                href={`tel:${contact.number}`}
-                className="flex items-center justify-between bg-gray-900 hover:bg-gray-800 border border-gray-700 hover:border-orange-500/50 rounded-xl px-5 py-4 transition-all duration-150 group"
-              >
-                <div>
-                  <div className="font-bold text-white text-base group-hover:text-orange-300 transition-colors">{contact.label}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{contact.region}</div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-orange-400 font-mono text-sm font-semibold">{contact.display}</span>
-                  <div className="bg-orange-500 group-hover:bg-orange-400 rounded-full p-2 transition-colors">
-                    <Phone className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-              </a>
-            ))}
-
-            <div className="flex items-center justify-between bg-gray-900 border border-gray-700 rounded-xl px-5 py-4">
-              <div>
-                <div className="font-bold text-white text-base">General Crisis Text Line</div>
-                <div className="text-xs text-gray-500 mt-0.5">Text HOPE to 20121</div>
-              </div>
-              <a
-                href="sms:20121?body=HOPE"
-                className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors"
-              >
-                <MessageSquare className="w-4 h-4" />
-                Text HOPE
-              </a>
+          <h2 className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-4">Crisis Text Line</h2>
+          <div className="flex items-center justify-between bg-gray-900 border border-gray-700 rounded-xl px-5 py-4">
+            <div>
+              <div className="font-bold text-white text-base">General Crisis Text Line</div>
+              <div className="text-xs text-gray-500 mt-0.5">Text HOPE to 20121</div>
             </div>
+            <a
+              href="sms:20121?body=HOPE"
+              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Text HOPE
+            </a>
           </div>
         </section>
 
