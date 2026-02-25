@@ -20,7 +20,11 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 
 let audioEl: HTMLAudioElement | null = null;
 let cachedVoices: SpeechSynthesisVoice[] = [];
-let voicesReady = false;
+let voicesLoaded = false;
+
+const isIOS = (): boolean =>
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
 const getAudio = (): HTMLAudioElement => {
   if (!audioEl) {
@@ -32,65 +36,90 @@ const getAudio = (): HTMLAudioElement => {
 
 export const preloadVoices = (): void => {
   if (!('speechSynthesis' in window)) return;
-  const voices = window.speechSynthesis.getVoices();
-  if (voices.length > 0) {
-    cachedVoices = voices;
-    voicesReady = true;
-    return;
-  }
-  window.speechSynthesis.addEventListener('voiceschanged', () => {
-    cachedVoices = window.speechSynthesis.getVoices();
-    voicesReady = true;
-  });
+
+  const load = () => {
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      cachedVoices = voices;
+      voicesLoaded = true;
+    }
+  };
+
+  load();
+  window.speechSynthesis.addEventListener('voiceschanged', load);
 };
 
-const findVoice = (language: Language): SpeechSynthesisVoice | null => {
-  const voices = cachedVoices;
-  if (voices.length === 0) return null;
+const findBestVoice = (language: Language): SpeechSynthesisVoice | null => {
+  if (cachedVoices.length === 0) return null;
 
   const targetLang = TTS_LANG_MAP[language];
 
-  const exactMatch = voices.find(v => v.lang.toLowerCase() === targetLang.toLowerCase());
+  const exactMatch = cachedVoices.find(
+    v => v.lang.toLowerCase() === targetLang.toLowerCase()
+  );
   if (exactMatch) return exactMatch;
 
   if (language === 'mandarin') {
-    return voices.find(v =>
-      v.lang.toLowerCase().startsWith('zh-cn') ||
-      v.lang.toLowerCase() === 'zh_cn' ||
-      (v.lang.toLowerCase().startsWith('zh') && v.name.toLowerCase().includes('mandarin')) ||
-      (v.lang.toLowerCase().startsWith('zh') &&
+    return (
+      cachedVoices.find(v => v.lang.toLowerCase() === 'zh-cn') ||
+      cachedVoices.find(v => v.name.toLowerCase().includes('tingting')) ||
+      cachedVoices.find(v => v.name.toLowerCase().includes('mandarin')) ||
+      cachedVoices.find(v =>
+        v.lang.toLowerCase().startsWith('zh') &&
         !v.lang.toLowerCase().includes('hk') &&
         !v.lang.toLowerCase().includes('tw') &&
-        !v.name.toLowerCase().includes('cantonese'))
-    ) || null;
+        !v.name.toLowerCase().includes('cantonese') &&
+        !v.name.toLowerCase().includes('sin-ji')
+      ) ||
+      null
+    );
   }
 
   if (language === 'cantonese') {
-    return voices.find(v =>
-      v.lang.toLowerCase().startsWith('zh-hk') ||
-      v.lang.toLowerCase() === 'zh_hk' ||
-      (v.lang.toLowerCase().startsWith('zh') && v.name.toLowerCase().includes('cantonese'))
-    ) || null;
+    return (
+      cachedVoices.find(v => v.lang.toLowerCase() === 'zh-hk') ||
+      cachedVoices.find(v => v.name.toLowerCase().includes('sin-ji')) ||
+      cachedVoices.find(v => v.name.toLowerCase().includes('cantonese')) ||
+      null
+    );
+  }
+
+  if (language === 'tagalog') {
+    return (
+      cachedVoices.find(v => v.lang.toLowerCase().startsWith('fil')) ||
+      cachedVoices.find(v => v.lang.toLowerCase().startsWith('tl')) ||
+      cachedVoices.find(v => v.name.toLowerCase().includes('tagalog') || v.name.toLowerCase().includes('filipino')) ||
+      null
+    );
   }
 
   const langPrefix = targetLang.split('-')[0];
-  return voices.find(v => v.lang.toLowerCase().startsWith(langPrefix)) || null;
+  return cachedVoices.find(v => v.lang.toLowerCase().startsWith(langPrefix)) || null;
 };
 
-export const speakText = (text: string, language: Language): void => {
-  if ('speechSynthesis' in window && voicesReady) {
-    const voice = findVoice(language);
-    if (voice) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = TTS_LANG_MAP[language];
-      utterance.voice = voice;
-      utterance.rate = 0.85;
-      window.speechSynthesis.speak(utterance);
-      return;
-    }
-  }
+const speakWithSynthesis = (text: string, language: Language): void => {
+  const targetLang = TTS_LANG_MAP[language];
+  const voice = findBestVoice(language);
+  const ios = isIOS();
 
+  const doSpeak = () => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = targetLang;
+    utterance.rate = 0.85;
+    if (voice) utterance.voice = voice;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  window.speechSynthesis.cancel();
+
+  if (ios) {
+    setTimeout(doSpeak, 150);
+  } else {
+    doSpeak();
+  }
+};
+
+const speakWithProxy = (text: string, language: Language): void => {
   const audio = getAudio();
   const lang = TTS_PROXY_LANG_MAP[language];
   const proxyUrl = `${SUPABASE_URL}/functions/v1/tts-proxy?q=${encodeURIComponent(text)}&tl=${encodeURIComponent(lang)}`;
@@ -98,6 +127,14 @@ export const speakText = (text: string, language: Language): void => {
   audio.pause();
   audio.src = proxyUrl;
   audio.play().catch(() => {});
+};
+
+export const speakText = (text: string, language: Language): void => {
+  if ('speechSynthesis' in window) {
+    speakWithSynthesis(text, language);
+    return;
+  }
+  speakWithProxy(text, language);
 };
 
 export const isSpeechSupported = (): boolean =>

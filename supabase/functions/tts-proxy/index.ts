@@ -6,9 +6,20 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const TTS_URLS = (text: string, lang: string) => [
-  `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(text)}&tl=${encodeURIComponent(lang)}`,
-  `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&q=${encodeURIComponent(text)}&tl=${encodeURIComponent(lang)}`,
+const buildTTSUrls = (text: string, lang: string): string[] => {
+  const q = encodeURIComponent(text);
+  const tl = encodeURIComponent(lang);
+  return [
+    `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${q}&tl=${tl}&ttsspeed=0.8`,
+    `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&q=${q}&tl=${tl}`,
+    `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${q}&tl=${tl}`,
+  ];
+};
+
+const USER_AGENTS = [
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
 ];
 
 Deno.serve(async (req: Request) => {
@@ -28,38 +39,36 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const userAgents = [
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
-    ];
-
-    const ttsUrls = TTS_URLS(text, lang);
+    const ttsUrls = buildTTSUrls(text, lang);
 
     for (let i = 0; i < ttsUrls.length; i++) {
       try {
         const response = await fetch(ttsUrls[i], {
           headers: {
-            "User-Agent": userAgents[i % userAgents.length],
+            "User-Agent": USER_AGENTS[i % USER_AGENTS.length],
             "Referer": "https://translate.google.com/",
-            "Accept": "audio/mpeg, audio/*, */*",
+            "Accept": "audio/mpeg, audio/mp3, audio/*, */*",
             "Accept-Language": "en-US,en;q=0.9",
+            "Cache-Control": "no-cache",
           },
+          redirect: "follow",
         });
 
         if (!response.ok) continue;
 
         const contentType = response.headers.get("content-type") || "";
-        if (!contentType.includes("audio") && !contentType.includes("mpeg")) continue;
+        const isAudio = contentType.includes("audio") || contentType.includes("mpeg") || contentType.includes("mp3");
+        if (!isAudio) continue;
 
         const audioBuffer = await response.arrayBuffer();
-        if (audioBuffer.byteLength < 1000) continue;
+        if (audioBuffer.byteLength < 500) continue;
 
         return new Response(audioBuffer, {
           status: 200,
           headers: {
             ...corsHeaders,
             "Content-Type": "audio/mpeg",
-            "Cache-Control": "public, max-age=86400",
+            "Cache-Control": "public, max-age=3600",
             "Content-Length": String(audioBuffer.byteLength),
           },
         });
