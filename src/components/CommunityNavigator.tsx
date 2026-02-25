@@ -9,13 +9,48 @@ interface CommunityNavigatorProps {
   onBack: () => void;
 }
 
-const RESOURCE_CATEGORIES = [
-  { id: 'food', label: 'Food', Icon: Utensils, color: 'bg-amber-500 hover:bg-amber-400' },
-  { id: 'medical', label: 'Medical + Dental', Icon: Stethoscope, color: 'bg-red-500 hover:bg-red-400' },
-  { id: 'bathrooms', label: 'Bathrooms', Icon: Droplets, color: 'bg-cyan-500 hover:bg-cyan-400' },
-  { id: 'power', label: 'Power / Charging', Icon: BatteryCharging, color: 'bg-yellow-500 hover:bg-yellow-400' },
-  { id: 'shelter', label: 'Shelter', Icon: Home, color: 'bg-green-500 hover:bg-green-400' },
-  { id: 'lockers', label: 'Lockers', Icon: Package, color: 'bg-orange-500 hover:bg-orange-400' },
+const LANG_KEY = 'langaccess_nav_lang';
+
+type LangCode = 'en' | 'es' | 'vi' | 'tl';
+
+interface LangStrings {
+  food: string;
+  medical: string;
+  bathrooms: string;
+  power: string;
+  shelter: string;
+  lockers: string;
+  call211: string;
+}
+
+const languageMap: Record<LangCode, LangStrings> = {
+  en: { food: 'Food', medical: 'Medical + Dental', bathrooms: 'Bathrooms', power: 'Power / Charging', shelter: 'Shelter', lockers: 'Lockers', call211: 'Call 211' },
+  es: { food: 'Comida', medical: 'Médico', bathrooms: 'Baños', power: 'Energía', shelter: 'Refugio', lockers: 'Casilleros', call211: 'Llamar al 211' },
+  vi: { food: 'Thức ăn', medical: 'Y tế', bathrooms: 'Phòng tắm', power: 'Sạc điện', shelter: 'Chỗ ở', lockers: 'Tủ đồ', call211: 'Gọi 211' },
+  tl: { food: 'Pagkain', medical: 'Medikal', bathrooms: 'Banyo', power: 'Kuryente', shelter: 'Silungan', lockers: 'Locker', call211: 'Tumawag sa 211' },
+};
+
+const speechLangMap: Record<LangCode, string> = {
+  en: 'en-US',
+  es: 'es-US',
+  vi: 'vi-VN',
+  tl: 'tl-PH',
+};
+
+const LANG_OPTIONS: { code: LangCode; flag: string; label: string }[] = [
+  { code: 'en', flag: '🇺🇸', label: 'English' },
+  { code: 'es', flag: '🇲🇽', label: 'Español' },
+  { code: 'vi', flag: '🇻🇳', label: 'Tiếng Việt' },
+  { code: 'tl', flag: '🇵🇭', label: 'Filipino' },
+];
+
+const RESOURCE_CATEGORIES: { id: keyof LangStrings; Icon: React.FC<{ className?: string }>; color: string }[] = [
+  { id: 'food', Icon: Utensils, color: 'bg-amber-500 hover:bg-amber-400' },
+  { id: 'medical', Icon: Stethoscope, color: 'bg-red-500 hover:bg-red-400' },
+  { id: 'bathrooms', Icon: Droplets, color: 'bg-cyan-500 hover:bg-cyan-400' },
+  { id: 'power', Icon: BatteryCharging, color: 'bg-yellow-500 hover:bg-yellow-400' },
+  { id: 'shelter', Icon: Home, color: 'bg-green-500 hover:bg-green-400' },
+  { id: 'lockers', Icon: Package, color: 'bg-orange-500 hover:bg-orange-400' },
 ];
 
 const OUTREACH_CONTACTS = [
@@ -46,7 +81,14 @@ function saveVault(docs: StoredDoc[]) {
   localStorage.setItem(ID_VAULT_KEY, JSON.stringify(docs));
 }
 
+function loadLang(): LangCode {
+  const saved = localStorage.getItem(LANG_KEY);
+  if (saved === 'en' || saved === 'es' || saved === 'vi' || saved === 'tl') return saved;
+  return 'en';
+}
+
 export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) {
+  const [lang, setLang] = useState<LangCode>(loadLang);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [vaultDocs, setVaultDocs] = useState<StoredDoc[]>(loadVault);
   const [previewDoc, setPreviewDoc] = useState<StoredDoc | null>(null);
@@ -54,6 +96,15 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isOnline = navigator.onLine;
+  const t = languageMap[lang];
+
+  const handleLangChange = (code: LangCode) => {
+    setLang(code);
+    localStorage.setItem(LANG_KEY, code);
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = speechLangMap[code];
+    }
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -84,7 +135,7 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col" lang={speechLangMap[lang]}>
       <div className="sticky top-0 bg-gray-950 border-b border-gray-800 z-10">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
           <button
@@ -108,9 +159,28 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
             )}
           </div>
         </div>
-        <div className="max-w-2xl mx-auto px-4 pb-4">
-          <h1 className="text-3xl font-bold text-white">Community Navigator</h1>
-          <p className="text-gray-400 text-sm mt-1">Resources, outreach, and support near you</p>
+
+        <div className="max-w-2xl mx-auto px-4 pb-3 flex items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white">Community Navigator</h1>
+            <p className="text-gray-400 text-sm mt-1">Resources, outreach, and support near you</p>
+          </div>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {LANG_OPTIONS.map(({ code, flag, label }) => (
+              <button
+                key={code}
+                onClick={() => handleLangChange(code)}
+                title={label}
+                className={`text-xl px-2 py-1 rounded-lg transition-all duration-150 ${
+                  lang === code
+                    ? 'bg-amber-500/20 ring-1 ring-amber-400 scale-110'
+                    : 'opacity-50 hover:opacity-80 hover:bg-gray-800'
+                }`}
+              >
+                {flag}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -122,7 +192,7 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
         >
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-3xl font-black tracking-tight">Call 211</div>
+              <div className="text-3xl font-black tracking-tight">{t.call211}</div>
               <div className="text-sm font-semibold text-gray-800 mt-0.5">Social services, food, shelter — 24/7 free helpline</div>
             </div>
             <Phone className="w-10 h-10 text-gray-900 flex-shrink-0" />
@@ -132,31 +202,31 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
         <section>
           <h2 className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-4">Find Resources</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {RESOURCE_CATEGORIES.map(({ id, label, Icon, color }) => (
+            {RESOURCE_CATEGORIES.map(({ id, Icon, color }) => (
               <button
                 key={id}
                 onClick={() => setSelectedCategory(selectedCategory === id ? null : id)}
                 className={`${color} ${selectedCategory === id ? 'ring-2 ring-white ring-offset-2 ring-offset-gray-950' : ''} text-white rounded-xl py-5 px-4 font-semibold text-base shadow-md transition-all duration-150 active:scale-95 flex flex-col items-center gap-2`}
               >
                 <Icon className="w-7 h-7" />
-                {label}
+                {t[id as keyof LangStrings]}
               </button>
             ))}
           </div>
           {selectedCategory && (
             <div className="mt-4 bg-gray-900 border border-gray-700 rounded-xl p-5">
               <p className="text-amber-300 font-semibold text-sm mb-2">
-                Finding {RESOURCE_CATEGORIES.find(c => c.id === selectedCategory)?.label} near you
+                Finding {t[selectedCategory as keyof LangStrings]} near you
               </p>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Call <strong className="text-white">211</strong> or visit <strong className="text-white">211.org</strong> for a live directory of nearby {RESOURCE_CATEGORIES.find(c => c.id === selectedCategory)?.label.toLowerCase()} resources. Updated daily with real-time availability.
+                Call <strong className="text-white">211</strong> or visit <strong className="text-white">211.org</strong> for a live directory of nearby {t[selectedCategory as keyof LangStrings].toLowerCase()} resources. Updated daily with real-time availability.
               </p>
               <a
                 href="tel:211"
                 className="mt-3 inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                Call 211 Now
+                {t.call211}
               </a>
             </div>
           )}
