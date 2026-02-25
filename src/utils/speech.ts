@@ -50,7 +50,6 @@ const MANDARIN_FEMALE_NAMES = [
   'ya yao', 'yaoyao', 'han han', 'hanhan', 'ya ting', 'yating',
   'hui hui', 'huihui', 'liu shu', 'liushu', 'li-na', 'lina',
   'google 普通话（中国大陆）', 'google 国语（台湾）',
-  'sin-ji', 'sinji', 'google 粤語（香港）'
 ];
 
 const CANTONESE_FEMALE_NAMES = [
@@ -82,7 +81,6 @@ const scoreVoice = (voice: SpeechSynthesisVoice, exactLang: string, lang: Langua
   if (n.includes('google') && !n.includes('compact')) s += 120;
   if (n.includes('microsoft') && !n.includes('compact')) s += 100;
   if (!voice.localService) s += 70;
-
   if (l === exactLang.toLowerCase()) s += 100;
 
   const femaleList = lang === 'mandarin' ? MANDARIN_FEMALE_NAMES
@@ -93,7 +91,6 @@ const scoreVoice = (voice: SpeechSynthesisVoice, exactLang: string, lang: Langua
   else if (FEMALE_GENERIC.some(h => n.includes(h))) s += 40;
 
   if (MALE_HINTS.some(h => n === h || n.includes(` ${h}`) || n.startsWith(`${h} `))) s -= 60;
-
   if (n.includes('compact')) s -= 150;
   if (n.includes('low quality') || n.includes('novelty')) s -= 120;
 
@@ -109,15 +106,18 @@ const findBestVoice = (lang: Language, voices: SpeechSynthesisVoice[]): SpeechSy
     candidates = voices.filter(v => {
       const l = v.lang.toLowerCase();
       const n = v.name.toLowerCase();
-      return l === 'zh-cn' || l === 'zh_cn' || l === 'cmn-hans-cn' || l === 'cmn'
-        || n.includes('普通话') || n.includes('国语') || n.includes('mandarin');
+      return (l === 'zh-cn' || l === 'zh_cn' || l === 'cmn-hans-cn' || l === 'cmn'
+        || n.includes('普通话') || n.includes('国语') || n.includes('mandarin'))
+        && l !== 'zh-hk' && l !== 'yue-hk'
+        && !n.includes('cantonese') && !n.includes('粤') && !n.includes('sin-ji');
     });
     if (candidates.length === 0) {
       candidates = voices.filter(v => {
         const l = v.lang.toLowerCase();
-        return l.startsWith('zh') && !v.name.toLowerCase().includes('cantonese')
-          && !v.name.toLowerCase().includes('粤') && !v.name.toLowerCase().includes('sin-ji')
-          && l !== 'zh-hk' && l !== 'yue-hk';
+        return l.startsWith('zh') && l !== 'zh-hk' && l !== 'yue-hk'
+          && !v.name.toLowerCase().includes('cantonese')
+          && !v.name.toLowerCase().includes('粤')
+          && !v.name.toLowerCase().includes('sin-ji');
       });
     }
   } else if (lang === 'cantonese') {
@@ -128,18 +128,13 @@ const findBestVoice = (lang: Language, voices: SpeechSynthesisVoice[]): SpeechSy
         || n.includes('cantonese') || n.includes('粤語') || n.includes('粤语')
         || n.includes('sin-ji') || n.includes('sinji') || n.includes('hong kong');
     });
-    if (candidates.length === 0) {
-      candidates = voices.filter(v => v.lang.toLowerCase() === 'zh-hk');
-    }
-    if (candidates.length === 0) {
-      candidates = voices.filter(v => v.lang.toLowerCase().startsWith('zh'));
-    }
+    if (candidates.length === 0) candidates = voices.filter(v => v.lang.toLowerCase() === 'zh-hk');
+    if (candidates.length === 0) candidates = voices.filter(v => v.lang.toLowerCase().startsWith('zh'));
   } else if (lang === 'tagalog') {
     candidates = voices.filter(v => {
       const l = v.lang.toLowerCase();
       const n = v.name.toLowerCase();
-      return l.startsWith('fil') || l.startsWith('tl')
-        || n.includes('tagalog') || n.includes('filipino');
+      return l.startsWith('fil') || l.startsWith('tl') || n.includes('tagalog') || n.includes('filipino');
     });
   } else if (lang === 'vietnamese') {
     candidates = voices.filter(v => v.lang.toLowerCase().startsWith('vi'));
@@ -166,93 +161,90 @@ const getLangSettings = (langCode: string): { rate: number; pitch: number } => {
   return { rate: 0.85, pitch: 1.0 };
 };
 
-let activeSpeakId = 0;
-let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
+let activeToken = 0;
+let keepAliveTimer: ReturnType<typeof setInterval> | null = null;
 
-const stopKeepAlive = () => {
-  if (keepAliveInterval !== null) {
-    clearInterval(keepAliveInterval);
-    keepAliveInterval = null;
+const clearKeepAlive = () => {
+  if (keepAliveTimer !== null) {
+    clearInterval(keepAliveTimer);
+    keepAliveTimer = null;
   }
-};
-
-const startKeepAlive = () => {
-  stopKeepAlive();
-  keepAliveInterval = setInterval(() => {
-    if (!window.speechSynthesis.speaking) {
-      stopKeepAlive();
-      return;
-    }
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
-    }
-  }, 5000);
 };
 
 export const speakText = async (text: string, language: Language): Promise<void> => {
   if (!('speechSynthesis' in window)) return;
 
-  activeSpeakId += 1;
-  const myId = activeSpeakId;
+  activeToken += 1;
+  const myToken = activeToken;
 
-  stopKeepAlive();
+  clearKeepAlive();
   window.speechSynthesis.cancel();
 
-  await new Promise<void>((resolve) => setTimeout(resolve, 200));
-  if (myId !== activeSpeakId) return;
+  await new Promise<void>((resolve) => setTimeout(resolve, 300));
+  if (myToken !== activeToken) return;
 
   const voices = voicesCacheReady ? voicesCache : await initVoices();
-  if (myId !== activeSpeakId) return;
+  if (myToken !== activeToken) return;
 
   const langCode = getLanguageCode(language);
   const { rate, pitch } = getLangSettings(langCode);
   const voice = findBestVoice(language, voices);
 
-  const makeUtterance = (t: string): SpeechSynthesisUtterance => {
-    const u = new SpeechSynthesisUtterance(t);
-    u.rate = rate;
-    u.pitch = pitch;
-    u.volume = 1.0;
-    if (voice) {
-      u.voice = voice;
-      u.lang = voice.lang;
-    } else {
-      u.lang = langCode;
-    }
-    return u;
-  };
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = rate;
+  u.pitch = pitch;
+  u.volume = 1.0;
+  if (voice) {
+    u.voice = voice;
+    u.lang = voice.lang;
+  } else {
+    u.lang = langCode;
+  }
 
-  const isChinese = language === 'mandarin' || language === 'cantonese';
+  let startTime = 0;
+  let hasStarted = false;
 
-  if (isChinese && text.length > 20) {
-    const chunks = text.match(/[^，。！？,!?.]+[，。！？,!?.？]?/g) || [text];
-    const validChunks = chunks.map(c => c.trim()).filter(c => c.length > 0);
+  u.onstart = () => {
+    if (myToken !== activeToken) return;
+    hasStarted = true;
+    startTime = Date.now();
 
-    let chunkIndex = 0;
-    const speakNext = () => {
-      if (myId !== activeSpeakId || chunkIndex >= validChunks.length) {
-        stopKeepAlive();
+    keepAliveTimer = setInterval(() => {
+      if (myToken !== activeToken) {
+        clearKeepAlive();
         return;
       }
-      const u = makeUtterance(validChunks[chunkIndex]);
-      u.onend = () => {
-        if (myId !== activeSpeakId) return;
-        chunkIndex++;
-        speakNext();
-      };
-      u.onerror = () => stopKeepAlive();
-      window.speechSynthesis.speak(u);
-    };
+      if (!window.speechSynthesis.speaking) {
+        clearKeepAlive();
+        return;
+      }
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    }, 5000);
+  };
 
-    startKeepAlive();
-    speakNext();
-  } else {
-    const u = makeUtterance(text);
-    u.onend = () => stopKeepAlive();
-    u.onerror = () => stopKeepAlive();
-    startKeepAlive();
-    window.speechSynthesis.speak(u);
-  }
+  u.onend = () => {
+    if (myToken !== activeToken) return;
+    if (!hasStarted) return;
+
+    const elapsed = Date.now() - startTime;
+    const minDurationMs = Math.max(500, text.length * 60);
+
+    clearKeepAlive();
+    activeToken += 1;
+
+    if (elapsed < minDurationMs) {
+      window.speechSynthesis.cancel();
+    }
+  };
+
+  u.onerror = (e) => {
+    if (e.error === 'interrupted' || e.error === 'canceled') return;
+    clearKeepAlive();
+  };
+
+  window.speechSynthesis.speak(u);
 };
 
 export const isSpeechSupported = (): boolean => 'speechSynthesis' in window;
