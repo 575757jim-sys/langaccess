@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, RefObject } from 'react';
 import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Filter, Download, ShieldAlert } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
-import { speakText, isSpeechSupported, preloadVoices, setStatusCallback, AudioStatus } from '../utils/speech';
+import { playAudio, setStatusCallback, AudioStatus } from '../utils/speech';
 import { exportPhrasesToCSV } from '../utils/exportToCSV';
 import { supabase } from '../lib/supabase';
 
@@ -16,9 +16,10 @@ interface PhrasesScreenProps {
   sector: Sector;
   subcategory: Subcategory;
   onBack: () => void;
+  audioRef: RefObject<HTMLAudioElement>;
 }
 
-export default function PhrasesScreen({ language, sector, subcategory, onBack }: PhrasesScreenProps) {
+export default function PhrasesScreen({ language, sector, subcategory, onBack, audioRef }: PhrasesScreenProps) {
   const data = languageData[language];
   const phraseGroups: PhraseGroup[] = subcategoryPhrases[subcategory]?.[language] || [];
 
@@ -39,9 +40,8 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
   const isChineseLang = language === 'mandarin' || language === 'cantonese';
 
   useEffect(() => {
-    preloadVoices();
     setStatusCallback((status) => setAudioStatus(status));
-    return () => setStatusCallback(() => {});
+    return () => setStatusCallback(null as unknown as (s: AudioStatus) => void);
   }, []);
 
   useEffect(() => {
@@ -205,8 +205,9 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
 
   const handleSpeak = (text: string, buttonKey: string) => {
     setActiveButtonKey(buttonKey);
-    setAudioStatus('loading');
-    speakText(text, language);
+    if (audioRef.current) {
+      playAudio(audioRef.current, text, language);
+    }
   };
 
   const getStatusLabel = (buttonKey: string): string | null => {

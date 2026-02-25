@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import HomeScreen from './components/HomeScreen';
 import PhrasesScreen from './components/PhrasesScreen';
 import SubcategorySelector from './components/SubcategorySelector';
@@ -19,6 +19,7 @@ function App() {
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const handleSelectSector = (sector: Sector) => {
     setSelectedSector(sector);
@@ -68,59 +69,60 @@ function App() {
     return '';
   };
 
-  if (view === 'policy') {
-    return <LanguageAccessPolicy onBack={() => setView('home')} />;
-  }
-
-  if (view === 'community') {
-    return <CommunityNavigator onBack={() => setView('home')} />;
-  }
-
-  if (view === 'phrases' && selectedLanguage && selectedSector && selectedSubcategory) {
-    return (
-      <PhrasesScreen
-        language={selectedLanguage}
-        sector={selectedSector}
-        subcategory={selectedSubcategory}
-        onBack={handleBackFromPhrases}
-      />
-    );
-  }
-
-  if (view === 'language' && selectedSector && selectedSubcategory) {
-    return (
-      <HomeScreen
-        selectedSector={selectedSector}
-        selectedSubcategory={selectedSubcategory}
-        onSelectSector={handleSelectSector}
-        onSelectLanguage={handleSelectLanguage}
-        onBackToSectorSelection={handleBackFromLanguage}
-        onOpenPolicy={() => setView('policy')}
-        onOpenCommunityNavigator={() => setView('community')}
-      />
-    );
-  }
-
-  if (view === 'subcategory' && selectedSector) {
-    return (
-      <SubcategorySelector
-        subcategories={getSubcategories()}
-        sectorLabel={getSectorLabel()}
-        onSelectSubcategory={handleSelectSubcategory}
-        onBack={handleBackToHome}
-      />
-    );
-  }
-
   return (
-    <HomeScreen
-      selectedSector={null}
-      onSelectSector={handleSelectSector}
-      onSelectLanguage={handleSelectLanguage}
-      onBackToSectorSelection={handleBackToHome}
-      onOpenPolicy={() => setView('policy')}
-      onOpenCommunityNavigator={() => setView('community')}
-    />
+    <>
+      <audio ref={audioRef} style={{ display: 'none' }} />
+
+      {view === 'policy' && (
+        <LanguageAccessPolicy onBack={() => setView('home')} />
+      )}
+
+      {view === 'community' && (
+        <CommunityNavigator onBack={() => setView('home')} />
+      )}
+
+      {view === 'phrases' && selectedLanguage && selectedSector && selectedSubcategory && (
+        <PhrasesScreen
+          language={selectedLanguage}
+          sector={selectedSector}
+          subcategory={selectedSubcategory}
+          onBack={handleBackFromPhrases}
+          audioRef={audioRef}
+        />
+      )}
+
+      {view === 'language' && selectedSector && selectedSubcategory && (
+        <HomeScreen
+          selectedSector={selectedSector}
+          selectedSubcategory={selectedSubcategory}
+          onSelectSector={handleSelectSector}
+          onSelectLanguage={handleSelectLanguage}
+          onBackToSectorSelection={handleBackFromLanguage}
+          onOpenPolicy={() => setView('policy')}
+          onOpenCommunityNavigator={() => setView('community')}
+        />
+      )}
+
+      {view === 'subcategory' && selectedSector && (
+        <SubcategorySelector
+          subcategories={getSubcategories()}
+          sectorLabel={getSectorLabel()}
+          onSelectSubcategory={handleSelectSubcategory}
+          onBack={handleBackToHome}
+        />
+      )}
+
+      {view === 'home' && (
+        <HomeScreen
+          selectedSector={null}
+          onSelectSector={handleSelectSector}
+          onSelectLanguage={handleSelectLanguage}
+          onBackToSectorSelection={handleBackToHome}
+          onOpenPolicy={() => setView('policy')}
+          onOpenCommunityNavigator={() => setView('community')}
+        />
+      )}
+    </>
   );
 }
 
