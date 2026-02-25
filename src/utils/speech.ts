@@ -49,6 +49,12 @@ const findBestVoice = (langCode: string): SpeechSynthesisVoice | null => {
   return matches.sort((a, b) => score(b) - score(a))[0];
 };
 
+const getLangSettings = (langCode: string): { rate: number; pitch: number } => {
+  if (langCode === 'fil-PH' || langCode === 'tl-PH') return { rate: 0.45, pitch: 0.9 };
+  if (langCode === 'zh-CN') return { rate: 0.85, pitch: 1.05 };
+  return { rate: 0.9, pitch: 1.0 };
+};
+
 export const speakText = (text: string, language: Language): void => {
   if (!('speechSynthesis' in window)) return;
 
@@ -56,8 +62,9 @@ export const speakText = (text: string, language: Language): void => {
 
   const langCode = getLanguageCode(language);
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.rate = 0.45;
-  utterance.pitch = 0.9;
+  const { rate, pitch } = getLangSettings(langCode);
+  utterance.rate = rate;
+  utterance.pitch = pitch;
   utterance.volume = 1.0;
 
   const applyVoiceAndSpeak = () => {
