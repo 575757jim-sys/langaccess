@@ -171,6 +171,10 @@ const clearKeepAlive = () => {
   }
 };
 
+const isIOS = (): boolean =>
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
 export const speakText = async (text: string, language: Language): Promise<void> => {
   if (!('speechSynthesis' in window)) return;
 
@@ -201,13 +205,27 @@ export const speakText = async (text: string, language: Language): Promise<void>
     u.lang = langCode;
   }
 
-  let startTime = 0;
-  let hasStarted = false;
+  const speakTime = Date.now();
+  const minDurationMs = Math.max(800, text.length * 60);
+  let endFired = false;
+
+  const handleEnd = () => {
+    if (endFired) return;
+    if (myToken !== activeToken) return;
+
+    const elapsed = Date.now() - speakTime;
+
+    clearKeepAlive();
+    activeToken += 1;
+    endFired = true;
+
+    if (elapsed < minDurationMs) {
+      window.speechSynthesis.cancel();
+    }
+  };
 
   u.onstart = () => {
     if (myToken !== activeToken) return;
-    hasStarted = true;
-    startTime = Date.now();
 
     keepAliveTimer = setInterval(() => {
       if (myToken !== activeToken) {
@@ -224,20 +242,7 @@ export const speakText = async (text: string, language: Language): Promise<void>
     }, 5000);
   };
 
-  u.onend = () => {
-    if (myToken !== activeToken) return;
-    if (!hasStarted) return;
-
-    const elapsed = Date.now() - startTime;
-    const minDurationMs = Math.max(500, text.length * 60);
-
-    clearKeepAlive();
-    activeToken += 1;
-
-    if (elapsed < minDurationMs) {
-      window.speechSynthesis.cancel();
-    }
-  };
+  u.onend = handleEnd;
 
   u.onerror = (e) => {
     if (e.error === 'interrupted' || e.error === 'canceled') return;
@@ -245,6 +250,28 @@ export const speakText = async (text: string, language: Language): Promise<void>
   };
 
   window.speechSynthesis.speak(u);
+
+  if (isIOS()) {
+    const safetyTimer = setTimeout(() => {
+      if (myToken !== activeToken) return;
+      if (!window.speechSynthesis.speaking && !endFired) {
+        handleEnd();
+      }
+    }, minDurationMs + 1000);
+
+    const poll = setInterval(() => {
+      if (myToken !== activeToken || endFired) {
+        clearInterval(poll);
+        clearTimeout(safetyTimer);
+        return;
+      }
+      if (!window.speechSynthesis.speaking) {
+        clearInterval(poll);
+        clearTimeout(safetyTimer);
+        handleEnd();
+      }
+    }, 200);
+  }
 };
 
 export const isSpeechSupported = (): boolean => 'speechSynthesis' in window;
