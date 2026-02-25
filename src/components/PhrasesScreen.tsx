@@ -3,7 +3,7 @@ import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Filte
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
-import { speakText, isSpeechSupported, preloadVoices } from '../utils/speech';
+import { speakText, isSpeechSupported, preloadVoices, setStatusCallback, AudioStatus } from '../utils/speech';
 import { exportPhrasesToCSV } from '../utils/exportToCSV';
 import { supabase } from '../lib/supabase';
 
@@ -33,11 +33,15 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   const [vitalOnly, setVitalOnly] = useState(false);
   const [chineseScript, setChineseScript] = useState<'traditional' | 'simplified'>('traditional');
+  const [audioStatus, setAudioStatus] = useState<AudioStatus>('idle');
+  const [activeButtonKey, setActiveButtonKey] = useState<string | null>(null);
 
   const isChineseLang = language === 'mandarin' || language === 'cantonese';
 
   useEffect(() => {
     preloadVoices();
+    setStatusCallback((status) => setAudioStatus(status));
+    return () => setStatusCallback(() => {});
   }, []);
 
   useEffect(() => {
@@ -187,7 +191,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
         setShowAddForm(false);
         setShowSuccessToast(true);
         setTimeout(() => setShowSuccessToast(false), 3000);
-        handleSpeak(newPhrase.translation);
+        handleSpeak(newPhrase.translation, `custom-new`);
       }
     }
   };
@@ -199,8 +203,18 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
     }
   };
 
-  const handleSpeak = (text: string) => {
+  const handleSpeak = (text: string, buttonKey: string) => {
+    setActiveButtonKey(buttonKey);
+    setAudioStatus('loading');
     speakText(text, language);
+  };
+
+  const getStatusLabel = (buttonKey: string): string | null => {
+    if (activeButtonKey !== buttonKey) return null;
+    if (audioStatus === 'loading') return 'Loading...';
+    if (audioStatus === 'playing') return 'Playing';
+    if (audioStatus === 'error') return 'Error';
+    return null;
   };
 
   const handleExportCSV = () => {
@@ -341,17 +355,20 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                                 <p className="text-2xl font-semibold text-blue-700 leading-relaxed flex-1">
                                   {displayTranslation}
                                 </p>
-                                {isSpeechSupported() ? (
+                                <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
                                   <button
-                                    onClick={() => handleSpeak(displayTranslation)}
-                                    className="flex-shrink-0 p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                                    onClick={() => handleSpeak(displayTranslation, phraseId)}
+                                    className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
                                     title="Play audio"
                                   >
                                     <Volume2 className="w-6 h-6" />
                                   </button>
-                                ) : (
-                                  <span className="text-xs text-slate-400">Audio unavailable</span>
-                                )}
+                                  {getStatusLabel(phraseId) && (
+                                    <span className={`text-xs font-medium ${audioStatus === 'playing' ? 'text-green-600' : audioStatus === 'error' ? 'text-red-500' : 'text-slate-400'}`}>
+                                      {getStatusLabel(phraseId)}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                             {sector === 'healthcare' && (
@@ -394,17 +411,20 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                                         <p className="text-lg font-semibold text-blue-700 flex-1">
                                           {response.translation}
                                         </p>
-                                        {isSpeechSupported() ? (
+                                        <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
                                           <button
-                                            onClick={() => handleSpeak(response.translation)}
-                                            className="flex-shrink-0 p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded transition-colors"
+                                            onClick={() => handleSpeak(response.translation, `${phraseId}-r${responseIndex}`)}
+                                            className="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded transition-colors"
                                             title="Play audio"
                                           >
                                             <Volume2 className="w-5 h-5" />
                                           </button>
-                                        ) : (
-                                          <span className="text-xs text-slate-400">Unavailable</span>
-                                        )}
+                                          {getStatusLabel(`${phraseId}-r${responseIndex}`) && (
+                                            <span className={`text-xs font-medium ${audioStatus === 'playing' ? 'text-green-600' : audioStatus === 'error' ? 'text-red-500' : 'text-slate-400'}`}>
+                                              {getStatusLabel(`${phraseId}-r${responseIndex}`)}
+                                            </span>
+                                          )}
+                                        </div>
                                       </div>
                                       <p className="text-sm text-slate-600 italic mb-1">
                                         [{response.pronunciation}]
@@ -515,17 +535,20 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                             <p className="text-2xl font-semibold text-blue-700 leading-relaxed flex-1">
                               {phrase.translation}
                             </p>
-                            {isSpeechSupported() ? (
+                            <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
                               <button
-                                onClick={() => handleSpeak(phrase.translation)}
-                                className="flex-shrink-0 p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                                onClick={() => handleSpeak(phrase.translation, `custom-${phrase.id}`)}
+                                className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
                                 title="Play audio"
                               >
                                 <Volume2 className="w-6 h-6" />
                               </button>
-                            ) : (
-                              <span className="text-xs text-slate-400">Audio unavailable</span>
-                            )}
+                              {getStatusLabel(`custom-${phrase.id}`) && (
+                                <span className={`text-xs font-medium ${audioStatus === 'playing' ? 'text-green-600' : audioStatus === 'error' ? 'text-red-500' : 'text-slate-400'}`}>
+                                  {getStatusLabel(`custom-${phrase.id}`)}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
