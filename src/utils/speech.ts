@@ -5,22 +5,14 @@ const LANG_CODES: Record<Language, string> = {
   tagalog:    'tl',
   vietnamese: 'vi',
   mandarin:   'zh-CN',
-  cantonese:  'zh-HK',
-};
-
-let audioUnlocked = false;
-
-const getPlayer = (): HTMLAudioElement | null => {
-  return document.getElementById('global-audio-player') as HTMLAudioElement | null;
+  cantonese:  'zh-TW',
 };
 
 export const initAudioUnlock = (): void => {
   const unlock = () => {
-    if (audioUnlocked) return;
-    const player = getPlayer();
-    if (player) {
-      player.play().catch(() => {});
-      audioUnlocked = true;
+    const audio = document.getElementById('global-player') as HTMLAudioElement | null;
+    if (audio) {
+      audio.play().catch(() => {});
     }
     document.removeEventListener('click', unlock);
     document.removeEventListener('touchend', unlock);
@@ -31,11 +23,11 @@ export const initAudioUnlock = (): void => {
 
 export const playAudio = (text: string, language: Language): void => {
   const lang = LANG_CODES[language];
-  const player = getPlayer();
-  if (!player) return;
-
-  player.pause();
-  player.src = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(text)}&tl=${encodeURIComponent(lang)}`;
-  player.load();
-  player.play().catch((e) => console.error('Playback Error:', e));
+  const audio = document.getElementById('global-player') as HTMLAudioElement | null;
+  if (!audio) return;
+  audio.pause();
+  audio.currentTime = 0;
+  audio.loop = false;
+  audio.src = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(text)}&tl=${encodeURIComponent(lang)}`;
+  audio.play().catch((err) => console.error('Click required to unlock audio', err));
 };
