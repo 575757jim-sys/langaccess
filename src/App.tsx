@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import HomeScreen from './components/HomeScreen';
 import PhrasesScreen from './components/PhrasesScreen';
 import SubcategorySelector from './components/SubcategorySelector';
@@ -11,11 +11,16 @@ import {
   educationSubcategories,
   constructionSubcategories
 } from './data/subcategories';
+import { initAudioUnlock } from './utils/speech';
 
 type AppView = 'home' | 'subcategory' | 'language' | 'phrases' | 'policy' | 'community';
 
 function App() {
   const [view, setView] = useState<AppView>('home');
+
+  useEffect(() => {
+    initAudioUnlock();
+  }, []);
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
@@ -69,6 +74,7 @@ function App() {
 
   return (
     <>
+      <audio id="global-audio-player" style={{ display: 'none' }} />
 
       {view === 'policy' && (
         <LanguageAccessPolicy onBack={() => setView('home')} />
