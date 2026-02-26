@@ -4,6 +4,8 @@ import PhrasesScreen from './components/PhrasesScreen';
 import SubcategorySelector from './components/SubcategorySelector';
 import LanguageAccessPolicy from './components/LanguageAccessPolicy';
 import CommunityNavigator from './components/CommunityNavigator';
+import ConversationScreen from './components/ConversationScreen';
+import InstallBanner from './components/InstallBanner';
 import { Language, Sector } from './data/phrases';
 import {
   Subcategory,
@@ -13,7 +15,7 @@ import {
 } from './data/subcategories';
 import { initAudioUnlock } from './utils/speech';
 
-type AppView = 'home' | 'subcategory' | 'language' | 'phrases' | 'policy' | 'community';
+type AppView = 'home' | 'subcategory' | 'language' | 'phrases' | 'policy' | 'community' | 'conversation';
 
 function App() {
   const [view, setView] = useState<AppView>('home');
@@ -58,6 +60,10 @@ function App() {
     setView('home');
   };
 
+  const handleOpenConversation = () => {
+    setView('conversation');
+  };
+
   const getSubcategories = () => {
     if (selectedSector === 'healthcare') return healthcareSubcategories;
     if (selectedSector === 'education') return educationSubcategories;
@@ -83,12 +89,20 @@ function App() {
         <CommunityNavigator onBack={() => setView('home')} />
       )}
 
+      {view === 'conversation' && selectedLanguage && (
+        <ConversationScreen
+          language={selectedLanguage}
+          onBack={() => setView('phrases')}
+        />
+      )}
+
       {view === 'phrases' && selectedLanguage && selectedSector && selectedSubcategory && (
         <PhrasesScreen
           language={selectedLanguage}
           sector={selectedSector}
           subcategory={selectedSubcategory}
           onBack={handleBackFromPhrases}
+          onOpenConversation={selectedSector === 'healthcare' ? handleOpenConversation : undefined}
         />
       )}
 
@@ -123,6 +137,8 @@ function App() {
           onOpenCommunityNavigator={() => setView('community')}
         />
       )}
+
+      <InstallBanner />
     </>
   );
 }

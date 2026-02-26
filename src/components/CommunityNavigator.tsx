@@ -2,10 +2,11 @@ import { useState, useRef } from 'react';
 import {
   ArrowLeft, Phone, MessageSquare, Utensils, Stethoscope, Droplets,
   BatteryCharging, Home, Package, Wifi, WifiOff, ShieldCheck,
-  Upload, Trash2, Eye, X, Camera, ChevronDown, Building2
+  Upload, Trash2, Eye, X, Camera, ChevronDown, Building2, Volume2
 } from 'lucide-react';
 import CityResources from './CityResources';
 import { cityResources, CITY_KEYS, CityKey } from '../data/cityResources';
+import { globalAudio, SILENT_MP3, TTS_ENDPOINT, ANON_KEY_VALUE } from '../utils/speech';
 
 interface CommunityNavigatorProps {
   onBack: () => void;
@@ -14,7 +15,7 @@ interface CommunityNavigatorProps {
 const LANG_KEY = 'langaccess_nav_lang';
 const CITY_KEY_STORAGE = 'langaccess_nav_city';
 
-type LangCode = 'en' | 'es' | 'vi' | 'tl';
+type LangCode = 'en' | 'es' | 'vi' | 'tl' | 'hmn' | 'zh-TW' | 'zh-CN' | 'ko' | 'ar';
 
 interface LangStrings {
   food: string;
@@ -24,36 +25,96 @@ interface LangStrings {
   shelter: string;
   lockers: string;
   call211: string;
+  instructions: string;
 }
 
 const languageMap: Record<LangCode, LangStrings> = {
-  en: { food: 'Food', medical: 'Medical + Dental', bathrooms: 'Bathrooms', power: 'Power / Charging', shelter: 'Shelter', lockers: 'Lockers', call211: 'Call 211' },
-  es: { food: 'Comida', medical: 'Médico', bathrooms: 'Baños', power: 'Energía', shelter: 'Refugio', lockers: 'Casilleros', call211: 'Llamar al 211' },
-  vi: { food: 'Thức ăn', medical: 'Y tế', bathrooms: 'Phòng tắm', power: 'Sạc điện', shelter: 'Chỗ ở', lockers: 'Tủ đồ', call211: 'Gọi 211' },
-  tl: { food: 'Pagkain', medical: 'Medikal', bathrooms: 'Banyo', power: 'Kuryente', shelter: 'Silungan', lockers: 'Locker', call211: 'Tumawag sa 211' },
+  en: {
+    food: 'Food', medical: 'Medical + Dental', bathrooms: 'Bathrooms',
+    power: 'Power / Charging', shelter: 'Shelter', lockers: 'Lockers',
+    call211: 'Call 211',
+    instructions: 'Tap a category to find nearby help. Call 211 for social services.',
+  },
+  es: {
+    food: 'Comida', medical: 'Médico + Dental', bathrooms: 'Baños',
+    power: 'Energía / Carga', shelter: 'Refugio', lockers: 'Casilleros',
+    call211: 'Llamar al 211',
+    instructions: 'Toca una categoría para encontrar ayuda cercana. Llama al 211 para servicios sociales.',
+  },
+  vi: {
+    food: 'Thức ăn', medical: 'Y tế + Nha khoa', bathrooms: 'Phòng tắm',
+    power: 'Sạc điện', shelter: 'Chỗ ở', lockers: 'Tủ đồ',
+    call211: 'Gọi 211',
+    instructions: 'Nhấn vào danh mục để tìm sự trợ giúp gần đây. Gọi 211 cho dịch vụ xã hội.',
+  },
+  tl: {
+    food: 'Pagkain', medical: 'Medikal + Dental', bathrooms: 'Banyo',
+    power: 'Kuryente / Charging', shelter: 'Silungan', lockers: 'Locker',
+    call211: 'Tumawag sa 211',
+    instructions: 'I-tap ang isang kategorya para mahanap ang tulong malapit sa iyo. Tumawag sa 211 para sa mga serbisyong panlipunan.',
+  },
+  hmn: {
+    food: 'Zaub mov', medical: 'Kho mob', bathrooms: 'Chav dej',
+    power: 'Hluav taws xob', shelter: 'Tsev so', lockers: 'Lub phov',
+    call211: 'Hu 211',
+    instructions: 'Kov ib pawg los nrhiav kev pab ze. Hu 211 rau kev pab hauv zej zog.',
+  },
+  'zh-TW': {
+    food: '食物', medical: '醫療 + 牙科', bathrooms: '洗手間',
+    power: '充電', shelter: '庇護所', lockers: '儲物櫃',
+    call211: '撥打 211',
+    instructions: '點擊類別以尋找附近的幫助。撥打 211 獲取社會服務。',
+  },
+  'zh-CN': {
+    food: '食物', medical: '医疗 + 牙科', bathrooms: '洗手间',
+    power: '充电', shelter: '庇护所', lockers: '储物柜',
+    call211: '拨打 211',
+    instructions: '点击类别以寻找附近的帮助。拨打 211 获取社会服务。',
+  },
+  ko: {
+    food: '음식', medical: '의료 + 치과', bathrooms: '화장실',
+    power: '충전', shelter: '쉼터', lockers: '사물함',
+    call211: '211 전화',
+    instructions: '근처 도움을 찾으려면 카테고리를 탭하세요. 사회 서비스는 211로 전화하세요.',
+  },
+  ar: {
+    food: 'طعام', medical: 'طبي + أسنان', bathrooms: 'حمامات',
+    power: 'شحن', shelter: 'مأوى', lockers: 'خزائن',
+    call211: 'اتصل بـ 211',
+    instructions: 'اضغط على فئة للعثور على مساعدة قريبة. اتصل بـ 211 للخدمات الاجتماعية.',
+  },
+};
+
+const ttslangMap: Record<LangCode, string> = {
+  en: 'en', es: 'spanish', vi: 'vietnamese', tl: 'tagalog',
+  hmn: 'hmong', 'zh-TW': 'zh-traditional', 'zh-CN': 'zh-simplified',
+  ko: 'korean', ar: 'arabic',
 };
 
 const speechLangMap: Record<LangCode, string> = {
-  en: 'en-US',
-  es: 'es-US',
-  vi: 'vi-VN',
-  tl: 'tl-PH',
+  en: 'en-US', es: 'es-US', vi: 'vi-VN', tl: 'tl-PH',
+  hmn: 'hmn', 'zh-TW': 'zh-TW', 'zh-CN': 'zh-CN', ko: 'ko-KR', ar: 'ar',
 };
 
 const LANG_OPTIONS: { code: LangCode; flag: string; label: string }[] = [
-  { code: 'en', flag: '🇺🇸', label: 'English' },
-  { code: 'es', flag: '🇲🇽', label: 'Español' },
-  { code: 'vi', flag: '🇻🇳', label: 'Tiếng Việt' },
-  { code: 'tl', flag: '🇵🇭', label: 'Filipino' },
+  { code: 'en',    flag: '🇺🇸', label: 'English' },
+  { code: 'es',    flag: '🇲🇽', label: 'Español' },
+  { code: 'vi',    flag: '🇻🇳', label: 'Tiếng Việt' },
+  { code: 'tl',    flag: '🇵🇭', label: 'Filipino' },
+  { code: 'hmn',   flag: '🏔️',  label: 'Hmong' },
+  { code: 'zh-TW', flag: '🇹🇼', label: '繁體中文' },
+  { code: 'zh-CN', flag: '🇨🇳', label: '简体中文' },
+  { code: 'ko',    flag: '🇰🇷', label: '한국어' },
+  { code: 'ar',    flag: '🇸🇦', label: 'العربية' },
 ];
 
 const RESOURCE_CATEGORIES: { id: keyof LangStrings; Icon: React.FC<{ className?: string }>; color: string }[] = [
-  { id: 'food', Icon: Utensils, color: 'bg-amber-500 hover:bg-amber-400' },
-  { id: 'medical', Icon: Stethoscope, color: 'bg-red-500 hover:bg-red-400' },
-  { id: 'bathrooms', Icon: Droplets, color: 'bg-cyan-500 hover:bg-cyan-400' },
-  { id: 'power', Icon: BatteryCharging, color: 'bg-yellow-500 hover:bg-yellow-400' },
-  { id: 'shelter', Icon: Home, color: 'bg-green-500 hover:bg-green-400' },
-  { id: 'lockers', Icon: Package, color: 'bg-orange-500 hover:bg-orange-400' },
+  { id: 'food',      Icon: Utensils,        color: 'bg-amber-500 hover:bg-amber-400' },
+  { id: 'medical',   Icon: Stethoscope,     color: 'bg-red-500 hover:bg-red-400' },
+  { id: 'bathrooms', Icon: Droplets,        color: 'bg-cyan-500 hover:bg-cyan-400' },
+  { id: 'power',     Icon: BatteryCharging, color: 'bg-yellow-500 hover:bg-yellow-400' },
+  { id: 'shelter',   Icon: Home,            color: 'bg-green-500 hover:bg-green-400' },
+  { id: 'lockers',   Icon: Package,         color: 'bg-orange-500 hover:bg-orange-400' },
 ];
 
 const ID_VAULT_KEY = 'langaccess_id_vault';
@@ -66,11 +127,8 @@ interface StoredDoc {
 }
 
 function loadVault(): StoredDoc[] {
-  try {
-    return JSON.parse(localStorage.getItem(ID_VAULT_KEY) || '[]');
-  } catch {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem(ID_VAULT_KEY) || '[]'); }
+  catch { return []; }
 }
 
 function saveVault(docs: StoredDoc[]) {
@@ -78,8 +136,9 @@ function saveVault(docs: StoredDoc[]) {
 }
 
 function loadLang(): LangCode {
-  const saved = localStorage.getItem(LANG_KEY);
-  if (saved === 'en' || saved === 'es' || saved === 'vi' || saved === 'tl') return saved;
+  const saved = localStorage.getItem(LANG_KEY) as LangCode | null;
+  const valid: LangCode[] = ['en', 'es', 'vi', 'tl', 'hmn', 'zh-TW', 'zh-CN', 'ko', 'ar'];
+  if (saved && valid.includes(saved)) return saved;
   return 'en';
 }
 
@@ -87,6 +146,31 @@ function loadCity(): CityKey {
   const saved = localStorage.getItem(CITY_KEY_STORAGE);
   if (saved && CITY_KEYS.includes(saved as CityKey)) return saved as CityKey;
   return 'san-jose';
+}
+
+function playNavText(text: string, langCode: LangCode) {
+  const language = ttslangMap[langCode];
+  globalAudio.pause();
+  globalAudio.currentTime = 0;
+  globalAudio.loop = false;
+  globalAudio.src = SILENT_MP3;
+  globalAudio.play().catch(() => {});
+  if (language === 'en') return;
+  const params = new URLSearchParams({ text, language });
+  fetch(`${TTS_ENDPOINT}?${params}`, {
+    headers: { Authorization: `Bearer ${ANON_KEY_VALUE}` },
+  })
+    .then((res) => (res.ok ? res.blob() : null))
+    .then((blob) => {
+      if (!blob || blob.size < 100) return;
+      const url = URL.createObjectURL(blob);
+      globalAudio.pause();
+      globalAudio.src = url;
+      globalAudio.currentTime = 0;
+      globalAudio.loop = false;
+      globalAudio.play().catch(() => {});
+    })
+    .catch(() => {});
 }
 
 export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) {
@@ -102,6 +186,7 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
   const isOnline = navigator.onLine;
   const t = languageMap[lang];
   const city = cityResources[selectedCity];
+  const isRtl = lang === 'ar';
 
   const handleLangChange = (code: LangCode) => {
     setLang(code);
@@ -118,9 +203,7 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
     setSelectedCategory(null);
   };
 
-  const categoryLabel = (id: string): string => {
-    return t[id as keyof LangStrings] ?? id;
-  };
+  const categoryLabel = (id: string): string => t[id as keyof LangStrings] ?? id;
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -151,7 +234,7 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col" lang={speechLangMap[lang]}>
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col" lang={speechLangMap[lang]} dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="sticky top-0 bg-gray-950 border-b border-gray-800 z-10">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
           <button
@@ -176,24 +259,37 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
           </div>
         </div>
 
-        <div className="max-w-2xl mx-auto px-4 pb-3 flex items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Community Navigator</h1>
-            <p className="text-gray-400 text-sm mt-1">Resources, outreach, and support near you</p>
+        <div className="max-w-2xl mx-auto px-4 pb-2">
+          <h1 className="text-3xl font-bold text-white mb-1">Community Navigator</h1>
+          <div className="flex items-start gap-2">
+            <p className="text-gray-400 text-sm flex-1">{t.instructions}</p>
+            {lang !== 'en' && (
+              <button
+                onClick={() => playNavText(t.instructions, lang)}
+                className="flex-shrink-0 p-1.5 text-amber-400 hover:text-amber-300 hover:bg-amber-400/10 rounded-lg transition-colors"
+                title="Read instructions aloud"
+              >
+                <Volume2 className="w-4 h-4" />
+              </button>
+            )}
           </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 pb-2 pt-2">
+          <div className="flex flex-wrap gap-1.5">
             {LANG_OPTIONS.map(({ code, flag, label }) => (
               <button
                 key={code}
                 onClick={() => handleLangChange(code)}
                 title={label}
-                className={`text-xl px-2 py-1 rounded-lg transition-all duration-150 ${
+                className={`flex items-center gap-1 text-sm px-2.5 py-1.5 rounded-lg transition-all duration-150 ${
                   lang === code
-                    ? 'bg-amber-500/20 ring-1 ring-amber-400 scale-110'
-                    : 'opacity-50 hover:opacity-80 hover:bg-gray-800'
+                    ? 'bg-amber-500/20 ring-1 ring-amber-400 text-amber-300 font-semibold'
+                    : 'opacity-50 hover:opacity-80 hover:bg-gray-800 text-gray-300'
                 }`}
               >
-                {flag}
+                <span>{flag}</span>
+                <span className="hidden sm:inline text-xs">{label}</span>
               </button>
             ))}
           </div>
@@ -238,7 +334,18 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
               <div className="text-3xl font-black tracking-tight">{t.call211}</div>
               <div className="text-sm font-semibold text-gray-800 mt-0.5">Social services, food, shelter — 24/7 free helpline</div>
             </div>
-            <Phone className="w-10 h-10 text-gray-900 flex-shrink-0" />
+            <div className="flex items-center gap-3">
+              {lang !== 'en' && (
+                <button
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); playNavText(t.call211, lang); }}
+                  className="p-2 text-gray-800 hover:text-gray-950 hover:bg-amber-300 rounded-lg transition-colors"
+                  title="Read aloud"
+                >
+                  <Volume2 className="w-5 h-5" />
+                </button>
+              )}
+              <Phone className="w-10 h-10 text-gray-900 flex-shrink-0" />
+            </div>
           </div>
         </a>
 
@@ -265,7 +372,21 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
         </section>
 
         <section>
-          <h2 className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-4">Quick Category Dial</h2>
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-xs font-bold text-amber-400 uppercase tracking-widest">Quick Category Dial</h2>
+            {lang !== 'en' && (
+              <button
+                onClick={() => playNavText(
+                  `${t.food}. ${t.medical}. ${t.bathrooms}. ${t.power}. ${t.shelter}. ${t.lockers}.`,
+                  lang
+                )}
+                className="p-1 text-amber-400/60 hover:text-amber-400 hover:bg-amber-400/10 rounded transition-colors"
+                title="Read categories aloud"
+              >
+                <Volume2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {RESOURCE_CATEGORIES.map(({ id, Icon, color }) => (
               <button
