@@ -19,7 +19,7 @@ const VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
   "zh-simplified":  { languageCode: "cmn-CN", name: "cmn-CN-Wavenet-A" },
 };
 
-const GOOGLE_TTS_API_KEY = Deno.env.get("GOOGLE_TTS_API_KEY") ?? "AIzaSyCVelfCMpunEN1H2nAgR9Iktx8xpQ9PvnE";
+const GOOGLE_TTS_API_KEY = Deno.env.get("GOOGLE_TTS_API_KEY") ?? "";
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
