@@ -4,68 +4,32 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 const TTS_ENDPOINT = `${SUPABASE_URL}/functions/v1/tts-proxy`;
 
-const SILENT_MP3 = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU2LjM2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV6urq6urq6urq6urq6urq6urq6urq6urq6v////////////////////////////////8AAAAATGF2YzU2LjQxAAAAAAAAAAAAAAAAJAAAAAAAAAAAASDs90hvAAAAAAAAAAAAAAAAAAAA//MUZAAAAAGkAAAAAAAAA0gAAAAATEFN//MUZAMAAAGkAAAAAAAAA0gAAAAARTMu//MUZAYAAAGkAAAAAAAAA0gAAAAAOTku//MUZAkAAAGkAAAAAAAAA0gAAAAAN//MUZAwAAAGkAAAAAAAAA0gAAAAA';
+const SILENT_MP3 =
+  'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsgU291bmQgRWZmZWN0cyBMaWJyYXJ5AABURVhUAAAABgAAAzIwMTkAVFNTRQAAAA8AAANMYXZmNTYuNDEuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuOTkuNVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
 
-const player = new Audio();
-player.preload = 'none';
+const audio = new Audio();
+audio.loop = false;
+audio.preload = 'none';
 
-let unlocked = false;
-let currentPlayKey = '';
-const blobCache = new Map<string, string>();
-const inflight = new Map<string, Promise<string | null>>();
+const cache = new Map<string, string>();
 
-function doUnlock(): void {
-  if (unlocked) return;
-  player.src = SILENT_MP3;
-  player.loop = false;
-  player.muted = true;
-  const p = player.play();
-  if (p) {
-    p.then(() => {
-      player.muted = false;
-      unlocked = true;
-    }).catch(() => {
-      player.muted = false;
-    });
-  }
-}
-
-function fetchAudio(text: string, language: Language): Promise<string | null> {
+async function fetchBlob(text: string, language: Language): Promise<string | null> {
   const key = `${language}::${text}`;
-  if (blobCache.has(key)) return Promise.resolve(blobCache.get(key)!);
-  if (inflight.has(key)) return inflight.get(key)!;
-
-  const p = (async () => {
-    try {
-      const params = new URLSearchParams({ text, language });
-      const res = await fetch(`${TTS_ENDPOINT}?${params}`, {
-        headers: { Authorization: `Bearer ${ANON_KEY}` },
-      });
-      if (!res.ok) return null;
-      const blob = await res.blob();
-      if (blob.size < 100) return null;
-      const url = URL.createObjectURL(blob);
-      blobCache.set(key, url);
-      return url;
-    } catch {
-      return null;
-    } finally {
-      inflight.delete(key);
-    }
-  })();
-
-  inflight.set(key, p);
-  return p;
-}
-
-function startPlayback(url: string, key: string): void {
-  if (player.src !== url) {
-    player.src = url;
-    player.loop = false;
+  if (cache.has(key)) return cache.get(key)!;
+  try {
+    const params = new URLSearchParams({ text, language });
+    const res = await fetch(`${TTS_ENDPOINT}?${params}`, {
+      headers: { Authorization: `Bearer ${ANON_KEY}` },
+    });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    if (blob.size < 100) return null;
+    const url = URL.createObjectURL(blob);
+    cache.set(key, url);
+    return url;
+  } catch {
+    return null;
   }
-  currentPlayKey = key;
-  player.currentTime = 0;
-  player.play().catch(() => {});
 }
 
 export function playAudio(
@@ -73,41 +37,40 @@ export function playAudio(
   language: Language,
   onLoading?: (loading: boolean) => void,
 ): void {
-  doUnlock();
+  audio.pause();
+  audio.currentTime = 0;
+  audio.loop = false;
+  audio.src = SILENT_MP3;
+  audio.play().catch(() => {});
 
   const key = `${language}::${text}`;
+  const cached = cache.get(key);
 
-  if (currentPlayKey === key && !player.paused && !player.ended) {
-    player.pause();
-    player.currentTime = 0;
-    currentPlayKey = '';
-    onLoading?.(false);
-    return;
-  }
-
-  if (!player.paused) {
-    player.pause();
-    player.currentTime = 0;
-  }
-
-  const cached = blobCache.get(key);
   if (cached) {
-    startPlayback(cached, key);
+    audio.pause();
+    audio.src = cached;
+    audio.currentTime = 0;
+    audio.loop = false;
+    audio.play().catch(() => {});
     onLoading?.(false);
     return;
   }
 
   onLoading?.(true);
 
-  fetchAudio(text, language).then((url) => {
+  fetchBlob(text, language).then((url) => {
     onLoading?.(false);
     if (!url) return;
-    startPlayback(url, key);
+    audio.pause();
+    audio.src = url;
+    audio.currentTime = 0;
+    audio.loop = false;
+    audio.play().catch(() => {});
   }).catch(() => onLoading?.(false));
 }
 
 export function preloadAudio(text: string, language: Language): void {
-  fetchAudio(text, language).catch(() => {});
+  fetchBlob(text, language).catch(() => {});
 }
 
 export const initAudioUnlock = (): void => {};
