@@ -7,11 +7,16 @@ const corsHeaders = {
 };
 
 const VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
-  spanish:   { languageCode: "es-US", name: "es-US-Wavenet-C" },
-  tagalog:   { languageCode: "fil-PH", name: "fil-PH-Wavenet-A" },
-  vietnamese:{ languageCode: "vi-VN", name: "vi-VN-Wavenet-A" },
-  mandarin:  { languageCode: "cmn-CN", name: "cmn-CN-Wavenet-A" },
-  cantonese: { languageCode: "yue-HK", name: "yue-HK-Standard-B" },
+  spanish:          { languageCode: "es-US",  name: "es-US-Wavenet-C" },
+  tagalog:          { languageCode: "fil-PH", name: "fil-PH-Wavenet-A" },
+  vietnamese:       { languageCode: "vi-VN",  name: "vi-VN-Wavenet-A" },
+  mandarin:         { languageCode: "cmn-CN", name: "cmn-CN-Wavenet-A" },
+  cantonese:        { languageCode: "yue-HK", name: "yue-HK-Standard-B" },
+  hmong:            { languageCode: "hmn-TH", name: "hmn-TH-Standard-A" },
+  korean:           { languageCode: "ko-KR",  name: "ko-KR-Wavenet-A" },
+  arabic:           { languageCode: "ar-XA",  name: "ar-XA-Wavenet-B" },
+  "zh-traditional": { languageCode: "cmn-TW", name: "cmn-TW-Wavenet-A" },
+  "zh-simplified":  { languageCode: "cmn-CN", name: "cmn-CN-Wavenet-A" },
 };
 
 const GOOGLE_TTS_API_KEY = Deno.env.get("GOOGLE_TTS_API_KEY") ?? "AIzaSyCVelfCMpunEN1H2nAgR9Iktx8xpQ9PvnE";

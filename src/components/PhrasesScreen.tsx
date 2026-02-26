@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
@@ -16,9 +16,10 @@ interface PhrasesScreenProps {
   sector: Sector;
   subcategory: Subcategory;
   onBack: () => void;
+  onOpenConversation?: () => void;
 }
 
-export default function PhrasesScreen({ language, sector, subcategory, onBack }: PhrasesScreenProps) {
+export default function PhrasesScreen({ language, sector, subcategory, onBack, onOpenConversation }: PhrasesScreenProps) {
   const data = languageData[language];
   const phraseGroups: PhraseGroup[] = subcategoryPhrases[subcategory]?.[language] || [];
 
@@ -98,7 +99,10 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
       tagalog: 'tl',
       vietnamese: 'vi',
       mandarin: 'zh-CN',
-      cantonese: 'zh-TW'
+      cantonese: 'zh-TW',
+      hmong: 'hmn',
+      korean: 'ko',
+      arabic: 'ar',
     };
     return codes[lang];
   };
@@ -273,6 +277,15 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                   <ShieldAlert className="w-4 h-4" />
                   {vitalOnly ? 'Vital Only' : 'Show Vital Only'}
                 </button>
+                {onOpenConversation && (
+                  <button
+                    onClick={onOpenConversation}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-blue-500 bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                  >
+                    <Users className="w-4 h-4" />
+                    Intake Mode
+                  </button>
+                )}
                 {phraseGroups.length > 0 && (
                   <button
                     onClick={handleExportCSV}

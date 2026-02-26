@@ -1,4 +1,4 @@
-export type Language = 'spanish' | 'tagalog' | 'vietnamese' | 'mandarin' | 'cantonese';
+export type Language = 'spanish' | 'tagalog' | 'vietnamese' | 'mandarin' | 'cantonese' | 'hmong' | 'korean' | 'arabic';
 export type Sector = 'healthcare' | 'education' | 'construction';
 
 export interface Response {
@@ -230,6 +230,33 @@ export const languageData: Record<Language, LanguageData> = {
       { english: 'Are you dizzy?', translation: '你頭暈唔暈？(Néih tàuh wahn m̀h wahn?)', responses: [{ translation: '暈', pronunciation: 'Wahn', english: 'Yes' }, { translation: '唔暈', pronunciation: 'M̀h wahn', english: 'No' }, { translation: '少少', pronunciation: 'Síu síu', english: 'A little' }, { translation: '好暈', pronunciation: 'Hóu wahn', english: 'Very' }, { translation: '天旋地轉', pronunciation: 'Tīn syùhn deih jyún', english: 'Spinning' }, { translation: '有時', pronunciation: 'Yáuh sìh', english: 'Sometimes' }] },
       { english: 'Do you need an interpreter?', translation: '你需唔需要翻譯？(Néih sēui m̀h sēui yiu fāan yihk?)', responses: [{ translation: '需要', pronunciation: 'Sēui yiu', english: 'Yes' }, { translation: '唔需要', pronunciation: 'M̀h sēui yiu', english: 'No' }, { translation: '係，唔該', pronunciation: 'Haih, m̀h gōi', english: 'Yes, please' }, { translation: '多謝', pronunciation: 'Dō jeh', english: 'Thank you' }, { translation: '我唔識講英文', pronunciation: 'Ngóh m̀h sīk góng Yīng mán', english: "I don't speak English" }, { translation: '識少少英文', pronunciation: 'Sīk síu síu Yīng mán', english: 'A little English' }] },
       { english: 'Please sign here', translation: '請喺度簽名 (Chéng hái douh chīm méng)', responses: [{ translation: '好', pronunciation: 'Hóu', english: 'Okay' }, { translation: '得', pronunciation: 'Dāk', english: 'Yes' }, { translation: '邊度？', pronunciation: 'Bīn douh?', english: 'Where?' }, { translation: '我唔明', pronunciation: 'Ngóh m̀h mìhng', english: "I don't understand" }, { translation: '呢個係乜嘢？', pronunciation: 'Nī go haih māt yéh?', english: 'What is this?' }, { translation: '我需要幫手', pronunciation: 'Ngóh sēui yiu bōng sáu', english: 'I need help' }] }
+    ]
+  },
+  hmong: {
+    name: 'Hmong',
+    phrases: [
+      { english: 'Where does it hurt?', translation: 'Koj mob qhov twg?', responses: [{ translation: 'Taub hau', pronunciation: 'tau hau', english: 'Head' }, { translation: 'Hauv siab', pronunciation: 'hau sia', english: 'Chest' }, { translation: 'Plab', pronunciation: 'pla', english: 'Stomach' }, { translation: 'Nraub qaum', pronunciation: 'nrau qau', english: 'Back' }, { translation: 'Ceg', pronunciation: 'ce', english: 'Leg' }, { translation: 'Npab', pronunciation: 'npa', english: 'Arm' }] },
+      { english: 'Do you have any allergies?', translation: 'Koj puas muaj kev tsis xis ntsws?', responses: [{ translation: 'Muaj', pronunciation: 'mua', english: 'Yes' }, { translation: 'Tsis muaj', pronunciation: 'tsi mua', english: 'No' }, { translation: 'Penicillin', pronunciation: 'pe-ni-si-lin', english: 'Penicillin' }, { translation: 'Txiv laum huab', pronunciation: 'txi lau hua', english: 'Peanuts' }, { translation: 'Kuv tsis paub', pronunciation: 'ku tsi pau', english: "I don't know" }] },
+      { english: 'Are you taking any medications?', translation: 'Koj puas noj tshuaj?', responses: [{ translation: 'Muaj', pronunciation: 'mua', english: 'Yes' }, { translation: 'Tsis muaj', pronunciation: 'tsi mua', english: 'No' }, { translation: 'Rau mob ntshav qab zib', pronunciation: 'rau mo nta qa si', english: 'For diabetes' }, { translation: 'Rau lub plawv', pronunciation: 'rau lu pla', english: 'For the heart' }, { translation: 'Kuv tsis nco qab', pronunciation: 'ku tsi nco qa', english: "I don't remember" }] },
+      { english: 'Do you need an interpreter?', translation: 'Koj puas xav tau neeg txhais lus?', responses: [{ translation: 'Xav tau', pronunciation: 'xa tau', english: 'Yes' }, { translation: 'Tsis xav tau', pronunciation: 'tsi xa tau', english: 'No' }, { translation: 'Ua tsaug', pronunciation: 'ua tsau', english: 'Thank you' }] }
+    ]
+  },
+  korean: {
+    name: 'Korean',
+    phrases: [
+      { english: 'Where does it hurt?', translation: '어디가 아프세요? (Eodi-ga apeuseyo?)', responses: [{ translation: '머리', pronunciation: 'meo-ri', english: 'Head' }, { translation: '가슴', pronunciation: 'ga-seum', english: 'Chest' }, { translation: '배', pronunciation: 'bae', english: 'Stomach' }, { translation: '등', pronunciation: 'deung', english: 'Back' }, { translation: '다리', pronunciation: 'da-ri', english: 'Leg' }, { translation: '팔', pronunciation: 'pal', english: 'Arm' }] },
+      { english: 'Do you have any allergies?', translation: '알레르기가 있으세요? (Allereugi-ga isseuseyo?)', responses: [{ translation: '네', pronunciation: 'ne', english: 'Yes' }, { translation: '아니요', pronunciation: 'a-ni-yo', english: 'No' }, { translation: '페니실린', pronunciation: 'pe-ni-sil-lin', english: 'Penicillin' }, { translation: '땅콩', pronunciation: 'ttang-kong', english: 'Peanuts' }, { translation: '모르겠어요', pronunciation: 'mo-reu-ge-sseo-yo', english: "I don't know" }] },
+      { english: 'Are you taking any medications?', translation: '약을 복용하고 계신가요? (Yag-eul bok-yong-hago gyesin-gayo?)', responses: [{ translation: '네', pronunciation: 'ne', english: 'Yes' }, { translation: '아니요', pronunciation: 'a-ni-yo', english: 'No' }, { translation: '당뇨 약', pronunciation: 'dang-nyo yak', english: 'Diabetes medicine' }, { translation: '심장 약', pronunciation: 'sim-jang yak', english: 'Heart medicine' }, { translation: '기억이 안 나요', pronunciation: 'gi-eog-i an na-yo', english: "I don't remember" }] },
+      { english: 'Do you need an interpreter?', translation: '통역사가 필요하신가요? (Tong-yeoksa-ga pil-yo-ha-sin-ga-yo?)', responses: [{ translation: '네, 필요해요', pronunciation: 'ne, pil-yo-hae-yo', english: 'Yes, I need one' }, { translation: '아니요', pronunciation: 'a-ni-yo', english: 'No' }, { translation: '감사합니다', pronunciation: 'gam-sa-ham-ni-da', english: 'Thank you' }] }
+    ]
+  },
+  arabic: {
+    name: 'Arabic',
+    phrases: [
+      { english: 'Where does it hurt?', translation: 'أين تشعر بالألم؟', responses: [{ translation: 'الرأس', pronunciation: 'al-raas', english: 'Head' }, { translation: 'الصدر', pronunciation: 'al-sadr', english: 'Chest' }, { translation: 'البطن', pronunciation: 'al-batn', english: 'Stomach' }, { translation: 'الظهر', pronunciation: 'al-zahr', english: 'Back' }, { translation: 'الساق', pronunciation: 'al-saaq', english: 'Leg' }, { translation: 'الذراع', pronunciation: 'al-dhiraa', english: 'Arm' }] },
+      { english: 'Do you have any allergies?', translation: 'هل لديك أي حساسية؟', responses: [{ translation: 'نعم', pronunciation: "na'am", english: 'Yes' }, { translation: 'لا', pronunciation: 'laa', english: 'No' }, { translation: 'البنسلين', pronunciation: 'al-binisilin', english: 'Penicillin' }, { translation: 'الفول السوداني', pronunciation: 'al-fuul al-suudaani', english: 'Peanuts' }, { translation: 'لا أعرف', pronunciation: "laa a'rif", english: "I don't know" }] },
+      { english: 'Are you taking any medications?', translation: 'هل تتناول أي أدوية؟', responses: [{ translation: 'نعم', pronunciation: "na'am", english: 'Yes' }, { translation: 'لا', pronunciation: 'laa', english: 'No' }, { translation: 'لمرض السكري', pronunciation: 'li-marad al-sukkari', english: 'For diabetes' }, { translation: 'للقلب', pronunciation: 'lil-qalb', english: 'For the heart' }, { translation: 'لا أتذكر', pronunciation: 'laa atadhakkar', english: "I don't remember" }] },
+      { english: 'Do you need an interpreter?', translation: 'هل تحتاج إلى مترجم؟', responses: [{ translation: 'نعم، من فضلك', pronunciation: "na'am, min fadlak", english: 'Yes, please' }, { translation: 'لا', pronunciation: 'laa', english: 'No' }, { translation: 'شكراً', pronunciation: 'shukran', english: 'Thank you' }] }
     ]
   }
 };
