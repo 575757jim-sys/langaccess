@@ -74,7 +74,6 @@ function App() {
 
   return (
     <>
-      <audio id="global-player" preload="auto" style={{ display: 'none' }} />
 
       {view === 'policy' && (
         <LanguageAccessPolicy onBack={() => setView('home')} />
