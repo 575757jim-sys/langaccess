@@ -3,7 +3,7 @@ import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Filte
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
-import { playAudio, setStatusCallback, AudioStatus } from '../utils/speech';
+import { playAudio } from '../utils/speech';
 import { exportPhrasesToCSV } from '../utils/exportToCSV';
 import { supabase } from '../lib/supabase';
 
@@ -33,15 +33,8 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   const [vitalOnly, setVitalOnly] = useState(false);
   const [chineseScript, setChineseScript] = useState<'traditional' | 'simplified'>('traditional');
-  const [audioStatus, setAudioStatus] = useState<AudioStatus>('idle');
-  const [activeButtonKey, setActiveButtonKey] = useState<string | null>(null);
 
   const isChineseLang = language === 'mandarin' || language === 'cantonese';
-
-  useEffect(() => {
-    setStatusCallback((status) => setAudioStatus(status));
-    return () => setStatusCallback(null as unknown as (s: AudioStatus) => void);
-  }, []);
 
   useEffect(() => {
     const testConnection = async () => {
@@ -202,19 +195,6 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
     }
   };
 
-  const handleSpeak = (text: string, buttonKey: string) => {
-    setActiveButtonKey(buttonKey);
-    playAudio(text, language);
-  };
-
-  const getStatusLabel = (buttonKey: string): string | null => {
-    if (activeButtonKey !== buttonKey) return null;
-    if (audioStatus === 'loading') return 'Loading...';
-    if (audioStatus === 'playing') return 'Playing';
-    if (audioStatus === 'error') return 'Error';
-    return null;
-  };
-
   const handleExportCSV = () => {
     exportPhrasesToCSV(getFilteredGroups(), language, sector, subcategory);
   };
@@ -353,20 +333,13 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                                 <p className="text-2xl font-semibold text-blue-700 leading-relaxed flex-1">
                                   {displayTranslation}
                                 </p>
-                                <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
-                                  <button
-                                    onClick={() => handleSpeak(displayTranslation, phraseId)}
-                                    className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                                    title="Play audio"
-                                  >
-                                    <Volume2 className="w-6 h-6" />
-                                  </button>
-                                  {getStatusLabel(phraseId) && (
-                                    <span className={`text-xs font-medium ${audioStatus === 'playing' ? 'text-green-600' : audioStatus === 'error' ? 'text-red-500' : 'text-slate-400'}`}>
-                                      {getStatusLabel(phraseId)}
-                                    </span>
-                                  )}
-                                </div>
+                                <button
+                                  onClick={() => playAudio(displayTranslation, language)}
+                                  className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0"
+                                  title="Play audio"
+                                >
+                                  <Volume2 className="w-6 h-6" />
+                                </button>
                               </div>
                             </div>
                             {sector === 'healthcare' && (
@@ -409,20 +382,13 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                                         <p className="text-lg font-semibold text-blue-700 flex-1">
                                           {response.translation}
                                         </p>
-                                        <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
-                                          <button
-                                            onClick={() => handleSpeak(response.translation, `${phraseId}-r${responseIndex}`)}
-                                            className="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded transition-colors"
-                                            title="Play audio"
-                                          >
-                                            <Volume2 className="w-5 h-5" />
-                                          </button>
-                                          {getStatusLabel(`${phraseId}-r${responseIndex}`) && (
-                                            <span className={`text-xs font-medium ${audioStatus === 'playing' ? 'text-green-600' : audioStatus === 'error' ? 'text-red-500' : 'text-slate-400'}`}>
-                                              {getStatusLabel(`${phraseId}-r${responseIndex}`)}
-                                            </span>
-                                          )}
-                                        </div>
+                                        <button
+                                          onClick={() => playAudio(response.translation, language)}
+                                          className="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                                          title="Play audio"
+                                        >
+                                          <Volume2 className="w-5 h-5" />
+                                        </button>
                                       </div>
                                       <p className="text-sm text-slate-600 italic mb-1">
                                         [{response.pronunciation}]
@@ -533,20 +499,13 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                             <p className="text-2xl font-semibold text-blue-700 leading-relaxed flex-1">
                               {phrase.translation}
                             </p>
-                            <div className="flex-shrink-0 flex flex-col items-center gap-0.5">
-                              <button
-                                onClick={() => handleSpeak(phrase.translation, `custom-${phrase.id}`)}
-                                className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Play audio"
-                              >
-                                <Volume2 className="w-6 h-6" />
-                              </button>
-                              {getStatusLabel(`custom-${phrase.id}`) && (
-                                <span className={`text-xs font-medium ${audioStatus === 'playing' ? 'text-green-600' : audioStatus === 'error' ? 'text-red-500' : 'text-slate-400'}`}>
-                                  {getStatusLabel(`custom-${phrase.id}`)}
-                                </span>
-                              )}
-                            </div>
+                            <button
+                              onClick={() => playAudio(phrase.translation, language)}
+                              className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0"
+                              title="Play audio"
+                            >
+                              <Volume2 className="w-6 h-6" />
+                            </button>
                           </div>
                         </div>
                       </div>
