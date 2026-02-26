@@ -4,44 +4,50 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 const TTS_ENDPOINT = `${SUPABASE_URL}/functions/v1/tts-proxy`;
 
+const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+
+const player = new Audio();
+player.loop = false;
+player.preload = 'none';
+
+let unlocked = false;
 const blobCache = new Map<string, string>();
 const inflight = new Map<string, Promise<string | null>>();
-let currentAudio: HTMLAudioElement | null = null;
-let audioUnlocked = false;
 
-function cacheKey(text: string, language: Language): string {
-  return `${language}::${text}`;
-}
-
-function fetchAudioBlob(text: string, language: Language): Promise<string | null> {
-  const key = cacheKey(text, language);
+function fetchAudio(text: string, language: Language): Promise<string | null> {
+  const key = `${language}::${text}`;
   if (blobCache.has(key)) return Promise.resolve(blobCache.get(key)!);
   if (inflight.has(key)) return inflight.get(key)!;
 
-  const promise = (async () => {
-    const params = new URLSearchParams({ text, language });
-    const response = await fetch(`${TTS_ENDPOINT}?${params}`, {
-      headers: { Authorization: `Bearer ${ANON_KEY}` },
-    });
-    if (!response.ok) return null;
-    const blob = await response.blob();
-    if (blob.size < 100) return null;
-    const url = URL.createObjectURL(blob);
-    blobCache.set(key, url);
-    inflight.delete(key);
-    return url;
+  const p = (async () => {
+    try {
+      const params = new URLSearchParams({ text, language });
+      const res = await fetch(`${TTS_ENDPOINT}?${params}`, {
+        headers: { Authorization: `Bearer ${ANON_KEY}` },
+      });
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      if (blob.size < 100) return null;
+      const url = URL.createObjectURL(blob);
+      blobCache.set(key, url);
+      return url;
+    } finally {
+      inflight.delete(key);
+    }
   })();
 
-  inflight.set(key, promise);
-  return promise;
+  inflight.set(key, p);
+  return p;
 }
 
-function stopCurrent(): void {
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
-    currentAudio = null;
-  }
+function unlockAudio(): void {
+  if (unlocked) return;
+  player.src = SILENT_WAV;
+  player.muted = true;
+  player.play().then(() => {
+    player.muted = false;
+    unlocked = true;
+  }).catch(() => {});
 }
 
 export function playAudio(
@@ -49,46 +55,33 @@ export function playAudio(
   language: Language,
   onLoading?: (loading: boolean) => void,
 ): void {
-  stopCurrent();
+  player.pause();
+  player.currentTime = 0;
+  player.src = '';
 
-  const key = cacheKey(text, language);
+  unlockAudio();
+
+  const key = `${language}::${text}`;
   const cached = blobCache.get(key);
 
   if (cached) {
-    const audio = new Audio(cached);
-    currentAudio = audio;
-    audio.onended = () => { if (currentAudio === audio) currentAudio = null; };
-    audio.play().catch(() => {});
+    player.src = cached;
+    player.play().catch(() => {});
     return;
-  }
-
-  const audio = new Audio();
-  currentAudio = audio;
-  audio.onended = () => { if (currentAudio === audio) currentAudio = null; };
-
-  if (!audioUnlocked) {
-    audio.muted = true;
-    audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-    audio.play().then(() => {
-      audio.muted = false;
-      audioUnlocked = true;
-    }).catch(() => {});
   }
 
   onLoading?.(true);
 
-  fetchAudioBlob(text, language).then((url) => {
+  fetchAudio(text, language).then((url) => {
     onLoading?.(false);
-    if (!url || currentAudio !== audio) return;
-    audio.src = url;
-    audio.play().catch(() => {});
-  }).catch(() => {
-    onLoading?.(false);
-  });
+    if (!url) return;
+    player.src = url;
+    player.play().catch(() => {});
+  }).catch(() => onLoading?.(false));
 }
 
 export function preloadAudio(text: string, language: Language): void {
-  fetchAudioBlob(text, language).catch(() => {});
+  fetchAudio(text, language).catch(() => {});
 }
 
 export const initAudioUnlock = (): void => {};
