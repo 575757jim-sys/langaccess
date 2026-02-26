@@ -5,16 +5,29 @@ const LANG_CODES: Record<Language, string> = {
   tagalog:    'tl',
   vietnamese: 'vi',
   mandarin:   'zh-CN',
-  cantonese:  'zh-HK',
+  cantonese:  'zh-TW',
+};
+
+export const initAudioUnlock = (): void => {
+  const unlock = () => {
+    const audio = document.getElementById('global-player') as HTMLAudioElement | null;
+    if (audio) {
+      audio.play().catch(() => {});
+    }
+    document.removeEventListener('click', unlock);
+    document.removeEventListener('touchend', unlock);
+  };
+  document.addEventListener('click', unlock);
+  document.addEventListener('touchend', unlock);
 };
 
 export const playAudio = (text: string, language: Language): void => {
-  const langCode = LANG_CODES[language];
-  const player = document.getElementById('medical-audio-player') as HTMLAudioElement | null;
-  if (!player) return;
-  player.pause();
-  player.currentTime = 0;
-  player.loop = false;
-  player.src = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(text)}&tl=${encodeURIComponent(langCode)}`;
-  player.play().catch((e) => console.error('Needs user tap', e));
+  const lang = LANG_CODES[language];
+  const audio = document.getElementById('global-player') as HTMLAudioElement | null;
+  if (!audio) return;
+  audio.pause();
+  audio.currentTime = 0;
+  audio.loop = false;
+  audio.src = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(text)}&tl=${encodeURIComponent(lang)}`;
+  audio.play().catch((err) => console.error('Click required to unlock audio', err));
 };
