@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import HomeScreen from './components/HomeScreen';
 import PhrasesScreen from './components/PhrasesScreen';
 import SubcategorySelector from './components/SubcategorySelector';
@@ -19,8 +19,6 @@ function App() {
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
-
   const handleSelectSector = (sector: Sector) => {
     setSelectedSector(sector);
     setSelectedSubcategory(null);
@@ -71,7 +69,6 @@ function App() {
 
   return (
     <>
-      <audio ref={audioRef} style={{ display: 'none' }} />
 
       {view === 'policy' && (
         <LanguageAccessPolicy onBack={() => setView('home')} />
@@ -87,7 +84,6 @@ function App() {
           sector={selectedSector}
           subcategory={selectedSubcategory}
           onBack={handleBackFromPhrases}
-          audioRef={audioRef}
         />
       )}
 

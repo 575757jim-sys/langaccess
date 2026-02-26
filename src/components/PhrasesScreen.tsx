@@ -1,4 +1,4 @@
-import { useState, useEffect, RefObject } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Filter, Download, ShieldAlert } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
@@ -16,10 +16,9 @@ interface PhrasesScreenProps {
   sector: Sector;
   subcategory: Subcategory;
   onBack: () => void;
-  audioRef: RefObject<HTMLAudioElement>;
 }
 
-export default function PhrasesScreen({ language, sector, subcategory, onBack, audioRef }: PhrasesScreenProps) {
+export default function PhrasesScreen({ language, sector, subcategory, onBack }: PhrasesScreenProps) {
   const data = languageData[language];
   const phraseGroups: PhraseGroup[] = subcategoryPhrases[subcategory]?.[language] || [];
 
@@ -191,7 +190,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, a
         setShowAddForm(false);
         setShowSuccessToast(true);
         setTimeout(() => setShowSuccessToast(false), 3000);
-        handleSpeak(newPhrase.translation, `custom-new`);
+        playAudio(newPhrase.translation, language);
       }
     }
   };
@@ -205,9 +204,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, a
 
   const handleSpeak = (text: string, buttonKey: string) => {
     setActiveButtonKey(buttonKey);
-    if (audioRef.current) {
-      playAudio(audioRef.current, text, language);
-    }
+    playAudio(text, language);
   };
 
   const getStatusLabel = (buttonKey: string): string | null => {
