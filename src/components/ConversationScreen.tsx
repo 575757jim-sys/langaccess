@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { ArrowLeft, Volume2, Loader2, RefreshCw, Users } from 'lucide-react';
 import { Language, languageData } from '../data/phrases';
-import { globalAudio, SILENT_MP3, fetchTTSBlob } from '../utils/speech';
+import { globalAudio, playAudioFromGesture } from '../utils/speech';
 
 interface ConversationScreenProps {
   language: Language;
@@ -48,19 +48,7 @@ async function translateToLanguage(text: string, targetLang: Language): Promise<
 }
 
 function playTranslation(text: string, language: Language) {
-  globalAudio.pause();
-  globalAudio.currentTime = 0;
-  globalAudio.loop = false;
-  globalAudio.src = SILENT_MP3;
-  globalAudio.play().catch(() => {});
-  fetchTTSBlob(text, language).then((url) => {
-    if (!url) return;
-    globalAudio.pause();
-    globalAudio.src = url;
-    globalAudio.currentTime = 0;
-    globalAudio.loop = false;
-    globalAudio.play().catch(() => {});
-  }).catch(() => {});
+  playAudioFromGesture(text, language);
 }
 
 export default function ConversationScreen({ language, onBack }: ConversationScreenProps) {

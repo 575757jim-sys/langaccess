@@ -11,6 +11,7 @@ export const SILENT_MP3 =
 
 export const globalAudio = new Audio();
 globalAudio.loop = false;
+globalAudio.preload = 'auto';
 
 const cache = new Map<string, string>();
 
@@ -29,6 +30,56 @@ export function fetchTTSBlob(text: string, language: Language): Promise<string |
       return url;
     })
     .catch(() => null);
+}
+
+/**
+ * iOS Safari requires audio.play() to be called synchronously within a user
+ * gesture. Once the event handler yields to the network (await / .then), the
+ * gesture context is gone and iOS silently refuses play().
+ *
+ * Strategy:
+ *  1. Immediately set src to the silent MP3 and call play() — this captures
+ *     the gesture and "unlocks" the audio element on iOS.
+ *  2. When the blob resolves, swap src while the element is already playing.
+ *     iOS allows src changes on an already-running audio element, so playback
+ *     continues seamlessly without needing a second user gesture.
+ */
+export function playAudioFromGesture(text: string, language: Language): void {
+  globalAudio.pause();
+  globalAudio.loop = false;
+
+  const key = `${language}::${text}`;
+  const cached = cache.get(key);
+
+  if (cached) {
+    globalAudio.src = cached;
+    globalAudio.currentTime = 0;
+    globalAudio.play().catch(() => {});
+    return;
+  }
+
+  globalAudio.src = SILENT_MP3;
+  globalAudio.currentTime = 0;
+  const playPromise = globalAudio.play();
+
+  fetchTTSBlob(text, language).then((url) => {
+    if (!url) return;
+    if (playPromise) {
+      playPromise.then(() => {
+        globalAudio.src = url;
+        globalAudio.currentTime = 0;
+        globalAudio.play().catch(() => {});
+      }).catch(() => {
+        globalAudio.src = url;
+        globalAudio.currentTime = 0;
+        globalAudio.play().catch(() => {});
+      });
+    } else {
+      globalAudio.src = url;
+      globalAudio.currentTime = 0;
+      globalAudio.play().catch(() => {});
+    }
+  }).catch(() => {});
 }
 
 export function preloadAudio(text: string, language: Language): void {

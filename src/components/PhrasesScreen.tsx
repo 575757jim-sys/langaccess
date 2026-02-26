@@ -3,7 +3,7 @@ import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loade
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
-import { globalAudio, SILENT_MP3, fetchTTSBlob } from '../utils/speech';
+import { globalAudio, playAudioFromGesture } from '../utils/speech';
 import { exportPhrasesToCSV } from '../utils/exportToCSV';
 import { supabase } from '../lib/supabase';
 
@@ -37,22 +37,17 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
   const [loadingAudioKey, setLoadingAudioKey] = useState<string | null>(null);
 
   const handlePlay = useCallback((text: string, key: string) => {
-    globalAudio.pause();
-    globalAudio.currentTime = 0;
-    globalAudio.loop = false;
-    globalAudio.src = SILENT_MP3;
-    globalAudio.play().catch(() => {});
-
     setLoadingAudioKey(key);
-    fetchTTSBlob(text, language).then((url) => {
+    playAudioFromGesture(text, language);
+    const timeout = setTimeout(() => setLoadingAudioKey(null), 3000);
+    globalAudio.addEventListener('playing', () => {
+      clearTimeout(timeout);
       setLoadingAudioKey(null);
-      if (!url) return;
-      globalAudio.pause();
-      globalAudio.src = url;
-      globalAudio.currentTime = 0;
-      globalAudio.loop = false;
-      globalAudio.play().catch(() => {});
-    }).catch(() => setLoadingAudioKey(null));
+    }, { once: true });
+    globalAudio.addEventListener('error', () => {
+      clearTimeout(timeout);
+      setLoadingAudioKey(null);
+    }, { once: true });
   }, [language]);
 
   const isChineseLang = language === 'mandarin' || language === 'cantonese';

@@ -1,8 +1,23 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export function useUpdateManager() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
+  const autoApplyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const triggerSkipWaiting = useCallback((reg: ServiceWorkerRegistration) => {
+    if (reg.waiting) {
+      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+  }, []);
+
+  const scheduleAutoApply = useCallback((reg: ServiceWorkerRegistration) => {
+    if (autoApplyTimer.current) clearTimeout(autoApplyTimer.current);
+    autoApplyTimer.current = setTimeout(() => {
+      triggerSkipWaiting(reg);
+    }, 4000);
+    setUpdateAvailable(true);
+  }, [triggerSkipWaiting]);
 
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
@@ -13,15 +28,23 @@ export function useUpdateManager() {
         setRegistration(reg);
 
         if (reg.waiting) {
-          setUpdateAvailable(true);
+          if (!navigator.serviceWorker.controller) {
+            triggerSkipWaiting(reg);
+          } else {
+            scheduleAutoApply(reg);
+          }
         }
 
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           if (!newWorker) return;
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              setUpdateAvailable(true);
+            if (newWorker.state === 'installed') {
+              if (!navigator.serviceWorker.controller) {
+                triggerSkipWaiting(reg);
+              } else {
+                scheduleAutoApply(reg);
+              }
             }
           });
         });
@@ -34,9 +57,14 @@ export function useUpdateManager() {
       refreshing = true;
       window.location.reload();
     });
-  }, []);
+
+    return () => {
+      if (autoApplyTimer.current) clearTimeout(autoApplyTimer.current);
+    };
+  }, [scheduleAutoApply, triggerSkipWaiting]);
 
   const applyUpdate = useCallback(() => {
+    if (autoApplyTimer.current) clearTimeout(autoApplyTimer.current);
     if (registration && registration.waiting) {
       registration.waiting.postMessage({ type: 'SKIP_WAITING' });
     }
