@@ -8,15 +8,19 @@ const LANG_CODES: Record<Language, string> = {
   cantonese:  'zh-HK',
 };
 
-const audio = new Audio();
+let currentAudio: HTMLAudioElement | null = null;
 
 export const playAudio = (text: string, language: Language): void => {
   const lang = LANG_CODES[language];
   const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=${encodeURIComponent(text)}&tl=${encodeURIComponent(lang)}`;
 
-  audio.pause();
-  audio.currentTime = 0;
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.src = '';
+  }
+
+  const audio = new Audio();
   audio.src = url;
-  audio.load();
-  audio.play();
+  currentAudio = audio;
+  audio.play().catch((e) => console.warn('Audio playback blocked:', e));
 };
