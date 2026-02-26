@@ -4,15 +4,31 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 const TTS_ENDPOINT = `${SUPABASE_URL}/functions/v1/tts-proxy`;
 
-const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+const SILENT_MP3 = 'data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU2LjM2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV6urq6urq6urq6urq6urq6urq6urq6urq6v////////////////////////////////8AAAAATGF2YzU2LjQxAAAAAAAAAAAAAAAAJAAAAAAAAAAAASDs90hvAAAAAAAAAAAAAAAAAAAA//MUZAAAAAGkAAAAAAAAA0gAAAAATEFN//MUZAMAAAGkAAAAAAAAA0gAAAAARTMu//MUZAYAAAGkAAAAAAAAA0gAAAAAOTku//MUZAkAAAGkAAAAAAAAA0gAAAAAN//MUZAwAAAGkAAAAAAAAA0gAAAAA';
 
 const player = new Audio();
-player.loop = false;
 player.preload = 'none';
 
 let unlocked = false;
+let currentPlayKey = '';
 const blobCache = new Map<string, string>();
 const inflight = new Map<string, Promise<string | null>>();
+
+function doUnlock(): void {
+  if (unlocked) return;
+  player.src = SILENT_MP3;
+  player.loop = false;
+  player.muted = true;
+  const p = player.play();
+  if (p) {
+    p.then(() => {
+      player.muted = false;
+      unlocked = true;
+    }).catch(() => {
+      player.muted = false;
+    });
+  }
+}
 
 function fetchAudio(text: string, language: Language): Promise<string | null> {
   const key = `${language}::${text}`;
@@ -31,6 +47,8 @@ function fetchAudio(text: string, language: Language): Promise<string | null> {
       const url = URL.createObjectURL(blob);
       blobCache.set(key, url);
       return url;
+    } catch {
+      return null;
     } finally {
       inflight.delete(key);
     }
@@ -40,14 +58,14 @@ function fetchAudio(text: string, language: Language): Promise<string | null> {
   return p;
 }
 
-function unlockAudio(): void {
-  if (unlocked) return;
-  player.src = SILENT_WAV;
-  player.muted = true;
-  player.play().then(() => {
-    player.muted = false;
-    unlocked = true;
-  }).catch(() => {});
+function startPlayback(url: string, key: string): void {
+  if (player.src !== url) {
+    player.src = url;
+    player.loop = false;
+  }
+  currentPlayKey = key;
+  player.currentTime = 0;
+  player.play().catch(() => {});
 }
 
 export function playAudio(
@@ -55,18 +73,27 @@ export function playAudio(
   language: Language,
   onLoading?: (loading: boolean) => void,
 ): void {
-  player.pause();
-  player.currentTime = 0;
-  player.src = '';
-
-  unlockAudio();
+  doUnlock();
 
   const key = `${language}::${text}`;
-  const cached = blobCache.get(key);
 
+  if (currentPlayKey === key && !player.paused && !player.ended) {
+    player.pause();
+    player.currentTime = 0;
+    currentPlayKey = '';
+    onLoading?.(false);
+    return;
+  }
+
+  if (!player.paused) {
+    player.pause();
+    player.currentTime = 0;
+  }
+
+  const cached = blobCache.get(key);
   if (cached) {
-    player.src = cached;
-    player.play().catch(() => {});
+    startPlayback(cached, key);
+    onLoading?.(false);
     return;
   }
 
@@ -75,8 +102,7 @@ export function playAudio(
   fetchAudio(text, language).then((url) => {
     onLoading?.(false);
     if (!url) return;
-    player.src = url;
-    player.play().catch(() => {});
+    startPlayback(url, key);
   }).catch(() => onLoading?.(false));
 }
 
