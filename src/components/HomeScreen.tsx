@@ -1,4 +1,4 @@
-import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw } from 'lucide-react';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
 
@@ -10,6 +10,7 @@ interface HomeScreenProps {
   onBackToSectorSelection: () => void;
   onOpenPolicy?: () => void;
   onOpenCommunityNavigator?: () => void;
+  onCheckForUpdates?: () => void;
 }
 
 export default function HomeScreen({
@@ -18,7 +19,8 @@ export default function HomeScreen({
   onSelectLanguage,
   onBackToSectorSelection,
   onOpenPolicy,
-  onOpenCommunityNavigator
+  onOpenCommunityNavigator,
+  onCheckForUpdates
 }: HomeScreenProps) {
   const sectors = [
     { id: 'healthcare' as Sector, label: 'Healthcare', Icon: Heart, color: 'bg-blue-600 hover:bg-blue-700' },
@@ -126,6 +128,14 @@ export default function HomeScreen({
           >
             <MessageSquarePlus className="w-4 h-4" />
             Request a Language
+          </button>
+          <span className="text-slate-300 hidden sm:inline">|</span>
+          <button
+            onClick={onCheckForUpdates}
+            className="flex items-center gap-1.5 text-slate-500 hover:text-emerald-600 transition-colors"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Check for Updates
           </button>
           <span className="text-slate-300 hidden sm:inline">|</span>
           <span className="text-slate-400">California LEP Compliance Toolkit v1.0</span>

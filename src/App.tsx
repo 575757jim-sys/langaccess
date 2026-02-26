@@ -6,6 +6,7 @@ import LanguageAccessPolicy from './components/LanguageAccessPolicy';
 import CommunityNavigator from './components/CommunityNavigator';
 import ConversationScreen from './components/ConversationScreen';
 import InstallBanner from './components/InstallBanner';
+import UpdateToast from './components/UpdateToast';
 import { Language, Sector } from './data/phrases';
 import {
   Subcategory,
@@ -14,18 +15,29 @@ import {
   constructionSubcategories
 } from './data/subcategories';
 import { initAudioUnlock } from './utils/speech';
+import { useUpdateManager } from './hooks/useUpdateManager';
 
 type AppView = 'home' | 'subcategory' | 'language' | 'phrases' | 'policy' | 'community' | 'conversation';
 
 function App() {
   const [view, setView] = useState<AppView>('home');
+  const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
+  const [toastDismissed, setToastDismissed] = useState(false);
+
+  const { updateAvailable, applyUpdate, checkForUpdates } = useUpdateManager();
 
   useEffect(() => {
     initAudioUnlock();
   }, []);
-  const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
+
+  useEffect(() => {
+    if (updateAvailable) {
+      setToastDismissed(false);
+    }
+  }, [updateAvailable]);
+
   const handleSelectSector = (sector: Sector) => {
     setSelectedSector(sector);
     setSelectedSubcategory(null);
@@ -78,9 +90,10 @@ function App() {
     return '';
   };
 
+  const showToast = updateAvailable && !toastDismissed;
+
   return (
     <>
-
       {view === 'policy' && (
         <LanguageAccessPolicy onBack={() => setView('home')} />
       )}
@@ -115,6 +128,7 @@ function App() {
           onBackToSectorSelection={handleBackFromLanguage}
           onOpenPolicy={() => setView('policy')}
           onOpenCommunityNavigator={() => setView('community')}
+          onCheckForUpdates={checkForUpdates}
         />
       )}
 
@@ -135,10 +149,17 @@ function App() {
           onBackToSectorSelection={handleBackToHome}
           onOpenPolicy={() => setView('policy')}
           onOpenCommunityNavigator={() => setView('community')}
+          onCheckForUpdates={checkForUpdates}
         />
       )}
 
       <InstallBanner />
+
+      <UpdateToast
+        visible={showToast}
+        onRefresh={applyUpdate}
+        onDismiss={() => setToastDismissed(true)}
+      />
     </>
   );
 }
