@@ -1,4 +1,4 @@
-const CACHE = 'langaccess-v5';
+const CACHE = 'langaccess-v6';
 const PRECACHE = ['/', '/index.html'];
 
 self.addEventListener('install', (e) => {
