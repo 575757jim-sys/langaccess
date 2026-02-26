@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Filter, Download, ShieldAlert } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
@@ -33,6 +33,14 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   const [vitalOnly, setVitalOnly] = useState(false);
   const [chineseScript, setChineseScript] = useState<'traditional' | 'simplified'>('traditional');
+  const [loadingAudioKey, setLoadingAudioKey] = useState<string | null>(null);
+
+  const handlePlay = useCallback((text: string, key: string) => {
+    setLoadingAudioKey(key);
+    playAudio(text, language, (loading) => {
+      if (!loading) setLoadingAudioKey(null);
+    });
+  }, [language]);
 
   const isChineseLang = language === 'mandarin' || language === 'cantonese';
 
@@ -183,7 +191,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
         setShowAddForm(false);
         setShowSuccessToast(true);
         setTimeout(() => setShowSuccessToast(false), 3000);
-        playAudio(newPhrase.translation, language);
+        handlePlay(newPhrase.translation, `custom-${newPhrase.id}`);
       }
     }
   };
@@ -334,11 +342,14 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                                   {displayTranslation}
                                 </p>
                                 <button
-                                  onClick={() => playAudio(displayTranslation, language)}
+                                  onClick={() => handlePlay(displayTranslation, phraseId)}
                                   className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0"
                                   title="Play audio"
+                                  disabled={loadingAudioKey === phraseId}
                                 >
-                                  <Volume2 className="w-6 h-6" />
+                                  {loadingAudioKey === phraseId
+                                    ? <Loader2 className="w-6 h-6 animate-spin" />
+                                    : <Volume2 className="w-6 h-6" />}
                                 </button>
                               </div>
                             </div>
@@ -382,13 +393,21 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                                         <p className="text-lg font-semibold text-blue-700 flex-1">
                                           {response.translation}
                                         </p>
-                                        <button
-                                          onClick={() => playAudio(response.translation, language)}
-                                          className="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
-                                          title="Play audio"
-                                        >
-                                          <Volume2 className="w-5 h-5" />
-                                        </button>
+                                        {(() => {
+                                          const rKey = `${phraseId}-r${responseIndex}`;
+                                          return (
+                                            <button
+                                              onClick={() => handlePlay(response.translation, rKey)}
+                                              className="p-1 text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                                              title="Play audio"
+                                              disabled={loadingAudioKey === rKey}
+                                            >
+                                              {loadingAudioKey === rKey
+                                                ? <Loader2 className="w-5 h-5 animate-spin" />
+                                                : <Volume2 className="w-5 h-5" />}
+                                            </button>
+                                          );
+                                        })()}
                                       </div>
                                       <p className="text-sm text-slate-600 italic mb-1">
                                         [{response.pronunciation}]
@@ -500,11 +519,14 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack }:
                               {phrase.translation}
                             </p>
                             <button
-                              onClick={() => playAudio(phrase.translation, language)}
+                              onClick={() => handlePlay(phrase.translation, `custom-${phrase.id}`)}
                               className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0"
                               title="Play audio"
+                              disabled={loadingAudioKey === `custom-${phrase.id}`}
                             >
-                              <Volume2 className="w-6 h-6" />
+                              {loadingAudioKey === `custom-${phrase.id}`
+                                ? <Loader2 className="w-6 h-6 animate-spin" />
+                                : <Volume2 className="w-6 h-6" />}
                             </button>
                           </div>
                         </div>
