@@ -17,5 +17,6 @@ export const playAudio = (text: string, language: Language): void => {
   audio.pause();
   audio.currentTime = 0;
   audio.src = url;
+  audio.load();
   audio.play();
 };
