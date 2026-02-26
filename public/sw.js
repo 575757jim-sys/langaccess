@@ -1,4 +1,4 @@
-const CACHE = 'langaccess-v1';
+const CACHE = 'langaccess-v3';
 const PRECACHE = ['/', '/index.html'];
 
 self.addEventListener('install', (e) => {
@@ -20,16 +20,14 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
   e.respondWith(
-    caches.match(e.request).then((cached) => {
-      const fetchPromise = fetch(e.request)
-        .then((res) => {
-          if (res && res.status === 200) {
-            caches.open(CACHE).then((c) => c.put(e.request, res.clone()));
-          }
-          return res;
-        })
-        .catch(() => cached);
-      return cached || fetchPromise;
-    })
+    fetch(e.request)
+      .then((res) => {
+        if (res && res.status === 200) {
+          const resClone = res.clone();
+          caches.open(CACHE).then((c) => c.put(e.request, resClone));
+        }
+        return res;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
