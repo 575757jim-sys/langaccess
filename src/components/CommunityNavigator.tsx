@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import CityResources from './CityResources';
 import { cityResources, CITY_KEYS, CityKey } from '../data/cityResources';
-import { globalAudio, SILENT_MP3, TTS_ENDPOINT, ANON_KEY_VALUE } from '../utils/speech';
+import { globalAudio, TTS_ENDPOINT, ANON_KEY_VALUE } from '../utils/speech';
 
 interface CommunityNavigatorProps {
   onBack: () => void;
@@ -148,27 +148,49 @@ function loadCity(): CityKey {
   return 'san-jose';
 }
 
+let navAudioCtx: AudioContext | null = null;
+let navCurrentSource: AudioBufferSourceNode | null = null;
+let navPlayId = 0;
+
+function getNavAudioContext(): AudioContext {
+  if (!navAudioCtx) {
+    navAudioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+  }
+  return navAudioCtx;
+}
+
 function playNavText(text: string, langCode: LangCode) {
   const language = ttslangMap[langCode];
+  const playId = ++navPlayId;
+  const ctx = getNavAudioContext();
+
+  navCurrentSource?.stop();
+  navCurrentSource = null;
   globalAudio.pause();
-  globalAudio.currentTime = 0;
-  globalAudio.loop = false;
-  globalAudio.src = SILENT_MP3;
-  globalAudio.play().catch(() => {});
+
   if (language === 'en') return;
+
+  const resume = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve();
   const params = new URLSearchParams({ text, language });
-  fetch(`${TTS_ENDPOINT}?${params}`, {
-    headers: { Authorization: `Bearer ${ANON_KEY_VALUE}` },
-  })
-    .then((res) => (res.ok ? res.blob() : null))
-    .then((blob) => {
-      if (!blob || blob.size < 100) return;
-      const url = URL.createObjectURL(blob);
-      globalAudio.pause();
-      globalAudio.src = url;
-      globalAudio.currentTime = 0;
-      globalAudio.loop = false;
-      globalAudio.play().catch(() => {});
+
+  resume
+    .then(() =>
+      fetch(`${TTS_ENDPOINT}?${params}`, {
+        headers: { Authorization: `Bearer ${ANON_KEY_VALUE}` },
+      })
+    )
+    .then((res) => (res.ok ? res.arrayBuffer() : null))
+    .then((buf) => {
+      if (!buf || buf.byteLength < 100 || navPlayId !== playId) return;
+      return ctx.decodeAudioData(buf);
+    })
+    .then((decoded) => {
+      if (!decoded || navPlayId !== playId) return;
+      const src = ctx.createBufferSource();
+      src.buffer = decoded;
+      src.connect(ctx.destination);
+      navCurrentSource = src;
+      src.start(0);
     })
     .catch(() => {});
 }
