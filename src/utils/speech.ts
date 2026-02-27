@@ -19,7 +19,14 @@ export const globalAudio = {
   },
 };
 
-async function getOrFetchBlobUrl(text: string, language: string): Promise<string | null> {
+function isIOS(): boolean {
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+}
+
+async function fetchBlobUrl(text: string, language: string): Promise<string | null> {
   const key = `${language}::${text}`;
   if (blobCache.has(key)) return blobCache.get(key)!;
 
@@ -40,18 +47,31 @@ async function getOrFetchBlobUrl(text: string, language: string): Promise<string
 }
 
 export function fetchTTSBlob(text: string, language: Language | string): Promise<string | null> {
-  return getOrFetchBlobUrl(text, language as string);
+  return fetchBlobUrl(text, language as string);
 }
 
+/**
+ * Play audio. On iOS we must call audio.play() synchronously in the gesture
+ * handler — we create the Audio element immediately and swap src once fetched.
+ */
 export function playAudioFromGesture(text: string, language: Language): Promise<void> {
-  return getOrFetchBlobUrl(text, language).then((url) => {
-    if (!url) return;
-    if (currentAudio) {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-    }
-    const audio = new Audio(url);
-    currentAudio = audio;
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio = null;
+  }
+
+  const audio = new Audio();
+  currentAudio = audio;
+
+  if (isIOS()) {
+    audio.play().catch(() => {});
+  }
+
+  return fetchBlobUrl(text, language).then((url) => {
+    if (!url || currentAudio !== audio) return;
+    audio.src = url;
+    audio.load();
     audio.play().catch(() => {});
     audio.addEventListener('ended', () => {
       if (currentAudio === audio) currentAudio = null;
@@ -60,7 +80,7 @@ export function playAudioFromGesture(text: string, language: Language): Promise<
 }
 
 export function preloadAudio(text: string, language: Language): void {
-  getOrFetchBlobUrl(text, language).catch(() => {});
+  fetchBlobUrl(text, language).catch(() => {});
 }
 
 export const initAudioUnlock = (): void => {};
