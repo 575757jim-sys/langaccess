@@ -9,26 +9,39 @@ export const ANON_KEY_VALUE = ANON_KEY;
 const blobCache = new Map<string, string>();
 let currentAudio: HTMLAudioElement | null = null;
 
-// iOS requires that an AudioContext or Audio element be created/played
-// synchronously inside a user gesture at least once before async play() works.
-// We maintain a single "unlocked" flag. Once unlocked, async play() is fine.
 let audioUnlocked = false;
 
-function unlockAudio() {
+export function unlockAudioContext(): void {
   if (audioUnlocked) return;
   audioUnlocked = true;
-  // Play a tiny silent audio to mark the AudioSession as active.
-  const a = new Audio();
-  // Minimal valid MP3 (48 bytes, ~0ms silence)
-  a.src = 'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsgU291bmQgRWZmZWN0cyBMaWJyYXJ5//uQwAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAABAAABIADMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM//////////////////////////////////////////////////////////////////8AAAA5TFAMAAAAMAAAAJQAABQAAAF2AAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//uQxAADwAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU=';
-  a.volume = 0;
-  a.play().catch(() => {});
+  try {
+    type WebkitAC = { webkitAudioContext: typeof AudioContext };
+    const AC = window.AudioContext || (window as unknown as WebkitAC).webkitAudioContext;
+    if (AC) {
+      const ctx = new AC();
+      const buf = ctx.createBuffer(1, 1, 22050);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      src.start(0);
+      ctx.resume().catch(() => {});
+    }
+  } catch (e) {
+    console.error('[audio] AudioContext unlock failed:', e);
+  }
+  try {
+    const a = new Audio();
+    a.src = 'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsgU291bmQgRWZmZWN0cyBMaWJyYXJ5//uQwAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAABAAABIADMzMzM//uQxAADwAABpAAAACAAADSAAAAE';
+    a.volume = 0;
+    a.play().catch(() => {});
+  } catch (e) {
+    console.error('[audio] Silent Audio unlock failed:', e);
+  }
 }
 
 export function initAudioUnlock(): void {
-  // Call this on the first user interaction (touchstart/click on document)
   const handler = () => {
-    unlockAudio();
+    unlockAudioContext();
     document.removeEventListener('touchstart', handler, true);
     document.removeEventListener('mousedown', handler, true);
   };
@@ -50,18 +63,42 @@ async function fetchBlobUrl(text: string, language: string): Promise<string | nu
   const key = `${language}::${text}`;
   if (blobCache.has(key)) return blobCache.get(key)!;
 
+  if (!SUPABASE_URL || !ANON_KEY) {
+    console.error('[tts] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY env vars');
+    return null;
+  }
+
   try {
     const params = new URLSearchParams({ text, language });
     const res = await fetch(`${TTS_ENDPOINT}?${params}`, {
       headers: { Authorization: `Bearer ${ANON_KEY}` },
     });
-    if (!res.ok) return null;
+
+    if (!res.ok) {
+      let detail = '';
+      try { detail = await res.text(); } catch { detail = '(no body)'; }
+      console.error(`[tts] HTTP ${res.status} for lang=${language}: ${detail}`);
+      return null;
+    }
+
+    const contentType = res.headers.get('content-type') ?? '';
+    if (!contentType.includes('audio')) {
+      const body = await res.text();
+      console.error(`[tts] Unexpected content-type "${contentType}": ${body}`);
+      return null;
+    }
+
     const blob = await res.blob();
-    if (blob.size < 100) return null;
+    if (blob.size < 100) {
+      console.error(`[tts] Blob too small (${blob.size} bytes) for lang=${language}`);
+      return null;
+    }
+
     const url = URL.createObjectURL(blob);
     blobCache.set(key, url);
     return url;
-  } catch {
+  } catch (e) {
+    console.error('[tts] Fetch error:', e);
     return null;
   }
 }
@@ -75,8 +112,7 @@ export function preloadAudio(text: string, language: Language): void {
 }
 
 export function playAudioFromGesture(text: string, language: Language): void {
-  // Ensure audio is unlocked (this call is synchronous and safe)
-  unlockAudio();
+  unlockAudioContext();
   globalAudio.pause();
 
   const key = `${language}::${text}`;
@@ -86,22 +122,29 @@ export function playAudioFromGesture(text: string, language: Language): void {
   audio.preload = 'auto';
   currentAudio = audio;
 
-  if (cached) {
-    audio.src = cached;
+  const doPlay = (src: string) => {
+    audio.src = src;
     const p = audio.play();
-    if (p) p.catch(() => {});
+    if (p) {
+      p.catch((err) => {
+        console.error('[audio] play() rejected:', err);
+      });
+    }
     audio.onended = () => { if (currentAudio === audio) currentAudio = null; };
+  };
+
+  if (cached) {
+    doPlay(cached);
     return;
   }
 
-  // Not cached yet — fetch then play.
-  // On iOS: once unlockAudio() has been called at least once (on any prior interaction),
-  // async audio.play() will succeed. The unlockAudio() call above handles first-time cases.
   fetchBlobUrl(text, language).then((url) => {
-    if (!url || currentAudio !== audio) return;
-    audio.src = url;
-    const p = audio.play();
-    if (p) p.catch(() => {});
-    audio.onended = () => { if (currentAudio === audio) currentAudio = null; };
+    if (!url) {
+      console.error('[audio] No URL returned from TTS — check GOOGLE_TTS_API_KEY is set in Supabase Edge Function secrets');
+      if (currentAudio === audio) currentAudio = null;
+      return;
+    }
+    if (currentAudio !== audio) return;
+    doPlay(url);
   });
 }
