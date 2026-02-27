@@ -6,11 +6,6 @@ const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 export const TTS_ENDPOINT = `${SUPABASE_URL}/functions/v1/tts-proxy`;
 export const ANON_KEY_VALUE = ANON_KEY;
 
-// Tiny silent MP3 — allows iOS Safari to honour audio.play() synchronously
-// inside a user gesture even before the real src is available.
-const SILENT_MP3 =
-  'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZCBUZWNoLCBJbmMuIFVSTDogaHR0cDovL3d3dy5iaWdzb3VuZHRlY2guY29tAFRJVDIAAAAGAAADMTIzNDU2AFRBTEIAAAAHAAAMQ29tcG9zZXIAVFJDSwAAAAIAAAMxAFRZRVIAAAAFAAADMjAyMwAA/+MYxAAAAANIAAAAAExBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDsAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
-
 const blobCache = new Map<string, string>();
 let currentAudio: HTMLAudioElement | null = null;
 
@@ -18,7 +13,6 @@ export const globalAudio = {
   pause() {
     if (currentAudio) {
       currentAudio.pause();
-      currentAudio.currentTime = 0;
       currentAudio = null;
     }
   },
@@ -49,36 +43,56 @@ export function fetchTTSBlob(text: string, language: Language | string): Promise
 }
 
 /**
- * Play TTS audio. Works on iOS Safari by loading a silent MP3 synchronously
- * inside the gesture handler (satisfying the "user activation" requirement),
- * then swapping to the real audio once the network fetch completes.
+ * Play TTS audio triggered by a user gesture.
+ *
+ * On iOS Safari, audio.play() MUST be called synchronously within the gesture
+ * event handler. We do that with a blob URL fetched before the user taps when
+ * possible (from cache), or by doing the whole fetch-then-play chain while
+ * keeping the Audio element alive from the gesture frame.
+ *
+ * The approach: create and play a very short silent data URI immediately, then
+ * swap in the real audio src when the fetch completes. iOS allows src-swap
+ * on an already-playing (or played) element without requiring a new gesture.
  */
-export function playAudioFromGesture(text: string, language: Language): Promise<void> {
+export function playAudioFromGesture(text: string, language: Language): void {
   globalAudio.pause();
 
-  const audio = new Audio(SILENT_MP3);
-  audio.volume = 0;
+  const key = `${language}::${text}`;
+  const cached = blobCache.get(key);
+
+  const audio = new Audio();
   currentAudio = audio;
 
-  const playPromise = audio.play();
-  if (playPromise) playPromise.catch(() => {});
-
-  return fetchBlobUrl(text, language).then((url) => {
-    if (!url || currentAudio !== audio) return;
-    audio.pause();
-    audio.volume = 1;
+  const doPlay = (url: string) => {
+    if (currentAudio !== audio) return;
     audio.src = url;
     audio.load();
     const p = audio.play();
     if (p) p.catch(() => {});
-    audio.addEventListener('ended', () => {
-      if (currentAudio === audio) currentAudio = null;
-    });
+    audio.onended = () => { if (currentAudio === audio) currentAudio = null; };
+  };
+
+  if (cached) {
+    doPlay(cached);
+    return;
+  }
+
+  // Not cached — we need to "unlock" audio with a synchronous play() call
+  // then swap the src. Use a data URI of a 0.1s silence (WAV format).
+  const silenceWav = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+  audio.src = silenceWav;
+  const unlockPromise = audio.play();
+  if (unlockPromise) unlockPromise.catch(() => {});
+
+  fetchBlobUrl(text, language).then((url) => {
+    if (!url || currentAudio !== audio) return;
+    audio.pause();
+    doPlay(url);
   });
 }
+
+export function initAudioUnlock(): void {}
 
 export function preloadAudio(text: string, language: Language): void {
   fetchBlobUrl(text, language).catch(() => {});
 }
-
-export const initAudioUnlock = (): void => {};

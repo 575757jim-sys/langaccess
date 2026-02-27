@@ -18,6 +18,16 @@ const LANG_CODE_MAP: Record<string, string> = {
   english:    "en-US",
 };
 
+function getEncoding(mimeType: string): string {
+  const m = mimeType.toLowerCase();
+  if (m.includes("webm") || m.includes("opus")) return "WEBM_OPUS";
+  if (m.includes("ogg")) return "OGG_OPUS";
+  if (m.includes("mp4") || m.includes("aac") || m.includes("m4a")) return "MP4_AAC";
+  if (m.includes("mp3") || m.includes("mpeg")) return "MP3";
+  if (m.includes("wav") || m.includes("linear16") || m.includes("pcm")) return "LINEAR16";
+  return "WEBM_OPUS";
+}
+
 const GOOGLE_TTS_API_KEY = Deno.env.get("GOOGLE_TTS_API_KEY") ?? "";
 
 Deno.serve(async (req: Request) => {
@@ -26,7 +36,8 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { audioBase64, language, sampleRate } = await req.json();
+    const body = await req.json();
+    const { audioBase64, mimeType, language } = body;
 
     if (!audioBase64 || !language) {
       return new Response(JSON.stringify({ error: "Missing audioBase64 or language" }), {
@@ -36,7 +47,19 @@ Deno.serve(async (req: Request) => {
     }
 
     const langCode = LANG_CODE_MAP[language.toLowerCase()] ?? "en-US";
-    const rate = typeof sampleRate === "number" ? sampleRate : 16000;
+    const encoding = getEncoding(mimeType ?? "");
+
+    const sttConfig: Record<string, unknown> = {
+      encoding,
+      languageCode: langCode,
+      enableAutomaticPunctuation: true,
+      model: "latest_long",
+    };
+
+    if (encoding === "LINEAR16") {
+      sttConfig.sampleRateHertz = body.sampleRate ?? 16000;
+      sttConfig.audioChannelCount = 1;
+    }
 
     const sttRes = await fetch(
       `https://speech.googleapis.com/v1/speech:recognize?key=${GOOGLE_TTS_API_KEY}`,
@@ -44,14 +67,7 @@ Deno.serve(async (req: Request) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          config: {
-            encoding: "LINEAR16",
-            sampleRateHertz: rate,
-            audioChannelCount: 1,
-            languageCode: langCode,
-            enableAutomaticPunctuation: true,
-            model: "latest_long",
-          },
+          config: sttConfig,
           audio: { content: audioBase64 },
         }),
       }
@@ -66,10 +82,10 @@ Deno.serve(async (req: Request) => {
     }
 
     const sttData = await sttRes.json();
-    const transcript = sttData.results
-      ?.map((r: { alternatives: { transcript: string }[] }) => r.alternatives?.[0]?.transcript ?? "")
+    const transcript = (sttData.results ?? [])
+      .map((r: { alternatives: { transcript: string }[] }) => r.alternatives?.[0]?.transcript ?? "")
       .join(" ")
-      .trim() ?? "";
+      .trim();
 
     return new Response(JSON.stringify({ transcript }), {
       status: 200,

@@ -48,60 +48,41 @@ async function doTranslate(text: string, from: string, to: string): Promise<stri
   }
 }
 
-const SAMPLE_RATE = 16000;
-
-function float32ToInt16(buffer: Float32Array): Int16Array {
-  const out = new Int16Array(buffer.length);
-  for (let i = 0; i < buffer.length; i++) {
-    const s = Math.max(-1, Math.min(1, buffer[i]));
-    out[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+function getMimeType(): string {
+  const types = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+    'audio/mp4',
+  ];
+  if (typeof MediaRecorder === 'undefined') return '';
+  for (const t of types) {
+    if (MediaRecorder.isTypeSupported(t)) return t;
   }
-  return out;
+  return '';
 }
 
-async function recordPCM(
-  stream: MediaStream,
-  onReady: () => void,
-  signal: { stopped: boolean }
-): Promise<Int16Array> {
-  const ctx = new AudioContext({ sampleRate: SAMPLE_RATE });
-  const source = ctx.createMediaStreamSource(stream);
-  const bufferSize = 4096;
-  const processor = ctx.createScriptProcessor(bufferSize, 1, 1);
-  const chunks: Int16Array[] = [];
-
-  return new Promise((resolve) => {
-    processor.onaudioprocess = (e) => {
-      if (signal.stopped) {
-        processor.disconnect();
-        source.disconnect();
-        ctx.close();
-        const total = chunks.reduce((acc, c) => acc + c.length, 0);
-        const merged = new Int16Array(total);
-        let offset = 0;
-        for (const c of chunks) { merged.set(c, offset); offset += c.length; }
-        resolve(merged);
-        return;
-      }
-      chunks.push(float32ToInt16(e.inputBuffer.getChannelData(0)));
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      const base64 = dataUrl.split(',')[1];
+      resolve(base64);
     };
-
-    source.connect(processor);
-    processor.connect(ctx.destination);
-    onReady();
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
   });
 }
 
-async function doTranscribe(pcm: Int16Array, language: Language | 'english'): Promise<string> {
-  const bytes = new Uint8Array(pcm.buffer);
-  let binary = '';
-  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
-  const audioBase64 = btoa(binary);
+async function doTranscribe(blob: Blob, mimeType: string, language: Language | 'english'): Promise<string> {
+  const audioBase64 = await blobToBase64(blob);
   const res = await fetch(STT_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${ANON_KEY_VALUE}` },
-    body: JSON.stringify({ audioBase64, language, sampleRate: SAMPLE_RATE }),
+    body: JSON.stringify({ audioBase64, mimeType, language }),
   });
+  if (!res.ok) return '';
   const data = await res.json();
   return data.transcript ?? '';
 }
@@ -128,8 +109,9 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
   const [showPrompts, setShowPrompts] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const stopSignalRef = useRef<{ stopped: boolean } | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const mrRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const mimeTypeRef = useRef<string>('');
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -139,8 +121,9 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
 
   useEffect(() => {
     return () => {
-      if (stopSignalRef.current) stopSignalRef.current.stopped = true;
-      streamRef.current?.getTracks().forEach(t => t.stop());
+      if (mrRef.current && mrRef.current.state !== 'inactive') {
+        mrRef.current.stop();
+      }
       globalAudio.pause();
     };
   }, []);
@@ -167,45 +150,75 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
   }, [langCode]);
 
   const startRecording = useCallback(async (side: 'staff' | 'patient') => {
+    if (mrRef.current && mrRef.current.state !== 'inactive') return;
+
+    let stream: MediaStream;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { sampleRate: SAMPLE_RATE, channelCount: 1, echoCancellation: true },
-      });
-      streamRef.current = stream;
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      return;
+    }
 
-      const signal = { stopped: false };
-      stopSignalRef.current = signal;
+    const mimeType = getMimeType();
+    const options = mimeType ? { mimeType } : {};
+    let mr: MediaRecorder;
+    try {
+      mr = new MediaRecorder(stream, options);
+    } catch {
+      try {
+        mr = new MediaRecorder(stream);
+      } catch {
+        stream.getTracks().forEach(t => t.stop());
+        return;
+      }
+    }
 
-      if (side === 'staff') setStaffInput(s => ({ ...s, recording: true }));
-      else setPatientInput(s => ({ ...s, recording: true }));
+    chunksRef.current = [];
+    mimeTypeRef.current = mr.mimeType || mimeType;
+    mrRef.current = mr;
 
-      const pcm = await recordPCM(stream, () => {}, signal);
+    mr.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
+    };
+
+    mr.onstop = async () => {
       stream.getTracks().forEach(t => t.stop());
-      streamRef.current = null;
+      const actualMime = mimeTypeRef.current || 'audio/webm';
+      const blob = new Blob(chunksRef.current, { type: actualMime });
+
+      if (blob.size < 500) {
+        if (side === 'staff') setStaffInput(s => ({ ...s, recording: false, busy: false }));
+        else setPatientInput(s => ({ ...s, recording: false, busy: false }));
+        return;
+      }
 
       if (side === 'staff') setStaffInput(s => ({ ...s, recording: false, busy: true }));
       else setPatientInput(s => ({ ...s, recording: false, busy: true }));
 
-      if (pcm.length > SAMPLE_RATE * 0.3) {
-        try {
-          const transcript = await doTranscribe(pcm, side === 'patient' ? language : 'english');
-          if (transcript) {
-            if (side === 'staff') await sendStaff(transcript);
-            else await sendPatient(transcript);
-          }
-        } catch { /* ignore */ }
+      try {
+        const transcript = await doTranscribe(blob, actualMime, side === 'patient' ? language : 'english');
+        if (transcript) {
+          if (side === 'staff') await sendStaff(transcript);
+          else await sendPatient(transcript);
+        }
+      } catch {
+        /* ignore */
       }
 
       if (side === 'staff') setStaffInput(s => ({ ...s, busy: false }));
       else setPatientInput(s => ({ ...s, busy: false }));
-    } catch {
-      if (side === 'staff') setStaffInput(s => ({ ...s, recording: false, busy: false }));
-      else setPatientInput(s => ({ ...s, recording: false, busy: false }));
-    }
+    };
+
+    mr.start(250);
+
+    if (side === 'staff') setStaffInput(s => ({ ...s, recording: true }));
+    else setPatientInput(s => ({ ...s, recording: true }));
   }, [language, sendStaff, sendPatient]);
 
   const stopRecording = useCallback(() => {
-    if (stopSignalRef.current) stopSignalRef.current.stopped = true;
+    if (mrRef.current && mrRef.current.state === 'recording') {
+      mrRef.current.stop();
+    }
   }, []);
 
   const clearAll = () => {
@@ -213,8 +226,7 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
     setStaffInput(freshInput());
     setPatientInput(freshInput());
     globalAudio.pause();
-    if (stopSignalRef.current) stopSignalRef.current.stopped = true;
-    streamRef.current?.getTracks().forEach(t => t.stop());
+    if (mrRef.current && mrRef.current.state !== 'inactive') mrRef.current.stop();
   };
 
   const replayMessage = (msg: Message) => {
@@ -222,7 +234,10 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
       playAudioFromGesture(msg.translation, language);
     } else {
       fetchTTSBlob(msg.original, language).then(url => {
-        if (url) new Audio(url).play().catch(() => {});
+        if (url) {
+          const a = new Audio(url);
+          a.play().catch(() => {});
+        }
       });
     }
   };
@@ -242,7 +257,6 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
           </div>
         </div>
 
-        {/* Patient transcript (latest message to patient side) */}
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
           {messages.filter(m => m.side === 'staff').slice(-3).map(m => (
             <div key={m.id} className="space-y-0.5">
@@ -265,7 +279,6 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
           )}
         </div>
 
-        {/* Patient input */}
         <div className="flex-shrink-0 border-t border-emerald-900/60 px-3 py-2">
           <div className="flex items-center gap-2">
             <textarea
@@ -371,7 +384,6 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
           </button>
         </div>
 
-        {/* Quick prompts */}
         {showPrompts && (
           <div className="flex-shrink-0 px-3 pt-2 pb-1 overflow-x-auto flex gap-1.5 no-scrollbar">
             {STAFF_PROMPTS.map(p => (
@@ -386,7 +398,6 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
           </div>
         )}
 
-        {/* Latest staff translation shown large for patient (right-side up for staff) */}
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
           {messages.filter(m => m.side === 'patient').slice(-3).map(m => (
             <div key={m.id} className="space-y-0.5">
@@ -407,7 +418,6 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
           )}
         </div>
 
-        {/* Staff input */}
         <div className="flex-shrink-0 border-t border-slate-800 px-3 py-2">
           <div className="flex items-center gap-2">
             <textarea
