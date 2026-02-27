@@ -18,17 +18,6 @@ const LANG_CODE_MAP: Record<string, string> = {
   english:    "en-US",
 };
 
-function getEncoding(mimeType: string): { encoding: string; sampleRateHertz: number } {
-  const m = (mimeType ?? "").toLowerCase();
-  if (m.includes("mp4") || m.includes("m4a") || m.includes("aac")) {
-    return { encoding: "MP3", sampleRateHertz: 44100 };
-  }
-  if (m.includes("ogg")) {
-    return { encoding: "OGG_OPUS", sampleRateHertz: 48000 };
-  }
-  return { encoding: "WEBM_OPUS", sampleRateHertz: 48000 };
-}
-
 const GOOGLE_TTS_API_KEY = Deno.env.get("GOOGLE_TTS_API_KEY") ?? "";
 
 Deno.serve(async (req: Request) => {
@@ -37,7 +26,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { audioBase64, language, mimeType } = await req.json();
+    const { audioBase64, language, sampleRate } = await req.json();
 
     if (!audioBase64 || !language) {
       return new Response(JSON.stringify({ error: "Missing audioBase64 or language" }), {
@@ -47,7 +36,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const langCode = LANG_CODE_MAP[language.toLowerCase()] ?? "en-US";
-    const { encoding, sampleRateHertz } = getEncoding(mimeType ?? "");
+    const rate = typeof sampleRate === "number" ? sampleRate : 16000;
 
     const sttRes = await fetch(
       `https://speech.googleapis.com/v1/speech:recognize?key=${GOOGLE_TTS_API_KEY}`,
@@ -56,8 +45,9 @@ Deno.serve(async (req: Request) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           config: {
-            encoding,
-            sampleRateHertz,
+            encoding: "LINEAR16",
+            sampleRateHertz: rate,
+            audioChannelCount: 1,
             languageCode: langCode,
             enableAutomaticPunctuation: true,
             model: "latest_long",
