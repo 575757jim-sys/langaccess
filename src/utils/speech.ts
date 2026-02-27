@@ -68,7 +68,7 @@ function speakWithSynthesis(text: string, language: Language): void {
   }
 }
 
-export function fetchTTSBlob(text: string, language: Language): Promise<string | null> {
+export function fetchTTSBlob(text: string, language: Language | string): Promise<string | null> {
   const key = `${language}::${text}`;
   if (blobCache.has(key)) return Promise.resolve(blobCache.get(key)!);
   const params = new URLSearchParams({ text, language });

@@ -7,14 +7,14 @@ const corsHeaders = {
 };
 
 const VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
-  spanish:          { languageCode: "es-US",  name: "es-US-Wavenet-C" },
+  spanish:          { languageCode: "es-US",  name: "es-US-Neural2-A" },
   tagalog:          { languageCode: "fil-PH", name: "fil-PH-Wavenet-A" },
-  vietnamese:       { languageCode: "vi-VN",  name: "vi-VN-Wavenet-A" },
+  vietnamese:       { languageCode: "vi-VN",  name: "vi-VN-Neural2-A" },
   mandarin:         { languageCode: "cmn-CN", name: "cmn-CN-Wavenet-A" },
-  cantonese:        { languageCode: "yue-HK", name: "yue-HK-Standard-B" },
+  cantonese:        { languageCode: "yue-HK", name: "yue-HK-Standard-A" },
   hmong:            { languageCode: "hmn-TH", name: "hmn-TH-Standard-A" },
-  korean:           { languageCode: "ko-KR",  name: "ko-KR-Wavenet-A" },
-  arabic:           { languageCode: "ar-XA",  name: "ar-XA-Wavenet-B" },
+  korean:           { languageCode: "ko-KR",  name: "ko-KR-Neural2-A" },
+  arabic:           { languageCode: "ar-XA",  name: "ar-XA-Neural2-D" },
   "zh-traditional": { languageCode: "cmn-TW", name: "cmn-TW-Wavenet-A" },
   "zh-simplified":  { languageCode: "cmn-CN", name: "cmn-CN-Wavenet-A" },
 };

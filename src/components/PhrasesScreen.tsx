@@ -3,7 +3,7 @@ import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loade
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
-import { globalAudio, playAudioFromGesture } from '../utils/speech';
+import { playAudioFromGesture } from '../utils/speech';
 import { exportPhrasesToCSV } from '../utils/exportToCSV';
 import { supabase } from '../lib/supabase';
 
@@ -39,15 +39,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
   const handlePlay = useCallback((text: string, key: string) => {
     setLoadingAudioKey(key);
     playAudioFromGesture(text, language);
-    const timeout = setTimeout(() => setLoadingAudioKey(null), 3000);
-    globalAudio.addEventListener('playing', () => {
-      clearTimeout(timeout);
-      setLoadingAudioKey(null);
-    }, { once: true });
-    globalAudio.addEventListener('error', () => {
-      clearTimeout(timeout);
-      setLoadingAudioKey(null);
-    }, { once: true });
+    setTimeout(() => setLoadingAudioKey(null), 2500);
   }, [language]);
 
   const isChineseLang = language === 'mandarin' || language === 'cantonese';

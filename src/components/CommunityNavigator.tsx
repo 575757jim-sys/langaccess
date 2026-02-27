@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import CityResources from './CityResources';
 import { cityResources, CITY_KEYS, CityKey } from '../data/cityResources';
-import { globalAudio, TTS_ENDPOINT, ANON_KEY_VALUE } from '../utils/speech';
+import { fetchTTSBlob } from '../utils/speech';
 
 interface CommunityNavigatorProps {
   onBack: () => void;
@@ -148,49 +148,39 @@ function loadCity(): CityKey {
   return 'san-jose';
 }
 
-let navAudioCtx: AudioContext | null = null;
-let navCurrentSource: AudioBufferSourceNode | null = null;
 let navPlayId = 0;
+let navCurrentAudio: HTMLAudioElement | null = null;
 
-function getNavAudioContext(): AudioContext {
-  if (!navAudioCtx) {
-    navAudioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-  }
-  return navAudioCtx;
+function isIOS(): boolean {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
 function playNavText(text: string, langCode: LangCode) {
   const language = ttslangMap[langCode];
-  const playId = ++navPlayId;
-  const ctx = getNavAudioContext();
-
-  navCurrentSource?.stop();
-  navCurrentSource = null;
-  globalAudio.pause();
-
   if (language === 'en') return;
 
-  const resume = ctx.state === 'suspended' ? ctx.resume() : Promise.resolve();
-  const params = new URLSearchParams({ text, language });
+  const playId = ++navPlayId;
+  navCurrentAudio?.pause();
+  navCurrentAudio = null;
 
-  resume
-    .then(() =>
-      fetch(`${TTS_ENDPOINT}?${params}`, {
-        headers: { Authorization: `Bearer ${ANON_KEY_VALUE}` },
-      })
-    )
-    .then((res) => (res.ok ? res.arrayBuffer() : null))
-    .then((buf) => {
-      if (!buf || buf.byteLength < 100 || navPlayId !== playId) return;
-      return ctx.decodeAudioData(buf);
-    })
-    .then((decoded) => {
-      if (!decoded || navPlayId !== playId) return;
-      const src = ctx.createBufferSource();
-      src.buffer = decoded;
-      src.connect(ctx.destination);
-      navCurrentSource = src;
-      src.start(0);
+  if (isIOS()) {
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = speechLangMap[langCode];
+    utt.rate = 0.9;
+    synth.speak(utt);
+    fetchTTSBlob(text, language ).catch(() => {});
+    return;
+  }
+
+  fetchTTSBlob(text, language )
+    .then((url) => {
+      if (!url || navPlayId !== playId) return;
+      const audio = new Audio(url);
+      navCurrentAudio = audio;
+      audio.play().catch(() => {});
     })
     .catch(() => {});
 }
@@ -298,20 +288,20 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
         </div>
 
         <div className="max-w-2xl mx-auto px-4 pb-2 pt-2">
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {LANG_OPTIONS.map(({ code, flag, label }) => (
               <button
                 key={code}
                 onClick={() => handleLangChange(code)}
                 title={label}
-                className={`flex items-center gap-1 text-sm px-2.5 py-1.5 rounded-lg transition-all duration-150 ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border transition-all duration-150 ${
                   lang === code
-                    ? 'bg-amber-500/20 ring-1 ring-amber-400 text-amber-300 font-semibold'
-                    : 'opacity-50 hover:opacity-80 hover:bg-gray-800 text-gray-300'
+                    ? 'bg-amber-500/20 border-amber-400 text-amber-300 font-bold shadow-sm shadow-amber-400/20'
+                    : 'border-gray-700 bg-gray-900 text-gray-200 hover:border-gray-500 hover:bg-gray-800 hover:text-white'
                 }`}
               >
-                <span>{flag}</span>
-                <span className="hidden sm:inline text-xs">{label}</span>
+                <span className="text-base leading-none">{flag}</span>
+                <span className="text-xs font-semibold">{label}</span>
               </button>
             ))}
           </div>

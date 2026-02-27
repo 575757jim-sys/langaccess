@@ -92,8 +92,8 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col">
-      <div className="sticky top-0 bg-slate-950 border-b border-slate-800 z-10">
+    <div className="fixed inset-0 bg-slate-950 text-white flex flex-col overflow-hidden">
+      <div className="bg-slate-950 border-b border-slate-800 z-10 flex-shrink-0">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <button
             onClick={onBack}
@@ -122,11 +122,10 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full">
+      <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full overflow-hidden">
         <div
           ref={scrollRef}
           className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
-          style={{ minHeight: 0 }}
         >
           {turns.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -175,7 +174,7 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
           )}
         </div>
 
-        <div className="border-t border-slate-800">
+        <div className="border-t border-slate-800 flex-shrink-0">
           <div className="flex border-b border-slate-800">
             <button
               onClick={() => setActivePanel('staff')}
