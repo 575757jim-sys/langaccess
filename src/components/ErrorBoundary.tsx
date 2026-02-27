@@ -39,28 +39,28 @@ class ErrorBoundary extends Component<Props, State> {
           textAlign: 'center',
           gap: '16px',
         }}>
-          <div style={{ fontSize: '2.5rem' }}>!</div>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Something went wrong</h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem', margin: 0, maxWidth: '320px' }}>
-            The app encountered an unexpected error. Please reload the page to try again.
-          </p>
+          <div style={{ fontSize: '2.5rem' }}>&#9888;&#65039;</div>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>App Crash Detected</h1>
           {this.state.error && (
-            <pre style={{
-              fontSize: '0.7rem',
-              color: '#64748b',
-              background: '#1e293b',
-              padding: '12px',
-              borderRadius: '8px',
-              maxWidth: '340px',
-              overflowX: 'auto',
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-              textAlign: 'left',
-              margin: 0,
-            }}>
-              {this.state.error.message}
-            </pre>
+            <p style={{ color: '#fca5a5', fontSize: '0.9rem', margin: 0, maxWidth: '340px', fontWeight: 500 }}>
+              Error: {this.state.error.message}
+            </p>
           )}
+          <pre style={{
+            fontSize: '0.7rem',
+            color: '#64748b',
+            background: '#1e293b',
+            padding: '12px',
+            borderRadius: '8px',
+            maxWidth: '340px',
+            overflowX: 'auto',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+            textAlign: 'left',
+            margin: 0,
+          }}>
+            {this.state.error?.stack ?? 'No stack trace available'}
+          </pre>
           <button
             onClick={() => window.location.reload()}
             style={{

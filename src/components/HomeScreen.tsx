@@ -1,4 +1,5 @@
-import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Volume2 } from 'lucide-react';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
 
@@ -22,6 +23,8 @@ export default function HomeScreen({
   onOpenCommunityNavigator,
   onCheckForUpdates
 }: HomeScreenProps) {
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
+
   const sectors = [
     { id: 'healthcare' as Sector, label: 'Healthcare', Icon: Heart, color: 'bg-blue-600 hover:bg-blue-700' },
     { id: 'education' as Sector, label: 'Education', Icon: GraduationCap, color: 'bg-green-600 hover:bg-green-700' },
@@ -40,6 +43,27 @@ export default function HomeScreen({
     return sectors.find(s => s.id === sectorId)?.label || '';
   };
 
+  const handleUnlockAudio = () => {
+    try {
+      const AudioContext = window.AudioContext || (window as unknown as { webkitAudioContext: typeof window.AudioContext }).webkitAudioContext;
+      if (AudioContext) {
+        const ctx = new AudioContext();
+        const buf = ctx.createBuffer(1, 1, 22050);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start(0);
+        ctx.resume().catch(() => {});
+      }
+      const a = new Audio();
+      a.src = 'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsgU291bmQgRWZmZWN0cyBMaWJyYXJ5//uQwAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAABAAABIADMzMzM//uQxAADwAABpAAAACAAADSAAAAE';
+      a.volume = 0;
+      a.play().catch(() => {});
+    } catch {
+    }
+    setAudioUnlocked(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
       <div className="flex-1 flex flex-col items-center justify-center p-6 max-w-2xl mx-auto w-full">
@@ -51,6 +75,25 @@ export default function HomeScreen({
           <p className="text-xl text-slate-600">
             {selectedSector ? `${getSectorLabel(selectedSector)} Communication Aid` : 'Communication Aid'}
           </p>
+
+          {!selectedSector && (
+            <div className="mt-5">
+              {!audioUnlocked ? (
+                <button
+                  onClick={handleUnlockAudio}
+                  className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-semibold px-6 py-3 rounded-xl shadow-md transition-all duration-200 text-base"
+                >
+                  <Volume2 className="w-5 h-5" />
+                  Tap to Enable Audio
+                </button>
+              ) : (
+                <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 font-medium px-5 py-2.5 rounded-xl text-sm">
+                  <Volume2 className="w-4 h-4" />
+                  Audio Enabled
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {!selectedSector ? (

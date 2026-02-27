@@ -7,6 +7,7 @@ import CommunityNavigator from './components/CommunityNavigator';
 import ConversationScreen from './components/ConversationScreen';
 import InstallBanner from './components/InstallBanner';
 import UpdateToast from './components/UpdateToast';
+import DebugOverlay from './components/DebugOverlay';
 import { Language, Sector } from './data/phrases';
 import {
   Subcategory,
@@ -160,6 +161,8 @@ function App() {
         onRefresh={applyUpdate}
         onDismiss={() => setToastDismissed(true)}
       />
+
+      <DebugOverlay />
     </>
   );
 }
