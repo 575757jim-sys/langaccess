@@ -6,6 +6,11 @@ const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 export const TTS_ENDPOINT = `${SUPABASE_URL}/functions/v1/tts-proxy`;
 export const ANON_KEY_VALUE = ANON_KEY;
 
+// Tiny silent MP3 — allows iOS Safari to honour audio.play() synchronously
+// inside a user gesture even before the real src is available.
+const SILENT_MP3 =
+  'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZCBUZWNoLCBJbmMuIFVSTDogaHR0cDovL3d3dy5iaWdzb3VuZHRlY2guY29tAFRJVDIAAAAGAAADMTIzNDU2AFRBTEIAAAAHAAAMQ29tcG9zZXIAVFJDSwAAAAIAAAMxAFRZRVIAAAAFAAADMjAyMwAA/+MYxAAAAANIAAAAAExBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDsAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
+
 const blobCache = new Map<string, string>();
 let currentAudio: HTMLAudioElement | null = null;
 
@@ -18,13 +23,6 @@ export const globalAudio = {
     }
   },
 };
-
-function isIOS(): boolean {
-  return (
-    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  );
-}
 
 async function fetchBlobUrl(text: string, language: string): Promise<string | null> {
   const key = `${language}::${text}`;
@@ -51,28 +49,28 @@ export function fetchTTSBlob(text: string, language: Language | string): Promise
 }
 
 /**
- * Play audio. On iOS we must call audio.play() synchronously in the gesture
- * handler — we create the Audio element immediately and swap src once fetched.
+ * Play TTS audio. Works on iOS Safari by loading a silent MP3 synchronously
+ * inside the gesture handler (satisfying the "user activation" requirement),
+ * then swapping to the real audio once the network fetch completes.
  */
 export function playAudioFromGesture(text: string, language: Language): Promise<void> {
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
-    currentAudio = null;
-  }
+  globalAudio.pause();
 
-  const audio = new Audio();
+  const audio = new Audio(SILENT_MP3);
+  audio.volume = 0;
   currentAudio = audio;
 
-  if (isIOS()) {
-    audio.play().catch(() => {});
-  }
+  const playPromise = audio.play();
+  if (playPromise) playPromise.catch(() => {});
 
   return fetchBlobUrl(text, language).then((url) => {
     if (!url || currentAudio !== audio) return;
+    audio.pause();
+    audio.volume = 1;
     audio.src = url;
     audio.load();
-    audio.play().catch(() => {});
+    const p = audio.play();
+    if (p) p.catch(() => {});
     audio.addEventListener('ended', () => {
       if (currentAudio === audio) currentAudio = null;
     });

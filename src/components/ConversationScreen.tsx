@@ -48,29 +48,59 @@ async function doTranslate(text: string, from: string, to: string): Promise<stri
   }
 }
 
-function getSupportedMimeType(): string {
-  const types = [
-    'audio/webm;codecs=opus',
-    'audio/webm',
-    'audio/ogg;codecs=opus',
-    'audio/mp4',
-  ];
-  for (const t of types) {
-    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(t)) return t;
+const SAMPLE_RATE = 16000;
+
+function float32ToInt16(buffer: Float32Array): Int16Array {
+  const out = new Int16Array(buffer.length);
+  for (let i = 0; i < buffer.length; i++) {
+    const s = Math.max(-1, Math.min(1, buffer[i]));
+    out[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
   }
-  return '';
+  return out;
 }
 
-async function doTranscribe(blob: Blob, language: Language | 'english', mimeType: string): Promise<string> {
-  const buf = await blob.arrayBuffer();
-  const bytes = new Uint8Array(buf);
+async function recordPCM(
+  stream: MediaStream,
+  onReady: () => void,
+  signal: { stopped: boolean }
+): Promise<Int16Array> {
+  const ctx = new AudioContext({ sampleRate: SAMPLE_RATE });
+  const source = ctx.createMediaStreamSource(stream);
+  const bufferSize = 4096;
+  const processor = ctx.createScriptProcessor(bufferSize, 1, 1);
+  const chunks: Int16Array[] = [];
+
+  return new Promise((resolve) => {
+    processor.onaudioprocess = (e) => {
+      if (signal.stopped) {
+        processor.disconnect();
+        source.disconnect();
+        ctx.close();
+        const total = chunks.reduce((acc, c) => acc + c.length, 0);
+        const merged = new Int16Array(total);
+        let offset = 0;
+        for (const c of chunks) { merged.set(c, offset); offset += c.length; }
+        resolve(merged);
+        return;
+      }
+      chunks.push(float32ToInt16(e.inputBuffer.getChannelData(0)));
+    };
+
+    source.connect(processor);
+    processor.connect(ctx.destination);
+    onReady();
+  });
+}
+
+async function doTranscribe(pcm: Int16Array, language: Language | 'english'): Promise<string> {
+  const bytes = new Uint8Array(pcm.buffer);
   let binary = '';
   for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
   const audioBase64 = btoa(binary);
   const res = await fetch(STT_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${ANON_KEY_VALUE}` },
-    body: JSON.stringify({ audioBase64, language, mimeType }),
+    body: JSON.stringify({ audioBase64, language, sampleRate: SAMPLE_RATE }),
   });
   const data = await res.json();
   return data.transcript ?? '';
@@ -98,9 +128,8 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
   const [showPrompts, setShowPrompts] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const mrRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
-  const recordingSideRef = useRef<'staff' | 'patient' | null>(null);
+  const stopSignalRef = useRef<{ stopped: boolean } | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -110,7 +139,8 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
 
   useEffect(() => {
     return () => {
-      mrRef.current?.stop();
+      if (stopSignalRef.current) stopSignalRef.current.stopped = true;
+      streamRef.current?.getTracks().forEach(t => t.stop());
       globalAudio.pause();
     };
   }, []);
@@ -138,47 +168,44 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
 
   const startRecording = useCallback(async (side: 'staff' | 'patient') => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mimeType = getSupportedMimeType();
-      const mrOptions = mimeType ? { mimeType } : {};
-      const mr = new MediaRecorder(stream, mrOptions);
-      const actualMime = mr.mimeType || mimeType;
-      chunksRef.current = [];
-      recordingSideRef.current = side;
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { sampleRate: SAMPLE_RATE, channelCount: 1, echoCancellation: true },
+      });
+      streamRef.current = stream;
 
-      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
-      mr.onstop = async () => {
-        stream.getTracks().forEach(t => t.stop());
-        const blob = new Blob(chunksRef.current, { type: actualMime });
-        if (blob.size < 100) {
-          if (side === 'staff') setStaffInput(s => ({ ...s, recording: false, busy: false }));
-          else setPatientInput(s => ({ ...s, recording: false, busy: false }));
-          return;
-        }
-        if (side === 'staff') setStaffInput(s => ({ ...s, recording: false, busy: true }));
-        else setPatientInput(s => ({ ...s, recording: false, busy: true }));
+      const signal = { stopped: false };
+      stopSignalRef.current = signal;
 
+      if (side === 'staff') setStaffInput(s => ({ ...s, recording: true }));
+      else setPatientInput(s => ({ ...s, recording: true }));
+
+      const pcm = await recordPCM(stream, () => {}, signal);
+      stream.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+
+      if (side === 'staff') setStaffInput(s => ({ ...s, recording: false, busy: true }));
+      else setPatientInput(s => ({ ...s, recording: false, busy: true }));
+
+      if (pcm.length > SAMPLE_RATE * 0.3) {
         try {
-          const transcript = await doTranscribe(blob, side === 'patient' ? language : 'english', actualMime);
+          const transcript = await doTranscribe(pcm, side === 'patient' ? language : 'english');
           if (transcript) {
             if (side === 'staff') await sendStaff(transcript);
             else await sendPatient(transcript);
           }
         } catch { /* ignore */ }
+      }
 
-        if (side === 'staff') setStaffInput(s => ({ ...s, busy: false }));
-        else setPatientInput(s => ({ ...s, busy: false }));
-      };
-
-      mr.start();
-      mrRef.current = mr;
-      if (side === 'staff') setStaffInput(s => ({ ...s, recording: true }));
-      else setPatientInput(s => ({ ...s, recording: true }));
-    } catch { /* mic denied */ }
+      if (side === 'staff') setStaffInput(s => ({ ...s, busy: false }));
+      else setPatientInput(s => ({ ...s, busy: false }));
+    } catch {
+      if (side === 'staff') setStaffInput(s => ({ ...s, recording: false, busy: false }));
+      else setPatientInput(s => ({ ...s, recording: false, busy: false }));
+    }
   }, [language, sendStaff, sendPatient]);
 
   const stopRecording = useCallback(() => {
-    if (mrRef.current?.state === 'recording') mrRef.current.stop();
+    if (stopSignalRef.current) stopSignalRef.current.stopped = true;
   }, []);
 
   const clearAll = () => {
@@ -186,7 +213,8 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
     setStaffInput(freshInput());
     setPatientInput(freshInput());
     globalAudio.pause();
-    mrRef.current?.stop();
+    if (stopSignalRef.current) stopSignalRef.current.stopped = true;
+    streamRef.current?.getTracks().forEach(t => t.stop());
   };
 
   const replayMessage = (msg: Message) => {
