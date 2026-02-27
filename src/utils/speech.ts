@@ -9,10 +9,38 @@ export const ANON_KEY_VALUE = ANON_KEY;
 const blobCache = new Map<string, string>();
 let currentAudio: HTMLAudioElement | null = null;
 
+// iOS requires that an AudioContext or Audio element be created/played
+// synchronously inside a user gesture at least once before async play() works.
+// We maintain a single "unlocked" flag. Once unlocked, async play() is fine.
+let audioUnlocked = false;
+
+function unlockAudio() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  // Play a tiny silent audio to mark the AudioSession as active.
+  const a = new Audio();
+  // Minimal valid MP3 (48 bytes, ~0ms silence)
+  a.src = 'data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsgU291bmQgRWZmZWN0cyBMaWJyYXJ5//uQwAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAABAAABIADMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM//////////////////////////////////////////////////////////////////8AAAA5TFAMAAAAMAAAAJQAABQAAAF2AAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//uQxAADwAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU=';
+  a.volume = 0;
+  a.play().catch(() => {});
+}
+
+export function initAudioUnlock(): void {
+  // Call this on the first user interaction (touchstart/click on document)
+  const handler = () => {
+    unlockAudio();
+    document.removeEventListener('touchstart', handler, true);
+    document.removeEventListener('mousedown', handler, true);
+  };
+  document.addEventListener('touchstart', handler, true);
+  document.addEventListener('mousedown', handler, true);
+}
+
 export const globalAudio = {
   pause() {
     if (currentAudio) {
       currentAudio.pause();
+      currentAudio.src = '';
       currentAudio = null;
     }
   },
@@ -42,57 +70,38 @@ export function fetchTTSBlob(text: string, language: Language | string): Promise
   return fetchBlobUrl(text, language as string);
 }
 
-/**
- * Play TTS audio triggered by a user gesture.
- *
- * On iOS Safari, audio.play() MUST be called synchronously within the gesture
- * event handler. We do that with a blob URL fetched before the user taps when
- * possible (from cache), or by doing the whole fetch-then-play chain while
- * keeping the Audio element alive from the gesture frame.
- *
- * The approach: create and play a very short silent data URI immediately, then
- * swap in the real audio src when the fetch completes. iOS allows src-swap
- * on an already-playing (or played) element without requiring a new gesture.
- */
+export function preloadAudio(text: string, language: Language): void {
+  fetchBlobUrl(text, language).catch(() => {});
+}
+
 export function playAudioFromGesture(text: string, language: Language): void {
+  // Ensure audio is unlocked (this call is synchronous and safe)
+  unlockAudio();
   globalAudio.pause();
 
   const key = `${language}::${text}`;
   const cached = blobCache.get(key);
 
   const audio = new Audio();
+  audio.preload = 'auto';
   currentAudio = audio;
 
-  const doPlay = (url: string) => {
-    if (currentAudio !== audio) return;
-    audio.src = url;
-    audio.load();
+  if (cached) {
+    audio.src = cached;
     const p = audio.play();
     if (p) p.catch(() => {});
     audio.onended = () => { if (currentAudio === audio) currentAudio = null; };
-  };
-
-  if (cached) {
-    doPlay(cached);
     return;
   }
 
-  // Not cached — we need to "unlock" audio with a synchronous play() call
-  // then swap the src. Use a data URI of a 0.1s silence (WAV format).
-  const silenceWav = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-  audio.src = silenceWav;
-  const unlockPromise = audio.play();
-  if (unlockPromise) unlockPromise.catch(() => {});
-
+  // Not cached yet — fetch then play.
+  // On iOS: once unlockAudio() has been called at least once (on any prior interaction),
+  // async audio.play() will succeed. The unlockAudio() call above handles first-time cases.
   fetchBlobUrl(text, language).then((url) => {
     if (!url || currentAudio !== audio) return;
-    audio.pause();
-    doPlay(url);
+    audio.src = url;
+    const p = audio.play();
+    if (p) p.catch(() => {});
+    audio.onended = () => { if (currentAudio === audio) currentAudio = null; };
   });
-}
-
-export function initAudioUnlock(): void {}
-
-export function preloadAudio(text: string, language: Language): void {
-  fetchBlobUrl(text, language).catch(() => {});
 }

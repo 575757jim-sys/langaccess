@@ -82,8 +82,14 @@ async function doTranscribe(blob: Blob, mimeType: string, language: Language | '
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${ANON_KEY_VALUE}` },
     body: JSON.stringify({ audioBase64, mimeType, language }),
   });
-  if (!res.ok) return '';
   const data = await res.json();
+  if (!res.ok) {
+    const detail = data?.detail ?? '';
+    if (detail.includes('SERVICE_DISABLED') || detail.includes('speech.googleapis.com')) {
+      throw new Error('STT_API_DISABLED');
+    }
+    throw new Error(data?.error ?? `HTTP ${res.status}`);
+  }
   return data.transcript ?? '';
 }
 
@@ -107,6 +113,7 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
   const [staffInput, setStaffInput] = useState<PanelInputState>(freshInput());
   const [patientInput, setPatientInput] = useState<PanelInputState>(freshInput());
   const [showPrompts, setShowPrompts] = useState(false);
+  const [sttError, setSttError] = useState<string | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const mrRef = useRef<MediaRecorder | null>(null);
@@ -200,9 +207,18 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
         if (transcript) {
           if (side === 'staff') await sendStaff(transcript);
           else await sendPatient(transcript);
+        } else {
+          setSttError('No speech detected. Please try again.');
+          setTimeout(() => setSttError(null), 4000);
         }
-      } catch {
-        /* ignore */
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg === 'STT_API_DISABLED') {
+          setSttError('Speech-to-Text API is not enabled. Please enable it in Google Cloud Console.');
+        } else {
+          setSttError('Microphone transcription failed. Please type instead.');
+        }
+        setTimeout(() => setSttError(null), 5000);
       }
 
       if (side === 'staff') setStaffInput(s => ({ ...s, busy: false }));
@@ -307,6 +323,13 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
           </div>
         </div>
       </div>
+
+      {/* ─── STT Error banner ─── */}
+      {sttError && (
+        <div className="flex-shrink-0 bg-red-900/80 border-y border-red-700/60 px-4 py-2 text-red-200 text-xs text-center z-20">
+          {sttError}
+        </div>
+      )}
 
       {/* ─── Middle bar ─── */}
       <div className="flex-shrink-0 flex items-center bg-slate-900 border-y border-slate-700/60 px-4 py-1.5 gap-3 z-10">
