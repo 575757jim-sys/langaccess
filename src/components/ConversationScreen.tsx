@@ -11,13 +11,13 @@ interface ConversationScreenProps {
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const STT_ENDPOINT = `${SUPABASE_URL}/functions/v1/stt-proxy`;
 
-const LANG_CODES: Record<Language, string> = {
+const TRANSLATE_CODES: Record<Language, string> = {
   spanish: 'es', tagalog: 'tl', vietnamese: 'vi',
   mandarin: 'zh-CN', cantonese: 'zh-TW',
   hmong: 'hmn', korean: 'ko', arabic: 'ar',
 };
 
-const STAFF_PROMPTS: string[] = [
+const STAFF_PROMPTS = [
   'What is your name?',
   'What brings you in today?',
   'Where does it hurt?',
@@ -29,7 +29,14 @@ const STAFF_PROMPTS: string[] = [
   'The doctor will see you shortly.',
 ];
 
-async function translateText(text: string, from: string, to: string): Promise<string> {
+interface Message {
+  id: number;
+  side: 'staff' | 'patient';
+  original: string;
+  translation: string;
+}
+
+async function doTranslate(text: string, from: string, to: string): Promise<string> {
   try {
     const res = await fetch(
       `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`
@@ -41,414 +48,385 @@ async function translateText(text: string, from: string, to: string): Promise<st
   }
 }
 
-async function transcribeAudio(blob: Blob, language: Language | 'english'): Promise<string> {
-  const arrayBuf = await blob.arrayBuffer();
-  const bytes = new Uint8Array(arrayBuf);
+async function doTranscribe(blob: Blob, language: Language | 'english'): Promise<string> {
+  const buf = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buf);
   let binary = '';
   for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
   const audioBase64 = btoa(binary);
-
   const res = await fetch(STT_ENDPOINT, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${ANON_KEY_VALUE}`,
-    },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${ANON_KEY_VALUE}` },
     body: JSON.stringify({ audioBase64, language }),
   });
   const data = await res.json();
   return data.transcript ?? '';
 }
 
-type ActiveSide = 'staff' | 'patient';
+type InputMode = 'type' | 'mic';
 
-interface PanelState {
+interface PanelInputState {
   text: string;
-  translation: string;
-  isRecording: boolean;
-  isTranslating: boolean;
-  isPlaying: boolean;
+  mode: InputMode;
+  recording: boolean;
+  busy: boolean;
 }
 
-const emptyPanel = (): PanelState => ({
-  text: '', translation: '', isRecording: false, isTranslating: false, isPlaying: false,
-});
+const freshInput = (): PanelInputState => ({ text: '', mode: 'type', recording: false, busy: false });
 
 export default function ConversationScreen({ language, onBack }: ConversationScreenProps) {
   const langData = languageData[language];
-  const langCode = LANG_CODES[language];
+  const langCode = TRANSLATE_CODES[language];
   const isRtl = language === 'arabic';
 
-  const [staff, setStaff] = useState<PanelState>(emptyPanel());
-  const [patient, setPatient] = useState<PanelState>(emptyPanel());
-  const [activeSide, setActiveSide] = useState<ActiveSide>('staff');
-  const [showPrompts, setShowPrompts] = useState(true);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [staffInput, setStaffInput] = useState<PanelInputState>(freshInput());
+  const [patientInput, setPatientInput] = useState<PanelInputState>(freshInput());
+  const [showPrompts, setShowPrompts] = useState(false);
 
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const mrRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const recordingForRef = useRef<ActiveSide | null>(null);
+  const recordingSideRef = useRef<'staff' | 'patient' | null>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   useEffect(() => {
     return () => {
-      mediaRecorderRef.current?.stop();
+      mrRef.current?.stop();
       globalAudio.pause();
     };
   }, []);
 
-  const translate = useCallback(async (text: string, side: ActiveSide) => {
-    if (!text.trim()) return;
-    if (side === 'staff') {
-      setStaff(s => ({ ...s, isTranslating: true }));
-      const translation = await translateText(text, 'en', langCode);
-      setStaff(s => ({ ...s, translation, isTranslating: false }));
-      playAudioFromGesture(translation, language);
-    } else {
-      setPatient(s => ({ ...s, isTranslating: true }));
-      const translation = await translateText(text, langCode, 'en');
-      setPatient(s => ({ ...s, translation, isTranslating: false }));
-    }
-  }, [langCode, language]);
+  const addMessage = (msg: Omit<Message, 'id'>) => {
+    setMessages(prev => [...prev, { ...msg, id: Date.now() + Math.random() }]);
+  };
 
   const sendStaff = useCallback(async (text: string) => {
     if (!text.trim()) return;
-    setStaff(s => ({ ...s, text }));
-    await translate(text, 'staff');
-  }, [translate]);
+    setStaffInput(s => ({ ...s, busy: true, text: '' }));
+    const translation = await doTranslate(text, 'en', langCode);
+    addMessage({ side: 'staff', original: text, translation });
+    setStaffInput(s => ({ ...s, busy: false }));
+    playAudioFromGesture(translation, language);
+  }, [langCode, language]);
 
   const sendPatient = useCallback(async (text: string) => {
     if (!text.trim()) return;
-    setPatient(s => ({ ...s, text }));
-    await translate(text, 'patient');
-  }, [translate]);
+    setPatientInput(s => ({ ...s, busy: true, text: '' }));
+    const translation = await doTranslate(text, langCode, 'en');
+    addMessage({ side: 'patient', original: text, translation });
+    setPatientInput(s => ({ ...s, busy: false }));
+  }, [langCode]);
 
-  const startRecording = useCallback(async (side: ActiveSide) => {
+  const startRecording = useCallback(async (side: 'staff' | 'patient') => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mr = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
       chunksRef.current = [];
-      recordingForRef.current = side;
+      recordingSideRef.current = side;
+
       mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
         const blob = new Blob(chunksRef.current, { type: 'audio/webm;codecs=opus' });
-        if (blob.size < 100) return;
-
-        const langForSTT: Language | 'english' = side === 'patient' ? language : 'english';
-        if (side === 'staff') {
-          setStaff(s => ({ ...s, isTranslating: true, isRecording: false }));
-        } else {
-          setPatient(s => ({ ...s, isTranslating: true, isRecording: false }));
+        if (blob.size < 100) {
+          if (side === 'staff') setStaffInput(s => ({ ...s, recording: false, busy: false }));
+          else setPatientInput(s => ({ ...s, recording: false, busy: false }));
+          return;
         }
+        if (side === 'staff') setStaffInput(s => ({ ...s, recording: false, busy: true }));
+        else setPatientInput(s => ({ ...s, recording: false, busy: true }));
 
         try {
-          const transcript = await transcribeAudio(blob, langForSTT);
+          const transcript = await doTranscribe(blob, side === 'patient' ? language : 'english');
           if (transcript) {
-            if (side === 'staff') {
-              setStaff(s => ({ ...s, text: transcript }));
-              await translate(transcript, 'staff');
-            } else {
-              setPatient(s => ({ ...s, text: transcript }));
-              await translate(transcript, 'patient');
-            }
-          } else {
-            if (side === 'staff') setStaff(s => ({ ...s, isTranslating: false }));
-            else setPatient(s => ({ ...s, isTranslating: false }));
+            if (side === 'staff') await sendStaff(transcript);
+            else await sendPatient(transcript);
           }
-        } catch {
-          if (side === 'staff') setStaff(s => ({ ...s, isTranslating: false }));
-          else setPatient(s => ({ ...s, isTranslating: false }));
-        }
+        } catch { /* ignore */ }
+
+        if (side === 'staff') setStaffInput(s => ({ ...s, busy: false }));
+        else setPatientInput(s => ({ ...s, busy: false }));
       };
+
       mr.start();
-      mediaRecorderRef.current = mr;
-      if (side === 'staff') setStaff(s => ({ ...s, isRecording: true }));
-      else setPatient(s => ({ ...s, isRecording: true }));
-    } catch {
-      // mic permission denied
-    }
-  }, [language, translate]);
+      mrRef.current = mr;
+      if (side === 'staff') setStaffInput(s => ({ ...s, recording: true }));
+      else setPatientInput(s => ({ ...s, recording: true }));
+    } catch { /* mic denied */ }
+  }, [language, sendStaff, sendPatient]);
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current?.state === 'recording') {
-      mediaRecorderRef.current.stop();
-    }
+    if (mrRef.current?.state === 'recording') mrRef.current.stop();
   }, []);
 
   const clearAll = () => {
-    setStaff(emptyPanel());
-    setPatient(emptyPanel());
+    setMessages([]);
+    setStaffInput(freshInput());
+    setPatientInput(freshInput());
     globalAudio.pause();
-    mediaRecorderRef.current?.stop();
+    mrRef.current?.stop();
   };
 
-  const playTranslation = useCallback((side: ActiveSide) => {
-    if (side === 'staff' && staff.translation) {
-      playAudioFromGesture(staff.translation, language);
-    }
-  }, [staff.translation, language]);
-
-  const playPatientOriginal = useCallback(() => {
-    if (patient.text) {
-      fetchTTSBlob(patient.text, language).then(url => {
-        if (url) {
-          const audio = new Audio(url);
-          audio.play().catch(() => {});
-        }
+  const replayMessage = (msg: Message) => {
+    if (msg.side === 'staff') {
+      playAudioFromGesture(msg.translation, language);
+    } else {
+      fetchTTSBlob(msg.original, language).then(url => {
+        if (url) new Audio(url).play().catch(() => {});
       });
     }
-  }, [patient.text, language]);
+  };
 
-  const staffIsActive = staff.isRecording || staff.isTranslating;
-  const patientIsActive = patient.isRecording || patient.isTranslating;
+  const patientSendDisabled = !patientInput.text.trim() || patientInput.busy || patientInput.recording;
+  const staffSendDisabled = !staffInput.text.trim() || staffInput.busy || staffInput.recording;
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-slate-950 text-white overflow-hidden">
+    <div className="fixed inset-0 flex flex-col bg-slate-950 text-white overflow-hidden select-none">
 
-      {/* Header */}
-      <div className="flex-shrink-0 bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="font-medium text-sm">Back</span>
-        </button>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-blue-600/20 border border-blue-500/40 text-blue-400 text-xs font-bold px-3 py-1.5 rounded-full tracking-wide">
-            <ArrowUpDown className="w-3.5 h-3.5" />
-            FACE-TO-FACE
+      {/* ─── PATIENT panel (top — rotated 180° so patient reads it across the table) ─── */}
+      <div className="flex-1 flex flex-col bg-emerald-950/40 border-b-2 border-emerald-800/60 rotate-180 overflow-hidden">
+        <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 border-b border-emerald-900/60">
+          <span className="text-xs font-bold text-emerald-400 tracking-widest uppercase">Patient — {langData.name}</span>
+          <div className="flex items-center gap-2">
+            {patientInput.busy && <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />}
           </div>
+        </div>
+
+        {/* Patient transcript (latest message to patient side) */}
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+          {messages.filter(m => m.side === 'staff').slice(-3).map(m => (
+            <div key={m.id} className="space-y-0.5">
+              <p className="text-xs text-emerald-700">{m.original}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xl font-bold text-emerald-300 leading-snug flex-1" dir={isRtl ? 'rtl' : undefined}>
+                  {m.translation}
+                </p>
+                <button
+                  onClick={() => playAudioFromGesture(m.translation, language)}
+                  className="p-1.5 rounded-full bg-emerald-700/40 text-emerald-300 hover:bg-emerald-600/60 transition-colors flex-shrink-0"
+                >
+                  <Volume2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+          {messages.filter(m => m.side === 'staff').length === 0 && (
+            <p className="text-emerald-800 text-sm text-center mt-4">Staff messages will appear here</p>
+          )}
+        </div>
+
+        {/* Patient input */}
+        <div className="flex-shrink-0 border-t border-emerald-900/60 px-3 py-2">
+          <div className="flex items-center gap-2">
+            <textarea
+              value={patientInput.text}
+              onChange={e => setPatientInput(s => ({ ...s, text: e.target.value }))}
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPatient(patientInput.text); } }}
+              placeholder={`Speak or type in ${langData.name}…`}
+              dir={isRtl ? 'rtl' : undefined}
+              rows={1}
+              className="flex-1 bg-emerald-950/60 border border-emerald-800/60 text-white placeholder-emerald-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
+            />
+            <MicBtn
+              recording={patientInput.recording}
+              busy={patientInput.busy}
+              color="emerald"
+              onStart={() => startRecording('patient')}
+              onStop={stopRecording}
+            />
+            <button
+              onClick={() => sendPatient(patientInput.text)}
+              disabled={patientSendDisabled}
+              className="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-30 disabled:cursor-not-allowed text-white transition-colors flex-shrink-0"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Middle bar ─── */}
+      <div className="flex-shrink-0 flex items-center bg-slate-900 border-y border-slate-700/60 px-4 py-1.5 gap-3 z-10">
+        <button onClick={onBack} className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+          <span className="text-xs font-medium">Back</span>
+        </button>
+
+        <div className="flex-1 flex items-center justify-center gap-2">
+          <span className="text-xs font-semibold text-blue-400">English</span>
+          <div className="flex items-center gap-1 bg-blue-600/20 border border-blue-500/40 rounded-full px-2 py-0.5">
+            <ArrowUpDown className="w-3 h-3 text-blue-400" />
+            <span className="text-[10px] font-bold text-blue-400 tracking-widest uppercase">Face-to-Face</span>
+          </div>
+          <span className="text-xs font-semibold text-emerald-400">{langData.name}</span>
+        </div>
+
+        <button
+          onClick={clearAll}
+          className="p-1.5 text-slate-500 hover:text-white transition-colors"
+          title="Clear"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      {/* ─── Conversation transcript (middle) ─── */}
+      <div
+        ref={scrollRef}
+        className="flex-shrink-0 h-36 overflow-y-auto px-3 py-2 bg-slate-900/80 space-y-1.5 border-b border-slate-800"
+      >
+        {messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-slate-600 text-xs text-center">Conversation transcript will appear here</p>
+          </div>
+        ) : (
+          messages.map(msg => (
+            <div key={msg.id} className={`flex gap-2 ${msg.side === 'staff' ? 'justify-start' : 'justify-end'}`}>
+              <div
+                className={`max-w-[80%] rounded-xl px-3 py-1.5 ${
+                  msg.side === 'staff'
+                    ? 'bg-blue-600/30 border border-blue-500/30'
+                    : 'bg-emerald-600/30 border border-emerald-500/30'
+                }`}
+              >
+                <p className={`text-xs font-semibold leading-snug ${msg.side === 'staff' ? 'text-blue-200' : 'text-emerald-200'}`}>
+                  {msg.original}
+                </p>
+                <p className="text-[11px] text-slate-400 leading-snug mt-0.5" dir={msg.side === 'staff' && isRtl ? 'rtl' : undefined}>
+                  {msg.translation}
+                </p>
+              </div>
+              <button
+                onClick={() => replayMessage(msg)}
+                className="self-center p-1 text-slate-600 hover:text-slate-300 transition-colors flex-shrink-0"
+              >
+                <Volume2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* ─── STAFF panel (bottom — normal orientation) ─── */}
+      <div className="flex-1 flex flex-col bg-slate-950 overflow-hidden">
+        <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 border-b border-slate-800">
+          <span className="text-xs font-bold text-blue-400 tracking-widest uppercase">Staff — English</span>
           <button
-            onClick={clearAll}
-            className="p-2 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-            title="Clear"
+            onClick={() => setShowPrompts(v => !v)}
+            className={`text-[10px] px-2.5 py-1 rounded-full border transition-colors font-semibold ${
+              showPrompts ? 'bg-blue-600/30 border-blue-500/40 text-blue-300' : 'border-slate-700 text-slate-500 hover:text-slate-300'
+            }`}
           >
-            <RefreshCw className="w-4 h-4" />
+            {showPrompts ? 'Hide prompts' : 'Quick prompts'}
           </button>
         </div>
-      </div>
 
-      {/* Language bar */}
-      <div className="flex-shrink-0 flex items-center bg-slate-900 border-b border-slate-800">
-        <div className="flex-1 py-2 px-4 text-center text-sm font-semibold text-blue-400">
-          English (Staff)
-        </div>
-        <div className="w-px h-6 bg-slate-700" />
-        <div className="flex-1 py-2 px-4 text-center text-sm font-semibold text-emerald-400">
-          {langData.name} (Patient)
-        </div>
-      </div>
-
-      {/* Main split panels */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-
-        {/* Staff panel — top half */}
-        <div
-          className={`flex-1 flex flex-col border-b-2 transition-colors duration-200 ${
-            activeSide === 'staff' ? 'border-blue-500' : 'border-slate-800'
-          }`}
-          onClick={() => setActiveSide('staff')}
-        >
-          <div className="flex-1 overflow-y-auto px-5 pt-4 pb-2">
-            {/* Input area */}
-            <textarea
-              value={staff.text}
-              onChange={(e) => setStaff(s => ({ ...s, text: e.target.value }))}
-              onFocus={() => setActiveSide('staff')}
-              placeholder="Type or tap mic to speak in English…"
-              className="w-full bg-transparent text-white text-xl font-medium placeholder-slate-600 resize-none focus:outline-none leading-relaxed"
-              rows={2}
-            />
-
-            {/* Translation output */}
-            {(staff.translation || staff.isTranslating) && (
-              <div className="mt-3 pt-3 border-t border-slate-800">
-                {staff.isTranslating ? (
-                  <div className="flex items-center gap-2 text-slate-500 text-sm">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Translating…</span>
-                  </div>
-                ) : (
-                  <div>
-                    <p
-                      className="text-2xl font-bold text-emerald-400 leading-relaxed"
-                      dir={isRtl ? 'rtl' : undefined}
-                    >
-                      {staff.translation}
-                    </p>
-                    <p className="text-xs text-slate-600 mt-1">{langData.name}</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Staff action bar */}
-          <div className="flex-shrink-0 flex items-center gap-2 px-4 py-2 border-t border-slate-800/60">
-            {showPrompts && (
-              <div className="flex-1 overflow-x-auto flex gap-1.5 pb-1 no-scrollbar">
-                {STAFF_PROMPTS.map((p) => (
-                  <button
-                    key={p}
-                    onClick={(e) => { e.stopPropagation(); sendStaff(p); }}
-                    className="flex-shrink-0 text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:border-blue-500/60 hover:text-white transition-all whitespace-nowrap"
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-            )}
-            <div className="flex-shrink-0 flex items-center gap-2 ml-auto">
+        {/* Quick prompts */}
+        {showPrompts && (
+          <div className="flex-shrink-0 px-3 pt-2 pb-1 overflow-x-auto flex gap-1.5 no-scrollbar">
+            {STAFF_PROMPTS.map(p => (
               <button
-                onClick={(e) => { e.stopPropagation(); setShowPrompts(v => !v); }}
-                className="text-xs text-slate-500 hover:text-slate-300 transition-colors px-1"
+                key={p}
+                onClick={() => sendStaff(p)}
+                className="flex-shrink-0 text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:border-blue-500/60 hover:text-white transition-all whitespace-nowrap"
               >
-                {showPrompts ? 'Hide' : 'Prompts'}
+                {p}
               </button>
-              {staff.translation && !staff.isTranslating && (
+            ))}
+          </div>
+        )}
+
+        {/* Latest staff translation shown large for patient (right-side up for staff) */}
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+          {messages.filter(m => m.side === 'patient').slice(-3).map(m => (
+            <div key={m.id} className="space-y-0.5">
+              <p className="text-xs text-blue-700" dir={isRtl ? 'rtl' : undefined}>{m.original}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xl font-bold text-blue-300 leading-snug flex-1">{m.translation}</p>
                 <button
-                  onClick={(e) => { e.stopPropagation(); playTranslation('staff'); }}
-                  className="p-2 rounded-full bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-600/40 transition-colors"
-                  title="Play translation"
+                  onClick={() => replayMessage(m)}
+                  className="p-1.5 rounded-full bg-blue-700/40 text-blue-300 hover:bg-blue-600/60 transition-colors flex-shrink-0"
                 >
                   <Volume2 className="w-4 h-4" />
                 </button>
-              )}
-              {staff.text.trim() && !staff.isTranslating && !staff.isRecording && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); sendStaff(staff.text); }}
-                  className="p-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white transition-colors"
-                  title="Translate"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              )}
-              <MicButton
-                isRecording={staff.isRecording}
-                isLoading={staff.isTranslating}
-                color="blue"
-                onStart={(e) => { e.stopPropagation(); setActiveSide('staff'); startRecording('staff'); }}
-                onStop={(e) => { e.stopPropagation(); stopRecording(); }}
-              />
+              </div>
             </div>
-          </div>
+          ))}
+          {messages.filter(m => m.side === 'patient').length === 0 && (
+            <p className="text-slate-700 text-sm text-center mt-4">Patient responses will appear here in English</p>
+          )}
         </div>
 
-        {/* Patient panel — bottom half */}
-        <div
-          className={`flex-1 flex flex-col transition-colors duration-200 border-t-2 ${
-            activeSide === 'patient' ? 'border-emerald-500' : 'border-transparent'
-          } bg-slate-900/60`}
-          onClick={() => setActiveSide('patient')}
-        >
-          <div className="flex-1 overflow-y-auto px-5 pt-4 pb-2">
-            {/* Input area */}
+        {/* Staff input */}
+        <div className="flex-shrink-0 border-t border-slate-800 px-3 py-2">
+          <div className="flex items-center gap-2">
             <textarea
-              value={patient.text}
-              onChange={(e) => setPatient(s => ({ ...s, text: e.target.value }))}
-              onFocus={() => setActiveSide('patient')}
-              placeholder={`Type or tap mic to speak in ${langData.name}…`}
-              dir={isRtl ? 'rtl' : undefined}
-              className="w-full bg-transparent text-white text-xl font-medium placeholder-slate-600 resize-none focus:outline-none leading-relaxed"
-              rows={2}
+              value={staffInput.text}
+              onChange={e => setStaffInput(s => ({ ...s, text: e.target.value }))}
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendStaff(staffInput.text); } }}
+              placeholder="Type or speak in English…"
+              rows={1}
+              className="flex-1 bg-slate-800 border border-slate-700 text-white placeholder-slate-600 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
             />
-
-            {/* Translation output */}
-            {(patient.translation || patient.isTranslating) && (
-              <div className="mt-3 pt-3 border-t border-slate-800">
-                {patient.isTranslating ? (
-                  <div className="flex items-center gap-2 text-slate-500 text-sm">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Translating…</span>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="text-2xl font-bold text-blue-400 leading-relaxed">
-                      {patient.translation}
-                    </p>
-                    <p className="text-xs text-slate-600 mt-1">English</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Patient action bar */}
-          <div className="flex-shrink-0 flex items-center justify-end gap-2 px-4 py-2 border-t border-slate-800/60">
-            {patient.text.trim() && !patient.isTranslating && !patient.isRecording && (
-              <>
-                <button
-                  onClick={(e) => { e.stopPropagation(); playPatientOriginal(); }}
-                  className="p-2 rounded-full bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-600/40 transition-colors"
-                  title="Play in patient language"
-                >
-                  <Volume2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); sendPatient(patient.text); }}
-                  className="p-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
-                  title="Translate to English"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </>
-            )}
-            <MicButton
-              isRecording={patient.isRecording}
-              isLoading={patient.isTranslating && !patientIsActive}
-              color="emerald"
-              onStart={(e) => { e.stopPropagation(); setActiveSide('patient'); startRecording('patient'); }}
-              onStop={(e) => { e.stopPropagation(); stopRecording(); }}
+            <MicBtn
+              recording={staffInput.recording}
+              busy={staffInput.busy}
+              color="blue"
+              onStart={() => startRecording('staff')}
+              onStop={stopRecording}
             />
+            <button
+              onClick={() => sendStaff(staffInput.text)}
+              disabled={staffSendDisabled}
+              className="p-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed text-white transition-colors flex-shrink-0"
+            >
+              <Send className="w-4 h-4" />
+            </button>
           </div>
+          {staffInput.busy && (
+            <div className="flex items-center gap-1.5 mt-1.5 text-blue-400 text-xs">
+              <Loader2 className="w-3 h-3 animate-spin" /> Translating…
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Recording overlay pulse */}
-      {(staffIsActive || patientIsActive) && (
-        <div className="absolute inset-0 pointer-events-none">
-          <div
-            className={`absolute inset-0 border-4 animate-pulse rounded-none ${
-              staff.isRecording ? 'border-blue-500/40' : patientIsActive ? 'border-emerald-500/40' : 'border-transparent'
-            }`}
-          />
-        </div>
-      )}
     </div>
   );
 }
 
-interface MicButtonProps {
-  isRecording: boolean;
-  isLoading: boolean;
+interface MicBtnProps {
+  recording: boolean;
+  busy: boolean;
   color: 'blue' | 'emerald';
-  onStart: (e: React.MouseEvent) => void;
-  onStop: (e: React.MouseEvent) => void;
+  onStart: () => void;
+  onStop: () => void;
 }
 
-function MicButton({ isRecording, isLoading, color, onStart, onStop }: MicButtonProps) {
-  const baseColor = color === 'blue'
-    ? 'bg-blue-600 hover:bg-blue-500'
-    : 'bg-emerald-600 hover:bg-emerald-500';
-  const recordingColor = 'bg-red-600 hover:bg-red-500';
+function MicBtn({ recording, busy, color, onStart, onStop }: MicBtnProps) {
+  const base = color === 'blue' ? 'bg-blue-700 hover:bg-blue-600' : 'bg-emerald-700 hover:bg-emerald-600';
 
-  if (isLoading) {
+  if (busy) {
     return (
-      <div className={`p-3 rounded-full ${baseColor} opacity-60`}>
-        <Loader2 className="w-5 h-5 animate-spin text-white" />
+      <div className={`p-2.5 rounded-xl ${base} opacity-50 flex-shrink-0`}>
+        <Loader2 className="w-4 h-4 text-white animate-spin" />
       </div>
     );
   }
 
-  if (isRecording) {
+  if (recording) {
     return (
       <button
         onClick={onStop}
-        className={`p-3 rounded-full ${recordingColor} text-white transition-colors shadow-lg relative`}
-        title="Stop recording"
+        className="relative p-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white transition-colors flex-shrink-0"
       >
-        <MicOff className="w-5 h-5" />
-        <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-400 rounded-full animate-ping" />
+        <MicOff className="w-4 h-4" />
+        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-300 rounded-full animate-ping" />
       </button>
     );
   }
@@ -456,10 +434,9 @@ function MicButton({ isRecording, isLoading, color, onStart, onStop }: MicButton
   return (
     <button
       onClick={onStart}
-      className={`p-3 rounded-full ${baseColor} text-white transition-colors shadow-lg`}
-      title="Record speech"
+      className={`p-2.5 rounded-xl ${base} text-white transition-colors flex-shrink-0`}
     >
-      <Mic className="w-5 h-5" />
+      <Mic className="w-4 h-4" />
     </button>
   );
 }
