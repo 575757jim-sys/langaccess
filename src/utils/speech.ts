@@ -26,6 +26,7 @@ const blobCache = new Map<string, string>();
 let currentPlayId = 0;
 let audioCtx: AudioContext | null = null;
 let currentSource: AudioBufferSourceNode | null = null;
+let currentHtmlAudio: HTMLAudioElement | null = null;
 
 function getAudioContext(): AudioContext {
   if (!audioCtx) {
@@ -39,34 +40,15 @@ export const globalAudio = {
   pause() {
     currentSource?.stop();
     currentSource = null;
+    if (currentHtmlAudio) {
+      currentHtmlAudio.pause();
+      currentHtmlAudio = null;
+    }
     if (window.speechSynthesis) window.speechSynthesis.cancel();
   },
   get currentTime() { return audioCtx?.currentTime ?? 0; },
   set currentTime(_v: number) {},
 };
-
-function speakWithSynthesis(text: string, language: Language): void {
-  const synth = window.speechSynthesis;
-  synth.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = LANG_BCP47[language] || 'en-US';
-  utt.rate = 0.9;
-
-  const trySpeak = () => {
-    const voices = synth.getVoices();
-    const langCode = LANG_BCP47[language] || '';
-    const match = voices.find(v => v.lang.startsWith(langCode.slice(0, 2)));
-    if (match) utt.voice = match;
-    synth.speak(utt);
-  };
-
-  if (synth.getVoices().length > 0) {
-    trySpeak();
-  } else {
-    synth.addEventListener('voiceschanged', trySpeak, { once: true });
-    trySpeak();
-  }
-}
 
 export function fetchTTSBlob(text: string, language: Language | string): Promise<string | null> {
   const key = `${language}::${text}`;
@@ -86,8 +68,15 @@ export function fetchTTSBlob(text: string, language: Language | string): Promise
 }
 
 function playBlobUrl(url: string): void {
+  if (currentHtmlAudio) {
+    currentHtmlAudio.pause();
+  }
   const audio = new Audio(url);
+  currentHtmlAudio = audio;
   audio.play().catch(() => {});
+  audio.addEventListener('ended', () => {
+    if (currentHtmlAudio === audio) currentHtmlAudio = null;
+  });
 }
 
 function playWithAudioContext(blobUrl: string): void {
@@ -116,15 +105,20 @@ export function playAudioFromGesture(text: string, language: Language): void {
 
   currentSource?.stop();
   currentSource = null;
+  if (currentHtmlAudio) {
+    currentHtmlAudio.pause();
+    currentHtmlAudio = null;
+  }
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
 
   if (isIOS()) {
     if (cached) {
       playBlobUrl(cached);
       return;
     }
-    speakWithSynthesis(text, language);
     fetchTTSBlob(text, language).then((url) => {
       if (!url || currentPlayId !== playId) return;
+      playBlobUrl(url);
     }).catch(() => {});
     return;
   }

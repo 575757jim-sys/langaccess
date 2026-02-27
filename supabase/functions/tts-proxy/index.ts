@@ -6,17 +6,22 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+// All female voices. Neural2 > Wavenet > Standard (highest quality first).
+// Cantonese: yue-HK only has Standard voices; A = female.
+// Mandarin: cmn-CN-Neural2-A is female.
+// Tagalog: fil-PH-Wavenet-A is female.
+// Hmong: no Neural2/Wavenet available, fallback to standard female.
 const VOICE_MAP: Record<string, { languageCode: string; name: string }> = {
   spanish:          { languageCode: "es-US",  name: "es-US-Neural2-A" },
   tagalog:          { languageCode: "fil-PH", name: "fil-PH-Wavenet-A" },
   vietnamese:       { languageCode: "vi-VN",  name: "vi-VN-Neural2-A" },
-  mandarin:         { languageCode: "cmn-CN", name: "cmn-CN-Wavenet-A" },
+  mandarin:         { languageCode: "cmn-CN", name: "cmn-CN-Neural2-A" },
   cantonese:        { languageCode: "yue-HK", name: "yue-HK-Standard-A" },
   hmong:            { languageCode: "hmn-TH", name: "hmn-TH-Standard-A" },
   korean:           { languageCode: "ko-KR",  name: "ko-KR-Neural2-A" },
   arabic:           { languageCode: "ar-XA",  name: "ar-XA-Neural2-D" },
   "zh-traditional": { languageCode: "cmn-TW", name: "cmn-TW-Wavenet-A" },
-  "zh-simplified":  { languageCode: "cmn-CN", name: "cmn-CN-Wavenet-A" },
+  "zh-simplified":  { languageCode: "cmn-CN", name: "cmn-CN-Neural2-A" },
 };
 
 const GOOGLE_TTS_API_KEY = Deno.env.get("GOOGLE_TTS_API_KEY") ?? "";
@@ -40,8 +45,15 @@ Deno.serve(async (req: Request) => {
 
     const voice = VOICE_MAP[language];
     if (!voice) {
-      return new Response(JSON.stringify({ error: "Unsupported language" }), {
+      return new Response(JSON.stringify({ error: `Unsupported language: ${language}` }), {
         status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!GOOGLE_TTS_API_KEY) {
+      return new Response(JSON.stringify({ error: "GOOGLE_TTS_API_KEY not configured" }), {
+        status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
