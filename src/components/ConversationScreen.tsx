@@ -48,7 +48,20 @@ async function doTranslate(text: string, from: string, to: string): Promise<stri
   }
 }
 
-async function doTranscribe(blob: Blob, language: Language | 'english'): Promise<string> {
+function getSupportedMimeType(): string {
+  const types = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+    'audio/mp4',
+  ];
+  for (const t of types) {
+    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(t)) return t;
+  }
+  return '';
+}
+
+async function doTranscribe(blob: Blob, language: Language | 'english', mimeType: string): Promise<string> {
   const buf = await blob.arrayBuffer();
   const bytes = new Uint8Array(buf);
   let binary = '';
@@ -57,7 +70,7 @@ async function doTranscribe(blob: Blob, language: Language | 'english'): Promise
   const res = await fetch(STT_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${ANON_KEY_VALUE}` },
-    body: JSON.stringify({ audioBase64, language }),
+    body: JSON.stringify({ audioBase64, language, mimeType }),
   });
   const data = await res.json();
   return data.transcript ?? '';
@@ -126,14 +139,17 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
   const startRecording = useCallback(async (side: 'staff' | 'patient') => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mr = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+      const mimeType = getSupportedMimeType();
+      const mrOptions = mimeType ? { mimeType } : {};
+      const mr = new MediaRecorder(stream, mrOptions);
+      const actualMime = mr.mimeType || mimeType;
       chunksRef.current = [];
       recordingSideRef.current = side;
 
       mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = async () => {
         stream.getTracks().forEach(t => t.stop());
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm;codecs=opus' });
+        const blob = new Blob(chunksRef.current, { type: actualMime });
         if (blob.size < 100) {
           if (side === 'staff') setStaffInput(s => ({ ...s, recording: false, busy: false }));
           else setPatientInput(s => ({ ...s, recording: false, busy: false }));
@@ -143,7 +159,7 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
         else setPatientInput(s => ({ ...s, recording: false, busy: true }));
 
         try {
-          const transcript = await doTranscribe(blob, side === 'patient' ? language : 'english');
+          const transcript = await doTranscribe(blob, side === 'patient' ? language : 'english', actualMime);
           if (transcript) {
             if (side === 'staff') await sendStaff(transcript);
             else await sendPatient(transcript);
