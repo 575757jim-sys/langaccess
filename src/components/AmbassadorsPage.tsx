@@ -185,7 +185,10 @@ export default function AmbassadorsPage({ onBack }: Props) {
             Got 10 minutes<br />
             <span className="text-green-400">and a pocket?</span>
           </h1>
-          <p className="text-slate-300 text-xl mb-4 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-slate-200 text-lg font-medium mb-3 max-w-2xl mx-auto leading-relaxed">
+            If someone needs food, shelter, or other services — this card will help.
+          </p>
+          <p className="text-slate-400 text-base max-w-2xl mx-auto leading-relaxed">
             Ambassadors distribute LangAccess cards at clinics, schools, job sites, and community centers.
           </p>
           <p className="text-slate-400 text-base max-w-xl mx-auto leading-relaxed">
@@ -203,9 +206,9 @@ export default function AmbassadorsPage({ onBack }: Props) {
 
       <div ref={statsRef} className="max-w-4xl mx-auto px-4 py-16">
         <div className="grid grid-cols-3 gap-6 bg-[#111827] rounded-2xl p-8 border border-white/10">
-          <StatCounter value={312} label="Active Ambassadors" started={statsVisible} />
-          <StatCounter value={8400} label="Cards Distributed" started={statsVisible} />
-          <StatCounter value={47} label="Cities Reached" started={statsVisible} />
+          <StatCounter value={20} label="Active Ambassadors" started={statsVisible} />
+          <StatCounter value={250} label="Cards Distributed" started={statsVisible} />
+          <StatCounter value={8} label="Cities Reached" started={statsVisible} />
         </div>
       </div>
 
