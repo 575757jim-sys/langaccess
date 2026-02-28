@@ -35,7 +35,6 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
       setSelected(null);
       setShowExplanation(false);
     } else {
-      const correct = answers.filter(Boolean).length + (selected === current.correctIndex ? 1 : 0);
       const finalAnswers = [...answers, selected === current.correctIndex];
       const score = finalAnswers.filter(Boolean).length / totalQuestions;
       const passed = score >= PASS_THRESHOLD;

@@ -411,7 +411,7 @@ export const CERT_TRACKS: CertTrack[] = [
     id: 'construction',
     title: 'Construction',
     description: 'Jobsite safety, OSHA compliance, hazard communication, and equipment operation.',
-    icon: '��️',
+    icon: '\u{1F3D7}\uFE0F',
     color: 'from-orange-600 to-orange-800',
     modules: [
       { id: 1, title: 'Jobsite Safety Basics', questions: constructionQuestions },
