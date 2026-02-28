@@ -1,7 +1,24 @@
 import { useState } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Volume2 } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Volume2, Award, Users } from 'lucide-react';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
+import SEO from './SEO';
+
+const JSON_LD_WEB_APP = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'LangAccess',
+  url: 'https://langaccess.org',
+  description: 'Multilingual communication aid for healthcare, education, and construction professionals. Includes Spanish, Tagalog, Vietnamese, Mandarin, Cantonese, and more.',
+  applicationCategory: 'HealthApplication',
+  operatingSystem: 'Any',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+  inLanguage: ['en', 'es', 'tl', 'vi', 'zh', 'ko', 'ar', 'hmn'],
+};
 
 interface HomeScreenProps {
   selectedSector: Sector | null;
@@ -11,6 +28,8 @@ interface HomeScreenProps {
   onBackToSectorSelection: () => void;
   onOpenPolicy?: () => void;
   onOpenCommunityNavigator?: () => void;
+  onOpenCertificates?: () => void;
+  onOpenAmbassadors?: () => void;
   onCheckForUpdates?: () => void;
 }
 
@@ -21,6 +40,8 @@ export default function HomeScreen({
   onBackToSectorSelection,
   onOpenPolicy,
   onOpenCommunityNavigator,
+  onOpenCertificates,
+  onOpenAmbassadors,
   onCheckForUpdates
 }: HomeScreenProps) {
   const [audioUnlocked, setAudioUnlocked] = useState(false);
@@ -66,6 +87,14 @@ export default function HomeScreen({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
+      {!selectedSector && (
+        <SEO
+          title="LangAccess — Multilingual Communication Aid"
+          description="Free multilingual phrases for healthcare, education, and construction professionals. Spanish, Tagalog, Vietnamese, Mandarin, and more. California LEP compliant."
+          path="/"
+          jsonLd={JSON_LD_WEB_APP}
+        />
+      )}
       <div className="flex-1 flex flex-col items-center justify-center p-6 max-w-2xl mx-auto w-full">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
@@ -121,7 +150,7 @@ export default function HomeScreen({
               </div>
               <button
                 onClick={onOpenCommunityNavigator}
-                className="w-full bg-slate-800 hover:bg-slate-700 text-white rounded-2xl py-5 px-8 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-4"
+                className="w-full bg-slate-800 hover:bg-slate-700 text-white rounded-2xl py-5 px-8 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-4 mb-3"
               >
                 <Compass className="w-8 h-8 text-amber-400" />
                 <div className="text-left">
@@ -129,6 +158,29 @@ export default function HomeScreen({
                   <div className="text-sm text-slate-300 font-normal mt-0.5">Find food, shelter, and services near you.</div>
                 </div>
               </button>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={onOpenCertificates}
+                  className="bg-slate-700 hover:bg-slate-600 text-white rounded-2xl py-4 px-5 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center gap-3"
+                >
+                  <Award className="w-6 h-6 text-yellow-400 flex-shrink-0" />
+                  <div className="text-left">
+                    <div className="text-base font-semibold">Certificates</div>
+                    <div className="text-xs text-slate-400 font-normal">Free first module</div>
+                  </div>
+                </button>
+                <button
+                  onClick={onOpenAmbassadors}
+                  className="bg-slate-700 hover:bg-slate-600 text-white rounded-2xl py-4 px-5 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center gap-3"
+                >
+                  <Users className="w-6 h-6 text-green-400 flex-shrink-0" />
+                  <div className="text-left">
+                    <div className="text-base font-semibold">Ambassadors</div>
+                    <div className="text-xs text-slate-400 font-normal">Join the brigade</div>
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -171,6 +223,21 @@ export default function HomeScreen({
           >
             <MessageSquarePlus className="w-4 h-4" />
             Request a Language
+          </button>
+          <span className="text-slate-300 hidden sm:inline">|</span>
+          <button
+            onClick={onOpenCertificates}
+            className="flex items-center gap-1.5 text-slate-500 hover:text-yellow-600 transition-colors"
+          >
+            <Award className="w-4 h-4" />
+            Certificates
+          </button>
+          <button
+            onClick={onOpenAmbassadors}
+            className="flex items-center gap-1.5 text-slate-500 hover:text-green-600 transition-colors"
+          >
+            <Users className="w-4 h-4" />
+            Ambassadors
           </button>
           <span className="text-slate-300 hidden sm:inline">|</span>
           <button

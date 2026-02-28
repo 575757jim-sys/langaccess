@@ -5,6 +5,8 @@ import SubcategorySelector from './components/SubcategorySelector';
 import LanguageAccessPolicy from './components/LanguageAccessPolicy';
 import CommunityNavigator from './components/CommunityNavigator';
 import ConversationScreen from './components/ConversationScreen';
+import CertificatesPage from './components/CertificatesPage';
+import AmbassadorsPage from './components/AmbassadorsPage';
 import UpdateToast from './components/UpdateToast';
 import DebugOverlay from './components/DebugOverlay';
 import { Language, Sector } from './data/phrases';
@@ -17,7 +19,16 @@ import {
 import { initAudioUnlock } from './utils/speech';
 import { useUpdateManager } from './hooks/useUpdateManager';
 
-type AppView = 'home' | 'subcategory' | 'language' | 'phrases' | 'policy' | 'community' | 'conversation';
+type AppView =
+  | 'home'
+  | 'subcategory'
+  | 'language'
+  | 'phrases'
+  | 'policy'
+  | 'community'
+  | 'conversation'
+  | 'certificates'
+  | 'ambassadors';
 
 function App() {
   const [view, setView] = useState<AppView>('home');
@@ -94,6 +105,14 @@ function App() {
 
   return (
     <>
+      {view === 'certificates' && (
+        <CertificatesPage onBack={() => setView('home')} />
+      )}
+
+      {view === 'ambassadors' && (
+        <AmbassadorsPage onBack={() => setView('home')} />
+      )}
+
       {view === 'policy' && (
         <LanguageAccessPolicy onBack={() => setView('home')} />
       )}
@@ -128,6 +147,8 @@ function App() {
           onBackToSectorSelection={handleBackFromLanguage}
           onOpenPolicy={() => setView('policy')}
           onOpenCommunityNavigator={() => setView('community')}
+          onOpenCertificates={() => setView('certificates')}
+          onOpenAmbassadors={() => setView('ambassadors')}
           onCheckForUpdates={checkForUpdates}
         />
       )}
@@ -149,6 +170,8 @@ function App() {
           onBackToSectorSelection={handleBackToHome}
           onOpenPolicy={() => setView('policy')}
           onOpenCommunityNavigator={() => setView('community')}
+          onOpenCertificates={() => setView('certificates')}
+          onOpenAmbassadors={() => setView('ambassadors')}
           onCheckForUpdates={checkForUpdates}
         />
       )}
