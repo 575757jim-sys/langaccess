@@ -178,11 +178,13 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    if (AZURE_LANGS.has(language)) {
-      return await synthesizeWithAzure(text, language);
+    const normalizedLang = language.trim().toLowerCase();
+
+    if (AZURE_LANGS.has(normalizedLang)) {
+      return await synthesizeWithAzure(text, normalizedLang);
     }
 
-    return await synthesizeWithGoogle(text, language);
+    return await synthesizeWithGoogle(text, normalizedLang);
   } catch (err) {
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
