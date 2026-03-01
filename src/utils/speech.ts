@@ -3,6 +3,25 @@ import { Language } from '../data/phrases';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
+function speakFallback(text: string, langCode = "fa-IR"): boolean {
+  if (typeof window === "undefined") return false;
+  const synth = window.speechSynthesis;
+  if (!synth) return false;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = langCode;
+  const voices = synth.getVoices?.() ?? [];
+  const match = voices.find(v => (v.lang || "").toLowerCase().startsWith(langCode.toLowerCase()));
+  if (match) u.voice = match;
+  synth.cancel();
+  synth.speak(u);
+  return true;
+}
+
+function isFarsiLang(raw: string, normalized: string): boolean {
+  const r = raw.toLowerCase();
+  return r.includes("farsi") || r.includes("persian") || normalized.toLowerCase().startsWith("fa");
+}
+
 function normalizeTtsLang(input?: string): string {
   const s = (input ?? "").trim();
   const lower = s.toLowerCase();
@@ -109,6 +128,14 @@ async function fetchBlobUrl(text: string, language: string): Promise<string | nu
       let detail = '';
       try { detail = await res.text(); } catch { detail = '(no body)'; }
       console.error(`[tts] HTTP ${res.status} for lang=${normalizedLang} (original="${language}"): ${detail}`);
+
+      if (isFarsiLang(language, normalizedLang)) {
+        const spoke = speakFallback(safeText, "fa-IR");
+        if (spoke) {
+          console.log(`[tts] fallback speechSynthesis used (fa-IR)`);
+          return "fallback:speechSynthesis";
+        }
+      }
       return null;
     }
 
@@ -134,8 +161,10 @@ async function fetchBlobUrl(text: string, language: string): Promise<string | nu
   }
 }
 
-export function fetchTTSBlob(text: string, language: Language | string): Promise<string | null> {
-  return fetchBlobUrl(text, language as string);
+export async function fetchTTSBlob(text: string, language: Language | string): Promise<string | null> {
+  const result = await fetchBlobUrl(text, language as string);
+  if (result === "fallback:speechSynthesis") return null;
+  return result;
 }
 
 export function preloadAudio(text: string, language: Language): void {
@@ -180,6 +209,10 @@ export function playAudioFromGesture(text: string, language: Language): void {
   fetchBlobUrl(cleaned, language).then((url) => {
     if (!url) {
       console.error('[audio] No URL returned from TTS — check GOOGLE_TTS_API_KEY is set in Supabase Edge Function secrets');
+      if (currentAudio === audio) currentAudio = null;
+      return;
+    }
+    if (url === "fallback:speechSynthesis") {
       if (currentAudio === audio) currentAudio = null;
       return;
     }
