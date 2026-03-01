@@ -111,11 +111,19 @@ export function preloadAudio(text: string, language: Language): void {
   fetchBlobUrl(text, language).catch(() => {});
 }
 
+function cleanTextForTTS(text: string, language: Language): string {
+  if (language === 'mandarin' || language === 'cantonese') {
+    return text.replace(/\s*\([^)]*\)/g, '').trim();
+  }
+  return text;
+}
+
 export function playAudioFromGesture(text: string, language: Language): void {
   unlockAudioContext();
   globalAudio.pause();
 
-  const key = `${language}::${text}`;
+  const cleaned = cleanTextForTTS(text, language);
+  const key = `${language}::${cleaned}`;
   const cached = blobCache.get(key);
 
   const audio = new Audio();
@@ -138,7 +146,7 @@ export function playAudioFromGesture(text: string, language: Language): void {
     return;
   }
 
-  fetchBlobUrl(text, language).then((url) => {
+  fetchBlobUrl(cleaned, language).then((url) => {
     if (!url) {
       console.error('[audio] No URL returned from TTS — check GOOGLE_TTS_API_KEY is set in Supabase Edge Function secrets');
       if (currentAudio === audio) currentAudio = null;
