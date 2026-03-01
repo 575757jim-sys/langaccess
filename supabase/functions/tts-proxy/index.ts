@@ -166,6 +166,14 @@ Deno.serve(async (req: Request) => {
 
   try {
     const url = new URL(req.url);
+
+    if (url.searchParams.get("version") === "check") {
+      return new Response(JSON.stringify({ ok: true, version: "tts-proxy-2026-03-01-02" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const text = url.searchParams.get("text");
     const rawLang = url.searchParams.get("language");
 
