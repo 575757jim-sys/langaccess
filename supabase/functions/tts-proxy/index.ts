@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const VERSION = "tts-proxy-2026-03-01-FA01";
+const VERSION = "tts-proxy-FA01";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,36 +21,36 @@ const GOOGLE_VOICE_MAP: Record<string, { languageCode: string; name: string }> =
 };
 
 const AZURE_VOICE_MAP: Record<string, { locale: string; name: string }> = {
-  hmong: { locale: "mww-CN", name: "mww-CN-XiaoMin-Apollo" },
-  farsi: { locale: "fa-IR",  name: "fa-IR-DilaraNeural" },
-  dari:  { locale: "prs-AF", name: "prs-AF-GulNawazNeural" },
+  hmong: { locale: "mww-CN",  name: "mww-CN-XiaoMin-Apollo" },
+  farsi: { locale: "fa-IR",   name: "fa-IR-DilaraNeural" },
+  dari:  { locale: "prs-AF",  name: "prs-AF-GulNawazNeural" },
 };
 
 const AZURE_LANGS = new Set(["hmong", "farsi", "dari"]);
 
 const GOOGLE_TTS_API_KEY = Deno.env.get("GOOGLE_TTS_API_KEY") ?? "";
-const AZURE_TTS_KEY = Deno.env.get("AZURE_TRANSLATOR_KEY") ?? "";
-const AZURE_TTS_REGION = Deno.env.get("AZURE_TRANSLATOR_REGION") ?? "";
+const AZURE_TTS_KEY      = Deno.env.get("AZURE_TRANSLATOR_KEY") ?? "";
+const AZURE_TTS_REGION   = Deno.env.get("AZURE_TRANSLATOR_REGION") ?? "";
 
-function normalizeLang(v?: string | null): string {
+const normalizeLang = (v?: string | null): string => {
   const s = (v ?? "").toLowerCase().trim();
-  if (s === "persian") return "farsi";
-  if (s === "fa-ir" || s === "fa_ir") return "farsi";
-  if (s === "fa-af" || s === "fa_af" || s === "prs") return "dari";
+  if (s === "farsi" || s === "persian") return "farsi";
+  if (s === "fa-ir" || s === "fa_ir")   return "farsi";
+  if (s === "dari" || s === "fa-af" || s === "fa_af" || s === "prs") return "dari";
   return s;
-}
+};
 
 async function synthesizeWithAzure(text: string, language: string): Promise<Response> {
   const voice = AZURE_VOICE_MAP[language];
   if (!voice) {
-    return new Response(JSON.stringify({ error: `No Azure voice for: ${language}` }), {
+    return new Response(JSON.stringify({ error: `No Azure voice for: ${language}`, version: VERSION }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   if (!AZURE_TTS_KEY || !AZURE_TTS_REGION) {
-    return new Response(JSON.stringify({ error: "Azure credentials not configured" }), {
+    return new Response(JSON.stringify({ error: "Azure credentials not configured", version: VERSION }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -67,7 +67,7 @@ async function synthesizeWithAzure(text: string, language: string): Promise<Resp
 
   if (!tokenRes.ok) {
     const detail = await tokenRes.text();
-    return new Response(JSON.stringify({ error: `Azure token failed: ${tokenRes.status}`, detail }), {
+    return new Response(JSON.stringify({ error: `Azure token failed: ${tokenRes.status}`, detail, version: VERSION }), {
       status: 502,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -91,7 +91,7 @@ async function synthesizeWithAzure(text: string, language: string): Promise<Resp
 
   if (!ttsRes.ok) {
     const errBody = await ttsRes.text();
-    return new Response(JSON.stringify({ error: `Azure TTS failed: ${ttsRes.status}`, detail: errBody }), {
+    return new Response(JSON.stringify({ error: `Azure TTS failed: ${ttsRes.status}`, detail: errBody, version: VERSION }), {
       status: 502,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -111,14 +111,14 @@ async function synthesizeWithAzure(text: string, language: string): Promise<Resp
 async function synthesizeWithGoogle(text: string, language: string): Promise<Response> {
   const voice = GOOGLE_VOICE_MAP[language];
   if (!voice) {
-    return new Response(JSON.stringify({ error: `Unsupported language: ${language}. Supported: ${Object.keys(GOOGLE_VOICE_MAP).join(", ")}` }), {
+    return new Response(JSON.stringify({ error: `Unsupported language: ${language}. Supported: ${Object.keys(GOOGLE_VOICE_MAP).join(", ")}`, version: VERSION }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   if (!GOOGLE_TTS_API_KEY) {
-    return new Response(JSON.stringify({ error: "GOOGLE_TTS_API_KEY not configured" }), {
+    return new Response(JSON.stringify({ error: "GOOGLE_TTS_API_KEY not configured", version: VERSION }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -139,7 +139,7 @@ async function synthesizeWithGoogle(text: string, language: string): Promise<Res
 
   if (!ttsRes.ok) {
     const errBody = await ttsRes.text();
-    return new Response(JSON.stringify({ error: `Google TTS failed: ${ttsRes.status}`, detail: errBody }), {
+    return new Response(JSON.stringify({ error: `Google TTS failed: ${ttsRes.status}`, detail: errBody, version: VERSION }), {
       status: 502,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -147,7 +147,7 @@ async function synthesizeWithGoogle(text: string, language: string): Promise<Res
 
   const { audioContent } = await ttsRes.json();
   if (!audioContent) {
-    return new Response(JSON.stringify({ error: "No audio content returned" }), {
+    return new Response(JSON.stringify({ error: "No audio content returned", version: VERSION }), {
       status: 502,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -174,43 +174,43 @@ Deno.serve(async (req: Request) => {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
-  if (req.method === "GET") {
-    return new Response(JSON.stringify({ ok: true, version: VERSION, project: "vkfsxioimkkdtqakzuww", azure_langs: ["farsi", "dari", "hmong"] }), {
+  const url = new URL(req.url);
+  const qText = url.searchParams.get("text") ?? "";
+  const qLang = url.searchParams.get("lang") ?? url.searchParams.get("language") ?? "";
+
+  if (req.method === "GET" && !qText && !qLang) {
+    return new Response(JSON.stringify({ ok: true, version: VERSION }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   try {
-    const url = new URL(req.url);
+    let text = qText;
+    let rawLang = qLang;
 
-    let text: string | null = null;
-    let rawLang: string | null = null;
-
-    const contentType = req.headers.get("content-type") ?? "";
-    if (req.method === "POST" && contentType.includes("application/json")) {
-      const body = await req.json().catch(() => ({})) as { text?: string; lang?: string; language?: string };
-      text = body.text ?? null;
-      rawLang = body.lang ?? body.language ?? null;
-    } else {
-      text = url.searchParams.get("text");
-      rawLang = url.searchParams.get("language") ?? url.searchParams.get("lang");
+    if (req.method === "POST") {
+      const body = await req.json().catch(() => ({} as { text?: string; lang?: string; language?: string }));
+      const bText = body?.text ?? "";
+      const bLang = body?.lang ?? body?.language ?? "";
+      text = (bText || qText).toString();
+      rawLang = (bLang || qLang).toString();
     }
 
-    if (!text || !rawLang) {
-      return new Response(JSON.stringify({ error: "Missing text or language parameter", version: VERSION }), {
+    const lang = normalizeLang(rawLang);
+
+    if (!text || !lang) {
+      return new Response(JSON.stringify({ error: "Missing text or language", version: VERSION }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const language = normalizeLang(rawLang);
-
-    if (AZURE_LANGS.has(language)) {
-      return await synthesizeWithAzure(text, language);
+    if (AZURE_LANGS.has(lang)) {
+      return await synthesizeWithAzure(text, lang);
     }
 
-    return await synthesizeWithGoogle(text, language);
+    return await synthesizeWithGoogle(text, lang);
   } catch (err) {
     return new Response(JSON.stringify({ error: String(err), version: VERSION }), {
       status: 500,
