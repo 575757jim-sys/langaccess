@@ -1,7 +1,7 @@
 import { Language, Phrase } from './phrases';
 
 export type HealthcareSubcategory = 'physical-health' | 'mental-health' | 'dental-health' | 'emergency-crisis';
-export type EducationSubcategory = 'safe-haven-immigration' | 'restorative-justice' | 'parent-communication' | 'special-needs';
+export type EducationSubcategory = 'student-discipline' | 'parent-outreach' | 'teacher-support' | 'special-needs';
 export type ConstructionSubcategory = 'safety-osha' | 'injury-emergency' | 'general-worksite';
 
 export type Subcategory = HealthcareSubcategory | EducationSubcategory | ConstructionSubcategory;
@@ -25,9 +25,9 @@ export const healthcareSubcategories: SubcategoryInfo[] = [
 ];
 
 export const educationSubcategories: SubcategoryInfo[] = [
-  { id: 'safe-haven-immigration', label: 'Safe Haven and Immigration', sector: 'education' },
-  { id: 'restorative-justice', label: 'Restorative Justice', sector: 'education' },
-  { id: 'parent-communication', label: 'Parent Communication', sector: 'education' },
+  { id: 'student-discipline', label: 'Student Discipline and Resolution', sector: 'education' },
+  { id: 'parent-outreach', label: 'Parent Outreach', sector: 'education' },
+  { id: 'teacher-support', label: 'Teacher Support', sector: 'education' },
   { id: 'special-needs', label: 'Special Needs', sector: 'education' }
 ];
 
@@ -1892,908 +1892,139 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     mandarin: [],
     cantonese: []
   },
-  'safe-haven-immigration': {
+  'student-discipline': {
     spanish: [
       {
-        groupLabel: 'Identifying the Situation',
+        groupLabel: 'Notifying Parent of Incident',
         phrases: [
           {
-            english: 'Are you here seeking safety?',
-            translation: '¿Está aquí buscando seguridad?',
+            english: 'I am calling to inform you of an incident involving your child today.',
+            translation: 'Le llamo para informarle sobre un incidente que ocurrió con su hijo hoy.',
             responses: [
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'Necesito ayuda', pronunciation: 'neh-seh-SEE-toh ah-YOO-dah', english: 'I need help' },
-              { translation: 'Tengo miedo', pronunciation: 'TEHN-goh mee-EH-doh', english: 'I\'m afraid' },
-              { translation: 'No sé', pronunciation: 'noh seh', english: 'I don\'t know' }
-            ]
-          },
-          {
-            english: 'Do you have your immigration documents?',
-            translation: '¿Tiene sus documentos de inmigración?',
-            responses: [
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'No', pronunciation: 'noh', english: 'No' },
-              { translation: 'Los perdí', pronunciation: 'lohs pehr-DEE', english: 'I lost them' },
-              { translation: 'Están en casa', pronunciation: 'es-TAHN en KAH-sah', english: 'They\'re at home' }
-            ]
-          },
-          {
-            english: 'Do you feel safe at home?',
-            translation: '¿Se siente seguro en casa?',
-            responses: [
-              { translation: 'No', pronunciation: 'noh', english: 'No' },
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'A veces', pronunciation: 'ah BEH-ses', english: 'Sometimes' },
-              { translation: 'No puedo volver', pronunciation: 'noh PWEH-doh bohl-BEHR', english: 'I can\'t go back' }
-            ]
-          },
-          {
-            english: 'Has anyone threatened you or your family?',
-            translation: '¿Alguien lo ha amenazado a usted o a su familia?',
-            responses: [
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'No', pronunciation: 'noh', english: 'No' },
-              { translation: 'Tengo miedo de hablar', pronunciation: 'TEHN-goh mee-EH-doh deh ah-BLAHR', english: 'I\'m afraid to talk' },
-              { translation: 'Mi familia está en peligro', pronunciation: 'mee fah-MEE-lee-ah es-TAH en peh-LEE-groh', english: 'My family is in danger' }
-            ]
-          },
-          {
-            english: 'How long have you been in the United States?',
-            translation: '¿Cuánto tiempo lleva en los Estados Unidos?',
-            responses: [
-              { translation: 'Un mes', pronunciation: 'oon mehs', english: 'One month' },
-              { translation: 'Seis meses', pronunciation: 'say-EES MEH-ses', english: 'Six months' },
-              { translation: 'Un año', pronunciation: 'oon AH-nyoh', english: 'One year' },
-              { translation: 'Muchos años', pronunciation: 'MOO-chohs AH-nyohs', english: 'Many years' }
-            ]
-          }
-        ]
-      },
-      {
-        groupLabel: 'Rights and Protections',
-        phrases: [
-          {
-            english: 'You have the right to remain silent',
-            translation: 'Usted tiene el derecho de permanecer en silencio',
-            responses: [
-              { translation: 'Entiendo', pronunciation: 'en-tee-EHN-doh', english: 'I understand' },
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Qué significa eso', pronunciation: 'keh seeg-nee-FEE-kah EH-soh', english: 'What does that mean' },
-              { translation: 'Quiero hablar', pronunciation: 'kee-EH-roh ah-BLAHR', english: 'I want to talk' }
-            ]
-          },
-          {
-            english: 'You have the right to speak with a lawyer',
-            translation: 'Usted tiene derecho a hablar con un abogado',
-            responses: [
-              { translation: 'Sí, por favor', pronunciation: 'see pohr fah-BOHR', english: 'Yes, please' },
-              { translation: 'Necesito un abogado', pronunciation: 'neh-seh-SEE-toh oon ah-boh-GAH-doh', english: 'I need a lawyer' },
-              { translation: 'No tengo dinero', pronunciation: 'noh TEHN-goh dee-NEH-roh', english: 'I don\'t have money' },
-              { translation: 'Dónde puedo conseguir uno', pronunciation: 'DOHN-deh PWEH-doh kohn-seh-GEER OO-noh', english: 'Where can I get one' }
-            ]
-          },
-          {
-            english: 'We will not report your immigration status',
-            translation: 'No vamos a reportar su estado migratorio',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Está seguro', pronunciation: 'es-TAH seh-GOO-roh', english: 'Are you sure' },
-              { translation: 'Tengo miedo', pronunciation: 'TEHN-goh mee-EH-doh', english: 'I\'m afraid' },
-              { translation: 'Me alegro', pronunciation: 'meh ah-LEH-groh', english: 'I\'m glad' }
-            ]
-          },
-          {
-            english: 'This is a safe space for all students',
-            translation: 'Este es un espacio seguro para todos los estudiantes',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Me siento mejor', pronunciation: 'meh see-EHN-toh meh-HOHR', english: 'I feel better' },
-              { translation: 'Entiendo', pronunciation: 'en-tee-EHN-doh', english: 'I understand' },
-              { translation: 'Qué bueno', pronunciation: 'keh BWEH-noh', english: 'That\'s good' }
-            ]
-          },
-          {
-            english: 'You cannot be discriminated against because of your status',
-            translation: 'No pueden discriminarlo por su estatus',
-            responses: [
-              { translation: 'Gracias por decirme', pronunciation: 'GRAH-see-ahs pohr deh-SEER-meh', english: 'Thank you for telling me' },
-              { translation: 'No lo sabía', pronunciation: 'noh loh sah-BEE-ah', english: 'I didn\'t know' },
-              { translation: 'Me siento protegido', pronunciation: 'meh see-EHN-toh proh-teh-HEE-doh', english: 'I feel protected' },
-              { translation: 'Está bien', pronunciation: 'es-TAH bee-EHN', english: 'That\'s good' }
-            ]
-          }
-        ]
-      },
-      {
-        groupLabel: 'Immediate Actions',
-        phrases: [
-          {
-            english: 'I will connect you with our counselor',
-            translation: 'Lo voy a conectar con nuestro consejero',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Sí, por favor', pronunciation: 'see pohr fah-BOHR', english: 'Yes, please' },
-              { translation: 'Cuándo', pronunciation: 'KWAHN-doh', english: 'When' },
-              { translation: 'Necesito hablar ahora', pronunciation: 'neh-seh-SEE-toh ah-BLAHR ah-OH-rah', english: 'I need to talk now' }
-            ]
-          },
-          {
-            english: 'Do you need a safe place to stay tonight?',
-            translation: '¿Necesita un lugar seguro para quedarse esta noche?',
-            responses: [
-              { translation: 'Sí, por favor', pronunciation: 'see pohr fah-BOHR', english: 'Yes, please' },
-              { translation: 'No sé', pronunciation: 'noh seh', english: 'I don\'t know' },
-              { translation: 'Tengo donde quedarme', pronunciation: 'TEHN-goh DOHN-deh keh-DAHR-meh', english: 'I have somewhere to stay' },
-              { translation: 'Tengo miedo de volver a casa', pronunciation: 'TEHN-goh mee-EH-doh deh bohl-BEHR ah KAH-sah', english: 'I\'m afraid to go home' }
-            ]
-          },
-          {
-            english: 'We can provide emergency food and clothing',
-            translation: 'Podemos proporcionar comida y ropa de emergencia',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Sí, necesito ayuda', pronunciation: 'see neh-seh-SEE-toh ah-YOO-dah', english: 'Yes, I need help' },
-              { translation: 'Dónde', pronunciation: 'DOHN-deh', english: 'Where' },
-              { translation: 'Para mi familia también', pronunciation: 'PAH-rah mee fah-MEE-lee-ah tahm-bee-EHN', english: 'For my family too' }
-            ]
-          },
-          {
-            english: 'I will call our social worker to help you',
-            translation: 'Voy a llamar a nuestro trabajador social para ayudarlo',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Sí, por favor', pronunciation: 'see pohr fah-BOHR', english: 'Yes, please' },
-              { translation: 'Cuánto tiempo tomará', pronunciation: 'KWAHN-toh tee-EHM-poh toh-mah-RAH', english: 'How long will it take' },
-              { translation: 'Necesito ayuda urgente', pronunciation: 'neh-seh-SEE-toh ah-YOO-dah oor-HEHN-teh', english: 'I need urgent help' }
-            ]
-          },
-          {
-            english: 'Here is a list of legal aid organizations',
-            translation: 'Aquí tiene una lista de organizaciones de ayuda legal',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Puedo llamar desde aquí', pronunciation: 'PWEH-doh yah-MAHR DEHS-deh ah-KEE', english: 'Can I call from here' },
-              { translation: 'Hablan español', pronunciation: 'AH-blahn es-pah-NYOHL', english: 'Do they speak Spanish' },
-              { translation: 'Son gratis', pronunciation: 'sohn GRAH-tees', english: 'Are they free' }
-            ]
-          }
-        ]
-      },
-      {
-        groupLabel: 'Family Communication',
-        phrases: [
-          {
-            english: 'Do you need to contact your family?',
-            translation: '¿Necesita contactar a su familia?',
-            responses: [
-              { translation: 'Sí, por favor', pronunciation: 'see pohr fah-BOHR', english: 'Yes, please' },
-              { translation: 'No', pronunciation: 'noh', english: 'No' },
-              { translation: 'No tengo teléfono', pronunciation: 'noh TEHN-goh teh-LEH-foh-noh', english: 'I don\'t have a phone' },
-              { translation: 'Están en otro país', pronunciation: 'es-TAHN en OH-troh pah-EES', english: 'They\'re in another country' }
-            ]
-          },
-          {
-            english: 'Who is your emergency contact?',
-            translation: '¿Quién es su contacto de emergencia?',
-            responses: [
-              { translation: 'Mi madre', pronunciation: 'mee MAH-dreh', english: 'My mother' },
-              { translation: 'Mi hermano', pronunciation: 'mee ehr-MAH-noh', english: 'My brother' },
-              { translation: 'No tengo', pronunciation: 'noh TEHN-goh', english: 'I don\'t have one' },
-              { translation: 'Un amigo', pronunciation: 'oon ah-MEE-goh', english: 'A friend' }
-            ]
-          },
-          {
-            english: 'Does your family know where you are?',
-            translation: '¿Su familia sabe dónde está?',
-            responses: [
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'No', pronunciation: 'noh', english: 'No' },
-              { translation: 'Necesito decirles', pronunciation: 'neh-seh-SEE-toh deh-SEER-les', english: 'I need to tell them' },
-              { translation: 'No puedo contactarlos', pronunciation: 'noh PWEH-doh kohn-tahk-TAHR-lohs', english: 'I can\'t contact them' }
-            ]
-          },
-          {
-            english: 'We can help you send a message to your family',
-            translation: 'Podemos ayudarlo a enviar un mensaje a su familia',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Sí, por favor', pronunciation: 'see pohr fah-BOHR', english: 'Yes, please' },
-              { translation: 'Cómo', pronunciation: 'KOH-moh', english: 'How' },
-              { translation: 'Es seguro', pronunciation: 'ehs seh-GOO-roh', english: 'Is it safe' }
-            ]
-          },
-          {
-            english: 'Is there anyone we should not contact?',
-            translation: '¿Hay alguien a quien no debemos contactar?',
-            responses: [
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'No', pronunciation: 'noh', english: 'No' },
-              { translation: 'Mi padre', pronunciation: 'mee PAH-dreh', english: 'My father' },
-              { translation: 'Es complicado', pronunciation: 'ehs kohm-plee-KAH-doh', english: 'It\'s complicated' }
-            ]
-          }
-        ]
-      }
-    ],
-    tagalog: [],
-    vietnamese: [],
-    mandarin: [],
-    cantonese: []
-  },
-  'restorative-justice': {
-    spanish: [
-      {
-        groupLabel: 'Opening the Conversation',
-        phrases: [
-          {
-            english: 'Thank you for being here today',
-            translation: 'Gracias por estar aquí hoy',
-            responses: [
-              { translation: 'De nada', pronunciation: 'deh NAH-dah', english: 'You\'re welcome' },
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Está bien', pronunciation: 'es-TAH bee-EHN', english: 'It\'s okay' },
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' }
-            ]
-          },
-          {
-            english: 'Can you tell me what happened in your own words?',
-            translation: '¿Puede contarme qué pasó con sus propias palabras?',
-            responses: [
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'Es difícil hablar de eso', pronunciation: 'ehs dee-FEE-seel ah-BLAHR deh EH-soh', english: 'It\'s hard to talk about it' },
-              { translation: 'No sé por dónde empezar', pronunciation: 'noh seh pohr DOHN-deh em-peh-SAHR', english: 'I don\'t know where to start' },
-              { translation: 'Puedo intentar', pronunciation: 'PWEH-doh een-ten-TAHR', english: 'I can try' }
-            ]
-          },
-          {
-            english: 'This is a safe space to share your feelings',
-            translation: 'Este es un espacio seguro para compartir sus sentimientos',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Me siento nervioso', pronunciation: 'meh see-EHN-toh nehr-bee-OH-soh', english: 'I feel nervous' },
-              { translation: 'Está bien', pronunciation: 'es-TAH bee-EHN', english: 'Okay' },
-              { translation: 'Entiendo', pronunciation: 'en-tee-EHN-doh', english: 'I understand' }
-            ]
-          },
-          {
-            english: 'Everyone here will be respectful and listen',
-            translation: 'Todos aquí serán respetuosos y escucharán',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Eso me ayuda', pronunciation: 'EH-soh meh ah-YOO-dah', english: 'That helps me' },
-              { translation: 'Está bien', pronunciation: 'es-TAH bee-EHN', english: 'Okay' },
-              { translation: 'Aprecio eso', pronunciation: 'ah-preh-see-OH EH-soh', english: 'I appreciate that' }
-            ]
-          },
-          {
-            english: 'You can take your time',
-            translation: 'Puede tomarse su tiempo',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Necesito un momento', pronunciation: 'neh-seh-SEE-toh oon moh-MEN-toh', english: 'I need a moment' },
-              { translation: 'Está bien', pronunciation: 'es-TAH bee-EHN', english: 'Okay' },
-              { translation: 'Voy a empezar', pronunciation: 'boy ah em-peh-SAHR', english: 'I\'m going to start' }
-            ]
-          }
-        ]
-      },
-      {
-        groupLabel: 'Understanding Impact',
-        phrases: [
-          {
-            english: 'How did this situation affect you?',
-            translation: '¿Cómo le afectó esta situación?',
-            responses: [
-              { translation: 'Me sentí mal', pronunciation: 'meh sen-TEE mahl', english: 'I felt bad' },
-              { translation: 'Fue difícil', pronunciation: 'fweh dee-FEE-seel', english: 'It was difficult' },
-              { translation: 'Me dolió mucho', pronunciation: 'meh doh-lee-OH MOO-choh', english: 'It hurt me a lot' },
-              { translation: 'Todavía me afecta', pronunciation: 'toh-dah-BEE-ah meh ah-FEK-tah', english: 'It still affects me' }
-            ]
-          },
-          {
-            english: 'What was the hardest part for you?',
-            translation: '¿Cuál fue la parte más difícil para usted?',
-            responses: [
-              { translation: 'Todo', pronunciation: 'TOH-doh', english: 'Everything' },
-              { translation: 'Perder la confianza', pronunciation: 'pehr-DEHR lah kohn-fee-AHN-sah', english: 'Losing trust' },
-              { translation: 'Sentirme solo', pronunciation: 'sen-TEER-meh SOH-loh', english: 'Feeling alone' },
-              { translation: 'No poder concentrarme', pronunciation: 'noh poh-DEHR kohn-sen-TRAHR-meh', english: 'Not being able to concentrate' }
-            ]
-          },
-          {
-            english: 'Do you understand how your actions affected others?',
-            translation: '¿Entiende cómo sus acciones afectaron a otros?',
-            responses: [
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'Ahora lo entiendo', pronunciation: 'ah-OH-rah loh en-tee-EHN-doh', english: 'I understand now' },
-              { translation: 'No me di cuenta', pronunciation: 'noh meh dee KWEN-tah', english: 'I didn\'t realize' },
-              { translation: 'Lo siento mucho', pronunciation: 'loh see-EHN-toh MOO-choh', english: 'I\'m very sorry' }
-            ]
-          },
-          {
-            english: 'Who else was impacted by what happened?',
-            translation: '¿Quién más fue impactado por lo que pasó?',
-            responses: [
-              { translation: 'Mi familia', pronunciation: 'mee fah-MEE-lee-ah', english: 'My family' },
-              { translation: 'Mis amigos', pronunciation: 'mees ah-MEE-gohs', english: 'My friends' },
-              { translation: 'Toda la clase', pronunciation: 'TOH-dah lah KLAH-seh', english: 'The whole class' },
-              { translation: 'No lo había pensado', pronunciation: 'noh loh ah-BEE-ah pen-SAH-doh', english: 'I hadn\'t thought about it' }
-            ]
-          },
-          {
-            english: 'What do you need to feel better about this?',
-            translation: '¿Qué necesita para sentirse mejor sobre esto?',
-            responses: [
-              { translation: 'Una disculpa', pronunciation: 'OO-nah dees-KOOL-pah', english: 'An apology' },
-              { translation: 'Que esto no vuelva a pasar', pronunciation: 'keh EH-stoh noh BWEL-bah ah pah-SAHR', english: 'That this doesn\'t happen again' },
-              { translation: 'Entender por qué pasó', pronunciation: 'en-ten-DEHR pohr keh pah-SOH', english: 'To understand why it happened' },
-              { translation: 'No estoy seguro', pronunciation: 'noh es-TOY seh-GOO-roh', english: 'I\'m not sure' }
-            ]
-          }
-        ]
-      },
-      {
-        groupLabel: 'Finding Resolution',
-        phrases: [
-          {
-            english: 'What would help repair the harm that was done?',
-            translation: '¿Qué ayudaría a reparar el daño que se hizo?',
-            responses: [
-              { translation: 'Una disculpa sincera', pronunciation: 'OO-nah dees-KOOL-pah seen-SEH-rah', english: 'A sincere apology' },
-              { translation: 'Cambiar su comportamiento', pronunciation: 'kahm-bee-AHR soo kohm-pohr-tah-mee-EHN-toh', english: 'Change their behavior' },
-              { translation: 'Ayudar a otros', pronunciation: 'ah-yoo-DAHR ah OH-trohs', english: 'Help others' },
-              { translation: 'Necesito tiempo para pensar', pronunciation: 'neh-seh-SEE-toh tee-EHM-poh PAH-rah pen-SAHR', english: 'I need time to think' }
-            ]
-          },
-          {
-            english: 'Are you willing to make things right?',
-            translation: '¿Está dispuesto a arreglar las cosas?',
-            responses: [
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'Haré lo que sea necesario', pronunciation: 'ah-REH loh keh SEH-ah neh-seh-SAH-ree-oh', english: 'I\'ll do whatever is necessary' },
-              { translation: 'Dígame qué hacer', pronunciation: 'DEE-gah-meh keh ah-SEHR', english: 'Tell me what to do' },
-              { translation: 'Quiero ayudar', pronunciation: 'kee-EH-roh ah-yoo-DAHR', english: 'I want to help' }
-            ]
-          },
-          {
-            english: 'What can we agree on to move forward?',
-            translation: '¿En qué podemos estar de acuerdo para seguir adelante?',
-            responses: [
-              { translation: 'Respetarnos mutuamente', pronunciation: 'res-peh-TAHR-nohs moo-too-ah-MEN-teh', english: 'Respect each other' },
-              { translation: 'Comunicarnos mejor', pronunciation: 'koh-moo-nee-KAHR-nohs meh-HOHR', english: 'Communicate better' },
-              { translation: 'Pedir ayuda cuando la necesitemos', pronunciation: 'peh-DEER ah-YOO-dah KWAHN-doh lah neh-seh-see-TEH-mohs', english: 'Ask for help when we need it' },
-              { translation: 'Trabajar en esto juntos', pronunciation: 'trah-bah-HAHR en EH-stoh HOON-tohs', english: 'Work on this together' }
-            ]
-          },
-          {
-            english: 'Do you feel this agreement is fair?',
-            translation: '¿Siente que este acuerdo es justo?',
-            responses: [
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'Es justo', pronunciation: 'ehs HOOS-toh', english: 'It\'s fair' },
-              { translation: 'Necesito pensar', pronunciation: 'neh-seh-SEE-toh pen-SAHR', english: 'I need to think' },
-              { translation: 'Tengo algunas preguntas', pronunciation: 'TEHN-goh ahl-GOO-nahs preh-GOON-tahs', english: 'I have some questions' }
-            ]
-          },
-          {
-            english: 'Is there anything else you need to say?',
-            translation: '¿Hay algo más que necesite decir?',
-            responses: [
-              { translation: 'No', pronunciation: 'noh', english: 'No' },
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'Gracias por escuchar', pronunciation: 'GRAH-see-ahs pohr es-koo-CHAHR', english: 'Thank you for listening' },
-              { translation: 'Eso es todo', pronunciation: 'EH-soh ehs TOH-doh', english: 'That\'s all' }
-            ]
-          }
-        ]
-      },
-      {
-        groupLabel: 'Moving Forward',
-        phrases: [
-          {
-            english: 'How will you handle similar situations in the future?',
-            translation: '¿Cómo manejará situaciones similares en el futuro?',
-            responses: [
-              { translation: 'Pensaré antes de actuar', pronunciation: 'pen-sah-REH AHN-tes deh ahk-too-AHR', english: 'I\'ll think before acting' },
-              { translation: 'Pediré ayuda', pronunciation: 'peh-dee-REH ah-YOO-dah', english: 'I\'ll ask for help' },
-              { translation: 'Hablaré sobre mis sentimientos', pronunciation: 'ah-blah-REH SOH-breh mees sen-tee-mee-EHN-tohs', english: 'I\'ll talk about my feelings' },
-              { translation: 'Seré más cuidadoso', pronunciation: 'seh-REH mahs kwee-dah-DOH-soh', english: 'I\'ll be more careful' }
-            ]
-          },
-          {
-            english: 'We will check in with you next week',
-            translation: 'Revisaremos con usted la próxima semana',
-            responses: [
-              { translation: 'Está bien', pronunciation: 'es-TAH bee-EHN', english: 'Okay' },
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Estaré listo', pronunciation: 'es-tah-REH LEES-toh', english: 'I\'ll be ready' },
-              { translation: 'Qué día', pronunciation: 'keh DEE-ah', english: 'What day' }
-            ]
-          },
-          {
-            english: 'Do you feel ready to return to class?',
-            translation: '¿Se siente listo para volver a clase?',
-            responses: [
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'Creo que sí', pronunciation: 'KREH-oh keh see', english: 'I think so' },
-              { translation: 'Estoy nervioso', pronunciation: 'es-TOY nehr-bee-OH-soh', english: 'I\'m nervous' },
-              { translation: 'Necesito más tiempo', pronunciation: 'neh-seh-SEE-toh mahs tee-EHM-poh', english: 'I need more time' }
-            ]
-          },
-          {
-            english: 'You can always come talk to us if you need support',
-            translation: 'Siempre puede venir a hablar con nosotros si necesita apoyo',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Lo recordaré', pronunciation: 'loh reh-kohr-dah-REH', english: 'I\'ll remember that' },
-              { translation: 'Eso me ayuda', pronunciation: 'EH-soh meh ah-YOO-dah', english: 'That helps me' },
-              { translation: 'Es bueno saberlo', pronunciation: 'ehs BWEH-noh sah-BEHR-loh', english: 'It\'s good to know' }
-            ]
-          },
-          {
-            english: 'I believe you can learn from this experience',
-            translation: 'Creo que puede aprender de esta experiencia',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Yo también lo creo', pronunciation: 'yoh tahm-bee-EHN loh KREH-oh', english: 'I believe it too' },
-              { translation: 'Lo intentaré', pronunciation: 'loh een-ten-tah-REH', english: 'I\'ll try' },
-              { translation: 'Eso significa mucho', pronunciation: 'EH-soh seeg-nee-FEE-kah MOO-choh', english: 'That means a lot' }
-            ]
-          }
-        ]
-      }
-    ],
-    tagalog: [],
-    vietnamese: [],
-    mandarin: [],
-    cantonese: []
-  },
-  'parent-communication': {
-    spanish: [
-      {
-        groupLabel: 'Academic Progress',
-        phrases: [
-          {
-            english: 'Your child is doing well in class',
-            translation: 'Su hijo está haciendo bien en clase',
-            responses: [
-              { translation: 'Qué bueno', pronunciation: 'keh BWEH-noh', english: 'That\'s good' },
-              { translation: 'Me alegro', pronunciation: 'meh ah-LEH-groh', english: 'I\'m glad' },
-              { translation: 'Gracias por decirme', pronunciation: 'GRAH-see-ahs pohr deh-SEER-meh', english: 'Thank you for telling me' },
-              { translation: 'Excelente', pronunciation: 'ek-seh-LEN-teh', english: 'Excellent' }
-            ]
-          },
-          {
-            english: 'He is struggling with math',
-            translation: 'Él está teniendo dificultades con matemáticas',
-            responses: [
-              { translation: 'Qué puedo hacer', pronunciation: 'keh PWEH-doh ah-SEHR', english: 'What can I do' },
-              { translation: 'Necesita ayuda extra', pronunciation: 'neh-seh-SEE-tah ah-YOO-dah EK-strah', english: 'Does he need extra help' },
-              { translation: 'Cómo puedo ayudar en casa', pronunciation: 'KOH-moh PWEH-doh ah-yoo-DAHR en KAH-sah', english: 'How can I help at home' },
-              { translation: 'Es preocupante', pronunciation: 'ehs preh-oh-koo-PAHN-teh', english: 'That\'s concerning' }
-            ]
-          },
-          {
-            english: 'She is excelling in reading',
-            translation: 'Ella está sobresaliendo en lectura',
-            responses: [
-              { translation: 'Qué bueno', pronunciation: 'keh BWEH-noh', english: 'That\'s good' },
-              { translation: 'Le gusta leer', pronunciation: 'leh GOOS-tah leh-EHR', english: 'She likes to read' },
-              { translation: 'Estoy orgulloso', pronunciation: 'es-TOY ohr-goo-YOH-soh', english: 'I\'m proud' },
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' }
-            ]
-          },
-          {
-            english: 'His grades have improved this semester',
-            translation: 'Sus calificaciones han mejorado este semestre',
-            responses: [
-              { translation: 'Qué alegría', pronunciation: 'keh ah-leh-GREE-ah', english: 'What joy' },
-              { translation: 'Ha trabajado mucho', pronunciation: 'ah trah-bah-HAH-doh MOO-choh', english: 'He has worked hard' },
-              { translation: 'Me alegro mucho', pronunciation: 'meh ah-LEH-groh MOO-choh', english: 'I\'m very glad' },
-              { translation: 'Gracias por su apoyo', pronunciation: 'GRAH-see-ahs pohr soo ah-POH-yoh', english: 'Thank you for your support' }
-            ]
-          },
-          {
-            english: 'She needs to complete her homework regularly',
-            translation: 'Ella necesita completar su tarea regularmente',
-            responses: [
-              { translation: 'Lo vigilaré', pronunciation: 'loh bee-hee-lah-REH', english: 'I\'ll monitor it' },
-              { translation: 'No lo sabía', pronunciation: 'noh loh sah-BEE-ah', english: 'I didn\'t know' },
-              { translation: 'Hablaré con ella', pronunciation: 'ah-blah-REH kohn EH-yah', english: 'I\'ll talk to her' },
-              { translation: 'Qué días tiene tarea', pronunciation: 'keh DEE-ahs tee-EH-neh tah-REH-ah', english: 'What days does she have homework' }
-            ]
-          }
-        ]
-      },
-      {
-        groupLabel: 'Behavior and Discipline',
-        phrases: [
-          {
-            english: 'Your child was disruptive in class today',
-            translation: 'Su hijo fue disruptivo en clase hoy',
-            responses: [
-              { translation: 'Lo siento', pronunciation: 'loh see-EHN-toh', english: 'I\'m sorry' },
               { translation: 'Qué pasó', pronunciation: 'keh pah-SOH', english: 'What happened' },
-              { translation: 'Hablaré con él', pronunciation: 'ah-blah-REH kohn ehl', english: 'I\'ll talk to him' },
-              { translation: 'Es la primera vez', pronunciation: 'ehs lah pree-MEH-rah behs', english: 'Is it the first time' }
+              { translation: 'Está bien mi hijo', pronunciation: 'es-TAH bee-EHN mee EE-hoh', english: 'Is my child okay' },
+              { translation: 'Entiendo', pronunciation: 'en-tee-EHN-doh', english: 'I understand' },
+              { translation: 'Cuándo ocurrió', pronunciation: 'KWAHN-doh oh-koo-ree-OH', english: 'When did it happen' }
             ]
           },
           {
-            english: 'He has been very respectful and helpful',
-            translation: 'Él ha sido muy respetuoso y servicial',
+            english: 'Your child was involved in a conflict with another student.',
+            translation: 'Su hijo estuvo involucrado en un conflicto con otro estudiante.',
             responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Qué bueno', pronunciation: 'keh BWEH-noh', english: 'That\'s good' },
-              { translation: 'Así lo educamos', pronunciation: 'ah-SEE loh eh-doo-KAH-mohs', english: 'That\'s how we raised him' },
-              { translation: 'Me alegro', pronunciation: 'meh ah-LEH-groh', english: 'I\'m glad' }
+              { translation: 'Cuénteme más', pronunciation: 'KWEN-teh-meh mahs', english: 'Tell me more' },
+              { translation: 'Lo siento mucho', pronunciation: 'loh see-EHN-toh MOO-choh', english: 'I\'m very sorry' },
+              { translation: 'Qué pasará ahora', pronunciation: 'keh pah-sah-RAH ah-OH-rah', english: 'What happens now' },
+              { translation: 'Hablaré con él', pronunciation: 'ah-blah-REH kohn ehl', english: 'I\'ll talk to him' }
             ]
           },
           {
-            english: 'She got into a disagreement with another student',
-            translation: 'Ella tuvo un desacuerdo con otro estudiante',
-            responses: [
-              { translation: 'Qué pasó exactamente', pronunciation: 'keh pah-SOH ek-sahk-tah-MEN-teh', english: 'What exactly happened' },
-              { translation: 'Está bien', pronunciation: 'es-TAH bee-EHN', english: 'Is she okay' },
-              { translation: 'Lo resolvieron', pronunciation: 'loh reh-sohl-bee-EH-rohn', english: 'Did they resolve it' },
-              { translation: 'Hablaré con ella', pronunciation: 'ah-blah-REH kohn EH-yah', english: 'I\'ll talk to her' }
-            ]
-          },
-          {
-            english: 'We need to discuss his behavior pattern',
-            translation: 'Necesitamos discutir su patrón de comportamiento',
+            english: 'We need to meet to discuss what happened.',
+            translation: 'Necesitamos reunirnos para hablar sobre lo que ocurrió.',
             responses: [
               { translation: 'Cuándo podemos reunirnos', pronunciation: 'KWAHN-doh poh-DEH-mohs reh-oo-NEER-nohs', english: 'When can we meet' },
-              { translation: 'Qué está pasando', pronunciation: 'keh es-TAH pah-SAHN-doh', english: 'What\'s happening' },
-              { translation: 'Es serio', pronunciation: 'ehs SEH-ree-oh', english: 'Is it serious' },
-              { translation: 'Estoy preocupado', pronunciation: 'es-TOY preh-oh-koo-PAH-doh', english: 'I\'m worried' }
+              { translation: 'Puede ser hoy', pronunciation: 'PWEH-deh sehr oy', english: 'Can it be today' },
+              { translation: 'Estaré allí', pronunciation: 'es-tah-REH ah-YEE', english: 'I\'ll be there' },
+              { translation: 'Necesito traer a alguien', pronunciation: 'neh-seh-SEE-toh trah-EHR ah AHL-gee-en', english: 'I need to bring someone' }
             ]
           },
           {
-            english: 'There will be consequences for this action',
-            translation: 'Habrá consecuencias por esta acción',
+            english: 'I want to assure you we are taking this seriously.',
+            translation: 'Quiero asegurarle que estamos tomando esto con seriedad.',
+            responses: [
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Qué medidas tomarán', pronunciation: 'keh meh-DEE-dahs toh-mah-RAHN', english: 'What steps will you take' },
+              { translation: 'Me alegra escuchar eso', pronunciation: 'meh ah-LEH-grah es-koo-CHAHR EH-soh', english: 'I\'m glad to hear that' },
+              { translation: 'Cuándo me dan una actualización', pronunciation: 'KWAHN-doh meh dahn OO-nah ahk-too-ah-lee-sah-see-OHN', english: 'When will you update me' }
+            ]
+          }
+        ]
+      },
+      {
+        groupLabel: 'Explaining Consequences',
+        phrases: [
+          {
+            english: 'Your child will receive a consequence for this behavior.',
+            translation: 'Su hijo recibirá una consecuencia por este comportamiento.',
+            responses: [
+              { translation: 'Qué consecuencia', pronunciation: 'keh kohn-seh-KWEN-see-ah', english: 'What consequence' },
+              { translation: 'Es su primera vez', pronunciation: 'ehs soo pree-MEH-rah behs', english: 'Is this the first time' },
+              { translation: 'Entiendo', pronunciation: 'en-tee-EHN-doh', english: 'I understand' },
+              { translation: 'Apoyamos la decisión', pronunciation: 'ah-poh-yah-mohs lah deh-see-see-OHN', english: 'We support the decision' }
+            ]
+          },
+          {
+            english: 'Your child will serve a one-day in-school suspension.',
+            translation: 'Su hijo cumplirá una suspensión de un día dentro de la escuela.',
             responses: [
               { translation: 'Entiendo', pronunciation: 'en-tee-EHN-doh', english: 'I understand' },
-              { translation: 'Qué consecuencias', pronunciation: 'keh kohn-seh-KWEN-see-ahs', english: 'What consequences' },
-              { translation: 'Es justo', pronunciation: 'ehs HOOS-toh', english: 'It\'s fair' },
-              { translation: 'También lo disciplinaré en casa', pronunciation: 'tahm-bee-EHN loh dees-see-plee-nah-REH en KAH-sah', english: 'I\'ll also discipline him at home' }
-            ]
-          }
-        ]
-      },
-      {
-        groupLabel: 'Support Services',
-        phrases: [
-          {
-            english: 'We can provide tutoring after school',
-            translation: 'Podemos proporcionar tutoría después de clases',
-            responses: [
-              { translation: 'Es gratis', pronunciation: 'ehs GRAH-tees', english: 'Is it free' },
-              { translation: 'Qué días', pronunciation: 'keh DEE-ahs', english: 'What days' },
-              { translation: 'Eso ayudaría mucho', pronunciation: 'EH-soh ah-yoo-dah-REE-ah MOO-choh', english: 'That would help a lot' },
-              { translation: 'Cómo me inscribo', pronunciation: 'KOH-moh meh een-SKREE-boh', english: 'How do I sign up' }
+              { translation: 'Qué hará durante ese tiempo', pronunciation: 'keh ah-RAH doo-RAHN-teh EH-seh tee-EHM-poh', english: 'What will he do during that time' },
+              { translation: 'Necesito una notificación escrita', pronunciation: 'neh-seh-SEE-toh OO-nah noh-tee-fee-kah-see-OHN es-KREE-tah', english: 'I need written notification' },
+              { translation: 'De acuerdo', pronunciation: 'deh ah-KWEHR-doh', english: 'Agreed' }
             ]
           },
           {
-            english: 'She may benefit from counseling services',
-            translation: 'Ella podría beneficiarse de servicios de consejería',
+            english: 'We are placing your child on a behavior improvement plan.',
+            translation: 'Estamos poniendo a su hijo en un plan de mejora del comportamiento.',
             responses: [
-              { translation: 'Por qué', pronunciation: 'pohr keh', english: 'Why' },
-              { translation: 'Está disponible en la escuela', pronunciation: 'es-TAH dees-poh-NEE-bleh en lah es-KWEH-lah', english: 'Is it available at school' },
-              { translation: 'Qué ha notado', pronunciation: 'keh ah noh-TAH-doh', english: 'What have you noticed' },
-              { translation: 'Sí, por favor', pronunciation: 'see pohr fah-BOHR', english: 'Yes, please' }
-            ]
-          },
-          {
-            english: 'We have resources for English language learners',
-            translation: 'Tenemos recursos para estudiantes que aprenden inglés',
-            responses: [
-              { translation: 'Qué tipo de recursos', pronunciation: 'keh TEE-poh deh reh-KOOR-sohs', english: 'What kind of resources' },
-              { translation: 'Eso ayudaría', pronunciation: 'EH-soh ah-yoo-dah-REE-ah', english: 'That would help' },
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Cómo accedo a ellos', pronunciation: 'KOH-moh ahk-SEH-doh ah EH-yohs', english: 'How do I access them' }
-            ]
-          },
-          {
-            english: 'Your child qualifies for free lunch',
-            translation: 'Su hijo califica para almuerzo gratis',
-            responses: [
-              { translation: 'Qué necesito hacer', pronunciation: 'keh neh-seh-SEE-toh ah-SEHR', english: 'What do I need to do' },
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Dónde lleno la solicitud', pronunciation: 'DOHN-deh YEH-noh lah soh-lee-see-TOOD', english: 'Where do I fill out the application' },
-              { translation: 'Es automático', pronunciation: 'ehs ow-toh-MAH-tee-koh', english: 'Is it automatic' }
-            ]
-          },
-          {
-            english: 'We recommend testing for special education services',
-            translation: 'Recomendamos pruebas para servicios de educación especial',
-            responses: [
-              { translation: 'Por qué lo recomienda', pronunciation: 'pohr keh loh reh-koh-mee-EHN-dah', english: 'Why do you recommend it' },
-              { translation: 'Qué implica', pronunciation: 'keh eem-PLEE-kah', english: 'What does it involve' },
-              { translation: 'Cuánto tiempo toma', pronunciation: 'KWAHN-toh tee-EHM-poh TOH-mah', english: 'How long does it take' },
-              { translation: 'Doy mi permiso', pronunciation: 'doy mee pehr-MEE-soh', english: 'I give my permission' }
-            ]
-          }
-        ]
-      },
-      {
-        groupLabel: 'Meeting Scheduling',
-        phrases: [
-          {
-            english: 'Can we schedule a parent-teacher conference?',
-            translation: '¿Podemos programar una conferencia de padres y maestros?',
-            responses: [
-              { translation: 'Sí, cuándo', pronunciation: 'see KWAHN-doh', english: 'Yes, when' },
-              { translation: 'Qué días está disponible', pronunciation: 'keh DEE-ahs es-TAH dees-poh-NEE-bleh', english: 'What days are you available' },
-              { translation: 'Puede ser por teléfono', pronunciation: 'PWEH-deh sehr pohr teh-LEH-foh-noh', english: 'Can it be by phone' },
-              { translation: 'De qué quiere hablar', pronunciation: 'deh keh kee-EH-reh ah-BLAHR', english: 'What do you want to talk about' }
-            ]
-          },
-          {
-            english: 'I have time available on Tuesday at 3pm',
-            translation: 'Tengo tiempo disponible el martes a las 3pm',
-            responses: [
-              { translation: 'Perfecto', pronunciation: 'pehr-FEK-toh', english: 'Perfect' },
-              { translation: 'Esa hora funciona', pronunciation: 'EH-sah OH-rah foon-see-OH-nah', english: 'That time works' },
-              { translation: 'No puedo a esa hora', pronunciation: 'noh PWEH-doh ah EH-sah OH-rah', english: 'I can\'t at that time' },
-              { translation: 'Tiene otra hora', pronunciation: 'tee-EH-neh OH-trah OH-rah', english: 'Do you have another time' }
-            ]
-          },
-          {
-            english: 'Do you need a translator for our meeting?',
-            translation: '¿Necesita un traductor para nuestra reunión?',
-            responses: [
-              { translation: 'Sí, por favor', pronunciation: 'see pohr fah-BOHR', english: 'Yes, please' },
-              { translation: 'No, hablo inglés', pronunciation: 'noh AH-bloh een-GLEHS', english: 'No, I speak English' },
-              { translation: 'Eso ayudaría', pronunciation: 'EH-soh ah-yoo-dah-REE-ah', english: 'That would help' },
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' }
-            ]
-          },
-          {
-            english: 'Parent-teacher conferences are next week',
-            translation: 'Las conferencias de padres y maestros son la próxima semana',
-            responses: [
-              { translation: 'Qué día y hora', pronunciation: 'keh DEE-ah ee OH-rah', english: 'What day and time' },
-              { translation: 'Dónde son', pronunciation: 'DOHN-deh sohn', english: 'Where are they' },
-              { translation: 'Necesito programar una cita', pronunciation: 'neh-seh-SEE-toh proh-grah-MAHR OO-nah SEE-tah', english: 'I need to schedule an appointment' },
-              { translation: 'Gracias por avisar', pronunciation: 'GRAH-see-ahs pohr ah-bee-SAHR', english: 'Thanks for letting me know' }
-            ]
-          },
-          {
-            english: 'Please call the office to schedule an appointment',
-            translation: 'Por favor llame a la oficina para programar una cita',
-            responses: [
-              { translation: 'Cuál es el número', pronunciation: 'kwahl ehs el NOO-meh-roh', english: 'What\'s the number' },
-              { translation: 'A qué hora puedo llamar', pronunciation: 'ah keh OH-rah PWEH-doh yah-MAHR', english: 'What time can I call' },
-              { translation: 'Puedo ir en persona', pronunciation: 'PWEH-doh eer en pehr-SOH-nah', english: 'Can I go in person' },
-              { translation: 'Está bien', pronunciation: 'es-TAH bee-EHN', english: 'Okay' }
-            ]
-          }
-        ]
-      }
-    ],
-    tagalog: [],
-    vietnamese: [],
-    mandarin: [],
-    cantonese: []
-  },
-  'special-needs': {
-    spanish: [
-      {
-        groupLabel: 'Assessment and Planning',
-        phrases: [
-          {
-            english: 'We need to develop an Individualized Education Program',
-            translation: 'Necesitamos desarrollar un Programa de Educación Individualizado',
-            responses: [
-              { translation: 'Qué es eso', pronunciation: 'keh ehs EH-soh', english: 'What is that' },
-              { translation: 'Qué necesita mi hijo', pronunciation: 'keh neh-seh-SEE-tah mee EE-hoh', english: 'What does my child need' },
-              { translation: 'Cuándo empezamos', pronunciation: 'KWAHN-doh em-peh-SAH-mohs', english: 'When do we start' },
+              { translation: 'En qué consiste el plan', pronunciation: 'en keh kohn-SEES-teh el plahn', english: 'What does the plan involve' },
+              { translation: 'Cuánto tiempo durará', pronunciation: 'KWAHN-toh tee-EHM-poh doo-rah-RAH', english: 'How long will it last' },
+              { translation: 'Cómo puedo apoyar en casa', pronunciation: 'KOH-moh PWEH-doh ah-poh-YAHR en KAH-sah', english: 'How can I support at home' },
               { translation: 'Estoy de acuerdo', pronunciation: 'es-TOY deh ah-KWEHR-doh', english: 'I agree' }
             ]
           },
           {
-            english: 'Your child qualifies for special education services',
-            translation: 'Su hijo califica para servicios de educación especial',
+            english: 'This is outlined in our student code of conduct.',
+            translation: 'Esto está estipulado en nuestro código de conducta estudiantil.',
             responses: [
-              { translation: 'Qué servicios', pronunciation: 'keh sehr-BEE-see-ohs', english: 'What services' },
-              { translation: 'Cuánto tiempo durará', pronunciation: 'KWAHN-toh tee-EHM-poh doo-rah-RAH', english: 'How long will it last' },
-              { translation: 'Es gratis', pronunciation: 'ehs GRAH-tees', english: 'Is it free' },
-              { translation: 'Qué tengo que hacer', pronunciation: 'keh TEHN-goh keh ah-SEHR', english: 'What do I have to do' }
-            ]
-          },
-          {
-            english: 'We will conduct an evaluation',
-            translation: 'Realizaremos una evaluación',
-            responses: [
-              { translation: 'Qué tipo de evaluación', pronunciation: 'keh TEE-poh deh eh-bah-loo-ah-see-OHN', english: 'What type of evaluation' },
-              { translation: 'Cuánto tiempo toma', pronunciation: 'KWAHN-toh tee-EHM-poh TOH-mah', english: 'How long does it take' },
-              { translation: 'Dónde será', pronunciation: 'DOHN-deh seh-RAH', english: 'Where will it be' },
-              { translation: 'Doy mi permiso', pronunciation: 'doy mee pehr-MEE-soh', english: 'I give my permission' }
-            ]
-          },
-          {
-            english: 'Does your child have any medical conditions we should know about?',
-            translation: '¿Tiene su hijo alguna condición médica que debamos saber?',
-            responses: [
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'No', pronunciation: 'noh', english: 'No' },
-              { translation: 'Tiene asma', pronunciation: 'tee-EH-neh AHS-mah', english: 'He has asthma' },
-              { translation: 'Toma medicamentos', pronunciation: 'TOH-mah meh-dee-kah-MEN-tohs', english: 'He takes medications' }
-            ]
-          },
-          {
-            english: 'We need to schedule an IEP meeting',
-            translation: 'Necesitamos programar una reunión de IEP',
-            responses: [
-              { translation: 'Cuándo', pronunciation: 'KWAHN-doh', english: 'When' },
-              { translation: 'Quién estará allí', pronunciation: 'kee-EHN es-tah-RAH ah-YEE', english: 'Who will be there' },
-              { translation: 'Puedo traer a alguien', pronunciation: 'PWEH-doh trah-EHR ah AHL-gee-en', english: 'Can I bring someone' },
-              { translation: 'Qué debo preparar', pronunciation: 'keh DEH-boh preh-pah-RAHR', english: 'What should I prepare' }
-            ]
-          }
-        ]
-      },
-      {
-        groupLabel: 'Daily Support',
-        phrases: [
-          {
-            english: 'He will work with a special education teacher',
-            translation: 'Él trabajará con un maestro de educación especial',
-            responses: [
-              { translation: 'Todos los días', pronunciation: 'TOH-dohs lohs DEE-ahs', english: 'Every day' },
-              { translation: 'Cuánto tiempo', pronunciation: 'KWAHN-toh tee-EHM-poh', english: 'How long' },
-              { translation: 'Puedo conocerlo', pronunciation: 'PWEH-doh koh-noh-SEHR-loh', english: 'Can I meet him' },
-              { translation: 'Qué bueno', pronunciation: 'keh BWEH-noh', english: 'That\'s good' }
-            ]
-          },
-          {
-            english: 'She has access to assistive technology',
-            translation: 'Ella tiene acceso a tecnología de asistencia',
-            responses: [
-              { translation: 'Qué tipo de tecnología', pronunciation: 'keh TEE-poh deh tek-noh-loh-HEE-ah', english: 'What type of technology' },
-              { translation: 'Cómo funciona', pronunciation: 'KOH-moh foon-see-OH-nah', english: 'How does it work' },
-              { translation: 'Puede usarla en casa', pronunciation: 'PWEH-deh oo-SAHR-lah en KAH-sah', english: 'Can she use it at home' },
-              { translation: 'Eso ayudará', pronunciation: 'EH-soh ah-yoo-dah-RAH', english: 'That will help' }
-            ]
-          },
-          {
-            english: 'Your child needs extra time on tests',
-            translation: 'Su hijo necesita tiempo extra en los exámenes',
-            responses: [
-              { translation: 'Cuánto tiempo extra', pronunciation: 'KWAHN-toh tee-EHM-poh EK-strah', english: 'How much extra time' },
-              { translation: 'Por qué', pronunciation: 'pohr keh', english: 'Why' },
-              { translation: 'Está en el IEP', pronunciation: 'es-TAH en el IEP', english: 'Is it in the IEP' },
-              { translation: 'Gracias por la acomodación', pronunciation: 'GRAH-see-ahs pohr lah ah-koh-moh-dah-see-OHN', english: 'Thank you for the accommodation' }
-            ]
-          },
-          {
-            english: 'She will receive speech therapy twice a week',
-            translation: 'Ella recibirá terapia del habla dos veces por semana',
-            responses: [
-              { translation: 'Qué días', pronunciation: 'keh DEE-ahs', english: 'What days' },
-              { translation: 'A qué hora', pronunciation: 'ah keh OH-rah', english: 'At what time' },
-              { translation: 'Durante la clase', pronunciation: 'doo-RAHN-teh lah KLAH-seh', english: 'During class' },
-              { translation: 'Cuánto tiempo dura cada sesión', pronunciation: 'KWAHN-toh tee-EHM-poh DOO-rah KAH-dah seh-see-OHN', english: 'How long is each session' }
-            ]
-          },
-          {
-            english: 'We provide a quiet space for testing',
-            translation: 'Proporcionamos un espacio tranquilo para los exámenes',
-            responses: [
-              { translation: 'Eso ayudará', pronunciation: 'EH-soh ah-yoo-dah-RAH', english: 'That will help' },
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Lo necesita', pronunciation: 'loh neh-seh-SEE-tah', english: 'He needs it' },
-              { translation: 'Es buena acomodación', pronunciation: 'ehs BWEH-nah ah-koh-moh-dah-see-OHN', english: 'It\'s a good accommodation' }
-            ]
-          }
-        ]
-      },
-      {
-        groupLabel: 'Emergency Procedures',
-        phrases: [
-          {
-            english: 'Does your child have any emergency medical needs?',
-            translation: '¿Tiene su hijo alguna necesidad médica de emergencia?',
-            responses: [
-              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
-              { translation: 'No', pronunciation: 'noh', english: 'No' },
-              { translation: 'Tiene un EpiPen', pronunciation: 'tee-EH-neh oon EpiPen', english: 'He has an EpiPen' },
-              { translation: 'Puede tener convulsiones', pronunciation: 'PWEH-deh teh-NEHR kohn-bool-see-OH-nes', english: 'He can have seizures' }
-            ]
-          },
-          {
-            english: 'We need emergency contact information',
-            translation: 'Necesitamos información de contacto de emergencia',
-            responses: [
-              { translation: 'Aquí está', pronunciation: 'ah-KEE es-TAH', english: 'Here it is' },
-              { translation: 'Puedo escribirlo', pronunciation: 'PWEH-doh es-kree-BEER-loh', english: 'Can I write it' },
-              { translation: 'Mi número es', pronunciation: 'mee NOO-meh-roh ehs', english: 'My number is' },
-              { translation: 'A quién debo llamar', pronunciation: 'ah kee-EHN DEH-boh yah-MAHR', english: 'Who should I call' }
-            ]
-          },
-          {
-            english: 'In case of a seizure, we will follow the care plan',
-            translation: 'En caso de una convulsión, seguiremos el plan de atención',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Tienen el plan', pronunciation: 'tee-EH-nen el plahn', english: 'Do you have the plan' },
-              { translation: 'Necesitan entrenamiento', pronunciation: 'neh-seh-SEE-tahn en-treh-nah-mee-EHN-toh', english: 'Do you need training' },
-              { translation: 'Llamen de inmediato', pronunciation: 'YAH-men deh een-meh-dee-AH-toh', english: 'Call immediately' }
-            ]
-          },
-          {
-            english: 'Where is your child\'s medication kept?',
-            translation: '¿Dónde se guarda el medicamento de su hijo?',
-            responses: [
-              { translation: 'En la oficina de la enfermera', pronunciation: 'en lah oh-fee-SEE-nah deh lah en-fehr-MEH-rah', english: 'In the nurse\'s office' },
-              { translation: 'En su mochila', pronunciation: 'en soo moh-CHEE-lah', english: 'In his backpack' },
-              { translation: 'Lo lleva con él', pronunciation: 'loh YEH-bah kohn ehl', english: 'He carries it with him' },
-              { translation: 'Dónde debe guardarse', pronunciation: 'DOHN-deh DEH-beh gwahr-DAHR-seh', english: 'Where should it be kept' }
-            ]
-          },
-          {
-            english: 'We will call you immediately if there is a problem',
-            translation: 'Le llamaremos de inmediato si hay un problema',
-            responses: [
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
-              { translation: 'Tienen mi número', pronunciation: 'tee-EH-nen mee NOO-meh-roh', english: 'Do you have my number' },
-              { translation: 'Déjenme un mensaje si no contesto', pronunciation: 'DEH-hen-meh oon men-SAH-heh see noh kohn-TES-toh', english: 'Leave me a message if I don\'t answer' },
-              { translation: 'Llamen primero a mi esposa', pronunciation: 'YAH-men pree-MEH-roh ah mee es-POH-sah', english: 'Call my wife first' }
-            ]
-          }
-        ]
-      },
-      {
-        groupLabel: 'Parent Rights',
-        phrases: [
-          {
-            english: 'You have the right to request an IEP review at any time',
-            translation: 'Usted tiene el derecho de solicitar una revisión del IEP en cualquier momento',
-            responses: [
-              { translation: 'No lo sabía', pronunciation: 'noh loh sah-BEE-ah', english: 'I didn\'t know' },
-              { translation: 'Gracias por la información', pronunciation: 'GRAH-see-ahs pohr lah een-fohr-mah-see-OHN', english: 'Thank you for the information' },
-              { translation: 'Quiero solicitar una revisión', pronunciation: 'kee-EH-roh soh-lee-see-TAHR OO-nah reh-bee-see-OHN', english: 'I want to request a review' },
-              { translation: 'Cómo lo solicito', pronunciation: 'KOH-moh loh soh-LEE-see-toh', english: 'How do I request it' }
-            ]
-          },
-          {
-            english: 'You can bring an advocate to IEP meetings',
-            translation: 'Puede traer un defensor a las reuniones de IEP',
-            responses: [
-              { translation: 'Eso ayudaría', pronunciation: 'EH-soh ah-yoo-dah-REE-ah', english: 'That would help' },
-              { translation: 'Dónde encuentro un defensor', pronunciation: 'DOHN-deh en-KWEN-troh oon deh-fen-SOHR', english: 'Where do I find an advocate' },
-              { translation: 'Es gratis', pronunciation: 'ehs GRAH-tees', english: 'Is it free' },
-              { translation: 'Gracias por decirme', pronunciation: 'GRAH-see-ahs pohr deh-SEER-meh', english: 'Thank you for telling me' }
-            ]
-          },
-          {
-            english: 'You must approve any changes to the IEP',
-            translation: 'Usted debe aprobar cualquier cambio al IEP',
-            responses: [
+              { translation: 'Puedo recibir una copia', pronunciation: 'PWEH-doh reh-see-BEER OO-nah KOH-pee-ah', english: 'Can I receive a copy' },
               { translation: 'Entiendo', pronunciation: 'en-tee-EHN-doh', english: 'I understand' },
-              { translation: 'Qué pasa si no estoy de acuerdo', pronunciation: 'keh PAH-sah see noh es-TOY deh ah-KWEHR-doh', english: 'What happens if I disagree' },
-              { translation: 'Cuáles son mis opciones', pronunciation: 'KWAH-les sohn mees ohp-see-OH-nes', english: 'What are my options' },
-              { translation: 'Quiero tiempo para pensar', pronunciation: 'kee-EH-roh tee-EHM-poh PAH-rah pen-SAHR', english: 'I want time to think' }
+              { translation: 'No sabía eso', pronunciation: 'noh sah-BEE-ah EH-soh', english: 'I didn\'t know that' },
+              { translation: 'Hablaré con mi hijo sobre esto', pronunciation: 'ah-blah-REH kohn mee EE-hoh SOH-breh EH-stoh', english: 'I\'ll talk to my child about this' }
+            ]
+          }
+        ]
+      },
+      {
+        groupLabel: 'Bringing Students Together',
+        phrases: [
+          {
+            english: 'We want to bring both students together to talk things through.',
+            translation: 'Queremos reunir a los dos estudiantes para hablar sobre lo ocurrido.',
+            responses: [
+              { translation: 'Está de acuerdo mi hijo', pronunciation: 'es-TAH deh ah-KWEHR-doh mee EE-hoh', english: 'Does my child agree' },
+              { translation: 'Qué pasará en esa reunión', pronunciation: 'keh pah-sah-RAH en EH-sah reh-oo-nee-OHN', english: 'What will happen in that meeting' },
+              { translation: 'Creo que es buena idea', pronunciation: 'KREH-oh keh ehs BWEH-nah ee-DEH-ah', english: 'I think it\'s a good idea' },
+              { translation: 'Quiero estar presente', pronunciation: 'kee-EH-roh es-TAHR preh-SEN-teh', english: 'I want to be present' }
             ]
           },
           {
-            english: 'Your child has the right to a free appropriate public education',
-            translation: 'Su hijo tiene derecho a una educación pública apropiada y gratuita',
+            english: 'This conversation is meant to restore the relationship.',
+            translation: 'Esta conversación tiene como objetivo restaurar la relación.',
             responses: [
-              { translation: 'Qué significa apropiada', pronunciation: 'keh seeg-nee-FEE-kah ah-proh-pee-AH-dah', english: 'What does appropriate mean' },
-              { translation: 'Me alegro', pronunciation: 'meh ah-LEH-groh', english: 'I\'m glad' },
-              { translation: 'Eso es importante', pronunciation: 'EH-soh ehs eem-pohr-TAHN-teh', english: 'That\'s important' },
-              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' }
+              { translation: 'Aprecio ese enfoque', pronunciation: 'ah-preh-see-OH EH-seh en-FOH-keh', english: 'I appreciate that approach' },
+              { translation: 'Mi hijo está listo', pronunciation: 'mee EE-hoh es-TAH LEES-toh', english: 'My child is ready' },
+              { translation: 'Qué debo decirle a mi hijo', pronunciation: 'keh DEH-boh deh-SEER-leh ah mee EE-hoh', english: 'What should I tell my child' },
+              { translation: 'Espero que ayude', pronunciation: 'es-PEH-roh keh ah-YOO-deh', english: 'I hope it helps' }
             ]
           },
           {
-            english: 'You can request mediation or due process if you disagree',
-            translation: 'Puede solicitar mediación o debido proceso si no está de acuerdo',
+            english: 'We will check in with both students after they meet.',
+            translation: 'Daremos seguimiento a ambos estudiantes después de que se reúnan.',
             responses: [
-              { translation: 'Qué es mediación', pronunciation: 'keh ehs meh-dee-ah-see-OHN', english: 'What is mediation' },
-              { translation: 'Espero no necesitarlo', pronunciation: 'es-PEH-roh noh neh-seh-see-TAHR-loh', english: 'I hope I don\'t need it' },
-              { translation: 'Es bueno saberlo', pronunciation: 'ehs BWEH-noh sah-BEHR-loh', english: 'It\'s good to know' },
-              { translation: 'Hay alguien que pueda ayudarme', pronunciation: 'ay AHL-gee-en keh PWEH-dah ah-yoo-DAHR-meh', english: 'Is there someone who can help me' }
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Me avisarán del resultado', pronunciation: 'meh ah-bee-sah-RAHN del reh-sool-TAH-doh', english: 'Will you let me know the outcome' },
+              { translation: 'Aprecio el seguimiento', pronunciation: 'ah-preh-see-OH el seh-gee-mee-EHN-toh', english: 'I appreciate the follow-up' },
+              { translation: 'Cuándo será', pronunciation: 'KWAHN-doh seh-RAH', english: 'When will it be' }
+            ]
+          },
+          {
+            english: 'Can we agree on next steps going forward?',
+            translation: '¿Podemos acordar los próximos pasos a seguir?',
+            responses: [
+              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
+              { translation: 'Cuáles son los pasos', pronunciation: 'KWAH-les sohn lohs PAH-sohs', english: 'What are the steps' },
+              { translation: 'Hablaré con mi hijo', pronunciation: 'ah-blah-REH kohn mee EE-hoh', english: 'I\'ll talk to my child' },
+              { translation: 'Estoy de acuerdo', pronunciation: 'es-TOY deh ah-KWEHR-doh', english: 'I agree' }
             ]
           }
         ]
@@ -2802,7 +2033,413 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     tagalog: [],
     vietnamese: [],
     mandarin: [],
-    cantonese: []
+    cantonese: [],
+    hmong: [],
+    korean: [],
+    arabic: []
+  },
+  'parent-outreach': {
+    spanish: [
+      {
+        groupLabel: 'Requesting a Meeting',
+        phrases: [
+          {
+            english: 'I would like to schedule a meeting to discuss your child\'s progress.',
+            translation: 'Me gustaría programar una reunión para hablar sobre el progreso de su hijo.',
+            responses: [
+              { translation: 'Sí, cuándo', pronunciation: 'see KWAHN-doh', english: 'Yes, when' },
+              { translation: 'Qué días están disponibles', pronunciation: 'keh DEE-ahs es-TAHN dees-poh-NEE-bles', english: 'What days are available' },
+              { translation: 'Puede ser por teléfono', pronunciation: 'PWEH-deh sehr pohr teh-LEH-foh-noh', english: 'Can it be by phone' },
+              { translation: 'Estaré allí', pronunciation: 'es-tah-REH ah-YEE', english: 'I\'ll be there' }
+            ]
+          },
+          {
+            english: 'We have noticed your child has been absent several days.',
+            translation: 'Hemos notado que su hijo ha faltado varios días.',
+            responses: [
+              { translation: 'Estaba enfermo', pronunciation: 'es-TAH-bah en-FEHR-moh', english: 'He was sick' },
+              { translation: 'Tenemos una situación familiar', pronunciation: 'teh-NEH-mohs OO-nah see-too-ah-see-OHN fah-mee-lee-AHR', english: 'We have a family situation' },
+              { translation: 'Lo llevaré más seguido', pronunciation: 'loh yeh-bah-REH mahs seh-GEE-doh', english: 'I\'ll bring him more regularly' },
+              { translation: 'Gracias por avisarme', pronunciation: 'GRAH-see-ahs pohr ah-bee-SAHR-meh', english: 'Thank you for letting me know' }
+            ]
+          },
+          {
+            english: 'I am reaching out to share some positive news about your child.',
+            translation: 'Me comunico para compartir algunas noticias positivas sobre su hijo.',
+            responses: [
+              { translation: 'Qué bueno', pronunciation: 'keh BWEH-noh', english: 'That\'s great' },
+              { translation: 'Cuénteme', pronunciation: 'KWEN-teh-meh', english: 'Tell me more' },
+              { translation: 'Me alegra escuchar eso', pronunciation: 'meh ah-LEH-grah es-koo-CHAHR EH-soh', english: 'I\'m glad to hear that' },
+              { translation: 'Gracias por llamar', pronunciation: 'GRAH-see-ahs pohr yah-MAHR', english: 'Thank you for calling' }
+            ]
+          },
+          {
+            english: 'We would like to connect you with bilingual support staff.',
+            translation: 'Nos gustaría conectarle con personal de apoyo bilingüe.',
+            responses: [
+              { translation: 'Eso ayudaría mucho', pronunciation: 'EH-soh ah-yoo-dah-REE-ah MOO-choh', english: 'That would help a lot' },
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Cuándo pueden llamarme', pronunciation: 'KWAHN-doh PWEH-den yah-MAHR-meh', english: 'When can they call me' },
+              { translation: 'Eso facilita mucho la comunicación', pronunciation: 'EH-soh fah-see-LEE-tah MOO-choh lah koh-moo-nee-kah-see-OHN', english: 'That makes communication much easier' }
+            ]
+          }
+        ]
+      },
+      {
+        groupLabel: 'Attendance and Academics',
+        phrases: [
+          {
+            english: 'Regular attendance is very important for your child\'s success.',
+            translation: 'La asistencia regular es muy importante para el éxito de su hijo.',
+            responses: [
+              { translation: 'Lo entiendo', pronunciation: 'loh en-tee-EHN-doh', english: 'I understand' },
+              { translation: 'Haré lo posible', pronunciation: 'ah-REH loh poh-SEE-bleh', english: 'I\'ll do my best' },
+              { translation: 'Tenemos transporte', pronunciation: 'teh-NEH-mohs trahns-POHR-teh', english: 'Do we have transportation' },
+              { translation: 'A qué hora empieza la escuela', pronunciation: 'ah keh OH-rah em-pee-EH-sah lah es-KWEH-lah', english: 'What time does school start' }
+            ]
+          },
+          {
+            english: 'Your child is making strong progress this semester.',
+            translation: 'Su hijo está progresando muy bien este semestre.',
+            responses: [
+              { translation: 'Me alegra mucho', pronunciation: 'meh ah-LEH-grah MOO-choh', english: 'That makes me very happy' },
+              { translation: 'Ha trabajado mucho', pronunciation: 'ah trah-bah-HAH-doh MOO-choh', english: 'He has worked hard' },
+              { translation: 'Gracias por su apoyo', pronunciation: 'GRAH-see-ahs pohr soo ah-POH-yoh', english: 'Thank you for your support' },
+              { translation: 'Qué puede hacer en casa', pronunciation: 'keh PWEH-deh ah-SEHR en KAH-sah', english: 'What can he do at home' }
+            ]
+          },
+          {
+            english: 'If you have questions about grades, please contact the teacher.',
+            translation: 'Si tiene preguntas sobre las calificaciones, comuníquese con el maestro.',
+            responses: [
+              { translation: 'Cómo me comunico', pronunciation: 'KOH-moh meh koh-MOO-nee-koh', english: 'How do I reach them' },
+              { translation: 'Cuál es el correo del maestro', pronunciation: 'kwahl ehs el koh-REH-oh del mah-EHS-troh', english: 'What is the teacher\'s email' },
+              { translation: 'Hablan español', pronunciation: 'AH-blahn es-pah-NYOHL', english: 'Do they speak Spanish' },
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' }
+            ]
+          }
+        ]
+      },
+      {
+        groupLabel: 'Following Up',
+        phrases: [
+          {
+            english: 'I wanted to follow up after our last meeting.',
+            translation: 'Quería dar seguimiento a nuestra última reunión.',
+            responses: [
+              { translation: 'Gracias por comunicarse', pronunciation: 'GRAH-see-ahs pohr koh-moo-nee-KAHR-seh', english: 'Thank you for reaching out' },
+              { translation: 'Ha habido cambios', pronunciation: 'ah ah-BEE-doh KAHM-bee-ohs', english: 'Have there been any changes' },
+              { translation: 'Todo va bien', pronunciation: 'TOH-doh bah bee-EHN', english: 'Everything is going well' },
+              { translation: 'Tengo una pregunta', pronunciation: 'TEHN-goh OO-nah preh-GOON-tah', english: 'I have a question' }
+            ]
+          },
+          {
+            english: 'We appreciate your involvement in your child\'s education.',
+            translation: 'Apreciamos su participación en la educación de su hijo.',
+            responses: [
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Es importante para nosotros', pronunciation: 'ehs eem-pohr-TAHN-teh PAH-rah noh-SOH-trohs', english: 'It\'s important to us' },
+              { translation: 'Cómo puedo participar más', pronunciation: 'KOH-moh PWEH-doh pahr-tee-see-PAHR mahs', english: 'How can I participate more' },
+              { translation: 'Me alegra que lo valoren', pronunciation: 'meh ah-LEH-grah keh loh bah-LOH-ren', english: 'I\'m glad you value it' }
+            ]
+          },
+          {
+            english: 'Please do not hesitate to contact us with any concerns.',
+            translation: 'Por favor no dude en comunicarse con nosotros si tiene alguna inquietud.',
+            responses: [
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Cómo me comunico', pronunciation: 'KOH-moh meh koh-MOO-nee-koh', english: 'How can I reach you' },
+              { translation: 'Tengo una pregunta ahora', pronunciation: 'TEHN-goh OO-nah preh-GOON-tah ah-OH-rah', english: 'I have a question now' },
+              { translation: 'Lo aprecio', pronunciation: 'loh ah-preh-see-OH', english: 'I appreciate that' }
+            ]
+          }
+        ]
+      }
+    ],
+    tagalog: [],
+    vietnamese: [],
+    mandarin: [],
+    cantonese: [],
+    hmong: [],
+    korean: [],
+    arabic: []
+  },
+  'teacher-support': {
+    spanish: [
+      {
+        groupLabel: 'Coaching on Parent Communication',
+        phrases: [
+          {
+            english: 'I want to help you prepare for this parent conversation.',
+            translation: 'Quiero ayudarle a prepararse para esta conversación con los padres.',
+            responses: [
+              { translation: 'Lo aprecio mucho', pronunciation: 'loh ah-preh-see-OH MOO-choh', english: 'I appreciate that very much' },
+              { translation: 'Qué debo decir', pronunciation: 'keh DEH-boh deh-SEER', english: 'What should I say' },
+              { translation: 'Estoy un poco nervioso', pronunciation: 'es-TOY oon POH-koh nehr-bee-OH-soh', english: 'I\'m a little nervous' },
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' }
+            ]
+          },
+          {
+            english: 'I recommend starting with something positive about the student.',
+            translation: 'Le recomiendo comenzar con algo positivo sobre el estudiante.',
+            responses: [
+              { translation: 'Buena idea', pronunciation: 'BWEH-nah ee-DEH-ah', english: 'Good idea' },
+              { translation: 'Qué pasa si los padres se enojan', pronunciation: 'keh PAH-sah see lohs PAH-drehs seh eh-NOH-hahn', english: 'What if the parents get upset' },
+              { translation: 'Entiendo', pronunciation: 'en-tee-EHN-doh', english: 'I understand' },
+              { translation: 'Puedo practicar con usted primero', pronunciation: 'PWEH-doh prahk-tee-KAHR kohn oos-TEHD pree-MEH-roh', english: 'Can I practice with you first' }
+            ]
+          },
+          {
+            english: 'I can sit in on the meeting with you if that would help.',
+            translation: 'Puedo acompañarle en la reunión si eso le ayuda.',
+            responses: [
+              { translation: 'Sí, por favor', pronunciation: 'see pohr fah-BOHR', english: 'Yes, please' },
+              { translation: 'Lo agradecería', pronunciation: 'loh ah-grah-deh-seh-REE-ah', english: 'I would appreciate that' },
+              { translation: 'Creo que puedo solo', pronunciation: 'KREH-oh keh PWEH-doh SOH-loh', english: 'I think I can manage alone' },
+              { translation: 'Gracias por ofrecerse', pronunciation: 'GRAH-see-ahs pohr oh-freh-SEHR-seh', english: 'Thank you for offering' }
+            ]
+          }
+        ]
+      },
+      {
+        groupLabel: 'Preparing for Difficult Conversations',
+        phrases: [
+          {
+            english: 'Let\'s talk through what you want to communicate before the meeting.',
+            translation: 'Hablemos sobre lo que desea comunicar antes de la reunión.',
+            responses: [
+              { translation: 'Buena idea', pronunciation: 'BWEH-nah ee-DEH-ah', english: 'Good idea' },
+              { translation: 'Quiero hablar sobre el comportamiento', pronunciation: 'kee-EH-roh ah-BLAHR SOH-breh el kohm-pohr-tah-mee-EHN-toh', english: 'I want to talk about the behavior' },
+              { translation: 'También quiero hablar de lo académico', pronunciation: 'tahm-bee-EHN kee-EH-roh ah-BLAHR deh loh ah-kah-DEH-mee-koh', english: 'I also want to discuss academics' },
+              { translation: 'Necesito ayuda con el tono', pronunciation: 'neh-seh-SEE-toh ah-YOO-dah kohn el TOH-noh', english: 'I need help with the tone' }
+            ]
+          },
+          {
+            english: 'Stay focused on the student\'s needs, not the conflict.',
+            translation: 'Mantenga el enfoque en las necesidades del estudiante, no en el conflicto.',
+            responses: [
+              { translation: 'Tiene razón', pronunciation: 'tee-EH-neh rah-SOHN', english: 'You\'re right' },
+              { translation: 'Es difícil cuando los padres se ponen a la defensiva', pronunciation: 'ehs dee-FEE-seel KWAHN-doh lohs PAH-drehs seh POH-nen ah lah deh-fen-SEE-bah', english: 'It\'s hard when parents get defensive' },
+              { translation: 'Lo intentaré', pronunciation: 'loh een-ten-tah-REH', english: 'I\'ll try' },
+              { translation: 'Gracias por el consejo', pronunciation: 'GRAH-see-ahs pohr el kohn-SEH-hoh', english: 'Thank you for the advice' }
+            ]
+          },
+          {
+            english: 'If the conversation becomes tense, I am here to step in.',
+            translation: 'Si la conversación se tensa, estoy aquí para intervenir.',
+            responses: [
+              { translation: 'Gracias, eso me da seguridad', pronunciation: 'GRAH-see-ahs EH-soh meh dah seh-goo-ree-DAHD', english: 'Thank you, that gives me confidence' },
+              { translation: 'Cómo le haré saber', pronunciation: 'KOH-moh leh ah-REH sah-BEHR', english: 'How will I signal you' },
+              { translation: 'Lo aprecio', pronunciation: 'loh ah-preh-see-OH', english: 'I appreciate that' },
+              { translation: 'Espero que no sea necesario', pronunciation: 'es-PEH-roh keh noh SEH-ah neh-seh-SAH-ree-oh', english: 'I hope it won\'t be necessary' }
+            ]
+          }
+        ]
+      },
+      {
+        groupLabel: 'Debriefing and Support',
+        phrases: [
+          {
+            english: 'How did the parent meeting go?',
+            translation: '¿Cómo resultó la reunión con los padres?',
+            responses: [
+              { translation: 'Fue bien', pronunciation: 'fweh bee-EHN', english: 'It went well' },
+              { translation: 'Fue difícil', pronunciation: 'fweh dee-FEE-seel', english: 'It was difficult' },
+              { translation: 'Los padres estuvieron muy receptivos', pronunciation: 'lohs PAH-drehs es-too-bee-EH-rohn moo-ee reh-sep-TEE-bohs', english: 'The parents were very receptive' },
+              { translation: 'Necesito hablar con usted', pronunciation: 'neh-seh-SEE-toh ah-BLAHR kohn oos-TEHD', english: 'I need to talk with you' }
+            ]
+          },
+          {
+            english: 'Thank you for handling that so professionally.',
+            translation: 'Gracias por manejar eso con tanta profesionalidad.',
+            responses: [
+              { translation: 'Gracias por el apoyo', pronunciation: 'GRAH-see-ahs pohr el ah-POH-yoh', english: 'Thank you for the support' },
+              { translation: 'No fue fácil', pronunciation: 'noh fweh FAH-seel', english: 'It wasn\'t easy' },
+              { translation: 'Aprecio que estuviera cerca', pronunciation: 'ah-preh-see-OH keh es-too-bee-EH-rah SEHR-kah', english: 'I appreciate you being nearby' },
+              { translation: 'Aprendí mucho de esto', pronunciation: 'ah-pren-DEE MOO-choh deh EH-stoh', english: 'I learned a lot from this' }
+            ]
+          },
+          {
+            english: 'Let\'s document the key points from the meeting.',
+            translation: 'Documentemos los puntos clave de la reunión.',
+            responses: [
+              { translation: 'De acuerdo', pronunciation: 'deh ah-KWEHR-doh', english: 'Agreed' },
+              { translation: 'Qué debo incluir', pronunciation: 'keh DEH-boh een-kloo-EER', english: 'What should I include' },
+              { translation: 'Ya tomé notas', pronunciation: 'yah toh-MEH NOH-tahs', english: 'I already took notes' },
+              { translation: 'Necesito un momento para recordar', pronunciation: 'neh-seh-SEE-toh oon moh-MEN-toh PAH-rah reh-kohr-DAHR', english: 'I need a moment to recall' }
+            ]
+          }
+        ]
+      }
+    ],
+    tagalog: [],
+    vietnamese: [],
+    mandarin: [],
+    cantonese: [],
+    hmong: [],
+    korean: [],
+    arabic: []
+  },
+  'special-needs': {
+    spanish: [
+      {
+        groupLabel: 'IEP Meeting Communication',
+        phrases: [
+          {
+            english: 'We are here today to review your child\'s Individualized Education Program.',
+            translation: 'Estamos aquí hoy para revisar el Programa de Educación Individualizado de su hijo.',
+            responses: [
+              { translation: 'Gracias por incluirme', pronunciation: 'GRAH-see-ahs pohr een-kloo-EER-meh', english: 'Thank you for including me' },
+              { translation: 'Tengo algunas preguntas', pronunciation: 'TEHN-goh ahl-GOO-nahs preh-GOON-tahs', english: 'I have some questions' },
+              { translation: 'Qué va a cambiar', pronunciation: 'keh bah ah kahm-bee-AHR', english: 'What is going to change' },
+              { translation: 'Entiendo', pronunciation: 'en-tee-EHN-doh', english: 'I understand' }
+            ]
+          },
+          {
+            english: 'You are an important part of this team.',
+            translation: 'Usted es una parte importante de este equipo.',
+            responses: [
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Cómo puedo participar más', pronunciation: 'KOH-moh PWEH-doh pahr-tee-see-PAHR mahs', english: 'How can I participate more' },
+              { translation: 'Eso me alegra', pronunciation: 'EH-soh meh ah-LEH-grah', english: 'That makes me glad' },
+              { translation: 'Qué se espera de mí', pronunciation: 'keh seh es-PEH-rah deh mee', english: 'What is expected of me' }
+            ]
+          },
+          {
+            english: 'Please share anything you have noticed at home.',
+            translation: 'Por favor comparta todo lo que haya notado en casa.',
+            responses: [
+              { translation: 'Ha mejorado mucho', pronunciation: 'ah meh-hoh-RAH-doh MOO-choh', english: 'He has improved a lot' },
+              { translation: 'Todavía tiene dificultades', pronunciation: 'toh-dah-BEE-ah tee-EH-neh dee-fee-kool-TAH-dehs', english: 'He still has difficulties' },
+              { translation: 'Está más tranquilo en casa', pronunciation: 'es-TAH mahs trahn-KEE-loh en KAH-sah', english: 'He is calmer at home' },
+              { translation: 'No ha dormido bien últimamente', pronunciation: 'noh ah dohr-MEE-doh bee-EHN ool-tee-mah-MEN-teh', english: 'He hasn\'t been sleeping well lately' }
+            ]
+          },
+          {
+            english: 'Do you have any concerns about the current plan?',
+            translation: '¿Tiene alguna inquietud sobre el plan actual?',
+            responses: [
+              { translation: 'Sí, tengo una pregunta', pronunciation: 'see TEHN-goh OO-nah preh-GOON-tah', english: 'Yes, I have a question' },
+              { translation: 'No, estoy satisfecho', pronunciation: 'noh es-TOY sah-tees-FEH-choh', english: 'No, I\'m satisfied' },
+              { translation: 'Quisiera más servicios', pronunciation: 'kee-see-EH-rah mahs sehr-BEE-see-ohs', english: 'I would like more services' },
+              { translation: 'Necesito tiempo para pensar', pronunciation: 'neh-seh-SEE-toh tee-EHM-poh PAH-rah pen-SAHR', english: 'I need time to think' }
+            ]
+          }
+        ]
+      },
+      {
+        groupLabel: 'Explaining Accommodations',
+        phrases: [
+          {
+            english: 'Your child will receive extra time on tests and assignments.',
+            translation: 'Su hijo recibirá tiempo adicional en los exámenes y las tareas.',
+            responses: [
+              { translation: 'Cuánto tiempo extra', pronunciation: 'KWAHN-toh tee-EHM-poh EK-strah', english: 'How much extra time' },
+              { translation: 'Eso ayudará mucho', pronunciation: 'EH-soh ah-yoo-dah-RAH MOO-choh', english: 'That will help a lot' },
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Aplica en todos los exámenes', pronunciation: 'ah-PLEE-kah en TOH-dohs lohs eg-SAH-meh-nehs', english: 'Does it apply to all tests' }
+            ]
+          },
+          {
+            english: 'We provide a smaller, quieter setting for tests.',
+            translation: 'Ofrecemos un ambiente más pequeño y tranquilo para los exámenes.',
+            responses: [
+              { translation: 'Eso es muy útil', pronunciation: 'EH-soh ehs moo-ee OO-teel', english: 'That is very helpful' },
+              { translation: 'Mi hijo lo necesita', pronunciation: 'mee EE-hoh loh neh-seh-SEE-tah', english: 'My child needs that' },
+              { translation: 'Gracias por la acomodación', pronunciation: 'GRAH-see-ahs pohr lah ah-koh-moh-dah-see-OHN', english: 'Thank you for the accommodation' },
+              { translation: 'Se siente más cómodo así', pronunciation: 'seh see-EHN-teh mahs KOH-moh-doh ah-SEE', english: 'He feels more comfortable that way' }
+            ]
+          },
+          {
+            english: 'Your child works with a specialist to support their learning.',
+            translation: 'Su hijo trabaja con un especialista para apoyar su aprendizaje.',
+            responses: [
+              { translation: 'Puedo conocerlo', pronunciation: 'PWEH-doh koh-noh-SEHR-loh', english: 'Can I meet them' },
+              { translation: 'Con qué frecuencia se reúnen', pronunciation: 'kohn keh freh-KWEN-see-ah seh reh-OO-nen', english: 'How often do they meet' },
+              { translation: 'Mi hijo lo mencionó', pronunciation: 'mee EE-hoh loh men-see-oh-NOH', english: 'My child mentioned them' },
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' }
+            ]
+          }
+        ]
+      },
+      {
+        groupLabel: 'Checking In on Progress',
+        phrases: [
+          {
+            english: 'Your child has been making good progress with their goals.',
+            translation: 'Su hijo ha logrado buenos avances hacia sus objetivos.',
+            responses: [
+              { translation: 'Qué bueno', pronunciation: 'keh BWEH-noh', english: 'That\'s great' },
+              { translation: 'Qué objetivos', pronunciation: 'keh ohb-heh-TEE-bohs', english: 'What goals' },
+              { translation: 'En qué áreas ha mejorado', pronunciation: 'en keh AH-reh-ahs ah meh-hoh-RAH-doh', english: 'In what areas has he improved' },
+              { translation: 'Me alegra escuchar eso', pronunciation: 'meh ah-LEH-grah es-koo-CHAHR EH-soh', english: 'I\'m happy to hear that' }
+            ]
+          },
+          {
+            english: 'We would like to adjust the support plan based on recent progress.',
+            translation: 'Nos gustaría ajustar el plan de apoyo según el progreso reciente.',
+            responses: [
+              { translation: 'Qué cambiarán', pronunciation: 'keh kahm-bee-ah-RAHN', english: 'What will change' },
+              { translation: 'Cuándo entra en vigor el cambio', pronunciation: 'KWAHN-doh EN-trah en BEE-gohr el KAHM-bee-oh', english: 'When does the change take effect' },
+              { translation: 'Estoy de acuerdo', pronunciation: 'es-TOY deh ah-KWEHR-doh', english: 'I agree' },
+              { translation: 'Necesito pensarlo', pronunciation: 'neh-seh-SEE-toh pen-SAHR-loh', english: 'I need to think about it' }
+            ]
+          },
+          {
+            english: 'How does your child feel about school lately?',
+            translation: '¿Cómo se siente su hijo con respecto a la escuela últimamente?',
+            responses: [
+              { translation: 'Le gusta venir', pronunciation: 'leh GOOS-tah beh-NEER', english: 'He likes coming' },
+              { translation: 'A veces no quiere venir', pronunciation: 'ah BEH-ses noh kee-EH-reh beh-NEER', english: 'Sometimes he doesn\'t want to come' },
+              { translation: 'Está más motivado', pronunciation: 'es-TAH mahs moh-tee-BAH-doh', english: 'He is more motivated' },
+              { translation: 'Le cuesta el trabajo escolar', pronunciation: 'leh KWES-tah el trah-BAH-hoh es-koh-LAHR', english: 'He struggles with schoolwork' }
+            ]
+          }
+        ]
+      },
+      {
+        groupLabel: 'Coordinating the Support Plan',
+        phrases: [
+          {
+            english: 'The teacher and I want to work together with you on a shared plan.',
+            translation: 'El maestro y yo queremos trabajar juntos con usted en un plan compartido.',
+            responses: [
+              { translation: 'Me parece bien', pronunciation: 'meh pah-REH-seh bee-EHN', english: 'That sounds good to me' },
+              { translation: 'Cómo puedo participar', pronunciation: 'KOH-moh PWEH-doh pahr-tee-see-PAHR', english: 'How can I participate' },
+              { translation: 'Gracias por incluirme', pronunciation: 'GRAH-see-ahs pohr een-kloo-EER-meh', english: 'Thank you for including me' },
+              { translation: 'Con qué frecuencia nos reuniremos', pronunciation: 'kohn keh freh-KWEN-see-ah nohs reh-oo-nee-REH-mohs', english: 'How often will we meet' }
+            ]
+          },
+          {
+            english: 'We will send home updates on how your child is doing.',
+            translation: 'Le enviaremos a casa actualizaciones sobre cómo va su hijo.',
+            responses: [
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Con qué frecuencia', pronunciation: 'kohn keh freh-KWEN-see-ah', english: 'How often' },
+              { translation: 'Por correo o nota escrita', pronunciation: 'pohr koh-REH-oh oh NOH-tah es-KREE-tah', english: 'By email or written note' },
+              { translation: 'Lo aprecio', pronunciation: 'loh ah-preh-see-OH', english: 'I appreciate that' }
+            ]
+          },
+          {
+            english: 'Please let us know if anything changes at home that we should be aware of.',
+            translation: 'Por favor avísenos si hay algún cambio en casa que debamos saber.',
+            responses: [
+              { translation: 'Sí, lo haré', pronunciation: 'see loh ah-REH', english: 'Yes, I will' },
+              { translation: 'Cómo me comunico con ustedes', pronunciation: 'KOH-moh meh koh-MOO-nee-koh kohn oos-TEH-dehs', english: 'How do I reach you' },
+              { translation: 'Hay algo que deba saber ahora', pronunciation: 'ay AHL-goh keh DEH-bah sah-BEHR ah-OH-rah', english: 'There\'s something you should know now' },
+              { translation: 'Gracias por preguntar', pronunciation: 'GRAH-see-ahs pohr preh-goon-TAHR', english: 'Thank you for asking' }
+            ]
+          }
+        ]
+      }
+    ],
+    tagalog: [],
+    vietnamese: [],
+    mandarin: [],
+    cantonese: [],
+    hmong: [],
+    korean: [],
+    arabic: []
   },
   'safety-osha': {
     spanish: [
