@@ -3,6 +3,15 @@ import { Language } from '../data/phrases';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
+function normalizeTtsLang(input?: string): string {
+  const s = (input ?? "").trim();
+  const lower = s.toLowerCase();
+  if (lower === "farsi" || lower === "persian") return "fa-IR";
+  if (lower === "fa_ir") return "fa-IR";
+  if (lower === "dari") return "fa-AF";
+  return s;
+}
+
 export const TTS_ENDPOINT = `${SUPABASE_URL}/functions/v1/tts-proxy`;
 export const ANON_KEY_VALUE = ANON_KEY;
 
@@ -69,7 +78,9 @@ async function fetchBlobUrl(text: string, language: string): Promise<string | nu
   }
 
   try {
-    const params = new URLSearchParams({ text, language });
+    const normalizedLang = normalizeTtsLang(language);
+    console.log(`[tts] selected="${language}" normalized="${normalizedLang}"`);
+    const params = new URLSearchParams({ text, lang: normalizedLang });
     const res = await fetch(`${TTS_ENDPOINT}?${params}`, {
       headers: { Authorization: `Bearer ${ANON_KEY}` },
     });
@@ -77,7 +88,7 @@ async function fetchBlobUrl(text: string, language: string): Promise<string | nu
     if (!res.ok) {
       let detail = '';
       try { detail = await res.text(); } catch { detail = '(no body)'; }
-      console.error(`[tts] HTTP ${res.status} for lang=${language}: ${detail}`);
+      console.error(`[tts] HTTP ${res.status} for lang=${normalizedLang} (original="${language}"): ${detail}`);
       return null;
     }
 

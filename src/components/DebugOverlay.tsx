@@ -49,6 +49,17 @@ function formatArgs(args: unknown[]): string {
     if (logBuffer.length > MAX_LOGS) logBuffer.shift();
     notify();
   };
+  const origLog = console.log.bind(console);
+  console.log = (...args: unknown[]) => {
+    origLog(...args);
+    const msg = formatArgs(args);
+    if (msg.startsWith('[tts]')) {
+      const entry: LogEntry = { message: msg, timestamp: timestamp() };
+      logBuffer.push(entry);
+      if (logBuffer.length > MAX_LOGS) logBuffer.shift();
+      notify();
+    }
+  };
 })();
 
 window.addEventListener('error', (e) => {
@@ -217,26 +228,29 @@ export default function DebugOverlay() {
                 No errors logged yet.
               </p>
             ) : (
-              logs.map((log, i) => (
-                <div key={i} style={{
-                  backgroundColor: '#1e293b',
-                  borderRadius: '6px',
-                  padding: '8px 10px',
-                  borderLeft: '3px solid #ef4444',
-                }}>
-                  <div style={{ color: '#64748b', fontSize: '10px', marginBottom: '4px' }}>
-                    {log.timestamp}
-                  </div>
-                  <div style={{
-                    color: '#fca5a5',
-                    fontSize: '12px',
-                    wordBreak: 'break-word',
-                    whiteSpace: 'pre-wrap',
+              logs.map((log, i) => {
+                const isTtsInfo = log.message.startsWith('[tts] selected=');
+                return (
+                  <div key={i} style={{
+                    backgroundColor: '#1e293b',
+                    borderRadius: '6px',
+                    padding: '8px 10px',
+                    borderLeft: `3px solid ${isTtsInfo ? '#22c55e' : '#ef4444'}`,
                   }}>
-                    {log.message}
+                    <div style={{ color: '#64748b', fontSize: '10px', marginBottom: '4px' }}>
+                      {log.timestamp}
+                    </div>
+                    <div style={{
+                      color: isTtsInfo ? '#86efac' : '#fca5a5',
+                      fontSize: '12px',
+                      wordBreak: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                    }}>
+                      {log.message}
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
