@@ -167,8 +167,8 @@ Deno.serve(async (req: Request) => {
   try {
     const url = new URL(req.url);
 
-    if (url.searchParams.get("version") === "check") {
-      return new Response(JSON.stringify({ ok: true, version: "tts-proxy-2026-03-01-03" }), {
+    if (req.method === "GET" || url.searchParams.get("version") === "check") {
+      return new Response(JSON.stringify({ ok: true, version: "tts-proxy-2026-03-01-06", project: "vkfsxioimkkdtqakzuww", azure_langs: ["farsi","dari","hmong"] }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
