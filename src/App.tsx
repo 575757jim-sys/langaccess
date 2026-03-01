@@ -157,10 +157,11 @@ function App() {
           subcategory={selectedSubcategory}
           onBack={handleBackFromPhrases}
           onOpenConversation={selectedSector === 'healthcare' ? handleOpenConversation : undefined}
+          onOpenTalkTogether={selectedSector === 'education' ? () => setView('talk-together') : undefined}
         />
       )}
 
-      {view === 'language' && selectedSector && selectedSubcategory && (
+      {view === 'language' && selectedSector && (selectedSubcategory || talkTogetherPending) && (
         <HomeScreen
           selectedSector={selectedSector}
           selectedSubcategory={selectedSubcategory}

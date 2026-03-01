@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users } from 'lucide-react';
+import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users, MessageSquare } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
@@ -17,9 +17,10 @@ interface PhrasesScreenProps {
   subcategory: Subcategory;
   onBack: () => void;
   onOpenConversation?: () => void;
+  onOpenTalkTogether?: () => void;
 }
 
-export default function PhrasesScreen({ language, sector, subcategory, onBack, onOpenConversation }: PhrasesScreenProps) {
+export default function PhrasesScreen({ language, sector, subcategory, onBack, onOpenConversation, onOpenTalkTogether }: PhrasesScreenProps) {
   const data = languageData[language];
   const phraseGroups: PhraseGroup[] = subcategoryPhrases[subcategory]?.[language] || [];
 
@@ -271,6 +272,15 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                   >
                     <Users className="w-4 h-4" />
                     Intake Mode
+                  </button>
+                )}
+                {onOpenTalkTogether && (
+                  <button
+                    onClick={onOpenTalkTogether}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-green-500 bg-green-600 text-white hover:bg-green-700 transition-colors"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Talk Together
                   </button>
                 )}
                 {phraseGroups.length > 0 && (
