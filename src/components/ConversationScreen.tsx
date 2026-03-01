@@ -10,12 +10,17 @@ interface ConversationScreenProps {
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const STT_ENDPOINT = `${SUPABASE_URL}/functions/v1/stt-proxy`;
+const AZURE_TRANSLATE_ENDPOINT = `${SUPABASE_URL}/functions/v1/azure-translate`;
+const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
 const TRANSLATE_CODES: Record<Language, string> = {
   spanish: 'es', tagalog: 'tl', vietnamese: 'vi',
   mandarin: 'zh-CN', cantonese: 'zh-TW',
-  hmong: 'hmn', korean: 'ko', arabic: 'ar',
+  hmong: 'mww', korean: 'ko', arabic: 'ar',
+  farsi: 'fa', dari: 'prs',
 };
+
+const AZURE_LANGUAGES: Language[] = ['hmong', 'farsi', 'dari'];
 
 const LISTENING_TEXT: Record<Language, string> = {
   spanish: 'Escuchando…',
@@ -47,15 +52,42 @@ interface Message {
   translation: string;
 }
 
-async function doTranslate(text: string, from: string, to: string): Promise<string> {
+async function doTranslateMyMemory(text: string, from: string, to: string): Promise<string> {
+  const res = await fetch(
+    `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`
+  );
+  const data = await res.json();
+  const result = data?.responseData?.translatedText;
+  if (!result || typeof result !== 'string') throw new Error('No translation');
+  if (result.toLowerCase().includes('rfc3066') || result.toLowerCase().includes('invalid')) {
+    throw new Error('Invalid response');
+  }
+  return result;
+}
+
+async function doTranslateAzure(text: string, to: string): Promise<string> {
+  const res = await fetch(AZURE_TRANSLATE_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${ANON_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ text, to }),
+  });
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error ?? 'Azure translate failed');
+  if (!data.translation) throw new Error('No translation');
+  return data.translation;
+}
+
+async function doTranslate(text: string, from: string, to: string, isAzure: boolean): Promise<string | null> {
   try {
-    const res = await fetch(
-      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`
-    );
-    const data = await res.json();
-    return data?.responseData?.translatedText || text;
+    if (isAzure) {
+      return await doTranslateAzure(text, to);
+    }
+    return await doTranslateMyMemory(text, from, to);
   } catch {
-    return text;
+    return null;
   }
 }
 
@@ -115,10 +147,18 @@ interface PanelInputState {
 
 const freshInput = (): PanelInputState => ({ text: '', mode: 'type', recording: false, busy: false });
 
+function getTranslationFontSize(text: string): string {
+  if (text.length > 120) return '16px';
+  if (text.length > 80) return '20px';
+  if (text.length > 40) return '24px';
+  return '28px';
+}
+
 export default function ConversationScreen({ language, onBack }: ConversationScreenProps) {
   const langData = languageData[language];
   const langCode = TRANSLATE_CODES[language];
   const isRtl = language === 'arabic';
+  const isAzureLang = AZURE_LANGUAGES.includes(language);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [staffInput, setStaffInput] = useState<PanelInputState>(freshInput());
@@ -153,17 +193,17 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
   const sendStaff = useCallback(async (text: string) => {
     if (!text.trim()) return;
     setStaffInput(s => ({ ...s, busy: true, text: '' }));
-    const translation = await doTranslate(text, 'en', langCode);
-    addMessage({ side: 'staff', original: text, translation });
+    const translation = await doTranslate(text, 'en', langCode, isAzureLang);
+    addMessage({ side: 'staff', original: text, translation: translation ?? '' });
     setStaffInput(s => ({ ...s, busy: false }));
-    playAudioFromGesture(translation, language);
-  }, [langCode, language]);
+    if (translation) playAudioFromGesture(translation, language);
+  }, [langCode, language, isAzureLang]);
 
   const sendPatient = useCallback(async (text: string) => {
     if (!text.trim()) return;
     setPatientInput(s => ({ ...s, busy: true, text: '' }));
-    const translation = await doTranslate(text, langCode, 'en');
-    addMessage({ side: 'patient', original: text, translation });
+    const translation = await doTranslate(text, langCode, 'en', false);
+    addMessage({ side: 'patient', original: text, translation: translation ?? '' });
     setPatientInput(s => ({ ...s, busy: false }));
   }, [langCode]);
 
@@ -288,26 +328,35 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
           {messages.filter(m => m.side === 'staff').length > 0 ? (
             (() => {
               const last = messages.filter(m => m.side === 'staff').slice(-1)[0];
+              const hasTranslation = last.translation && last.translation.trim().length > 0;
               return (
                 <div className="w-full space-y-2 text-center">
-                  <p
-                    className="font-bold text-gray-900 leading-snug break-words"
-                    style={{ fontSize: '28px' }}
-                    dir={isRtl ? 'rtl' : undefined}
-                  >
-                    {last.translation}
-                  </p>
-                  <p className="text-gray-400 leading-snug" style={{ fontSize: '16px' }}>
-                    {last.original}
-                  </p>
-                  <button
-                    onClick={() => playAudioFromGesture(last.translation, language)}
-                    className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
-                    style={{ fontSize: '16px' }}
-                  >
-                    <Volume2 className="w-5 h-5" />
-                    Play
-                  </button>
+                  {hasTranslation ? (
+                    <>
+                      <p
+                        className="font-bold text-gray-900 leading-snug break-words"
+                        style={{ fontSize: getTranslationFontSize(last.translation) }}
+                        dir={isRtl ? 'rtl' : undefined}
+                      >
+                        {last.translation}
+                      </p>
+                      <p className="text-gray-400 leading-snug" style={{ fontSize: '16px' }}>
+                        {last.original}
+                      </p>
+                      <button
+                        onClick={() => playAudioFromGesture(last.translation, language)}
+                        className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
+                        style={{ fontSize: '16px' }}
+                      >
+                        <Volume2 className="w-5 h-5" />
+                        Play
+                      </button>
+                    </>
+                  ) : (
+                    <p className="text-gray-400 text-center" style={{ fontSize: '14px' }}>
+                      please try again
+                    </p>
+                  )}
                 </div>
               );
             })()
@@ -425,29 +474,38 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
           {messages.filter(m => m.side === 'patient').length > 0 ? (
             (() => {
               const last = messages.filter(m => m.side === 'patient').slice(-1)[0];
+              const hasTranslation = last.translation && last.translation.trim().length > 0;
               return (
                 <div className="w-full space-y-2 text-center">
-                  <p
-                    className="font-bold text-gray-900 leading-snug break-words"
-                    style={{ fontSize: '28px' }}
-                  >
-                    {last.translation}
-                  </p>
-                  <p
-                    className="text-gray-400 leading-snug"
-                    style={{ fontSize: '16px' }}
-                    dir={isRtl ? 'rtl' : undefined}
-                  >
-                    {last.original}
-                  </p>
-                  <button
-                    onClick={() => replayMessage(last)}
-                    className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
-                    style={{ fontSize: '16px' }}
-                  >
-                    <Volume2 className="w-5 h-5" />
-                    Play
-                  </button>
+                  {hasTranslation ? (
+                    <>
+                      <p
+                        className="font-bold text-gray-900 leading-snug break-words"
+                        style={{ fontSize: getTranslationFontSize(last.translation) }}
+                      >
+                        {last.translation}
+                      </p>
+                      <p
+                        className="text-gray-400 leading-snug"
+                        style={{ fontSize: '16px' }}
+                        dir={isRtl ? 'rtl' : undefined}
+                      >
+                        {last.original}
+                      </p>
+                      <button
+                        onClick={() => replayMessage(last)}
+                        className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
+                        style={{ fontSize: '16px' }}
+                      >
+                        <Volume2 className="w-5 h-5" />
+                        Play
+                      </button>
+                    </>
+                  ) : (
+                    <p className="text-gray-400 text-center" style={{ fontSize: '14px' }}>
+                      please try again
+                    </p>
+                  )}
                 </div>
               );
             })()
