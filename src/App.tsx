@@ -6,6 +6,7 @@ import LanguageAccessPolicy from './components/LanguageAccessPolicy';
 import CommunityNavigator from './components/CommunityNavigator';
 import ConversationScreen from './components/ConversationScreen';
 import TalkTogetherScreen from './components/TalkTogetherScreen';
+import JobSiteTalkScreen from './components/JobSiteTalkScreen';
 import CertificatesPage from './components/CertificatesPage';
 import AmbassadorsPage from './components/AmbassadorsPage';
 import UpdateToast from './components/UpdateToast';
@@ -29,6 +30,7 @@ type AppView =
   | 'community'
   | 'conversation'
   | 'talk-together'
+  | 'job-site-talk'
   | 'certificates'
   | 'ambassadors';
 
@@ -39,6 +41,7 @@ function App() {
   const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
   const [toastDismissed, setToastDismissed] = useState(false);
   const [talkTogetherPending, setTalkTogetherPending] = useState(false);
+  const [jobSiteTalkPending, setJobSiteTalkPending] = useState(false);
 
   const { updateAvailable, applyUpdate, checkForUpdates } = useUpdateManager();
 
@@ -68,6 +71,9 @@ function App() {
     if (talkTogetherPending) {
       setTalkTogetherPending(false);
       setView('talk-together');
+    } else if (jobSiteTalkPending) {
+      setJobSiteTalkPending(false);
+      setView('job-site-talk');
     } else {
       setView('phrases');
     }
@@ -82,6 +88,7 @@ function App() {
     setSelectedSubcategory(null);
     setSelectedLanguage(null);
     setTalkTogetherPending(false);
+    setJobSiteTalkPending(false);
     setView('subcategory');
   };
 
@@ -90,6 +97,7 @@ function App() {
     setSelectedSubcategory(null);
     setSelectedLanguage(null);
     setTalkTogetherPending(false);
+    setJobSiteTalkPending(false);
     setView('home');
   };
 
@@ -99,6 +107,11 @@ function App() {
 
   const handleOpenTalkTogether = () => {
     setTalkTogetherPending(true);
+    setView('language');
+  };
+
+  const handleOpenJobSiteTalk = () => {
+    setJobSiteTalkPending(true);
     setView('language');
   };
 
@@ -150,6 +163,13 @@ function App() {
         />
       )}
 
+      {view === 'job-site-talk' && selectedLanguage && (
+        <JobSiteTalkScreen
+          language={selectedLanguage}
+          onBack={() => setView('subcategory')}
+        />
+      )}
+
       {view === 'phrases' && selectedLanguage && selectedSector && selectedSubcategory && (
         <PhrasesScreen
           language={selectedLanguage}
@@ -158,10 +178,11 @@ function App() {
           onBack={handleBackFromPhrases}
           onOpenConversation={selectedSector === 'healthcare' ? handleOpenConversation : undefined}
           onOpenTalkTogether={selectedSector === 'education' ? () => setView('talk-together') : undefined}
+          onOpenJobSiteTalk={selectedSector === 'construction' ? () => setView('job-site-talk') : undefined}
         />
       )}
 
-      {view === 'language' && selectedSector && (selectedSubcategory || talkTogetherPending) && (
+      {view === 'language' && selectedSector && (selectedSubcategory || talkTogetherPending || jobSiteTalkPending) && (
         <HomeScreen
           selectedSector={selectedSector}
           selectedSubcategory={selectedSubcategory}
@@ -183,6 +204,7 @@ function App() {
           onSelectSubcategory={handleSelectSubcategory}
           onBack={handleBackToHome}
           onOpenTalkTogether={selectedSector === 'education' ? handleOpenTalkTogether : undefined}
+          onOpenJobSiteTalk={selectedSector === 'construction' ? handleOpenJobSiteTalk : undefined}
           selectedLanguage={selectedLanguage}
         />
       )}

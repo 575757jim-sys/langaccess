@@ -1,4 +1,4 @@
-import { ArrowLeft, MessageSquare } from 'lucide-react';
+import { ArrowLeft, MessageSquare, HardHat } from 'lucide-react';
 import { SubcategoryInfo } from '../data/subcategories';
 import { Language } from '../data/phrases';
 
@@ -8,6 +8,7 @@ interface SubcategorySelectorProps {
   onSelectSubcategory: (subcategoryId: string) => void;
   onBack: () => void;
   onOpenTalkTogether?: () => void;
+  onOpenJobSiteTalk?: () => void;
   selectedLanguage?: Language | null;
 }
 
@@ -17,6 +18,7 @@ export default function SubcategorySelector({
   onSelectSubcategory,
   onBack,
   onOpenTalkTogether,
+  onOpenJobSiteTalk,
 }: SubcategorySelectorProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 p-6">
@@ -70,6 +72,26 @@ export default function SubcategorySelector({
               <div>
                 <h2 className="text-xl font-semibold">Talk Together</h2>
                 <p className="text-sm text-green-100 font-normal mt-0.5">Live two-way conversation — Teacher &amp; Parent or Student</p>
+              </div>
+            </button>
+          </div>
+        )}
+
+        {onOpenJobSiteTalk && (
+          <div className="mt-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-1 h-px bg-slate-300" />
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest whitespace-nowrap">Live Conversation</span>
+              <div className="flex-1 h-px bg-slate-300" />
+            </div>
+            <button
+              onClick={onOpenJobSiteTalk}
+              className="w-full bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-md hover:shadow-xl transition-all p-6 text-left group hover:-translate-y-1 duration-200 flex items-center gap-4"
+            >
+              <HardHat className="w-8 h-8 flex-shrink-0" />
+              <div>
+                <h2 className="text-xl font-semibold">Job Site Talk</h2>
+                <p className="text-sm text-orange-100 font-normal mt-0.5">Live two-way conversation — Supervisor or Foreman &amp; Worker or Crew</p>
               </div>
             </button>
           </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users, MessageSquare, HardHat } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
@@ -18,9 +18,10 @@ interface PhrasesScreenProps {
   onBack: () => void;
   onOpenConversation?: () => void;
   onOpenTalkTogether?: () => void;
+  onOpenJobSiteTalk?: () => void;
 }
 
-export default function PhrasesScreen({ language, sector, subcategory, onBack, onOpenConversation, onOpenTalkTogether }: PhrasesScreenProps) {
+export default function PhrasesScreen({ language, sector, subcategory, onBack, onOpenConversation, onOpenTalkTogether, onOpenJobSiteTalk }: PhrasesScreenProps) {
   const data = languageData[language];
   const phraseGroups: PhraseGroup[] = subcategoryPhrases[subcategory]?.[language] || [];
 
@@ -281,6 +282,15 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                   >
                     <MessageSquare className="w-4 h-4" />
                     Talk Together
+                  </button>
+                )}
+                {onOpenJobSiteTalk && (
+                  <button
+                    onClick={onOpenJobSiteTalk}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-orange-500 bg-orange-600 text-white hover:bg-orange-700 transition-colors"
+                  >
+                    <HardHat className="w-4 h-4" />
+                    Job Site Talk
                   </button>
                 )}
                 {phraseGroups.length > 0 && (
