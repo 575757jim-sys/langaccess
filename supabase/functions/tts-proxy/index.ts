@@ -24,12 +24,11 @@ const AZURE_VOICE_MAP: Record<string, { locale: string; name: string }> = {
   dari:  { locale: "prs-AF", name: "prs-AF-GulNawazNeural" },
 };
 
-const AZURE_LANGS = new Set(["hmong", "farsi", "dari"]);
+const AZURE_LANGS = ["hmong", "farsi", "dari"];
 
 const GOOGLE_TTS_API_KEY = Deno.env.get("GOOGLE_TTS_API_KEY") ?? "";
 const AZURE_TRANSLATOR_KEY = Deno.env.get("AZURE_TRANSLATOR_KEY") ?? "";
 const AZURE_TRANSLATOR_REGION = Deno.env.get("AZURE_TRANSLATOR_REGION") ?? "";
-const AZURE_TRANSLATOR_ENDPOINT = Deno.env.get("AZURE_TRANSLATOR_ENDPOINT") ?? "https://eastus.tts.speech.microsoft.com";
 
 async function synthesizeWithAzure(text: string, language: string): Promise<Response> {
   const voice = AZURE_VOICE_MAP[language];
@@ -65,9 +64,9 @@ async function synthesizeWithAzure(text: string, language: string): Promise<Resp
   }
 
   const accessToken = await tokenRes.text();
-
   const ttsEndpoint = `https://${AZURE_TRANSLATOR_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
-  const ssml = `<speak version='1.0' xml:lang='${voice.locale}'><voice xml:lang='${voice.locale}' name='${voice.name}'><prosody rate='-10%'>${text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</prosody></voice></speak>`;
+  const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const ssml = `<speak version='1.0' xml:lang='${voice.locale}'><voice xml:lang='${voice.locale}' name='${voice.name}'><prosody rate='-10%'>${escaped}</prosody></voice></speak>`;
 
   const ttsRes = await fetch(ttsEndpoint, {
     method: "POST",
@@ -89,7 +88,6 @@ async function synthesizeWithAzure(text: string, language: string): Promise<Resp
   }
 
   const audioBuffer = await ttsRes.arrayBuffer();
-
   return new Response(audioBuffer, {
     status: 200,
     headers: {
@@ -103,7 +101,7 @@ async function synthesizeWithAzure(text: string, language: string): Promise<Resp
 async function synthesizeWithGoogle(text: string, language: string): Promise<Response> {
   const voice = GOOGLE_VOICE_MAP[language];
   if (!voice) {
-    return new Response(JSON.stringify({ error: `Unsupported language: ${language}` }), {
+    return new Response(JSON.stringify({ error: `Unsupported Google language: ${language}` }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -169,22 +167,22 @@ Deno.serve(async (req: Request) => {
   try {
     const url = new URL(req.url);
     const text = url.searchParams.get("text");
-    const language = url.searchParams.get("language")?.toLowerCase();
+    const rawLang = url.searchParams.get("language");
 
-    if (!text || !language) {
+    if (!text || !rawLang) {
       return new Response(JSON.stringify({ error: "Missing text or language" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const normalizedLang = language.trim().toLowerCase();
+    const language = rawLang.trim().toLowerCase();
 
-    if (AZURE_LANGS.has(normalizedLang)) {
-      return await synthesizeWithAzure(text, normalizedLang);
+    if (AZURE_LANGS.includes(language)) {
+      return await synthesizeWithAzure(text, language);
     }
 
-    return await synthesizeWithGoogle(text, normalizedLang);
+    return await synthesizeWithGoogle(text, language);
   } catch (err) {
     return new Response(JSON.stringify({ error: String(err) }), {
       status: 500,
