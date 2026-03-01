@@ -78,10 +78,30 @@ async function fetchBlobUrl(text: string, language: string): Promise<string | nu
   }
 
   try {
-    const normalizedLang = normalizeTtsLang(language);
-    console.log(`[tts] selected="${language}" normalized="${normalizedLang}"`);
-    const params = new URLSearchParams({ text, lang: normalizedLang });
-    const res = await fetch(`${TTS_ENDPOINT}?${params}`, {
+    const safeText = (text ?? "").toString().trim();
+    if (!safeText) {
+      console.error('[tts] abort: empty text', { text });
+      return null;
+    }
+
+    const normalizedLang = normalizeTtsLang(language).trim();
+    if (!normalizedLang) {
+      console.error('[tts] abort: empty lang', { language });
+      return null;
+    }
+
+    const qs = new URLSearchParams();
+    qs.set("text", safeText);
+    qs.set("q", safeText);
+    qs.set("input", safeText);
+    qs.set("lang", normalizedLang);
+    qs.set("language", normalizedLang);
+
+    const fetchUrl = `${TTS_ENDPOINT}?${qs.toString()}`;
+    console.log(`[tts] url=${fetchUrl}`);
+    console.log(`[tts] selected="${language}" normalized="${normalizedLang}" textLen=${safeText.length}`);
+
+    const res = await fetch(fetchUrl, {
       headers: { Authorization: `Bearer ${ANON_KEY}` },
     });
 
