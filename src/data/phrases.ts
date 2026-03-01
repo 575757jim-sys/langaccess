@@ -1,4 +1,4 @@
-export type Language = 'spanish' | 'tagalog' | 'vietnamese' | 'mandarin' | 'cantonese' | 'hmong' | 'korean' | 'arabic';
+export type Language = 'spanish' | 'tagalog' | 'vietnamese' | 'mandarin' | 'cantonese' | 'hmong' | 'korean' | 'arabic' | 'farsi' | 'dari';
 export type Sector = 'healthcare' | 'education' | 'construction';
 
 export interface Response {
@@ -257,6 +257,24 @@ export const languageData: Record<Language, LanguageData> = {
       { english: 'Do you have any allergies?', translation: 'هل لديك أي حساسية؟', responses: [{ translation: 'نعم', pronunciation: "na'am", english: 'Yes' }, { translation: 'لا', pronunciation: 'laa', english: 'No' }, { translation: 'البنسلين', pronunciation: 'al-binisilin', english: 'Penicillin' }, { translation: 'الفول السوداني', pronunciation: 'al-fuul al-suudaani', english: 'Peanuts' }, { translation: 'لا أعرف', pronunciation: "laa a'rif", english: "I don't know" }] },
       { english: 'Are you taking any medications?', translation: 'هل تتناول أي أدوية؟', responses: [{ translation: 'نعم', pronunciation: "na'am", english: 'Yes' }, { translation: 'لا', pronunciation: 'laa', english: 'No' }, { translation: 'لمرض السكري', pronunciation: 'li-marad al-sukkari', english: 'For diabetes' }, { translation: 'للقلب', pronunciation: 'lil-qalb', english: 'For the heart' }, { translation: 'لا أتذكر', pronunciation: 'laa atadhakkar', english: "I don't remember" }] },
       { english: 'Do you need an interpreter?', translation: 'هل تحتاج إلى مترجم؟', responses: [{ translation: 'نعم، من فضلك', pronunciation: "na'am, min fadlak", english: 'Yes, please' }, { translation: 'لا', pronunciation: 'laa', english: 'No' }, { translation: 'شكراً', pronunciation: 'shukran', english: 'Thank you' }] }
+    ]
+  },
+  farsi: {
+    name: 'Farsi',
+    phrases: [
+      { english: 'Where does it hurt?', translation: 'کجا درد دارید؟', responses: [{ translation: 'سر', pronunciation: 'sar', english: 'Head' }, { translation: 'سینه', pronunciation: 'see-neh', english: 'Chest' }, { translation: 'شکم', pronunciation: 'she-kam', english: 'Stomach' }, { translation: 'پشت', pronunciation: 'posht', english: 'Back' }, { translation: 'پا', pronunciation: 'paa', english: 'Leg' }, { translation: 'دست', pronunciation: 'dast', english: 'Arm' }] },
+      { english: 'Do you have any allergies?', translation: 'آیا حساسیت دارید؟', responses: [{ translation: 'بله', pronunciation: 'ba-leh', english: 'Yes' }, { translation: 'نه', pronunciation: 'na', english: 'No' }, { translation: 'پنی‌سیلین', pronunciation: 'pe-ni-si-lin', english: 'Penicillin' }, { translation: 'بادام زمینی', pronunciation: 'ba-dam za-mi-ni', english: 'Peanuts' }, { translation: 'نمی‌دانم', pronunciation: 'ne-mi-da-nam', english: "I don't know" }] },
+      { english: 'Are you taking any medications?', translation: 'آیا دارو مصرف می‌کنید؟', responses: [{ translation: 'بله', pronunciation: 'ba-leh', english: 'Yes' }, { translation: 'نه', pronunciation: 'na', english: 'No' }, { translation: 'برای دیابت', pronunciation: 'ba-ra-ye di-ya-bet', english: 'For diabetes' }, { translation: 'برای قلب', pronunciation: 'ba-ra-ye qalb', english: 'For the heart' }, { translation: 'یادم نیست', pronunciation: 'ya-dam nist', english: "I don't remember" }] },
+      { english: 'Do you need an interpreter?', translation: 'آیا به مترجم نیاز دارید؟', responses: [{ translation: 'بله، لطفاً', pronunciation: 'ba-leh lot-fan', english: 'Yes, please' }, { translation: 'نه', pronunciation: 'na', english: 'No' }, { translation: 'ممنون', pronunciation: 'mam-nun', english: 'Thank you' }] }
+    ]
+  },
+  dari: {
+    name: 'Dari',
+    phrases: [
+      { english: 'Where does it hurt?', translation: 'کجا درد دارید؟', responses: [{ translation: 'سر', pronunciation: 'sar', english: 'Head' }, { translation: 'سینه', pronunciation: 'see-na', english: 'Chest' }, { translation: 'شکم', pronunciation: 'she-kam', english: 'Stomach' }, { translation: 'پشت', pronunciation: 'posht', english: 'Back' }, { translation: 'پا', pronunciation: 'paa', english: 'Leg' }, { translation: 'دست', pronunciation: 'dast', english: 'Arm' }] },
+      { english: 'Do you have any allergies?', translation: 'آیا حساسیت دارید؟', responses: [{ translation: 'بله', pronunciation: 'ba-leh', english: 'Yes' }, { translation: 'نه', pronunciation: 'na', english: 'No' }, { translation: 'پنی‌سیلین', pronunciation: 'pe-ni-si-lin', english: 'Penicillin' }, { translation: 'بادام زمینی', pronunciation: 'ba-dam za-mi-ni', english: 'Peanuts' }, { translation: 'نمی‌دانم', pronunciation: 'na-mi-da-nam', english: "I don't know" }] },
+      { english: 'Are you taking any medications?', translation: 'آیا دوا می‌خورید؟', responses: [{ translation: 'بله', pronunciation: 'ba-leh', english: 'Yes' }, { translation: 'نه', pronunciation: 'na', english: 'No' }, { translation: 'برای دیابت', pronunciation: 'ba-ra-ye di-ya-bet', english: 'For diabetes' }, { translation: 'برای قلب', pronunciation: 'ba-ra-ye qalb', english: 'For the heart' }, { translation: 'یادم نیست', pronunciation: 'ya-dam nist', english: "I don't remember" }] },
+      { english: 'Do you need an interpreter?', translation: 'آیا به ترجمان ضرورت دارید؟', responses: [{ translation: 'بله، لطفاً', pronunciation: 'ba-leh lot-fan', english: 'Yes, please' }, { translation: 'نه', pronunciation: 'na', english: 'No' }, { translation: 'تشکر', pronunciation: 'tash-kor', english: 'Thank you' }] }
     ]
   }
 };

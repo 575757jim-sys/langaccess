@@ -15,7 +15,7 @@ interface CommunityNavigatorProps {
 const LANG_KEY = 'langaccess_nav_lang';
 const CITY_KEY_STORAGE = 'langaccess_nav_city';
 
-type LangCode = 'en' | 'es' | 'vi' | 'tl' | 'hmn' | 'zh-TW' | 'zh-CN' | 'ko' | 'ar';
+type LangCode = 'en' | 'es' | 'vi' | 'tl' | 'hmn' | 'zh-TW' | 'zh-CN' | 'ko' | 'ar' | 'fa' | 'prs';
 
 interface LangStrings {
   food: string;
@@ -83,18 +83,33 @@ const languageMap: Record<LangCode, LangStrings> = {
     call211: 'اتصل بـ 211',
     instructions: 'اضغط على فئة للعثور على مساعدة قريبة. اتصل بـ 211 للخدمات الاجتماعية.',
   },
+  fa: {
+    food: 'غذا', medical: 'پزشکی + دندانپزشکی', bathrooms: 'سرویس بهداشتی',
+    power: 'شارژ / برق', shelter: 'پناهگاه', lockers: 'کمدها',
+    call211: 'تماس با ۲۱۱',
+    instructions: 'برای یافتن کمک نزدیک، روی یک دسته ضربه بزنید. برای خدمات اجتماعی با ۲۱۱ تماس بگیرید.',
+  },
+  prs: {
+    food: 'غذا', medical: 'طبی + دندان', bathrooms: 'دستشویی',
+    power: 'برق / چارج', shelter: 'پناهگاه', lockers: 'کمدها',
+    call211: 'زنگ ۲۱۱',
+    instructions: 'برای یافتن کمک نزدیک، روی یک دسته ضربه بزنید. برای خدمات اجتماعی با ۲۱۱ تماس بگیرید.',
+  },
 };
 
 const ttslangMap: Record<LangCode, string> = {
   en: 'en', es: 'spanish', vi: 'vietnamese', tl: 'tagalog',
   hmn: 'hmong', 'zh-TW': 'zh-traditional', 'zh-CN': 'zh-simplified',
-  ko: 'korean', ar: 'arabic',
+  ko: 'korean', ar: 'arabic', fa: 'farsi', prs: 'dari',
 };
 
 const speechLangMap: Record<LangCode, string> = {
   en: 'en-US', es: 'es-US', vi: 'vi-VN', tl: 'tl-PH',
   hmn: 'hmn', 'zh-TW': 'zh-TW', 'zh-CN': 'zh-CN', ko: 'ko-KR', ar: 'ar',
+  fa: 'fa-IR', prs: 'prs',
 };
+
+const AZURE_LANG_CODES: LangCode[] = ['hmn', 'fa', 'prs'];
 
 const LANG_OPTIONS: { code: LangCode; flag: string; label: string }[] = [
   { code: 'en',    flag: '🇺🇸', label: 'English' },
@@ -106,6 +121,8 @@ const LANG_OPTIONS: { code: LangCode; flag: string; label: string }[] = [
   { code: 'zh-CN', flag: '🇨🇳', label: '简体中文' },
   { code: 'ko',    flag: '🇰🇷', label: '한국어' },
   { code: 'ar',    flag: '🇸🇦', label: 'العربية' },
+  { code: 'fa',    flag: '🇮🇷', label: 'فارسی' },
+  { code: 'prs',   flag: '🇦🇫', label: 'دری' },
 ];
 
 const RESOURCE_CATEGORIES: { id: keyof LangStrings; Icon: React.FC<{ className?: string }>; color: string }[] = [
@@ -137,7 +154,7 @@ function saveVault(docs: StoredDoc[]) {
 
 function loadLang(): LangCode {
   const saved = localStorage.getItem(LANG_KEY) as LangCode | null;
-  const valid: LangCode[] = ['en', 'es', 'vi', 'tl', 'hmn', 'zh-TW', 'zh-CN', 'ko', 'ar'];
+  const valid: LangCode[] = ['en', 'es', 'vi', 'tl', 'hmn', 'zh-TW', 'zh-CN', 'ko', 'ar', 'fa', 'prs'];
   if (saved && valid.includes(saved)) return saved;
   return 'en';
 }
@@ -198,7 +215,8 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
   const isOnline = navigator.onLine;
   const t = languageMap[lang];
   const city = cityResources[selectedCity];
-  const isRtl = lang === 'ar';
+  const isRtl = lang === 'ar' || lang === 'fa' || lang === 'prs';
+  const isAzureLang = AZURE_LANG_CODES.includes(lang);
 
   const handleLangChange = (code: LangCode) => {
     setLang(code);
@@ -305,6 +323,9 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
               </button>
             ))}
           </div>
+          {isAzureLang && (
+            <p className="text-xs text-gray-500 mt-2">Translations powered by Microsoft Azure</p>
+          )}
         </div>
 
         <div className="max-w-2xl mx-auto px-4 pb-4 flex items-center gap-3">

@@ -49,13 +49,30 @@ export default function HomeScreen({
     { id: 'construction' as Sector, label: 'Construction', Icon: HardHat, color: 'bg-orange-600 hover:bg-orange-700' }
   ];
 
-  const languages: { id: Language; label: string; color: string }[] = [
-    { id: 'spanish', label: 'Spanish', color: 'bg-blue-600 hover:bg-blue-700' },
-    { id: 'tagalog', label: 'Tagalog', color: 'bg-green-600 hover:bg-green-700' },
+  const baseLanguages: { id: Language; label: string; color: string }[] = [
+    { id: 'spanish',    label: 'Spanish',    color: 'bg-blue-600 hover:bg-blue-700' },
+    { id: 'tagalog',    label: 'Tagalog',    color: 'bg-green-600 hover:bg-green-700' },
     { id: 'vietnamese', label: 'Vietnamese', color: 'bg-red-600 hover:bg-red-700' },
-    { id: 'mandarin', label: 'Mandarin', color: 'bg-orange-600 hover:bg-orange-700' },
-    { id: 'cantonese', label: 'Cantonese', color: 'bg-teal-600 hover:bg-teal-700' }
+    { id: 'mandarin',   label: 'Mandarin',   color: 'bg-orange-600 hover:bg-orange-700' },
+    { id: 'cantonese',  label: 'Cantonese',  color: 'bg-teal-600 hover:bg-teal-700' },
   ];
+
+  const sectorExtraLanguages: Record<string, { id: Language; label: string; color: string }[]> = {
+    healthcare: [
+      { id: 'farsi', label: 'Farsi', color: 'bg-sky-700 hover:bg-sky-800' },
+    ],
+    education: [
+      { id: 'hmong', label: 'Hmong', color: 'bg-violet-700 hover:bg-violet-800' },
+      { id: 'dari',  label: 'Dari',  color: 'bg-emerald-700 hover:bg-emerald-800' },
+    ],
+    construction: [],
+  };
+
+  const languages = selectedSector
+    ? [...baseLanguages, ...(sectorExtraLanguages[selectedSector] ?? [])]
+    : baseLanguages;
+
+  const AZURE_LANGUAGES: Language[] = ['hmong', 'farsi', 'dari'];
 
   const getSectorLabel = (sectorId: Sector) => {
     return sectors.find(s => s.id === sectorId)?.label || '';
@@ -153,13 +170,17 @@ export default function HomeScreen({
             <h2 className="text-2xl font-semibold text-slate-700 text-center mb-6">Select Language</h2>
             <div className="space-y-4">
               {languages.map((lang) => (
-                <button
-                  key={lang.id}
-                  onClick={() => onSelectLanguage(lang.id)}
-                  className={`w-full ${lang.color} text-white rounded-2xl py-6 px-8 text-2xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95`}
-                >
-                  {lang.label}
-                </button>
+                <div key={lang.id}>
+                  <button
+                    onClick={() => onSelectLanguage(lang.id)}
+                    className={`w-full ${lang.color} text-white rounded-2xl py-6 px-8 text-2xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95`}
+                  >
+                    {lang.label}
+                  </button>
+                  {AZURE_LANGUAGES.includes(lang.id) && (
+                    <p className="text-center text-xs text-slate-400 mt-1">Translations powered by Microsoft Azure</p>
+                  )}
+                </div>
               ))}
             </div>
           </div>
