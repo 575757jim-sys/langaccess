@@ -32,7 +32,15 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const url = `${AZURE_TRANSLATOR_ENDPOINT}/translate?api-version=3.0&from=en&to=${encodeURIComponent(to)}`;
+    const LANG_CODE_MAP: Record<string, string> = {
+      farsi: "fa",
+      dari: "prs",
+      hmong: "mww",
+    };
+
+    const resolvedTo = LANG_CODE_MAP[to.toLowerCase()] ?? to;
+
+    const url = `${AZURE_TRANSLATOR_ENDPOINT}/translate?api-version=3.0&from=en&to=${encodeURIComponent(resolvedTo)}`;
 
     const response = await fetch(url, {
       method: "POST",
