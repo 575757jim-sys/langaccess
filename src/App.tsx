@@ -5,6 +5,7 @@ import SubcategorySelector from './components/SubcategorySelector';
 import LanguageAccessPolicy from './components/LanguageAccessPolicy';
 import CommunityNavigator from './components/CommunityNavigator';
 import ConversationScreen from './components/ConversationScreen';
+import TalkTogetherScreen from './components/TalkTogetherScreen';
 import CertificatesPage from './components/CertificatesPage';
 import AmbassadorsPage from './components/AmbassadorsPage';
 import UpdateToast from './components/UpdateToast';
@@ -27,6 +28,7 @@ type AppView =
   | 'policy'
   | 'community'
   | 'conversation'
+  | 'talk-together'
   | 'certificates'
   | 'ambassadors';
 
@@ -36,6 +38,7 @@ function App() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
   const [toastDismissed, setToastDismissed] = useState(false);
+  const [talkTogetherPending, setTalkTogetherPending] = useState(false);
 
   const { updateAvailable, applyUpdate, checkForUpdates } = useUpdateManager();
 
@@ -62,7 +65,12 @@ function App() {
 
   const handleSelectLanguage = (language: Language) => {
     setSelectedLanguage(language);
-    setView('phrases');
+    if (talkTogetherPending) {
+      setTalkTogetherPending(false);
+      setView('talk-together');
+    } else {
+      setView('phrases');
+    }
   };
 
   const handleBackFromPhrases = () => {
@@ -73,6 +81,7 @@ function App() {
   const handleBackFromLanguage = () => {
     setSelectedSubcategory(null);
     setSelectedLanguage(null);
+    setTalkTogetherPending(false);
     setView('subcategory');
   };
 
@@ -80,11 +89,17 @@ function App() {
     setSelectedSector(null);
     setSelectedSubcategory(null);
     setSelectedLanguage(null);
+    setTalkTogetherPending(false);
     setView('home');
   };
 
   const handleOpenConversation = () => {
     setView('conversation');
+  };
+
+  const handleOpenTalkTogether = () => {
+    setTalkTogetherPending(true);
+    setView('language');
   };
 
   const getSubcategories = () => {
@@ -128,6 +143,13 @@ function App() {
         />
       )}
 
+      {view === 'talk-together' && selectedLanguage && (
+        <TalkTogetherScreen
+          language={selectedLanguage}
+          onBack={() => setView('subcategory')}
+        />
+      )}
+
       {view === 'phrases' && selectedLanguage && selectedSector && selectedSubcategory && (
         <PhrasesScreen
           language={selectedLanguage}
@@ -159,6 +181,8 @@ function App() {
           sectorLabel={getSectorLabel()}
           onSelectSubcategory={handleSelectSubcategory}
           onBack={handleBackToHome}
+          onOpenTalkTogether={selectedSector === 'education' ? handleOpenTalkTogether : undefined}
+          selectedLanguage={selectedLanguage}
         />
       )}
 
