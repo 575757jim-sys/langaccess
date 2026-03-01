@@ -17,6 +17,17 @@ const TRANSLATE_CODES: Record<Language, string> = {
   hmong: 'hmn', korean: 'ko', arabic: 'ar',
 };
 
+const LISTENING_TEXT: Record<Language, string> = {
+  spanish: 'Escuchando…',
+  tagalog: 'Nakikinig…',
+  vietnamese: 'Đang nghe…',
+  mandarin: '正在聆听…',
+  cantonese: '正在聆聽…',
+  hmong: 'Tab tom mloog…',
+  korean: '듣는 중…',
+  arabic: '…جارٍ الاستماع',
+};
+
 const STAFF_PROMPTS = [
   'What is your name?',
   'What brings you in today?',
@@ -262,158 +273,146 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
   const staffSendDisabled = !staffInput.text.trim() || staffInput.busy || staffInput.recording;
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-slate-950 text-white overflow-hidden select-none">
+    <div className="fixed inset-0 flex flex-col bg-gray-200 overflow-hidden select-none">
 
-      {/* ─── PATIENT panel (top — rotated 180° so patient reads it across the table) ─── */}
-      <div className="flex-1 flex flex-col bg-emerald-950/40 border-b-2 border-emerald-800/60 rotate-180 overflow-hidden">
-        <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 border-b border-emerald-900/60">
-          <span className="text-xs font-bold text-emerald-400 tracking-widest uppercase">Patient — {langData.name}</span>
-          <div className="flex items-center gap-2">
-            {patientInput.busy && <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />}
-          </div>
+      {/* ─── PATIENT panel (top — rotated 180° so patient reads while phone lies flat) ─── */}
+      <div className="flex-1 flex flex-col bg-white overflow-hidden rotate-180">
+        {/* Panel header */}
+        <div className="flex-shrink-0 flex items-center justify-between px-5 py-3 border-b border-gray-100">
+          <span className="text-sm font-bold text-gray-400 tracking-widest uppercase">{langData.name}</span>
+          {patientInput.busy && <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />}
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
-          {messages.filter(m => m.side === 'staff').slice(-3).map(m => (
-            <div key={m.id} className="space-y-0.5">
-              <p className="text-xs text-emerald-700">{m.original}</p>
-              <div className="flex items-center gap-2">
-                <p className="text-xl font-bold text-emerald-300 leading-snug flex-1" dir={isRtl ? 'rtl' : undefined}>
-                  {m.translation}
-                </p>
-                <button
-                  onClick={() => playAudioFromGesture(m.translation, language)}
-                  className="p-1.5 rounded-full bg-emerald-700/40 text-emerald-300 hover:bg-emerald-600/60 transition-colors flex-shrink-0"
-                >
-                  <Volume2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          ))}
-          {messages.filter(m => m.side === 'staff').length === 0 && (
-            <p className="text-emerald-800 text-sm text-center mt-4">Staff messages will appear here</p>
+        {/* Last staff message shown large for patient to read */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-4 overflow-hidden">
+          {messages.filter(m => m.side === 'staff').length > 0 ? (
+            (() => {
+              const last = messages.filter(m => m.side === 'staff').slice(-1)[0];
+              return (
+                <div className="w-full space-y-2 text-center">
+                  <p
+                    className="font-bold text-gray-900 leading-snug break-words"
+                    style={{ fontSize: '28px' }}
+                    dir={isRtl ? 'rtl' : undefined}
+                  >
+                    {last.translation}
+                  </p>
+                  <p className="text-gray-400 leading-snug" style={{ fontSize: '16px' }}>
+                    {last.original}
+                  </p>
+                  <button
+                    onClick={() => playAudioFromGesture(last.translation, language)}
+                    className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
+                    style={{ fontSize: '16px' }}
+                  >
+                    <Volume2 className="w-5 h-5" />
+                    Play
+                  </button>
+                </div>
+              );
+            })()
+          ) : (
+            <p className="text-gray-300 text-center" style={{ fontSize: '18px' }}>
+              Staff message will appear here
+            </p>
           )}
         </div>
 
-        <div className="flex-shrink-0 border-t border-emerald-900/60 px-3 py-2">
-          <div className="flex items-center gap-2">
+        {/* Patient mic + input row */}
+        <div className="flex-shrink-0 border-t border-gray-100 px-5 py-4">
+          {patientInput.recording && (
+            <p
+              className="text-center font-semibold text-green-600 mb-3"
+              style={{ fontSize: '18px' }}
+              dir={isRtl ? 'rtl' : undefined}
+            >
+              {LISTENING_TEXT[language]}
+            </p>
+          )}
+          <div className="flex items-center gap-3">
             <textarea
               value={patientInput.text}
               onChange={e => setPatientInput(s => ({ ...s, text: e.target.value }))}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendPatient(patientInput.text); } }}
-              placeholder={`Speak or type in ${langData.name}…`}
+              placeholder={`Type in ${langData.name}…`}
               dir={isRtl ? 'rtl' : undefined}
               rows={1}
-              className="flex-1 bg-emerald-950/60 border border-emerald-800/60 text-white placeholder-emerald-800 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
+              className="flex-1 bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-300 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              style={{ fontSize: '18px' }}
             />
-            <MicBtn
+            <BigMicBtn
               recording={patientInput.recording}
               busy={patientInput.busy}
-              color="emerald"
               onStart={() => startRecording('patient')}
               onStop={stopRecording}
             />
             <button
               onClick={() => sendPatient(patientInput.text)}
               disabled={patientSendDisabled}
-              className="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-30 disabled:cursor-not-allowed text-white transition-colors flex-shrink-0"
+              className="p-3 rounded-2xl bg-gray-900 hover:bg-gray-700 disabled:opacity-25 disabled:cursor-not-allowed text-white transition-colors flex-shrink-0"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* ─── STT Error banner ─── */}
-      {sttError && (
-        <div className="flex-shrink-0 bg-red-900/80 border-y border-red-700/60 px-4 py-2 text-red-200 text-xs text-center z-20">
-          {sttError}
-        </div>
-      )}
-
-      {/* ─── Middle bar ─── */}
-      <div className="flex-shrink-0 flex items-center bg-slate-900 border-y border-slate-700/60 px-4 py-1.5 gap-3 z-10">
-        <button onClick={onBack} className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-xs font-medium">Back</span>
+      {/* ─── Divider / middle bar ─── */}
+      <div className="flex-shrink-0 flex items-center bg-gray-100 border-y border-gray-300 px-4 py-2 gap-3 z-10" style={{ minHeight: '48px' }}>
+        <button onClick={onBack} className="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+          <span className="font-medium" style={{ fontSize: '14px' }}>Back</span>
         </button>
 
         <div className="flex-1 flex items-center justify-center gap-2">
-          <span className="text-xs font-semibold text-blue-400">English</span>
-          <div className="flex items-center gap-1 bg-blue-600/20 border border-blue-500/40 rounded-full px-2 py-0.5">
-            <ArrowUpDown className="w-3 h-3 text-blue-400" />
-            <span className="text-[10px] font-bold text-blue-400 tracking-widest uppercase">Face-to-Face</span>
+          <span className="font-semibold text-blue-600" style={{ fontSize: '13px' }}>English</span>
+          <div className="flex items-center gap-1 bg-white border border-gray-300 rounded-full px-2 py-0.5 shadow-sm">
+            <ArrowUpDown className="w-3.5 h-3.5 text-gray-500" />
+            <span className="font-bold text-gray-500 tracking-widest uppercase" style={{ fontSize: '10px' }}>Face-to-Face</span>
           </div>
-          <span className="text-xs font-semibold text-emerald-400">{langData.name}</span>
+          <span className="font-semibold text-gray-700" style={{ fontSize: '13px' }}>{langData.name}</span>
         </div>
+
+        {sttError && (
+          <span className="text-red-500 font-medium truncate max-w-[140px]" style={{ fontSize: '11px' }}>{sttError}</span>
+        )}
 
         <button
           onClick={clearAll}
-          className="p-1.5 text-slate-500 hover:text-white transition-colors"
-          title="Clear"
+          className="p-1.5 text-gray-400 hover:text-gray-700 transition-colors"
+          title="Clear conversation"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
+          <RefreshCw className="w-4 h-4" />
         </button>
       </div>
 
-      {/* ─── Conversation transcript (middle) ─── */}
-      <div
-        ref={scrollRef}
-        className="flex-shrink-0 h-36 overflow-y-auto px-3 py-2 bg-slate-900/80 space-y-1.5 border-b border-slate-800"
-      >
-        {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-slate-600 text-xs text-center">Conversation transcript will appear here</p>
-          </div>
-        ) : (
-          messages.map(msg => (
-            <div key={msg.id} className={`flex gap-2 ${msg.side === 'staff' ? 'justify-start' : 'justify-end'}`}>
-              <div
-                className={`max-w-[80%] rounded-xl px-3 py-1.5 ${
-                  msg.side === 'staff'
-                    ? 'bg-blue-600/30 border border-blue-500/30'
-                    : 'bg-emerald-600/30 border border-emerald-500/30'
-                }`}
-              >
-                <p className={`text-xs font-semibold leading-snug ${msg.side === 'staff' ? 'text-blue-200' : 'text-emerald-200'}`}>
-                  {msg.original}
-                </p>
-                <p className="text-[11px] text-slate-400 leading-snug mt-0.5" dir={msg.side === 'staff' && isRtl ? 'rtl' : undefined}>
-                  {msg.translation}
-                </p>
-              </div>
-              <button
-                onClick={() => replayMessage(msg)}
-                className="self-center p-1 text-slate-600 hover:text-slate-300 transition-colors flex-shrink-0"
-              >
-                <Volume2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))
-        )}
-      </div>
-
       {/* ─── STAFF panel (bottom — normal orientation) ─── */}
-      <div className="flex-1 flex flex-col bg-slate-950 overflow-hidden">
-        <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 border-b border-slate-800">
-          <span className="text-xs font-bold text-blue-400 tracking-widest uppercase">Staff — English</span>
+      <div className="flex-1 flex flex-col bg-white overflow-hidden">
+        {/* Panel header */}
+        <div className="flex-shrink-0 flex items-center justify-between px-5 py-3 border-b border-gray-100">
+          <span className="text-sm font-bold text-gray-400 tracking-widest uppercase">Staff — English</span>
           <button
             onClick={() => setShowPrompts(v => !v)}
-            className={`text-[10px] px-2.5 py-1 rounded-full border transition-colors font-semibold ${
-              showPrompts ? 'bg-blue-600/30 border-blue-500/40 text-blue-300' : 'border-slate-700 text-slate-500 hover:text-slate-300'
+            className={`px-3 py-1.5 rounded-full border font-semibold transition-colors ${
+              showPrompts
+                ? 'bg-blue-50 border-blue-300 text-blue-600'
+                : 'border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300'
             }`}
+            style={{ fontSize: '12px' }}
           >
             {showPrompts ? 'Hide prompts' : 'Quick prompts'}
           </button>
         </div>
 
+        {/* Quick prompts */}
         {showPrompts && (
-          <div className="flex-shrink-0 px-3 pt-2 pb-1 overflow-x-auto flex gap-1.5 no-scrollbar">
+          <div className="flex-shrink-0 px-4 pt-3 pb-2 overflow-x-auto flex gap-2 no-scrollbar border-b border-gray-100">
             {STAFF_PROMPTS.map(p => (
               <button
                 key={p}
                 onClick={() => sendStaff(p)}
-                className="flex-shrink-0 text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:border-blue-500/60 hover:text-white transition-all whitespace-nowrap"
+                className="flex-shrink-0 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 hover:border-blue-400 hover:text-blue-700 hover:bg-blue-50 transition-all whitespace-nowrap font-medium"
+                style={{ fontSize: '13px' }}
               >
                 {p}
               </button>
@@ -421,77 +420,104 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
-          {messages.filter(m => m.side === 'patient').slice(-3).map(m => (
-            <div key={m.id} className="space-y-0.5">
-              <p className="text-xs text-blue-700" dir={isRtl ? 'rtl' : undefined}>{m.original}</p>
-              <div className="flex items-center gap-2">
-                <p className="text-xl font-bold text-blue-300 leading-snug flex-1">{m.translation}</p>
-                <button
-                  onClick={() => replayMessage(m)}
-                  className="p-1.5 rounded-full bg-blue-700/40 text-blue-300 hover:bg-blue-600/60 transition-colors flex-shrink-0"
-                >
-                  <Volume2 className="w-4 h-4" />
-                </button>
-              </div>
+        {/* Last patient message shown large for staff to read */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-4 overflow-hidden">
+          {messages.filter(m => m.side === 'patient').length > 0 ? (
+            (() => {
+              const last = messages.filter(m => m.side === 'patient').slice(-1)[0];
+              return (
+                <div className="w-full space-y-2 text-center">
+                  <p
+                    className="font-bold text-gray-900 leading-snug break-words"
+                    style={{ fontSize: '28px' }}
+                  >
+                    {last.translation}
+                  </p>
+                  <p
+                    className="text-gray-400 leading-snug"
+                    style={{ fontSize: '16px' }}
+                    dir={isRtl ? 'rtl' : undefined}
+                  >
+                    {last.original}
+                  </p>
+                  <button
+                    onClick={() => replayMessage(last)}
+                    className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
+                    style={{ fontSize: '16px' }}
+                  >
+                    <Volume2 className="w-5 h-5" />
+                    Play
+                  </button>
+                </div>
+              );
+            })()
+          ) : (
+            <p className="text-gray-300 text-center" style={{ fontSize: '18px' }}>
+              Patient responses appear here in English
+            </p>
+          )}
+          {staffInput.busy && (
+            <div className="flex items-center gap-2 mt-3 text-blue-500" style={{ fontSize: '14px' }}>
+              <Loader2 className="w-4 h-4 animate-spin" /> Translating…
             </div>
-          ))}
-          {messages.filter(m => m.side === 'patient').length === 0 && (
-            <p className="text-slate-700 text-sm text-center mt-4">Patient responses will appear here in English</p>
           )}
         </div>
 
-        <div className="flex-shrink-0 border-t border-slate-800 px-3 py-2">
-          <div className="flex items-center gap-2">
+        {/* Staff mic + input row */}
+        <div className="flex-shrink-0 border-t border-gray-100 px-5 py-4">
+          {staffInput.recording && (
+            <p className="text-center font-semibold text-green-600 mb-3" style={{ fontSize: '18px' }}>
+              Listening in English…
+            </p>
+          )}
+          <div className="flex items-center gap-3">
             <textarea
               value={staffInput.text}
               onChange={e => setStaffInput(s => ({ ...s, text: e.target.value }))}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendStaff(staffInput.text); } }}
               placeholder="Type or speak in English…"
               rows={1}
-              className="flex-1 bg-slate-800 border border-slate-700 text-white placeholder-slate-600 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none"
+              className="flex-1 bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-300 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              style={{ fontSize: '18px' }}
             />
-            <MicBtn
+            <BigMicBtn
               recording={staffInput.recording}
               busy={staffInput.busy}
-              color="blue"
               onStart={() => startRecording('staff')}
               onStop={stopRecording}
             />
             <button
               onClick={() => sendStaff(staffInput.text)}
               disabled={staffSendDisabled}
-              className="p-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed text-white transition-colors flex-shrink-0"
+              className="p-3 rounded-2xl bg-blue-600 hover:bg-blue-500 disabled:opacity-25 disabled:cursor-not-allowed text-white transition-colors flex-shrink-0"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5" />
             </button>
           </div>
-          {staffInput.busy && (
-            <div className="flex items-center gap-1.5 mt-1.5 text-blue-400 text-xs">
-              <Loader2 className="w-3 h-3 animate-spin" /> Translating…
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Hidden transcript scroll ref anchor */}
+      <div ref={scrollRef} />
     </div>
   );
 }
 
-interface MicBtnProps {
+interface BigMicBtnProps {
   recording: boolean;
   busy: boolean;
-  color: 'blue' | 'emerald';
   onStart: () => void;
   onStop: () => void;
 }
 
-function MicBtn({ recording, busy, color, onStart, onStop }: MicBtnProps) {
-  const base = color === 'blue' ? 'bg-blue-700 hover:bg-blue-600' : 'bg-emerald-700 hover:bg-emerald-600';
-
+function BigMicBtn({ recording, busy, onStart, onStop }: BigMicBtnProps) {
   if (busy) {
     return (
-      <div className={`p-2.5 rounded-xl ${base} opacity-50 flex-shrink-0`}>
-        <Loader2 className="w-4 h-4 text-white animate-spin" />
+      <div
+        className="rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0"
+        style={{ width: '72px', height: '72px' }}
+      >
+        <Loader2 className="w-8 h-8 text-gray-500 animate-spin" />
       </div>
     );
   }
@@ -500,10 +526,14 @@ function MicBtn({ recording, busy, color, onStart, onStop }: MicBtnProps) {
     return (
       <button
         onClick={onStop}
-        className="relative p-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white transition-colors flex-shrink-0"
+        className="relative rounded-full text-white flex items-center justify-center flex-shrink-0 transition-colors"
+        style={{ width: '72px', height: '72px', backgroundColor: '#16a34a' }}
       >
-        <MicOff className="w-4 h-4" />
-        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-300 rounded-full animate-ping" />
+        <MicOff className="w-8 h-8 relative z-10" />
+        <span
+          className="absolute inset-0 rounded-full animate-ping"
+          style={{ backgroundColor: '#16a34a', opacity: 0.4 }}
+        />
       </button>
     );
   }
@@ -511,9 +541,10 @@ function MicBtn({ recording, busy, color, onStart, onStop }: MicBtnProps) {
   return (
     <button
       onClick={onStart}
-      className={`p-2.5 rounded-xl ${base} text-white transition-colors flex-shrink-0`}
+      className="rounded-full text-white flex items-center justify-center flex-shrink-0 transition-colors hover:opacity-90"
+      style={{ width: '72px', height: '72px', backgroundColor: '#2563eb' }}
     >
-      <Mic className="w-4 h-4" />
+      <Mic className="w-8 h-8" />
     </button>
   );
 }
