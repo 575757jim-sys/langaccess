@@ -1,5 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
+const VERSION = "tts-proxy-2026-03-01-FA01";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -29,6 +31,14 @@ const AZURE_LANGS = new Set(["hmong", "farsi", "dari"]);
 const GOOGLE_TTS_API_KEY = Deno.env.get("GOOGLE_TTS_API_KEY") ?? "";
 const AZURE_TTS_KEY = Deno.env.get("AZURE_TRANSLATOR_KEY") ?? "";
 const AZURE_TTS_REGION = Deno.env.get("AZURE_TRANSLATOR_REGION") ?? "";
+
+function normalizeLang(v?: string | null): string {
+  const s = (v ?? "").toLowerCase().trim();
+  if (s === "persian") return "farsi";
+  if (s === "fa-ir" || s === "fa_ir") return "farsi";
+  if (s === "fa-af" || s === "fa_af" || s === "prs") return "dari";
+  return s;
+}
 
 async function synthesizeWithAzure(text: string, language: string): Promise<Response> {
   const voice = AZURE_VOICE_MAP[language];
@@ -101,7 +111,7 @@ async function synthesizeWithAzure(text: string, language: string): Promise<Resp
 async function synthesizeWithGoogle(text: string, language: string): Promise<Response> {
   const voice = GOOGLE_VOICE_MAP[language];
   if (!voice) {
-    return new Response(JSON.stringify({ error: `No Google voice for: ${language}` }), {
+    return new Response(JSON.stringify({ error: `Unsupported language: ${language}. Supported: ${Object.keys(GOOGLE_VOICE_MAP).join(", ")}` }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -164,34 +174,37 @@ Deno.serve(async (req: Request) => {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
+  if (req.method === "GET") {
+    return new Response(JSON.stringify({ ok: true, version: VERSION, project: "vkfsxioimkkdtqakzuww", azure_langs: ["farsi", "dari", "hmong"] }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const url = new URL(req.url);
 
-    if (req.method === "GET" || url.searchParams.get("version") === "check") {
-      return new Response(JSON.stringify({ ok: true, version: "tts-proxy-2026-03-01-06", project: "vkfsxioimkkdtqakzuww", azure_langs: ["farsi","dari","hmong"] }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    let text: string | null = null;
+    let rawLang: string | null = null;
+
+    const contentType = req.headers.get("content-type") ?? "";
+    if (req.method === "POST" && contentType.includes("application/json")) {
+      const body = await req.json().catch(() => ({})) as { text?: string; lang?: string; language?: string };
+      text = body.text ?? null;
+      rawLang = body.lang ?? body.language ?? null;
+    } else {
+      text = url.searchParams.get("text");
+      rawLang = url.searchParams.get("language") ?? url.searchParams.get("lang");
     }
 
-    const text = url.searchParams.get("text");
-    const rawLang = url.searchParams.get("language");
-
     if (!text || !rawLang) {
-      return new Response(JSON.stringify({ error: "Missing text or language parameter" }), {
+      return new Response(JSON.stringify({ error: "Missing text or language parameter", version: VERSION }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const normalized = rawLang.trim().toLowerCase();
-    const LANG_ALIASES: Record<string, string> = {
-      "farsi": "farsi",
-      "persian": "farsi",
-      "dari": "dari",
-      "hmong": "hmong",
-    };
-    const language = LANG_ALIASES[normalized] ?? normalized;
+    const language = normalizeLang(rawLang);
 
     if (AZURE_LANGS.has(language)) {
       return await synthesizeWithAzure(text, language);
@@ -199,7 +212,7 @@ Deno.serve(async (req: Request) => {
 
     return await synthesizeWithGoogle(text, language);
   } catch (err) {
-    return new Response(JSON.stringify({ error: String(err) }), {
+    return new Response(JSON.stringify({ error: String(err), version: VERSION }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
