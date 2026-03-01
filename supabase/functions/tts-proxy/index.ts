@@ -168,7 +168,7 @@ Deno.serve(async (req: Request) => {
     const url = new URL(req.url);
 
     if (url.searchParams.get("version") === "check") {
-      return new Response(JSON.stringify({ ok: true, version: "tts-proxy-2026-03-01-02" }), {
+      return new Response(JSON.stringify({ ok: true, version: "tts-proxy-2026-03-01-03" }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -184,7 +184,14 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const language = rawLang.trim().toLowerCase();
+    const normalized = rawLang.trim().toLowerCase();
+    const LANG_ALIASES: Record<string, string> = {
+      "farsi": "farsi",
+      "persian": "farsi",
+      "dari": "dari",
+      "hmong": "hmong",
+    };
+    const language = LANG_ALIASES[normalized] ?? normalized;
 
     if (AZURE_LANGS.has(language)) {
       return await synthesizeWithAzure(text, language);
