@@ -24,47 +24,47 @@ const AZURE_VOICE_MAP: Record<string, { locale: string; name: string }> = {
   dari:  { locale: "prs-AF", name: "prs-AF-GulNawazNeural" },
 };
 
-const AZURE_LANGS = ["hmong", "farsi", "dari"];
+const AZURE_LANGS = new Set(["hmong", "farsi", "dari"]);
 
 const GOOGLE_TTS_API_KEY = Deno.env.get("GOOGLE_TTS_API_KEY") ?? "";
-const AZURE_TRANSLATOR_KEY = Deno.env.get("AZURE_TRANSLATOR_KEY") ?? "";
-const AZURE_TRANSLATOR_REGION = Deno.env.get("AZURE_TRANSLATOR_REGION") ?? "";
+const AZURE_TTS_KEY = Deno.env.get("AZURE_TRANSLATOR_KEY") ?? "";
+const AZURE_TTS_REGION = Deno.env.get("AZURE_TRANSLATOR_REGION") ?? "";
 
 async function synthesizeWithAzure(text: string, language: string): Promise<Response> {
   const voice = AZURE_VOICE_MAP[language];
   if (!voice) {
-    return new Response(JSON.stringify({ error: `Unsupported Azure language: ${language}` }), {
+    return new Response(JSON.stringify({ error: `No Azure voice for: ${language}` }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
-  if (!AZURE_TRANSLATOR_KEY || !AZURE_TRANSLATOR_REGION) {
-    return new Response(JSON.stringify({ error: "AZURE_TRANSLATOR_KEY or AZURE_TRANSLATOR_REGION not configured" }), {
+  if (!AZURE_TTS_KEY || !AZURE_TTS_REGION) {
+    return new Response(JSON.stringify({ error: "Azure credentials not configured" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
-  const tokenEndpoint = `https://${AZURE_TRANSLATOR_REGION}.api.cognitive.microsoft.com/sts/v1.0/issueToken`;
+  const tokenEndpoint = `https://${AZURE_TTS_REGION}.api.cognitive.microsoft.com/sts/v1.0/issueToken`;
   const tokenRes = await fetch(tokenEndpoint, {
     method: "POST",
     headers: {
-      "Ocp-Apim-Subscription-Key": AZURE_TRANSLATOR_KEY,
+      "Ocp-Apim-Subscription-Key": AZURE_TTS_KEY,
       "Content-Type": "application/x-www-form-urlencoded",
     },
   });
 
   if (!tokenRes.ok) {
     const detail = await tokenRes.text();
-    return new Response(JSON.stringify({ error: `Azure token fetch failed: ${tokenRes.status}`, detail }), {
+    return new Response(JSON.stringify({ error: `Azure token failed: ${tokenRes.status}`, detail }), {
       status: 502,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 
   const accessToken = await tokenRes.text();
-  const ttsEndpoint = `https://${AZURE_TRANSLATOR_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
+  const ttsEndpoint = `https://${AZURE_TTS_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
   const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const ssml = `<speak version='1.0' xml:lang='${voice.locale}'><voice xml:lang='${voice.locale}' name='${voice.name}'><prosody rate='-10%'>${escaped}</prosody></voice></speak>`;
 
@@ -101,7 +101,7 @@ async function synthesizeWithAzure(text: string, language: string): Promise<Resp
 async function synthesizeWithGoogle(text: string, language: string): Promise<Response> {
   const voice = GOOGLE_VOICE_MAP[language];
   if (!voice) {
-    return new Response(JSON.stringify({ error: `Unsupported Google language: ${language}` }), {
+    return new Response(JSON.stringify({ error: `No Google voice for: ${language}` }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -170,7 +170,7 @@ Deno.serve(async (req: Request) => {
     const rawLang = url.searchParams.get("language");
 
     if (!text || !rawLang) {
-      return new Response(JSON.stringify({ error: "Missing text or language" }), {
+      return new Response(JSON.stringify({ error: "Missing text or language parameter" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -178,7 +178,7 @@ Deno.serve(async (req: Request) => {
 
     const language = rawLang.trim().toLowerCase();
 
-    if (AZURE_LANGS.includes(language)) {
+    if (AZURE_LANGS.has(language)) {
       return await synthesizeWithAzure(text, language);
     }
 
