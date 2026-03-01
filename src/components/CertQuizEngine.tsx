@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { CheckCircle, XCircle, ChevronRight, Award } from 'lucide-react';
 import { CertModule, QuizQuestion, PASS_THRESHOLD } from '../data/certificateData';
 
@@ -9,7 +9,30 @@ interface Props {
   onClose: () => void;
 }
 
+interface ShuffledQuestion {
+  question: string;
+  options: string[];
+  shuffledCorrectIndex: number;
+  explanation: string;
+}
+
 type Phase = 'quiz' | 'result';
+
+function shuffleQuestions(questions: QuizQuestion[]): ShuffledQuestion[] {
+  return questions.map(q => {
+    const indexed = q.options.map((opt, i) => ({ opt, isCorrect: i === q.correctIndex }));
+    for (let i = indexed.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
+    }
+    return {
+      question: q.question,
+      options: indexed.map(x => x.opt),
+      shuffledCorrectIndex: indexed.findIndex(x => x.isCorrect),
+      explanation: q.explanation,
+    };
+  });
+}
 
 export default function CertQuizEngine({ module, trackTitle, onComplete, onClose }: Props) {
   const [phase, setPhase] = useState<Phase>('quiz');
@@ -18,7 +41,8 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [showExplanation, setShowExplanation] = useState(false);
 
-  const questions: QuizQuestion[] = module.questions;
+  const shuffled = useMemo(() => shuffleQuestions(module.questions), [module]);
+  const questions: ShuffledQuestion[] = shuffled;
   const current = questions[currentIndex];
   const totalQuestions = questions.length;
 
@@ -26,7 +50,7 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
     if (selected !== null) return;
     setSelected(idx);
     setShowExplanation(true);
-    setAnswers(prev => [...prev, idx === current.correctIndex]);
+    setAnswers(prev => [...prev, idx === current.shuffledCorrectIndex]);
   };
 
   const handleNext = () => {
@@ -35,7 +59,7 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
       setSelected(null);
       setShowExplanation(false);
     } else {
-      const finalAnswers = [...answers, selected === current.correctIndex];
+      const finalAnswers = [...answers, selected === current.shuffledCorrectIndex];
       const score = finalAnswers.filter(Boolean).length / totalQuestions;
       const passed = score >= PASS_THRESHOLD;
       onComplete(score, passed);
@@ -124,9 +148,9 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
           {current.options.map((opt, idx) => {
             let cls = 'border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10';
             if (selected !== null) {
-              if (idx === current.correctIndex) {
+              if (idx === current.shuffledCorrectIndex) {
                 cls = 'border border-green-500 bg-green-500/15 text-green-300';
-              } else if (idx === selected && idx !== current.correctIndex) {
+              } else if (idx === selected && idx !== current.shuffledCorrectIndex) {
                 cls = 'border border-red-500 bg-red-500/15 text-red-300';
               } else {
                 cls = 'border border-white/5 bg-white/3 text-slate-500';
@@ -143,10 +167,10 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
                   {String.fromCharCode(65 + idx)}
                 </span>
                 <span className="text-sm leading-snug">{opt}</span>
-                {selected !== null && idx === current.correctIndex && (
+                {selected !== null && idx === current.shuffledCorrectIndex && (
                   <CheckCircle className="w-4 h-4 text-green-400 ml-auto flex-shrink-0" />
                 )}
-                {selected !== null && idx === selected && idx !== current.correctIndex && (
+                {selected !== null && idx === selected && idx !== current.shuffledCorrectIndex && (
                   <XCircle className="w-4 h-4 text-red-400 ml-auto flex-shrink-0" />
                 )}
               </button>
@@ -156,12 +180,12 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
 
         {showExplanation && (
           <div className={`rounded-xl p-4 mb-5 text-sm ${
-            selected === current.correctIndex
+            selected === current.shuffledCorrectIndex
               ? 'bg-green-500/10 border border-green-500/30 text-green-300'
               : 'bg-red-500/10 border border-red-500/30 text-red-300'
           }`}>
             <p className="font-semibold mb-1">
-              {selected === current.correctIndex ? 'Correct!' : 'Not quite.'}
+              {selected === current.shuffledCorrectIndex ? 'Correct!' : 'Not quite.'}
             </p>
             <p className="text-slate-300 text-xs leading-relaxed">{current.explanation}</p>
           </div>

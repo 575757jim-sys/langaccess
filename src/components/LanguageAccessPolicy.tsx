@@ -11,10 +11,8 @@ export default function LanguageAccessPolicy({ onBack }: LanguageAccessPolicyPro
 
   const supportedLanguages = [
     { name: 'Spanish', note: 'Full coverage — all sectors' },
-    { name: 'Chinese (Traditional)', note: 'Character set supported' },
-    { name: 'Chinese (Simplified)', note: 'Character set supported' },
-    { name: 'Cantonese', note: 'Audio pronunciation included' },
     { name: 'Mandarin', note: 'Audio pronunciation included' },
+    { name: 'Cantonese', note: 'Audio pronunciation included' },
     { name: 'Tagalog', note: 'Core phrases available' },
     { name: 'Vietnamese', note: 'Core phrases available' },
   ];
