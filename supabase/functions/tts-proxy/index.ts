@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const VERSION = "tts-proxy-FA01";
+const VERSION = "tts-proxy-FA02";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
