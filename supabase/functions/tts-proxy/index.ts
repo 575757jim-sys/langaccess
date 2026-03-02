@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const VERSION = "tts-proxy-FA04";
+const VERSION = "tts-proxy-FA05";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -83,7 +83,7 @@ async function synthesizeWithAzure(text: string, language: string): Promise<Resp
     headers: {
       "Authorization": `Bearer ${accessToken}`,
       "Content-Type": "application/ssml+xml",
-      "X-Microsoft-OutputFormat": "audio-24khz-48kbitrate-mono-mp3",
+      "X-Microsoft-OutputFormat": "audio-24khz-96kbitrate-mono-mp3",
       "User-Agent": "LangAccess",
     },
     body: ssml,
@@ -160,8 +160,9 @@ async function synthesizeWithGoogle(text: string, language: string): Promise<Res
   for (let i = 0; i < binaryStr.length; i++) {
     bytes[i] = binaryStr.charCodeAt(i);
   }
+  const blob = new Blob([bytes.buffer], { type: "audio/mpeg" });
 
-  return new Response(bytes.buffer, {
+  return new Response(blob, {
     status: 200,
     headers: {
       ...corsHeaders,

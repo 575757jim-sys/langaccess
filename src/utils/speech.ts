@@ -203,6 +203,7 @@ export function playAudioFromGesture(text: string, language: Language): void {
 
   const doPlay = (src: string) => {
     audio.src = src;
+    audio.load();
     const p = audio.play();
     if (p) {
       p.catch((err) => {
