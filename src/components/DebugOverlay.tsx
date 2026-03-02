@@ -36,7 +36,9 @@ function formatArgs(args: unknown[]): string {
   const orig = console.error.bind(console);
   console.error = (...args: unknown[]) => {
     orig(...args);
-    const entry: LogEntry = { message: formatArgs(args), timestamp: timestamp() };
+    const msg = formatArgs(args);
+    if (msg.includes('AUDIO_UNAVAILABLE')) return;
+    const entry: LogEntry = { message: msg, timestamp: timestamp() };
     logBuffer.push(entry);
     if (logBuffer.length > MAX_LOGS) logBuffer.shift();
     notify();

@@ -126,7 +126,17 @@ async function fetchBlobUrl(text: string, language: string): Promise<string | nu
 
     if (!res.ok) {
       let detail = '';
-      try { detail = await res.text(); } catch { detail = '(no body)'; }
+      let parsed: { error?: string } | null = null;
+      try {
+        const text = await res.text();
+        detail = text;
+        try { parsed = JSON.parse(text); } catch { /* not json */ }
+      } catch { detail = '(no body)'; }
+
+      if (parsed?.error === 'AUDIO_UNAVAILABLE') {
+        return "unavailable:audio";
+      }
+
       console.error(`[tts] HTTP ${res.status} for lang=${normalizedLang} (original="${language}"): ${detail}`);
 
       if (isFarsiLang(language, normalizedLang)) {
@@ -164,6 +174,7 @@ async function fetchBlobUrl(text: string, language: string): Promise<string | nu
 export async function fetchTTSBlob(text: string, language: Language | string): Promise<string | null> {
   const result = await fetchBlobUrl(text, language as string);
   if (result === "fallback:speechSynthesis") return null;
+  if (result === "unavailable:audio") return null;
   return result;
 }
 
@@ -207,6 +218,10 @@ export function playAudioFromGesture(text: string, language: Language): void {
   }
 
   fetchBlobUrl(cleaned, language).then((url) => {
+    if (!url || url === "unavailable:audio") {
+      if (currentAudio === audio) currentAudio = null;
+      return;
+    }
     if (!url) {
       console.error('[audio] No URL returned from TTS — check GOOGLE_TTS_API_KEY is set in Supabase Edge Function secrets');
       if (currentAudio === audio) currentAudio = null;

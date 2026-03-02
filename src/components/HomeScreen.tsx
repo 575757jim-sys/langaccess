@@ -1,4 +1,4 @@
-import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users, VolumeX } from 'lucide-react';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
 import SEO from './SEO';
@@ -73,6 +73,7 @@ export default function HomeScreen({
     : baseLanguages;
 
   const AZURE_LANGUAGES: Language[] = ['hmong', 'farsi', 'dari'];
+  const AUDIO_UNAVAILABLE_LANGUAGES: Language[] = ['hmong', 'dari'];
 
   const getSectorLabel = (sectorId: Sector) => {
     return sectors.find(s => s.id === sectorId)?.label || '';
@@ -169,19 +170,28 @@ export default function HomeScreen({
             </button>
             <h2 className="text-2xl font-semibold text-slate-700 text-center mb-6">Select Language</h2>
             <div className="space-y-4">
-              {languages.map((lang) => (
-                <div key={lang.id}>
-                  <button
-                    onClick={() => onSelectLanguage(lang.id)}
-                    className={`w-full ${lang.color} text-white rounded-2xl py-6 px-8 text-2xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95`}
-                  >
-                    {lang.label}
-                  </button>
-                  {AZURE_LANGUAGES.includes(lang.id) && (
-                    <p className="text-center text-xs text-slate-400 mt-1">Translations powered by Microsoft Azure</p>
-                  )}
-                </div>
-              ))}
+              {languages.map((lang) => {
+                const audioUnavailable = AUDIO_UNAVAILABLE_LANGUAGES.includes(lang.id);
+                return (
+                  <div key={lang.id}>
+                    <button
+                      onClick={() => onSelectLanguage(lang.id)}
+                      className={`w-full ${lang.color} text-white rounded-2xl py-6 px-8 text-2xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-between`}
+                    >
+                      <span>{lang.label}</span>
+                      {audioUnavailable && (
+                        <span className="flex items-center gap-1.5 text-sm font-normal opacity-75">
+                          <VolumeX className="w-4 h-4 flex-shrink-0" />
+                          <span className="text-xs">No audio</span>
+                        </span>
+                      )}
+                    </button>
+                    {AZURE_LANGUAGES.includes(lang.id) && (
+                      <p className="text-center text-xs text-slate-400 mt-1">Translations powered by Microsoft Azure</p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

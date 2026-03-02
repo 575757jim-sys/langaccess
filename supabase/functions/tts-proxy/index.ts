@@ -233,7 +233,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (UNSUPPORTED_LANGS.has(lang)) {
-      return new Response(JSON.stringify({ error: `Language '${lang}' is not supported by the current Azure Speech subscription (prs-AF/mww voices not available in this resource)`, version: VERSION }), {
+      return new Response(JSON.stringify({ error: "AUDIO_UNAVAILABLE", message: "Audio not yet available for this language", version: VERSION }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
