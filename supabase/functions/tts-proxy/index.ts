@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const VERSION = "tts-proxy-FA03";
+const VERSION = "tts-proxy-FA04";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,16 +21,16 @@ const GOOGLE_VOICE_MAP: Record<string, { languageCode: string; name: string }> =
 };
 
 const AZURE_VOICE_MAP: Record<string, { locale: string; name: string }> = {
-  hmong: { locale: "mww-CN",  name: "mww-CN-XiaoMin-Apollo" },
-  farsi: { locale: "fa-IR",   name: "fa-IR-DilaraNeural" },
-  dari:  { locale: "prs-AF",  name: "prs-AF-GulNawazNeural" },
+  farsi: { locale: "fa-IR", name: "fa-IR-DilaraNeural" },
 };
 
-const AZURE_LANGS = new Set(["hmong", "farsi", "dari"]);
+const AZURE_LANGS = new Set(["farsi"]);
+
+const UNSUPPORTED_LANGS = new Set(["hmong", "dari"]);
 
 const GOOGLE_TTS_API_KEY = Deno.env.get("GOOGLE_TTS_API_KEY") ?? "";
-const AZURE_TTS_KEY      = Deno.env.get("AZURE_TRANSLATOR_KEY") ?? "";
-const AZURE_TTS_REGION   = Deno.env.get("AZURE_TRANSLATOR_REGION") ?? "";
+const AZURE_TTS_KEY      = (Deno.env.get("AZURE_SPEECH_KEY") ?? "").replace(/^Value:\s*/i, "").trim();
+const AZURE_TTS_REGION   = (Deno.env.get("AZURE_SPEECH_REGION") ?? "").replace(/^Value:\s*/i, "").trim();
 
 const normalizeLang = (v?: string | null): string => {
   const s = (v ?? "").toLowerCase().trim();
@@ -56,7 +56,7 @@ async function synthesizeWithAzure(text: string, language: string): Promise<Resp
     });
   }
 
-  const tokenEndpoint = `https://${AZURE_TTS_REGION}.api.cognitive.microsoft.com/sts/v1.0/issueToken`;
+  const tokenEndpoint = `https://${AZURE_TTS_REGION}.api.cognitive.microsoft.com/sts/v1.0/issuetoken`;
   const tokenRes = await fetch(tokenEndpoint, {
     method: "POST",
     headers: {
@@ -182,12 +182,28 @@ Deno.serve(async (req: Request) => {
   const qText = url.searchParams.get("text") ?? "";
   const qLang = url.searchParams.get("lang") ?? url.searchParams.get("language") ?? "";
 
+  const qDiag = url.searchParams.get("diag") ?? "";
+
   if (req.method === "GET" && !qText && !qLang) {
+    if (qDiag === "voices") {
+      const voicesRes = await fetch(
+        `https://${AZURE_TTS_REGION}.tts.speech.microsoft.com/cognitiveservices/voices/list`,
+        { headers: { "Ocp-Apim-Subscription-Key": AZURE_TTS_KEY } }
+      );
+      const voices = await voicesRes.json();
+      const filtered = (voices as Array<{ Locale: string; ShortName: string }>)
+        .filter(v => ["mww","prs","fa-"].some(p => v.Locale.startsWith(p)))
+        .map(v => ({ locale: v.Locale, name: v.ShortName }));
+      return new Response(JSON.stringify({ status: voicesRes.status, filtered, version: VERSION }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     return new Response(JSON.stringify({
       ok: true,
       version: VERSION,
-      azure_key_set: !!AZURE_TTS_KEY,
-      azure_region: AZURE_TTS_REGION || "(not set)",
+      azure_speech_key_set: !!AZURE_TTS_KEY,
+      azure_speech_region: AZURE_TTS_REGION || "(not set)",
       google_key_set: !!GOOGLE_TTS_API_KEY,
     }), {
       status: 200,
@@ -211,6 +227,13 @@ Deno.serve(async (req: Request) => {
 
     if (!text || !lang) {
       return new Response(JSON.stringify({ error: "Missing text or language", version: VERSION }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (UNSUPPORTED_LANGS.has(lang)) {
+      return new Response(JSON.stringify({ error: `Language '${lang}' is not supported by the current Azure Speech subscription (prs-AF/mww voices not available in this resource)`, version: VERSION }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
