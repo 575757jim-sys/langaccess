@@ -16,11 +16,10 @@ const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 const TRANSLATE_CODES: Record<Language, string> = {
   spanish: 'es', tagalog: 'tl', vietnamese: 'vi',
   mandarin: 'zh-CN', cantonese: 'zh-TW',
-  hmong: 'mww', korean: 'ko', arabic: 'ar',
-  farsi: 'fa', dari: 'prs',
+  
 };
 
-const AZURE_LANGUAGES: Language[] = ['hmong', 'farsi', 'dari'];
+const AZURE_LANGUAGES: Language[] = [];
 
 const LISTENING_TEXT: Record<Language, string> = {
   spanish: 'Escuchando…',
@@ -28,9 +27,7 @@ const LISTENING_TEXT: Record<Language, string> = {
   vietnamese: 'Đang nghe…',
   mandarin: '正在聆听…',
   cantonese: '正在聆聽…',
-  hmong: 'Tab tom mloog…',
-  korean: '듣는 중…',
-  arabic: '…جارٍ الاستماع',
+  
 };
 
 const STAFF_PROMPTS = [
