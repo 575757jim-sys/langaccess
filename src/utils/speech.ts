@@ -3,7 +3,7 @@ import { Language } from '../data/phrases';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
-function speakFallback(text: string, langCode = "fa-IR"): boolean {
+function speakFallback(text: string, langCode = "en"): boolean {
   if (typeof window === "undefined") return false;
   const synth = window.speechSynthesis;
   if (!synth) return false;
@@ -17,22 +17,12 @@ function speakFallback(text: string, langCode = "fa-IR"): boolean {
   return true;
 }
 
-function isFarsiLang(raw: string, normalized: string): boolean {
-  const r = raw.toLowerCase();
-  return r.includes("farsi") || r.includes("persian") || normalized.toLowerCase().startsWith("fa");
-}
+
 
 function normalizeTtsLang(input?: string): string {
   const s = (input ?? "").trim();
   const lower = s.toLowerCase();
-  if (lower === "farsi" || lower === "persian") return "fa-IR";
-  if (lower === "fa_ir") return "fa-IR";
-  if (lower === "dari") return "fa-AF";
-  return s;
-}
-
-export const TTS_ENDPOINT = `${SUPABASE_URL}/functions/v1/tts-proxy`;
-export const ANON_KEY_VALUE = ANON_KEY;
+  
 
 const blobCache = new Map<string, string>();
 let currentAudio: HTMLAudioElement | null = null;
