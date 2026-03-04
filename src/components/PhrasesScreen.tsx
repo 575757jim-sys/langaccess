@@ -82,7 +82,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
     return () => clearTimeout(timer);
   }, [newEnglish, showAddForm, language]);
 
-  const AZURE_LANGUAGES: Language[] = ['hmong', 'farsi', 'dari'];
+  const AZURE_LANGUAGES: Language[] = [];
 
   const getLanguageCode = (lang: Language): string => {
     const codes: Record<Language, string> = {
@@ -91,11 +91,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
       vietnamese: 'vi',
       mandarin: 'zh-CN',
       cantonese: 'zh-TW',
-      hmong: 'mww',
-      korean: 'ko',
-      arabic: 'ar',
-      farsi: 'fa',
-      dari: 'prs',
+     
     };
     return codes[lang];
   };
