@@ -1,4 +1,4 @@
-export type Language = 'spanish' | 'tagalog' | 'vietnamese' | 'mandarin' | 'cantonese' | 'hmong' | 'korean' | 'arabic' | 'farsi' | 'dari';
+export type Language = 'spanish' | 'tagalog' | 'vietnamese' | 'mandarin' | 'cantonese' ;
 export type Sector = 'healthcare' | 'education' | 'construction';
 
 export interface Response {
