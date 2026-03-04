@@ -15,7 +15,7 @@ interface CommunityNavigatorProps {
 const LANG_KEY = 'langaccess_nav_lang';
 const CITY_KEY_STORAGE = 'langaccess_nav_city';
 
-type LangCode = 'en' | 'es' | 'vi' | 'tl' | 'hmn' | 'zh-TW' | 'zh-CN' | 'ko' | 'ar' | 'fa' | 'prs';
+type LangCode = 'en' | 'es' | 'vi' | 'tl' | 'zh-TW' | 'zh-CN' ;
 
 interface LangStrings {
   food: string;
@@ -71,59 +71,32 @@ const languageMap: Record<LangCode, LangStrings> = {
     call211: '拨打 211',
     instructions: '点击类别以寻找附近的帮助。拨打 211 获取社会服务。',
   },
-  ko: {
-    food: '음식', medical: '의료 + 치과', bathrooms: '화장실',
-    power: '충전', shelter: '쉼터', lockers: '사물함',
-    call211: '211 전화',
-    instructions: '근처 도움을 찾으려면 카테고리를 탭하세요. 사회 서비스는 211로 전화하세요.',
-  },
-  ar: {
-    food: 'طعام', medical: 'طبي + أسنان', bathrooms: 'حمامات',
-    power: 'شحن', shelter: 'مأوى', lockers: 'خزائن',
-    call211: 'اتصل بـ 211',
-    instructions: 'اضغط على فئة للعثور على مساعدة قريبة. اتصل بـ 211 للخدمات الاجتماعية.',
-  },
-  fa: {
-    food: 'غذا', medical: 'پزشکی + دندانپزشکی', bathrooms: 'سرویس بهداشتی',
-    power: 'شارژ / برق', shelter: 'پناهگاه', lockers: 'کمدها',
-    call211: 'تماس با ۲۱۱',
-    instructions: 'برای یافتن کمک نزدیک، روی یک دسته ضربه بزنید. برای خدمات اجتماعی با ۲۱۱ تماس بگیرید.',
-  },
-  prs: {
-    food: 'غذا', medical: 'طبی + دندان', bathrooms: 'دستشویی',
-    power: 'برق / چارج', shelter: 'پناهگاه', lockers: 'کمدها',
-    call211: 'زنگ ۲۱۱',
-    instructions: 'برای یافتن کمک نزدیک، روی یک دسته ضربه بزنید. برای خدمات اجتماعی با ۲۱۱ تماس بگیرید.',
-  },
-};
+  
 
 const ttslangMap: Record<LangCode, string> = {
   en: 'en', es: 'spanish', vi: 'vietnamese', tl: 'tagalog',
-  hmn: 'hmong', 'zh-TW': 'zh-traditional', 'zh-CN': 'zh-simplified',
-  ko: 'korean', ar: 'arabic', fa: 'farsi', prs: 'dari',
+  'zh-TW': 'zh-traditional', 'zh-CN': 'zh-simplified',
+ 
 };
 
 const speechLangMap: Record<LangCode, string> = {
   en: 'en-US', es: 'es-US', vi: 'vi-VN', tl: 'tl-PH',
-  hmn: 'hmn', 'zh-TW': 'zh-TW', 'zh-CN': 'zh-CN', ko: 'ko-KR', ar: 'ar',
-  fa: 'fa-IR', prs: 'prs',
+    'zh-TW': 'zh-TW', 'zh-CN': 'zh-CN',
+  ,
 };
 
-const AZURE_LANG_CODES: LangCode[] = ['hmn', 'fa', 'prs'];
+const AZURE_LANG_CODES: LangCode[] = [];
 
 const LANG_OPTIONS: { code: LangCode; flag: string; label: string }[] = [
   { code: 'en',    flag: '🇺🇸', label: 'English' },
   { code: 'es',    flag: '🇲🇽', label: 'Español' },
   { code: 'vi',    flag: '🇻🇳', label: 'Tiếng Việt' },
   { code: 'tl',    flag: '🇵🇭', label: 'Filipino' },
-  { code: 'hmn',   flag: '🏔️',  label: 'Hmong' },
+ 
   { code: 'zh-TW', flag: '🇹🇼', label: '繁體中文' },
   { code: 'zh-CN', flag: '🇨🇳', label: '简体中文' },
-  { code: 'ko',    flag: '🇰🇷', label: '한국어' },
-  { code: 'ar',    flag: '🇸🇦', label: 'العربية' },
-  { code: 'fa',    flag: '🇮🇷', label: 'فارسی' },
-  { code: 'prs',   flag: '🇦🇫', label: 'دری' },
-];
+  
+  
 
 const RESOURCE_CATEGORIES: { id: keyof LangStrings; Icon: React.FC<{ className?: string }>; color: string }[] = [
   { id: 'food',      Icon: Utensils,        color: 'bg-amber-500 hover:bg-amber-400' },
