@@ -16,7 +16,7 @@ const JSON_LD_WEB_APP = {
     price: '0',
     priceCurrency: 'USD',
   },
-  inLanguage: ['en', 'es', 'tl', 'vi', 'zh', 'ko', 'ar', 'hmn'],
+  inLanguage: ['en', 'es', 'tl', 'vi', 'zh'],
 };
 
 interface HomeScreenProps {
@@ -59,11 +59,10 @@ export default function HomeScreen({
 
   const sectorExtraLanguages: Record<string, { id: Language; label: string; color: string }[]> = {
     healthcare: [
-      { id: 'farsi', label: 'Farsi', color: 'bg-sky-700 hover:bg-sky-800' },
+      
     ],
     education: [
-      { id: 'hmong', label: 'Hmong', color: 'bg-violet-700 hover:bg-violet-800' },
-      { id: 'dari',  label: 'Dari',  color: 'bg-emerald-700 hover:bg-emerald-800' },
+      
     ],
     construction: [],
   };
@@ -72,8 +71,8 @@ export default function HomeScreen({
     ? [...baseLanguages, ...(sectorExtraLanguages[selectedSector] ?? [])]
     : baseLanguages;
 
-  const AZURE_LANGUAGES: Language[] = ['hmong', 'farsi', 'dari'];
-  const AUDIO_UNAVAILABLE_LANGUAGES: Language[] = ['hmong', 'dari'];
+  const AZURE_LANGUAGES: Language[] = [];
+  const AUDIO_UNAVAILABLE_LANGUAGES: Language[] = [];
 
   const getSectorLabel = (sectorId: Sector) => {
     return sectors.find(s => s.id === sectorId)?.label || '';
