@@ -14,7 +14,7 @@ const STT_ENDPOINT = `${SUPABASE_URL}/functions/v1/stt-proxy`;
 const TRANSLATE_CODES: Record<Language, string> = {
   spanish: 'es', tagalog: 'tl', vietnamese: 'vi',
   mandarin: 'zh-CN', cantonese: 'zh-TW',
-  hmong: 'hmn', korean: 'ko', arabic: 'ar',
+ 
 };
 
 const LISTENING_TEXT: Record<Language, string> = {
@@ -23,9 +23,7 @@ const LISTENING_TEXT: Record<Language, string> = {
   vietnamese: 'Đang nghe…',
   mandarin: '正在聆听…',
   cantonese: '正在聆聽…',
-  hmong: 'Tab tom mloog…',
-  korean: '듣는 중…',
-  arabic: '…جارٍ الاستماع',
+  
 };
 
 const SUPERVISOR_PROMPTS = [
@@ -119,7 +117,7 @@ const freshInput = (): PanelInputState => ({ text: '', mode: 'type', recording: 
 export default function JobSiteTalkScreen({ language, onBack }: JobSiteTalkScreenProps) {
   const langData = languageData[language];
   const langCode = TRANSLATE_CODES[language];
-  const isRtl = language === 'arabic';
+  const isRtl = false;
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [supervisorInput, setSupervisorInput] = useState<PanelInputState>(freshInput());
