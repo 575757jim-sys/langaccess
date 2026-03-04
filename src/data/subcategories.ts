@@ -1439,11 +1439,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     vietnamese: [],
     mandarin: [],
     cantonese: [],
-    hmong: [],
-    korean: [],
-    arabic: [],
-    farsi: [],
-    dari: []
+    
   },
   'dental-health': {
     spanish: [
@@ -1673,11 +1669,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     vietnamese: [],
     mandarin: [],
     cantonese: [],
-    hmong: [],
-    korean: [],
-    arabic: [],
-    farsi: [],
-    dari: []
+    
   },
   'emergency-crisis': {
     spanish: [
@@ -1901,11 +1893,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     vietnamese: [],
     mandarin: [],
     cantonese: [],
-    hmong: [],
-    korean: [],
-    arabic: [],
-    farsi: [],
-    dari: []
+    
   },
   'student-discipline': {
     spanish: [
@@ -2049,11 +2037,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     vietnamese: [],
     mandarin: [],
     cantonese: [],
-    hmong: [],
-    korean: [],
-    arabic: [],
-    farsi: [],
-    dari: []
+    
   },
   'parent-outreach': {
     spanish: [
@@ -2177,11 +2161,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     vietnamese: [],
     mandarin: [],
     cantonese: [],
-    hmong: [],
-    korean: [],
-    arabic: [],
-    farsi: [],
-    dari: []
+    
   },
   'teacher-support': {
     spanish: [
@@ -2295,11 +2275,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     vietnamese: [],
     mandarin: [],
     cantonese: [],
-    hmong: [],
-    korean: [],
-    arabic: [],
-    farsi: [],
-    dari: []
+    
   },
   'special-needs': {
     spanish: [
@@ -2458,11 +2434,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     vietnamese: [],
     mandarin: [],
     cantonese: [],
-    hmong: [],
-    korean: [],
-    arabic: [],
-    farsi: [],
-    dari: []
+    
   },
   'safety-osha': {
     spanish: [
@@ -2691,11 +2663,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     vietnamese: [],
     mandarin: [],
     cantonese: [],
-    hmong: [],
-    korean: [],
-    arabic: [],
-    farsi: [],
-    dari: []
+   
   },
   'injury-emergency': {
     spanish: [
@@ -2924,11 +2892,7 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     vietnamese: [],
     mandarin: [],
     cantonese: [],
-    hmong: [],
-    korean: [],
-    arabic: [],
-    farsi: [],
-    dari: []
+    
   },
   'general-worksite': {
     spanish: [
@@ -3157,10 +3121,6 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     vietnamese: [],
     mandarin: [],
     cantonese: [],
-    hmong: [],
-    korean: [],
-    arabic: [],
-    farsi: [],
-    dari: []
+    
   }
 };
