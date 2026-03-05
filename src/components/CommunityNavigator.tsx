@@ -70,7 +70,7 @@ const languageMap: Record<LangCode, LangStrings> = {
     power: '充电', shelter: '庇护所', lockers: '储物柜',
     call211: '拨打 211',
     instructions: '点击类别以寻找附近的帮助。拨打 211 获取社会服务。',
-},
+};
 
 const ttslangMap: Record<LangCode, string> = {
   en: 'en', es: 'spanish', vi: 'vietnamese', tl: 'tagalog',
@@ -78,8 +78,7 @@ const ttslangMap: Record<LangCode, string> = {
 };
 
 return (
- 
-};
+
 
 const speechLangMap: Record<LangCode, string> = {
   en: 'en-US', es: 'es-US', vi: 'vi-VN', tl: 'tl-PH',
