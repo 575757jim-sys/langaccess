@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Bug } from 'lucide-react';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
-const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-
 interface LogEntry {
   message: string;
   timestamp: string;
@@ -36,9 +33,7 @@ function formatArgs(args: unknown[]): string {
   const orig = console.error.bind(console);
   console.error = (...args: unknown[]) => {
     orig(...args);
-    const msg = formatArgs(args);
-    if (msg.includes('AUDIO_UNAVAILABLE')) return;
-    const entry: LogEntry = { message: msg, timestamp: timestamp() };
+    const entry: LogEntry = { message: formatArgs(args), timestamp: timestamp() };
     logBuffer.push(entry);
     if (logBuffer.length > MAX_LOGS) logBuffer.shift();
     notify();
@@ -50,17 +45,6 @@ function formatArgs(args: unknown[]): string {
     logBuffer.push(entry);
     if (logBuffer.length > MAX_LOGS) logBuffer.shift();
     notify();
-  };
-  const origLog = console.log.bind(console);
-  console.log = (...args: unknown[]) => {
-    origLog(...args);
-    const msg = formatArgs(args);
-    if (msg.startsWith('[tts]')) {
-      const entry: LogEntry = { message: msg, timestamp: timestamp() };
-      logBuffer.push(entry);
-      if (logBuffer.length > MAX_LOGS) logBuffer.shift();
-      notify();
-    }
   };
 })();
 
@@ -87,7 +71,6 @@ window.addEventListener('unhandledrejection', (e) => {
 export default function DebugOverlay() {
   const [open, setOpen] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([...logBuffer]);
-  const [versionInfo, setVersionInfo] = useState<string>('');
   const listenerRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
@@ -99,17 +82,6 @@ export default function DebugOverlay() {
       if (idx !== -1) listeners.splice(idx, 1);
     };
   }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    setVersionInfo('checking...');
-    fetch(`${SUPABASE_URL}/functions/v1/tts-proxy?version=check`, {
-      headers: { Authorization: `Bearer ${ANON_KEY}` },
-    })
-      .then(r => r.json())
-      .then(d => setVersionInfo(JSON.stringify(d)))
-      .catch(e => setVersionInfo(`error: ${e.message}`));
-  }, [open]);
 
   return (
     <>
@@ -202,22 +174,6 @@ export default function DebugOverlay() {
           </div>
 
           <div style={{
-            backgroundColor: '#0f172a',
-            borderBottom: '1px solid #334155',
-            padding: '8px 12px',
-            flexShrink: 0,
-            fontSize: '11px',
-            fontFamily: 'monospace',
-          }}>
-            <div style={{ color: '#64748b', marginBottom: '2px' }}>Supabase URL (baked into build):</div>
-            <div style={{ color: '#38bdf8', wordBreak: 'break-all' }}>{SUPABASE_URL || '(not set)'}</div>
-            <div style={{ color: '#64748b', marginTop: '6px', marginBottom: '2px' }}>Live function version check:</div>
-            <div style={{ color: versionInfo.includes('error') ? '#f87171' : '#4ade80', wordBreak: 'break-all' }}>
-              {versionInfo || '—'}
-            </div>
-          </div>
-
-          <div style={{
             flex: 1,
             overflowY: 'auto',
             padding: '8px',
@@ -230,29 +186,26 @@ export default function DebugOverlay() {
                 No errors logged yet.
               </p>
             ) : (
-              logs.map((log, i) => {
-                const isTtsInfo = log.message.startsWith('[tts] selected=');
-                return (
-                  <div key={i} style={{
-                    backgroundColor: '#1e293b',
-                    borderRadius: '6px',
-                    padding: '8px 10px',
-                    borderLeft: `3px solid ${isTtsInfo ? '#22c55e' : '#ef4444'}`,
-                  }}>
-                    <div style={{ color: '#64748b', fontSize: '10px', marginBottom: '4px' }}>
-                      {log.timestamp}
-                    </div>
-                    <div style={{
-                      color: isTtsInfo ? '#86efac' : '#fca5a5',
-                      fontSize: '12px',
-                      wordBreak: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                    }}>
-                      {log.message}
-                    </div>
+              logs.map((log, i) => (
+                <div key={i} style={{
+                  backgroundColor: '#1e293b',
+                  borderRadius: '6px',
+                  padding: '8px 10px',
+                  borderLeft: '3px solid #ef4444',
+                }}>
+                  <div style={{ color: '#64748b', fontSize: '10px', marginBottom: '4px' }}>
+                    {log.timestamp}
                   </div>
-                );
-              })
+                  <div style={{
+                    color: '#fca5a5',
+                    fontSize: '12px',
+                    wordBreak: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                  }}>
+                    {log.message}
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </div>

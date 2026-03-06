@@ -82,8 +82,6 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
     return () => clearTimeout(timer);
   }, [newEnglish, showAddForm, language]);
 
-  const AZURE_LANGUAGES: Language[] = [];
-
   const getLanguageCode = (lang: Language): string => {
     const codes: Record<Language, string> = {
       spanish: 'es',
@@ -91,7 +89,9 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
       vietnamese: 'vi',
       mandarin: 'zh-CN',
       cantonese: 'zh-TW',
-     
+      hmong: 'hmn',
+      korean: 'ko',
+      arabic: 'ar',
     };
     return codes[lang];
   };
@@ -102,33 +102,14 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
     setIsTranslating(true);
     try {
       const targetLang = getLanguageCode(language);
+      const encodedText = encodeURIComponent(text);
+      const url = `https://api.mymemory.translated.net/get?q=${encodedText}&langpair=en|${targetLang}`;
 
-      if (AZURE_LANGUAGES.includes(language)) {
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-        const endpoint = `${supabaseUrl}/functions/v1/azure-translate`;
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${anonKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text, to: targetLang }),
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.translation) {
-            setNewTranslation(data.translation);
-          }
-        }
-      } else {
-        const encodedText = encodeURIComponent(text);
-        const url = `https://api.mymemory.translated.net/get?q=${encodedText}&langpair=en|${targetLang}`;
-        const response = await fetch(url);
-        const responseData = await response.json();
-        if (responseData.responseData && responseData.responseData.translatedText) {
-          setNewTranslation(responseData.responseData.translatedText);
-        }
+      const response = await fetch(url);
+      const responseData = await response.json();
+
+      if (responseData.responseData && responseData.responseData.translatedText) {
+        setNewTranslation(responseData.responseData.translatedText);
       }
     } catch (error) {
       console.error('Translation error:', error);
