@@ -14,8 +14,6 @@ const JSON_LD_WEB_APP = {
   inLanguage: ['en', 'es', 'tl', 'vi', 'zh'],
 };
 
-const MOCK_LANGUAGES = ['Spanish', 'Mandarin', 'Cantonese', 'Vietnamese', 'Tagalog'];
-
 const MOCK_PHRASES = [
   { sector: 'Teacher', phrase: 'Please sit down', sectorColor: 'bg-blue-500' },
   { sector: 'Healthcare', phrase: 'Where does it hurt?', sectorColor: 'bg-green-500' },
@@ -126,103 +124,68 @@ export default function LandingPage({
 
               {/* Left — copy */}
               <div className="flex flex-col">
-                <div className="inline-flex items-center self-start gap-2 bg-blue-500/15 border border-blue-400/25 text-blue-300 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-8">
+                <div className="inline-flex items-center self-start gap-2 bg-blue-500/15 border border-blue-400/25 text-blue-300 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-7">
                   <Languages className="w-3 h-3" />
                   Frontline Language Access Platform
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold leading-[1.12] tracking-tight text-white mb-6">
-                  Instant Language Access<br className="hidden sm:block" />{' '}
-                  for Frontline Workers
+                <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold leading-[1.1] tracking-tight text-white mb-5">
+                  Instant Communication<br className="hidden sm:block" />{' '}
+                  Across Language<br className="hidden sm:block" />{' '}
+                  Barriers
                 </h1>
 
-                <p className="text-slate-300 text-lg leading-relaxed mb-3 max-w-lg">
-                  Communicate instantly with limited-English speakers in Spanish, Mandarin, Cantonese, Tagalog, and Vietnamese.
+                <p className="text-slate-300 text-lg leading-relaxed mb-4 max-w-lg">
+                  LangAccess helps frontline workers communicate instantly with limited-English speakers.
                 </p>
 
-                <p className="text-slate-400 text-sm leading-relaxed mb-10 max-w-md">
-                  Designed for teachers, healthcare workers, construction supervisors, and community outreach teams.
+                <div className="flex items-center gap-2 flex-wrap mb-4">
+                  {['Spanish', 'Mandarin', 'Cantonese', 'Vietnamese', 'Tagalog'].map((lang, i) => (
+                    <span key={lang} className="flex items-center gap-1.5">
+                      <span className="text-slate-200 text-sm font-semibold">{lang}</span>
+                      {i < 4 && <span className="text-slate-600 text-sm">•</span>}
+                    </span>
+                  ))}
+                </div>
+
+                <p className="text-slate-400 text-sm leading-relaxed mb-9 max-w-md">
+                  Built for teachers, healthcare workers, outreach teams, and construction supervisors.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => onSelectSector('healthcare')}
                     className="group inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-7 py-4 rounded-xl transition-all duration-200 shadow-xl shadow-blue-600/30 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] text-base"
                   >
-                    Start Using LangAccess
+                    Try the Demo
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                   <button
                     onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="inline-flex items-center justify-center gap-2 bg-white/8 hover:bg-white/12 border border-white/15 text-white font-semibold px-7 py-4 rounded-xl transition-all duration-200 text-base"
+                    className="inline-flex items-center justify-center gap-2 bg-white/8 hover:bg-white/12 border border-white/20 text-white font-semibold px-7 py-4 rounded-xl transition-all duration-200 text-base"
                   >
                     See How It Works
                   </button>
                 </div>
-
-                <p className="text-slate-500 text-xs tracking-wide">Built for real-world communication situations. No sign-up required.</p>
               </div>
 
-              {/* Right — Phone mock */}
+              {/* Right — Example phrase cards */}
               <div className="flex justify-center lg:justify-end">
-                <div className="relative">
-                  {/* Glow behind device */}
-                  <div className="absolute inset-0 scale-110 bg-blue-600/20 rounded-[40px] blur-3xl" />
-
-                  {/* Device shell */}
-                  <div className="relative w-[280px] bg-slate-950 rounded-[36px] shadow-2xl shadow-black/60 overflow-hidden border border-white/8" style={{ padding: '10px' }}>
-                    {/* Notch bar */}
-                    <div className="relative bg-slate-900 rounded-[28px] overflow-hidden">
-                      {/* Status bar */}
-                      <div className="flex items-center justify-between px-5 pt-4 pb-2">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center">
-                            <Languages className="w-3 h-3 text-white" />
-                          </div>
-                          <span className="text-white text-[11px] font-bold tracking-tight">LangAccess</span>
-                        </div>
-                        <div className="flex gap-1">
-                          <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
-                          <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
-                        </div>
+                <div className="w-full max-w-sm space-y-3">
+                  {MOCK_PHRASES.map((item) => (
+                    <div
+                      key={item.phrase}
+                      className="bg-white/5 hover:bg-white/8 border border-white/10 rounded-2xl px-5 py-4 flex items-center gap-4 transition-colors"
+                    >
+                      <div className={`w-12 h-12 ${item.sectorColor} rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                        <Volume2 className="w-5 h-5 text-white" />
                       </div>
-
-                      {/* Language selector row */}
-                      <div className="px-3 pb-3">
-                        <p className="text-slate-500 text-[9px] uppercase tracking-widest font-bold mb-2 px-1">Language</p>
-                        <div className="flex gap-1 overflow-hidden">
-                          {MOCK_LANGUAGES.map((lang, i) => (
-                            <div
-                              key={lang}
-                              className={`px-2 py-1 rounded-full text-[9px] font-bold whitespace-nowrap flex-shrink-0 ${i === 0 ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'}`}
-                            >
-                              {lang}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Phrase buttons */}
-                      <div className="px-3 pb-5 space-y-2">
-                        <p className="text-slate-500 text-[9px] uppercase tracking-widest font-bold mb-2 px-1">Phrases</p>
-                        {MOCK_PHRASES.map((item) => (
-                          <div
-                            key={item.phrase}
-                            className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-2.5 flex items-center gap-2.5"
-                          >
-                            <div className={`w-7 h-7 ${item.sectorColor} rounded-lg flex items-center justify-center flex-shrink-0`}>
-                              <Volume2 className="w-3.5 h-3.5 text-white" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wide mb-0.5">{item.sector}</div>
-                              <div className="text-slate-200 text-[11px] font-semibold leading-tight truncate">{item.phrase}</div>
-                            </div>
-                          </div>
-                        ))}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">{item.sector}</div>
+                        <div className="text-white text-base font-semibold leading-snug">{item.phrase}</div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
