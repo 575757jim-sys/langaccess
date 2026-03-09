@@ -1,4 +1,4 @@
-import { ArrowLeft, MessageSquare, HardHat, ChevronRight, GraduationCap, Heart, Layers } from 'lucide-react';
+import { ArrowLeft, MessageSquare, HardHat, ChevronRight, GraduationCap, Heart, Layers, Zap, Shield, Stethoscope, BookOpen, MapPin, HelpCircle, AlertTriangle } from 'lucide-react';
 import { SubcategoryInfo } from '../data/subcategories';
 import { Language } from '../data/phrases';
 
@@ -16,7 +16,37 @@ type SectorAccentEntry = {
   iconBg: string;
   iconColor: string;
   hoverBorder: string;
+  situationBg: string;
+  situationText: string;
+  situationBorder: string;
   Icon: React.ComponentType<{ className?: string }>;
+};
+
+interface QuickSituation {
+  label: string;
+  subcategoryId: string;
+  Icon: React.ComponentType<{ className?: string }>;
+}
+
+const QUICK_SITUATIONS: Record<string, QuickSituation[]> = {
+  Education: [
+    { label: 'Classroom Instruction', subcategoryId: 'teacher-support', Icon: BookOpen },
+    { label: 'Student Discipline', subcategoryId: 'student-discipline', Icon: Shield },
+    { label: 'Parent Outreach', subcategoryId: 'parent-outreach', Icon: MessageSquare },
+    { label: 'Special Needs Support', subcategoryId: 'special-needs', Icon: HelpCircle },
+  ],
+  Healthcare: [
+    { label: 'Medical Question', subcategoryId: 'physical-health', Icon: Stethoscope },
+    { label: 'Mental Health', subcategoryId: 'mental-health', Icon: HelpCircle },
+    { label: 'Emergency Crisis', subcategoryId: 'emergency-crisis', Icon: AlertTriangle },
+    { label: 'Dental Health', subcategoryId: 'dental-health', Icon: Heart },
+  ],
+  Construction: [
+    { label: 'Safety Instruction', subcategoryId: 'safety-osha', Icon: Shield },
+    { label: 'Injury or Emergency', subcategoryId: 'injury-emergency', Icon: AlertTriangle },
+    { label: 'General Worksite', subcategoryId: 'general-worksite', Icon: HardHat },
+    { label: 'Directions / Location', subcategoryId: 'general-worksite', Icon: MapPin },
+  ],
 };
 
 const SECTOR_ACCENT: Record<string, SectorAccentEntry> = {
@@ -24,18 +54,27 @@ const SECTOR_ACCENT: Record<string, SectorAccentEntry> = {
     iconBg: 'bg-blue-100',
     iconColor: 'text-blue-600',
     hoverBorder: 'hover:border-blue-300',
+    situationBg: 'bg-blue-600 hover:bg-blue-700',
+    situationText: 'text-white',
+    situationBorder: 'border-blue-700',
     Icon: GraduationCap,
   },
   Healthcare: {
     iconBg: 'bg-green-100',
     iconColor: 'text-green-600',
     hoverBorder: 'hover:border-green-300',
+    situationBg: 'bg-green-600 hover:bg-green-700',
+    situationText: 'text-white',
+    situationBorder: 'border-green-700',
     Icon: Heart,
   },
   Construction: {
     iconBg: 'bg-orange-100',
     iconColor: 'text-orange-600',
     hoverBorder: 'hover:border-orange-300',
+    situationBg: 'bg-orange-600 hover:bg-orange-700',
+    situationText: 'text-white',
+    situationBorder: 'border-orange-700',
     Icon: HardHat,
   },
 };
@@ -44,6 +83,9 @@ const DEFAULT_ACCENT: SectorAccentEntry = {
   iconBg: 'bg-slate-100',
   iconColor: 'text-slate-600',
   hoverBorder: 'hover:border-slate-300',
+  situationBg: 'bg-slate-700 hover:bg-slate-800',
+  situationText: 'text-white',
+  situationBorder: 'border-slate-800',
   Icon: Layers,
 };
 
@@ -57,6 +99,7 @@ export default function SubcategorySelector({
 }: SubcategorySelectorProps) {
   const accent = SECTOR_ACCENT[sectorLabel] || DEFAULT_ACCENT;
   const SectorIcon = accent.Icon;
+  const quickSituations = QUICK_SITUATIONS[sectorLabel] || [];
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -78,28 +121,52 @@ export default function SubcategorySelector({
       </header>
 
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800 mb-1">{sectorLabel} Categories</h1>
-          <p className="text-slate-500 text-sm">Select a category to view relevant communication phrases.</p>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-          {subcategories.map((subcategory, idx) => (
-            <button
-              key={subcategory.id}
-              onClick={() => onSelectSubcategory(subcategory.id)}
-              className={`group bg-white border-2 border-slate-100 ${accent.hoverBorder} rounded-2xl p-5 text-left shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-4`}
-            >
-              <div className={`w-10 h-10 ${accent.iconBg} rounded-xl flex items-center justify-center flex-shrink-0 text-sm font-bold ${accent.iconColor}`}>
-                {idx + 1}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="font-bold text-slate-800 text-base truncate">{subcategory.label}</h2>
-                <p className="text-sm text-slate-400 mt-0.5">View phrases</p>
-              </div>
-              <ChevronRight className={`w-4 h-4 flex-shrink-0 text-slate-300 group-hover:text-slate-500 transition-colors`} />
-            </button>
-          ))}
+        {/* Quick Situations */}
+        {quickSituations.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-3">
+              <Zap className="w-4 h-4 text-yellow-500" />
+              <h2 className="text-sm font-bold text-slate-700 uppercase tracking-wider">Quick Situations</h2>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {quickSituations.map(({ label, subcategoryId, Icon: SitIcon }) => (
+                <button
+                  key={`${label}-${subcategoryId}`}
+                  onClick={() => onSelectSubcategory(subcategoryId)}
+                  className={`${accent.situationBg} rounded-2xl p-4 text-left flex items-center gap-3 transition-all duration-150 active:scale-[0.97] shadow-sm`}
+                >
+                  <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <SitIcon className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-white leading-snug">{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* All Categories */}
+        <div className="mb-6">
+          <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">All Categories</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {subcategories.map((subcategory, idx) => (
+              <button
+                key={subcategory.id}
+                onClick={() => onSelectSubcategory(subcategory.id)}
+                className={`group bg-white border-2 border-slate-100 ${accent.hoverBorder} rounded-2xl p-5 text-left shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-4`}
+              >
+                <div className={`w-10 h-10 ${accent.iconBg} rounded-xl flex items-center justify-center flex-shrink-0 text-sm font-bold ${accent.iconColor}`}>
+                  {idx + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-slate-800 text-base truncate">{subcategory.label}</h3>
+                  <p className="text-sm text-slate-400 mt-0.5">View phrases</p>
+                </div>
+                <ChevronRight className="w-4 h-4 flex-shrink-0 text-slate-300 group-hover:text-slate-500 transition-colors" />
+              </button>
+            ))}
+          </div>
         </div>
 
         {onOpenTalkTogether && (
