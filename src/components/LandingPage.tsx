@@ -1,6 +1,7 @@
 import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen } from 'lucide-react';
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
+import HomeDemoSection from './HomeDemoSection';
 
 const JSON_LD_WEB_APP = {
   '@context': 'https://schema.org',
@@ -210,6 +211,8 @@ export default function LandingPage({
             </div>
           </div>
         </section>
+
+        <HomeDemoSection />
 
         {/* ── BUILT FOR FRONTLINE ── */}
         <section className="py-20 bg-slate-50">
