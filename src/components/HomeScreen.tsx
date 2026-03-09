@@ -1,4 +1,5 @@
-import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users } from 'lucide-react';
+import { useState } from 'react';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users, ChevronRight, Handshake } from 'lucide-react';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
 import SEO from './SEO';
@@ -32,6 +33,56 @@ interface HomeScreenProps {
   onCheckForUpdates?: () => void;
 }
 
+const SECTOR_CARDS = [
+  {
+    id: 'education' as Sector,
+    label: 'Education',
+    description: 'Teachers and school staff communicate with students and parents.',
+    Icon: GraduationCap,
+    iconBg: 'bg-blue-100',
+    iconColor: 'text-blue-600',
+    border: 'border-blue-100',
+    hoverBorder: 'hover:border-blue-300',
+    tagBg: 'bg-blue-600',
+    accentBg: 'bg-blue-50',
+    accentText: 'text-blue-600',
+  },
+  {
+    id: 'healthcare' as Sector,
+    label: 'Healthcare',
+    description: 'Nurses and medical staff ask essential questions quickly.',
+    Icon: Heart,
+    iconBg: 'bg-green-100',
+    iconColor: 'text-green-600',
+    border: 'border-green-100',
+    hoverBorder: 'hover:border-green-300',
+    tagBg: 'bg-green-600',
+    accentBg: 'bg-green-50',
+    accentText: 'text-green-600',
+  },
+  {
+    id: 'construction' as Sector,
+    label: 'Construction',
+    description: 'Supervisors give safety instructions to multilingual crews.',
+    Icon: HardHat,
+    iconBg: 'bg-orange-100',
+    iconColor: 'text-orange-600',
+    border: 'border-orange-100',
+    hoverBorder: 'hover:border-orange-300',
+    tagBg: 'bg-orange-600',
+    accentBg: 'bg-orange-50',
+    accentText: 'text-orange-600',
+  },
+];
+
+const LANGUAGES: { id: Language; label: string; activeClass: string; dotColor: string; abbr: string }[] = [
+  { id: 'spanish', label: 'Spanish', activeClass: 'bg-red-600 text-white border-red-600', dotColor: 'bg-red-400', abbr: 'ES' },
+  { id: 'mandarin', label: 'Mandarin', activeClass: 'bg-amber-500 text-white border-amber-500', dotColor: 'bg-amber-400', abbr: 'ZH' },
+  { id: 'cantonese', label: 'Cantonese', activeClass: 'bg-orange-500 text-white border-orange-500', dotColor: 'bg-orange-400', abbr: 'YUE' },
+  { id: 'vietnamese', label: 'Vietnamese', activeClass: 'bg-rose-700 text-white border-rose-700', dotColor: 'bg-rose-500', abbr: 'VI' },
+  { id: 'tagalog', label: 'Tagalog', activeClass: 'bg-blue-600 text-white border-blue-600', dotColor: 'bg-blue-400', abbr: 'TL' },
+];
+
 export default function HomeScreen({
   selectedSector,
   onSelectSector,
@@ -41,28 +92,19 @@ export default function HomeScreen({
   onOpenCommunityNavigator,
   onOpenCertificates,
   onOpenAmbassadors,
-  onCheckForUpdates
+  onCheckForUpdates,
 }: HomeScreenProps) {
-  const sectors = [
-    { id: 'healthcare' as Sector, label: 'Healthcare', Icon: Heart, color: 'bg-blue-600 hover:bg-blue-700' },
-    { id: 'education' as Sector, label: 'Education', Icon: GraduationCap, color: 'bg-green-600 hover:bg-green-700' },
-    { id: 'construction' as Sector, label: 'Construction', Icon: HardHat, color: 'bg-orange-600 hover:bg-orange-700' }
-  ];
+  const [activeLanguage, setActiveLanguage] = useState<Language | null>(null);
 
-  const languages: { id: Language; label: string; color: string }[] = [
-    { id: 'spanish', label: 'Spanish', color: 'bg-blue-600 hover:bg-blue-700' },
-    { id: 'tagalog', label: 'Tagalog', color: 'bg-green-600 hover:bg-green-700' },
-    { id: 'vietnamese', label: 'Vietnamese', color: 'bg-red-600 hover:bg-red-700' },
-    { id: 'mandarin', label: 'Mandarin', color: 'bg-orange-600 hover:bg-orange-700' },
-    { id: 'cantonese', label: 'Cantonese', color: 'bg-teal-600 hover:bg-teal-700' }
-  ];
+  const sectorConfig = selectedSector ? SECTOR_CARDS.find(s => s.id === selectedSector) : null;
 
-  const getSectorLabel = (sectorId: Sector) => {
-    return sectors.find(s => s.id === sectorId)?.label || '';
+  const handleLanguageSelect = (langId: Language) => {
+    setActiveLanguage(langId);
+    onSelectLanguage(langId);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       {!selectedSector && (
         <SEO
           title="LangAccess — Multilingual Communication Aid"
@@ -71,137 +113,203 @@ export default function HomeScreen({
           jsonLd={JSON_LD_WEB_APP}
         />
       )}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 max-w-2xl mx-auto w-full">
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <Languages className="w-16 h-16 text-slate-700" />
-          </div>
-          <h1 className="text-5xl font-bold text-slate-800 mb-3">LangAccess</h1>
-          <p className="text-xl text-slate-600">
-            {selectedSector ? `${getSectorLabel(selectedSector)} Communication Aid` : 'Communication Aid'}
-          </p>
 
-        </div>
-
-        {!selectedSector ? (
-          <div className="w-full space-y-4">
-            <h2 className="text-2xl font-semibold text-slate-700 text-center mb-6">Select Your Sector</h2>
-            {sectors.map((sector) => {
-              const Icon = sector.Icon;
-              return (
-                <button
-                  key={sector.id}
-                  onClick={() => onSelectSector(sector.id)}
-                  className={`w-full ${sector.color} text-white rounded-2xl py-6 px-8 text-2xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-4`}
-                >
-                  <Icon className="w-8 h-8" />
-                  {sector.label}
-                </button>
-              );
-            })}
-
-            <div className="pt-3">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex-1 h-px bg-slate-300" />
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest whitespace-nowrap">Community Access</span>
-                <div className="flex-1 h-px bg-slate-300" />
-              </div>
-              <button
-                onClick={onOpenCommunityNavigator}
-                className="w-full bg-slate-800 hover:bg-slate-700 text-white rounded-2xl py-5 px-8 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center justify-center gap-4 mb-3"
-              >
-                <Compass className="w-8 h-8 text-amber-400" />
-                <div className="text-left">
-                  <div className="text-2xl font-semibold">Community Navigator</div>
-                  <div className="text-sm text-slate-300 font-normal mt-0.5">Find food, shelter, and services near you.</div>
-                </div>
-              </button>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={onOpenCertificates}
-                  className="bg-slate-700 hover:bg-slate-600 text-white rounded-2xl py-4 px-5 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center gap-3"
-                >
-                  <Award className="w-6 h-6 text-yellow-400 flex-shrink-0" />
-                  <div className="text-left">
-                    <div className="text-base font-semibold">Certificates</div>
-                    <div className="text-xs text-slate-400 font-normal">Free first module</div>
-                  </div>
-                </button>
-                <button
-                  onClick={onOpenAmbassadors}
-                  className="bg-slate-700 hover:bg-slate-600 text-white rounded-2xl py-4 px-5 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex items-center gap-3"
-                >
-                  <Users className="w-6 h-6 text-green-400 flex-shrink-0" />
-                  <div className="text-left">
-                    <div className="text-base font-semibold">Ambassadors</div>
-                    <div className="text-xs text-slate-400 font-normal">Join the brigade</div>
-                  </div>
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="w-full">
+      {/* Header */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+          {selectedSector && (
             <button
               onClick={onBackToSectorSelection}
-              className="flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-colors mb-6"
+              className="flex items-center gap-1 text-slate-500 hover:text-slate-800 transition-colors flex-shrink-0"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="text-lg font-medium">Change Sector</span>
             </button>
-            <h2 className="text-2xl font-semibold text-slate-700 text-center mb-6">Select Language</h2>
-            <div className="space-y-4">
-              {languages.map((lang) => (
+          )}
+          <Languages className="w-6 h-6 text-blue-600 flex-shrink-0" />
+          <span className="text-lg font-bold text-slate-800 tracking-tight">LangAccess</span>
+          {sectorConfig && (
+            <>
+              <span className="text-slate-300 text-lg font-light">/</span>
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-full text-white ${sectorConfig.tagBg}`}>
+                {sectorConfig.label}
+              </span>
+            </>
+          )}
+        </div>
+
+        {/* Language Selector Bar */}
+        <div className="border-t border-slate-100 bg-slate-50/80">
+          <div className="max-w-3xl mx-auto px-4 py-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap mr-1 flex-shrink-0">
+              Language:
+            </span>
+            {LANGUAGES.map((lang) => (
+              <button
+                key={lang.id}
+                onClick={() => handleLanguageSelect(lang.id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 whitespace-nowrap flex-shrink-0
+                  ${activeLanguage === lang.id
+                    ? `${lang.activeClass} shadow-sm`
+                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-white'
+                  }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${activeLanguage === lang.id ? 'bg-white/60' : lang.dotColor}`} />
+                {lang.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
+        {!selectedSector ? (
+          <>
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-slate-800 mb-1">Select Your Sector</h1>
+              <p className="text-slate-500 text-sm">Choose the environment where you work to see relevant phrases.</p>
+            </div>
+
+            {/* Sector Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+              {SECTOR_CARDS.map(({ id, label, description, Icon, iconBg, iconColor, border, hoverBorder, accentBg, accentText }) => (
                 <button
-                  key={lang.id}
-                  onClick={() => onSelectLanguage(lang.id)}
-                  className={`w-full ${lang.color} text-white rounded-2xl py-6 px-8 text-2xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95`}
+                  key={id}
+                  onClick={() => onSelectSector(id)}
+                  className={`group bg-white border-2 ${border} ${hoverBorder} rounded-2xl p-5 text-left shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex flex-col gap-4`}
                 >
-                  {lang.label}
+                  <div className={`w-12 h-12 ${iconBg} rounded-xl flex items-center justify-center`}>
+                    <Icon className={`w-6 h-6 ${iconColor}`} />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-base font-bold text-slate-800 mb-1.5">{label}</h2>
+                    <p className="text-sm text-slate-500 leading-relaxed">{description}</p>
+                  </div>
+                  <div className={`${accentBg} rounded-lg px-3 py-1.5 flex items-center justify-between`}>
+                    <span className={`text-xs font-semibold ${accentText}`}>Open phrases</span>
+                    <ChevronRight className={`w-3.5 h-3.5 ${accentText}`} />
+                  </div>
                 </button>
               ))}
             </div>
-          </div>
+
+            {/* Community Access */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1 h-px bg-slate-200" />
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest whitespace-nowrap">Community Access</span>
+                <div className="flex-1 h-px bg-slate-200" />
+              </div>
+
+              <button
+                onClick={onOpenCommunityNavigator}
+                className="w-full bg-slate-800 hover:bg-slate-700 text-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-4 mb-4"
+              >
+                <div className="w-12 h-12 bg-amber-400/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Compass className="w-6 h-6 text-amber-400" />
+                </div>
+                <div className="text-left flex-1">
+                  <div className="font-bold text-base">Community Navigator</div>
+                  <div className="text-sm text-slate-300 mt-0.5">Find food, shelter, and services near you.</div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+              </button>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <button
+                  onClick={onOpenCertificates}
+                  className="bg-white border border-slate-200 hover:border-yellow-300 rounded-xl p-4 flex items-center gap-3 text-left shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+                >
+                  <div className="w-10 h-10 bg-yellow-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Award className="w-5 h-5 text-yellow-500" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-slate-800 text-sm">Certificates</div>
+                    <div className="text-xs text-slate-400 mt-0.5">Free first module</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={onOpenAmbassadors}
+                  className="bg-white border border-slate-200 hover:border-green-300 rounded-xl p-4 flex items-center gap-3 text-left shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+                >
+                  <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Users className="w-5 h-5 text-green-500" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-slate-800 text-sm">Ambassadors</div>
+                    <div className="text-xs text-slate-400 mt-0.5">Join the brigade</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={onOpenPolicy}
+                  className="bg-white border border-slate-200 hover:border-teal-300 rounded-xl p-4 flex items-center gap-3 text-left shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]"
+                >
+                  <div className="w-10 h-10 bg-teal-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Handshake className="w-5 h-5 text-teal-600" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-slate-800 text-sm">Outreach</div>
+                    <div className="text-xs text-slate-400 mt-0.5">Language access policy</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-slate-800 mb-1">Select Language</h2>
+              <p className="text-slate-500 text-sm">Choose a language, or tap one in the bar above.</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {LANGUAGES.map((lang) => {
+                const isActive = activeLanguage === lang.id;
+                return (
+                  <button
+                    key={lang.id}
+                    onClick={() => handleLanguageSelect(lang.id)}
+                    className={`group flex items-center gap-4 p-5 rounded-2xl border-2 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] text-left
+                      ${isActive
+                        ? `border-transparent ${lang.activeClass}`
+                        : 'bg-white border-slate-200 hover:border-slate-300'
+                      }`}
+                  >
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
+                      ${isActive ? 'bg-white/20 text-white' : `bg-slate-100 text-slate-600`}`}
+                    >
+                      {lang.abbr}
+                    </div>
+                    <div className="flex-1">
+                      <div className={`font-bold text-base ${isActive ? 'text-white' : 'text-slate-800'}`}>
+                        {lang.label}
+                      </div>
+                      <div className={`text-xs mt-0.5 ${isActive ? 'text-white/70' : 'text-slate-400'}`}>
+                        Tap to select
+                      </div>
+                    </div>
+                    <ChevronRight className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-white/70' : 'text-slate-300 group-hover:text-slate-400'}`} />
+                  </button>
+                );
+              })}
+            </div>
+          </>
         )}
-      </div>
+      </main>
 
       <footer className="border-t border-slate-200 bg-white py-4 px-6">
-        <div className="max-w-2xl mx-auto flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
-          <button
-            onClick={onOpenPolicy}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors"
-          >
+        <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
+          <button onClick={onOpenPolicy} className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors">
             <FileText className="w-4 h-4" />
             Language Access Policy
           </button>
-          <button
-            onClick={onOpenPolicy}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors"
-          >
+          <button onClick={onOpenPolicy} className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors">
             <MessageSquarePlus className="w-4 h-4" />
             Request a Language
           </button>
           <span className="text-slate-300 hidden sm:inline">|</span>
-          <button
-            onClick={onOpenCertificates}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-yellow-600 transition-colors"
-          >
-            <Award className="w-4 h-4" />
-            Certificates
-          </button>
-          <button
-            onClick={onOpenAmbassadors}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-green-600 transition-colors"
-          >
-            <Users className="w-4 h-4" />
-            Ambassadors
-          </button>
-          <span className="text-slate-300 hidden sm:inline">|</span>
-          <button
-            onClick={onCheckForUpdates}
-            className="flex items-center gap-1.5 text-slate-500 hover:text-emerald-600 transition-colors"
-          >
+          <button onClick={onCheckForUpdates} className="flex items-center gap-1.5 text-slate-500 hover:text-emerald-600 transition-colors">
             <RefreshCw className="w-4 h-4" />
             Check for Updates
           </button>
