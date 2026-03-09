@@ -213,56 +213,55 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
         {/* Sticky header */}
         <div className="sticky top-0 bg-white border-b border-slate-200 shadow-sm z-10">
           <div className="max-w-3xl mx-auto px-4 py-3">
-            <button onClick={onBack} className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors mb-2">
-              <ArrowLeft className="w-5 h-5" />
-              <span className="text-sm font-medium">Back</span>
-            </button>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-bold text-slate-800">{data.name} Phrases</h2>
-                <p className="text-xs text-slate-500 capitalize mt-0.5">{sector} — {subcategory.replace(/-/g, ' ')}</p>
+            <div className="flex items-center gap-3 mb-3">
+              <button onClick={onBack} className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors flex-shrink-0 p-1 -ml-1 rounded-lg hover:bg-slate-100">
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-bold text-slate-800 leading-tight truncate">{data.name} Phrases</h2>
+                <p className="text-xs text-slate-400 capitalize mt-0.5 truncate">{sector} · {subcategory.replace(/-/g, ' ')}</p>
               </div>
-              <div className="flex items-center gap-2 flex-wrap justify-end">
-                {isChineseLang && (
-                  <div className="flex rounded-lg overflow-hidden border border-slate-200 text-xs font-medium">
-                    <button
-                      onClick={() => setChineseScript('traditional')}
-                      className={`px-2.5 py-1.5 transition-colors ${chineseScript === 'traditional' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700'}`}
-                    >Traditional</button>
-                    <button
-                      onClick={() => setChineseScript('simplified')}
-                      className={`px-2.5 py-1.5 border-l border-slate-200 transition-colors ${chineseScript === 'simplified' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700'}`}
-                    >Simplified</button>
-                  </div>
-                )}
-                <button
-                  onClick={() => setVitalOnly(!vitalOnly)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${vitalOnly ? 'bg-red-600 text-white border-red-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-                >
-                  <ShieldAlert className="w-3.5 h-3.5" />
-                  {vitalOnly ? 'Vital Only' : 'Vital'}
+            </div>
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
+              {isChineseLang && (
+                <div className="flex rounded-lg overflow-hidden border border-slate-200 text-xs font-medium flex-shrink-0">
+                  <button
+                    onClick={() => setChineseScript('traditional')}
+                    className={`px-3 py-2 transition-colors ${chineseScript === 'traditional' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700'}`}
+                  >Traditional</button>
+                  <button
+                    onClick={() => setChineseScript('simplified')}
+                    className={`px-3 py-2 border-l border-slate-200 transition-colors ${chineseScript === 'simplified' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700'}`}
+                  >Simplified</button>
+                </div>
+              )}
+              <button
+                onClick={() => setVitalOnly(!vitalOnly)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border transition-colors flex-shrink-0 ${vitalOnly ? 'bg-red-600 text-white border-red-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+              >
+                <ShieldAlert className="w-3.5 h-3.5" />
+                {vitalOnly ? 'Vital Only' : 'Vital'}
+              </button>
+              {onOpenConversation && (
+                <button onClick={onOpenConversation} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors flex-shrink-0">
+                  <Users className="w-3.5 h-3.5" />Intake
                 </button>
-                {onOpenConversation && (
-                  <button onClick={onOpenConversation} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-                    <Users className="w-3.5 h-3.5" />Intake
-                  </button>
-                )}
-                {onOpenTalkTogether && (
-                  <button onClick={onOpenTalkTogether} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors">
-                    <MessageSquare className="w-3.5 h-3.5" />Talk Together
-                  </button>
-                )}
-                {onOpenJobSiteTalk && (
-                  <button onClick={onOpenJobSiteTalk} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-orange-600 text-white hover:bg-orange-700 transition-colors">
-                    <HardHat className="w-3.5 h-3.5" />Job Site
-                  </button>
-                )}
-                {phraseGroups.length > 0 && (
-                  <button onClick={() => exportPhrasesToCSV(getFilteredGroups(), language, sector, subcategory)} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors">
-                    <Download className="w-3.5 h-3.5" />CSV
-                  </button>
-                )}
-              </div>
+              )}
+              {onOpenTalkTogether && (
+                <button onClick={onOpenTalkTogether} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors flex-shrink-0">
+                  <MessageSquare className="w-3.5 h-3.5" />Talk Together
+                </button>
+              )}
+              {onOpenJobSiteTalk && (
+                <button onClick={onOpenJobSiteTalk} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-orange-600 text-white hover:bg-orange-700 transition-colors flex-shrink-0">
+                  <HardHat className="w-3.5 h-3.5" />Job Site
+                </button>
+              )}
+              {phraseGroups.length > 0 && (
+                <button onClick={() => exportPhrasesToCSV(getFilteredGroups(), language, sector, subcategory)} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors flex-shrink-0">
+                  <Download className="w-3.5 h-3.5" />CSV
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -298,12 +297,12 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                     return (
                       <div
                         key={phraseId}
-                        className={`bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow border ${phrase.isVital ? 'border-red-200 ring-1 ring-red-300' : 'border-slate-100'}`}
+                        className={`bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 border ${phrase.isVital ? 'border-red-200 ring-1 ring-red-200' : 'border-slate-100'}`}
                       >
                         {phrase.isVital && (
                           <div className="px-4 pt-3 pb-0 flex items-center gap-1.5">
                             <ShieldAlert className="w-3.5 h-3.5 text-red-500" />
-                            <span className="text-xs font-bold text-red-600 uppercase tracking-wider">Vital</span>
+                            <span className="text-xs font-bold text-red-600 uppercase tracking-wider">Vital Phrase</span>
                           </div>
                         )}
 
@@ -312,51 +311,51 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                           <button
                             onClick={() => handlePlay(displayTranslation, phraseId, phrase.english)}
                             disabled={isLoading}
-                            className="flex items-center gap-4 p-4 flex-1 text-left group hover:bg-slate-50 rounded-tl-2xl transition-colors min-w-0"
+                            className="flex items-center gap-4 p-5 flex-1 text-left group active:bg-slate-50 transition-colors min-w-0"
                           >
-                            <div className={`w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl transition-colors
-                              ${isLoading ? 'bg-blue-100' : 'bg-blue-600 group-hover:bg-blue-700'}`}>
+                            <div className={`w-14 h-14 flex-shrink-0 flex items-center justify-center rounded-2xl transition-all duration-150 shadow-sm
+                              ${isLoading
+                                ? 'bg-blue-100'
+                                : 'bg-blue-600 group-hover:bg-blue-700 group-active:scale-95 shadow-blue-200'}`}>
                               {isLoading
-                                ? <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
-                                : <Volume2 className="w-5 h-5 text-white" />}
+                                ? <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+                                : <Volume2 className="w-6 h-6 text-white" />}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-base font-bold text-slate-800 leading-snug">{phrase.english}</p>
-                              <p className="text-base font-semibold text-blue-600 mt-1 leading-snug">{displayTranslation}</p>
+                              <p className="text-[15px] font-semibold text-slate-500 leading-snug mb-1">{phrase.english}</p>
+                              <p className="text-xl font-bold text-slate-900 leading-tight">{displayTranslation}</p>
                             </div>
                           </button>
 
                           {/* Action buttons column */}
-                          <div className="flex flex-col border-l border-slate-100">
-                            {/* Point & Speak */}
+                          <div className="flex flex-col border-l border-slate-100 w-14">
                             <button
                               onClick={() => setPointAndSpeak({ english: phrase.english, translation: displayTranslation })}
-                              className="flex-1 px-3 flex items-center justify-center hover:bg-slate-50 transition-colors rounded-tr-2xl"
+                              className="flex-1 flex items-center justify-center hover:bg-blue-50 transition-colors rounded-tr-2xl group/ps"
                               title="Point & Speak"
                             >
-                              <Maximize2 className="w-4 h-4 text-slate-400 hover:text-blue-600" />
+                              <Maximize2 className="w-4 h-4 text-slate-300 group-hover/ps:text-blue-500 transition-colors" />
                             </button>
-                            {/* Favorite */}
                             <button
                               onClick={() => handleToggleFavorite({ english: phrase.english, translation: displayTranslation }, phraseId)}
                               disabled={isTogglingFav}
-                              className="flex-1 px-3 flex items-center justify-center hover:bg-slate-50 transition-colors border-t border-slate-100"
+                              className="flex-1 flex items-center justify-center hover:bg-yellow-50 transition-colors border-t border-slate-100 group/fav"
                               title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
                             >
                               {isTogglingFav
                                 ? <Loader2 className="w-4 h-4 text-yellow-400 animate-spin" />
-                                : <Star className={`w-4 h-4 transition-colors ${isFavorited ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300 hover:text-yellow-400'}`} />}
+                                : <Star className={`w-4 h-4 transition-colors ${isFavorited ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300 group-hover/fav:text-yellow-400'}`} />}
                             </button>
                           </div>
                         </div>
 
-                        {/* Show to patient / Point & Speak for all sectors */}
-                        <div className="px-4 pb-3 pt-0 flex items-center gap-2">
+                        {/* Show to patient button */}
+                        <div className="px-5 pb-4 pt-1">
                           <button
                             onClick={() => setPointAndSpeak({ english: phrase.english, translation: displayTranslation })}
-                            className="flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                            className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-semibold transition-colors active:scale-[0.98]"
                           >
-                            <Eye className="w-3.5 h-3.5" />
+                            <Eye className="w-4 h-4" />
                             {getShowToLabel()}
                           </button>
                         </div>
@@ -378,8 +377,8 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
 
                             {isExpanded && (
                               <div className="px-4 pb-4 pt-1">
-                                {/* Quick reply pill buttons */}
-                                <div className="flex flex-wrap gap-2 mb-3">
+                                {/* Full response cards */}
+                                <div className="space-y-2">
                                   {phrase.responses.map((response, rIdx) => {
                                     const rKey = `${phraseId}-r${rIdx}`;
                                     const isRLoading = loadingAudioKey === rKey;
@@ -388,36 +387,19 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                                         key={rIdx}
                                         onClick={() => handlePlay(response.translation, rKey, response.english)}
                                         disabled={isRLoading}
-                                        className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-xl text-sm font-semibold transition-colors active:scale-95"
+                                        className="w-full flex items-center gap-4 bg-slate-50 hover:bg-slate-100 active:bg-slate-200 border border-slate-200 rounded-xl p-4 text-left transition-colors active:scale-[0.98]"
                                       >
-                                        {isRLoading
-                                          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                          : <Volume2 className="w-3.5 h-3.5" />}
-                                        {response.english}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                                {/* Full response cards */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                  {phrase.responses.map((response, rIdx) => {
-                                    const rKey = `${phraseId}-r${rIdx}`;
-                                    return (
-                                      <button
-                                        key={rIdx}
-                                        onClick={() => handlePlay(response.translation, rKey, response.english)}
-                                        disabled={loadingAudioKey === rKey}
-                                        className="flex items-start gap-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl p-3 text-left transition-colors"
-                                      >
-                                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                                          {loadingAudioKey === rKey
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${isRLoading ? 'bg-blue-100' : 'bg-slate-700'}`}>
+                                          {isRLoading
                                             ? <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
-                                            : <Volume2 className="w-4 h-4 text-blue-600" />}
+                                            : <Volume2 className="w-4 h-4 text-white" />}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                          <p className="text-sm font-semibold text-blue-700 leading-snug">{response.translation}</p>
-                                          <p className="text-xs text-slate-500 italic mt-0.5">[{response.pronunciation}]</p>
-                                          <p className="text-xs text-slate-600 mt-0.5">{response.english}</p>
+                                          <p className="text-[13px] font-medium text-slate-500 leading-snug">{response.english}</p>
+                                          <p className="text-base font-bold text-slate-900 leading-tight mt-0.5">{response.translation}</p>
+                                          {response.pronunciation && (
+                                            <p className="text-xs text-slate-400 italic mt-0.5">[{response.pronunciation}]</p>
+                                          )}
                                         </div>
                                       </button>
                                     );

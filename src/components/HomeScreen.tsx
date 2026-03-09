@@ -38,41 +38,50 @@ const SECTOR_CARDS = [
   {
     id: 'education' as Sector,
     label: 'Education',
-    description: 'Teachers and school staff communicate with students and parents.',
+    description: 'Teachers and staff communicate instantly with students and families.',
     Icon: GraduationCap,
-    iconBg: 'bg-blue-100',
-    iconColor: 'text-blue-600',
-    border: 'border-blue-100',
+    iconBg: 'bg-blue-600',
+    iconColor: 'text-white',
+    border: 'border-slate-200',
     hoverBorder: 'hover:border-blue-300',
+    hoverShadow: 'hover:shadow-blue-100',
     tagBg: 'bg-blue-600',
     accentBg: 'bg-blue-50',
     accentText: 'text-blue-600',
+    accentBorder: 'border-blue-100',
+    gradientFrom: 'from-blue-50',
   },
   {
     id: 'healthcare' as Sector,
     label: 'Healthcare',
-    description: 'Nurses and medical staff ask essential questions quickly.',
+    description: 'Nurses and clinical staff ask essential questions clearly and quickly.',
     Icon: Heart,
-    iconBg: 'bg-green-100',
-    iconColor: 'text-green-600',
-    border: 'border-green-100',
+    iconBg: 'bg-green-600',
+    iconColor: 'text-white',
+    border: 'border-slate-200',
     hoverBorder: 'hover:border-green-300',
+    hoverShadow: 'hover:shadow-green-100',
     tagBg: 'bg-green-600',
     accentBg: 'bg-green-50',
     accentText: 'text-green-600',
+    accentBorder: 'border-green-100',
+    gradientFrom: 'from-green-50',
   },
   {
     id: 'construction' as Sector,
     label: 'Construction',
-    description: 'Supervisors give safety instructions to multilingual crews.',
+    description: 'Supervisors deliver safety briefings to multilingual job site crews.',
     Icon: HardHat,
-    iconBg: 'bg-orange-100',
-    iconColor: 'text-orange-600',
-    border: 'border-orange-100',
+    iconBg: 'bg-orange-500',
+    iconColor: 'text-white',
+    border: 'border-slate-200',
     hoverBorder: 'hover:border-orange-300',
+    hoverShadow: 'hover:shadow-orange-100',
     tagBg: 'bg-orange-600',
     accentBg: 'bg-orange-50',
     accentText: 'text-orange-600',
+    accentBorder: 'border-orange-100',
+    gradientFrom: 'from-orange-50',
   },
 ];
 
@@ -182,25 +191,48 @@ export default function HomeScreen({
 
             {/* Sector Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              {SECTOR_CARDS.map(({ id, label, description, Icon, iconBg, iconColor, border, hoverBorder, accentBg, accentText }) => (
+              {SECTOR_CARDS.map(({ id, label, description, Icon, iconBg, iconColor, border, hoverBorder, accentBg, accentText, accentBorder }) => (
                 <button
                   key={id}
                   onClick={() => onSelectSector(id)}
-                  className={`group bg-white border-2 ${border} ${hoverBorder} rounded-2xl p-5 text-left shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex flex-col gap-4`}
+                  className={`group bg-white border ${border} ${hoverBorder} rounded-2xl text-left shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-1 active:scale-[0.98] flex flex-col overflow-hidden`}
                 >
-                  <div className={`w-12 h-12 ${iconBg} rounded-xl flex items-center justify-center`}>
-                    <Icon className={`w-6 h-6 ${iconColor}`} />
-                  </div>
-                  <div className="flex-1">
-                    <h2 className="text-base font-bold text-slate-800 mb-1.5">{label}</h2>
+                  <div className="p-5 flex-1">
+                    <div className={`w-14 h-14 ${iconBg} rounded-2xl flex items-center justify-center mb-4 shadow-sm`}>
+                      <Icon className={`w-7 h-7 ${iconColor}`} />
+                    </div>
+                    <h2 className="text-lg font-bold text-slate-800 mb-2">{label}</h2>
                     <p className="text-sm text-slate-500 leading-relaxed">{description}</p>
                   </div>
-                  <div className={`${accentBg} rounded-lg px-3 py-1.5 flex items-center justify-between`}>
-                    <span className={`text-xs font-semibold ${accentText}`}>Open phrases</span>
-                    <ChevronRight className={`w-3.5 h-3.5 ${accentText}`} />
+                  <div className={`${accentBg} border-t ${accentBorder} px-5 py-3 flex items-center justify-between`}>
+                    <span className={`text-xs font-semibold ${accentText}`}>Tap to open phrases</span>
+                    <ChevronRight className={`w-4 h-4 ${accentText} group-hover:translate-x-0.5 transition-transform`} />
                   </div>
                 </button>
               ))}
+            </div>
+
+            {/* Community Outreach Card */}
+            <div className="mb-8">
+              <button
+                onClick={onOpenPolicy}
+                className="w-full bg-white border border-teal-200 hover:border-teal-300 rounded-2xl text-left shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] overflow-hidden"
+              >
+                <div className="p-5 flex items-center gap-5">
+                  <div className="w-14 h-14 bg-teal-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <Handshake className="w-7 h-7 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-bold text-slate-800 mb-1">Community Outreach</h2>
+                    <p className="text-sm text-slate-500 leading-relaxed">Language access policy and community communication resources.</p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-teal-400 flex-shrink-0" />
+                </div>
+                <div className="bg-teal-50 border-t border-teal-100 px-5 py-3 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-teal-600">Tap to open phrases</span>
+                  <ChevronRight className="w-4 h-4 text-teal-500" />
+                </div>
+              </button>
             </div>
 
             {/* Community Access */}
