@@ -138,7 +138,7 @@ export default function LandingPage({
                 </h1>
 
                 <p className="text-slate-300 text-lg leading-relaxed mb-4 max-w-lg">
-                  LangAccess helps frontline workers communicate instantly with limited-English speakers.
+                  LangAccess helps frontline workers communicate with non-English speakers in seconds using simple, situation-based phrases.
                 </p>
 
                 <div className="flex items-center gap-2 flex-wrap mb-4">
