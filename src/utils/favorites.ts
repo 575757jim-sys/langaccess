@@ -13,6 +13,22 @@ export interface FavoritePhrase {
   createdAt: number;
 }
 
+const LS_KEY = 'langaccess_favorites';
+
+function readLocal(): FavoritePhrase[] {
+  try {
+    return JSON.parse(localStorage.getItem(LS_KEY) ?? '[]') as FavoritePhrase[];
+  } catch {
+    return [];
+  }
+}
+
+function writeLocal(favs: FavoritePhrase[]) {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(favs));
+  } catch {}
+}
+
 function mapRow(row: Record<string, unknown>): FavoritePhrase {
   return {
     id: row.id as string,
@@ -27,6 +43,9 @@ function mapRow(row: Record<string, unknown>): FavoritePhrase {
 }
 
 export async function loadFavorites(): Promise<FavoritePhrase[]> {
+  const local = readLocal();
+  if (local.length > 0) return local;
+
   try {
     const { data, error } = await supabase
       .from('favorites')
@@ -34,7 +53,9 @@ export async function loadFavorites(): Promise<FavoritePhrase[]> {
       .eq('session_id', getSessionId())
       .order('created_at', { ascending: false });
     if (error) return [];
-    return (data ?? []).map(mapRow);
+    const favs = (data ?? []).map(mapRow);
+    writeLocal(favs);
+    return favs;
   } catch {
     return [];
   }
@@ -47,6 +68,21 @@ export async function addFavorite(params: {
   phraseEnglish: string;
   phraseTranslation: string;
 }): Promise<FavoritePhrase | null> {
+  const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const optimistic: FavoritePhrase = {
+    id: tempId,
+    sessionId: getSessionId(),
+    language: params.language,
+    sector: params.sector,
+    subcategory: params.subcategory,
+    phraseEnglish: params.phraseEnglish,
+    phraseTranslation: params.phraseTranslation,
+    createdAt: Date.now(),
+  };
+
+  const current = readLocal();
+  writeLocal([optimistic, ...current]);
+
   try {
     const { data, error } = await supabase
       .from('favorites')
@@ -60,37 +96,32 @@ export async function addFavorite(params: {
       })
       .select()
       .maybeSingle();
-    if (error || !data) return null;
-    return mapRow(data);
+    if (error || !data) return optimistic;
+    const saved = mapRow(data);
+    const updated = readLocal().map(f => f.id === tempId ? saved : f);
+    writeLocal(updated);
+    return saved;
   } catch {
-    return null;
+    return optimistic;
   }
 }
 
 export async function removeFavorite(id: string): Promise<boolean> {
+  const updated = readLocal().filter(f => f.id !== id);
+  writeLocal(updated);
+
   try {
-    const { error } = await supabase
+    await supabase
       .from('favorites')
       .delete()
       .eq('id', id)
       .eq('session_id', getSessionId());
-    return !error;
-  } catch {
-    return false;
-  }
+  } catch {}
+
+  return true;
 }
 
 export async function isFavorited(phraseEnglish: string, language: Language): Promise<boolean> {
-  try {
-    const { data } = await supabase
-      .from('favorites')
-      .select('id')
-      .eq('session_id', getSessionId())
-      .eq('phrase_english', phraseEnglish)
-      .eq('language', language)
-      .maybeSingle();
-    return !!data;
-  } catch {
-    return false;
-  }
+  const local = readLocal();
+  return local.some(f => f.phraseEnglish === phraseEnglish && f.language === language);
 }

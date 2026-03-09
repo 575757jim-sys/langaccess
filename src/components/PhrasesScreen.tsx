@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase';
 import { logInteraction } from '../utils/interactionLog';
 import { loadFavorites, addFavorite, removeFavorite, FavoritePhrase } from '../utils/favorites';
 import PointAndSpeak from './PointAndSpeak';
+import FavoritesPanel from './FavoritesPanel';
 
 const DEFAULT_REVIEWED_BY = 'LangAccess Editorial Review';
 const DEFAULT_VERSION = '1.0';
@@ -48,6 +49,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
   const [pointAndSpeak, setPointAndSpeak] = useState<PointAndSpeakData | null>(null);
   const [favorites, setFavorites] = useState<FavoritePhrase[]>([]);
   const [togglingFavKey, setTogglingFavKey] = useState<string | null>(null);
+  const [showFavoritesPanel, setShowFavoritesPanel] = useState(false);
 
   const isChineseLang = language === 'mandarin' || language === 'cantonese';
 
@@ -221,6 +223,13 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                 <h2 className="text-lg font-bold text-slate-800 leading-tight truncate">{data.name} Phrases</h2>
                 <p className="text-xs text-slate-400 capitalize mt-0.5 truncate">{sector} · {subcategory.replace(/-/g, ' ')}</p>
               </div>
+              <button
+                onClick={() => setShowFavoritesPanel(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-200 hover:bg-yellow-100 text-yellow-700 text-xs font-semibold transition-colors flex-shrink-0"
+              >
+                <Star className={`w-3.5 h-3.5 ${favorites.length > 0 ? 'fill-yellow-500 text-yellow-500' : 'text-yellow-500'}`} />
+                {favorites.length > 0 ? `My Phrases (${favorites.length})` : 'My Phrases'}
+              </button>
             </div>
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
               {isChineseLang && (
@@ -543,6 +552,10 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
           </svg>
           Phrase saved successfully
         </div>
+      )}
+
+      {showFavoritesPanel && (
+        <FavoritesPanel onClose={() => setShowFavoritesPanel(false)} />
       )}
     </>
   );
