@@ -385,9 +385,9 @@ export default function SituationPacks() {
         <div className="text-center mb-10">
           <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">Ready-to-use</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
-            Quick Situation Packs
+            Pre-Built Communication Packs
           </h2>
-          <p className="text-slate-500 text-base max-w-md mx-auto">
+          <p className="text-slate-500 text-[1.05rem] leading-relaxed max-w-md mx-auto">
             Tap a pack to expand it, then tap any phrase to hear the audio in your chosen language.
           </p>
         </div>

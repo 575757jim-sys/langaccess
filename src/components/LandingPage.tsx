@@ -228,7 +228,7 @@ export default function LandingPage({
             <div className="text-center mb-14">
               <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">Who it's for</p>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Built for Frontline Professionals</h2>
-              <p className="text-slate-500 max-w-xl mx-auto text-base leading-relaxed">Every sector has unique communication needs. LangAccess is designed around real situations you face every day.</p>
+              <p className="text-slate-500 max-w-xl mx-auto text-[1.05rem] leading-relaxed">Every sector has unique communication needs. LangAccess is designed around real situations you face every day.</p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {SECTOR_CARDS.map(({ Icon, title, description, iconBg, iconColor, border, accentBg }) => (
@@ -240,8 +240,8 @@ export default function LandingPage({
                     <Icon className={`w-6 h-6 ${iconColor}`} />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-slate-900 text-base mb-2">{title}</h3>
-                    <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
+                    <h3 className="font-bold text-slate-900 text-base mb-2.5">{title}</h3>
+                    <p className="text-slate-500 text-[0.9375rem] leading-relaxed">{description}</p>
                   </div>
                   <div className={`${accentBg} rounded-lg px-3 py-1.5`}>
                     <p className={`text-xs font-semibold ${iconColor}`}>View phrases →</p>
@@ -252,16 +252,41 @@ export default function LandingPage({
           </div>
         </section>
 
+        {/* ── MID-PAGE CTA ── */}
+        <section className="py-16 bg-blue-600 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '36px 36px' }} />
+          <div className="relative max-w-3xl mx-auto px-6 text-center">
+            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest mb-3">Live demo</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">See LangAccess in Action</h2>
+            <p className="text-blue-100 text-[1.05rem] leading-relaxed mb-9 max-w-md mx-auto">Choose a language, select a situation, and hear the phrase instantly.</p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                onClick={() => onSelectSector('healthcare')}
+                className="inline-flex items-center justify-center gap-2 bg-white text-blue-700 font-bold px-7 py-4 rounded-xl transition-all duration-200 hover:bg-blue-50 shadow-lg text-base hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Try the Demo
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => document.getElementById('situation-packs')?.scrollIntoView({ behavior: 'smooth' })}
+                className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-semibold px-7 py-4 rounded-xl transition-all duration-200 text-base hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Choose Your Sector
+              </button>
+            </div>
+          </div>
+        </section>
+
         {/* ── HOW IT WORKS ── */}
         <section id="how-it-works" className="py-20 bg-white">
           <div className="max-w-5xl mx-auto px-6">
             <div className="text-center mb-14">
               <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">Simple to use</p>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">How LangAccess Works</h2>
-              <p className="text-slate-500 text-base">Three steps to clear communication with anyone on your team.</p>
+              <p className="text-slate-500 text-[1.05rem] leading-relaxed">Three steps to clear communication with anyone on your team.</p>
             </div>
 
-            <div className="relative grid sm:grid-cols-3 gap-8">
+            <div className="relative grid sm:grid-cols-3 gap-10">
               {/* Connector line on desktop */}
               <div className="hidden sm:block absolute top-7 left-[calc(16.666%+1.75rem)] right-[calc(16.666%+1.75rem)] h-px bg-slate-200" />
 
@@ -271,8 +296,8 @@ export default function LandingPage({
                     {step}
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-base mb-2">{label}</h3>
-                    <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
+                    <h3 className="font-bold text-slate-900 text-base mb-2.5">{label}</h3>
+                    <p className="text-slate-500 text-[0.9375rem] leading-relaxed">{desc}</p>
                   </div>
                 </div>
               ))}
