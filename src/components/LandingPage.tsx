@@ -2,6 +2,7 @@ import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileTe
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
 import HomeDemoSection from './HomeDemoSection';
+import SituationPacks from './SituationPacks';
 
 const JSON_LD_WEB_APP = {
   '@context': 'https://schema.org',
@@ -213,6 +214,8 @@ export default function LandingPage({
         </section>
 
         <HomeDemoSection />
+
+        <SituationPacks />
 
         {/* ── BUILT FOR FRONTLINE ── */}
         <section className="py-20 bg-slate-50">
