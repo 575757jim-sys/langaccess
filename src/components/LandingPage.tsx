@@ -133,12 +133,16 @@ export default function LandingPage({
 
                 <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold leading-[1.1] tracking-tight text-white mb-5">
                   Instant Communication<br className="hidden sm:block" />{' '}
-                  Across Language<br className="hidden sm:block" />{' '}
-                  Barriers
+                  With Non-English<br className="hidden sm:block" />{' '}
+                  Speakers
                 </h1>
 
-                <p className="text-slate-300 text-lg leading-relaxed mb-4 max-w-lg">
+                <p className="text-slate-300 text-lg leading-relaxed mb-3 max-w-lg">
                   LangAccess helps frontline workers communicate with non-English speakers in seconds using simple, situation-based phrases.
+                </p>
+
+                <p className="text-slate-400 text-sm font-medium mb-4 max-w-lg">
+                  Tap a situation &rarr; play the phrase &rarr; communicate instantly.
                 </p>
 
                 <div className="flex items-center gap-2 flex-wrap mb-4">
