@@ -1,4 +1,4 @@
-import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2 } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen } from 'lucide-react';
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
 
@@ -10,54 +10,31 @@ const JSON_LD_WEB_APP = {
   description: 'Frontline language access platform for teachers, healthcare workers, construction supervisors, and community outreach teams.',
   applicationCategory: 'HealthApplication',
   operatingSystem: 'Any',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD',
-  },
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
   inLanguage: ['en', 'es', 'tl', 'vi', 'zh'],
 };
 
-const EXAMPLE_PHRASES = [
-  { sector: 'Teacher', phrase: 'Please sit down', color: 'bg-green-50 border-green-200', tag: 'bg-green-100 text-green-700' },
-  { sector: 'Healthcare', phrase: 'Where does it hurt?', color: 'bg-blue-50 border-blue-200', tag: 'bg-blue-100 text-blue-700' },
-  { sector: 'Construction', phrase: 'Wear your safety harness', color: 'bg-orange-50 border-orange-200', tag: 'bg-orange-100 text-orange-700' },
-  { sector: 'Outreach', phrase: 'The shelter opens at 6 PM', color: 'bg-teal-50 border-teal-200', tag: 'bg-teal-100 text-teal-700' },
+const MOCK_LANGUAGES = ['Spanish', 'Mandarin', 'Cantonese', 'Vietnamese', 'Tagalog'];
+
+const MOCK_PHRASES = [
+  { sector: 'Teacher', phrase: 'Please sit down', sectorColor: 'bg-blue-500' },
+  { sector: 'Healthcare', phrase: 'Where does it hurt?', sectorColor: 'bg-green-500' },
+  { sector: 'Construction', phrase: 'Wear your safety harness', sectorColor: 'bg-orange-500' },
+  { sector: 'Outreach', phrase: 'The shelter opens at 6 PM', sectorColor: 'bg-teal-500' },
+];
+
+const VALUE_POINTS = [
+  { Icon: Zap, label: 'Instant multilingual communication', desc: 'Phrases play in seconds' },
+  { Icon: Shield, label: 'Built for frontline teams', desc: 'Sector-specific content' },
+  { Icon: Smartphone, label: 'Mobile friendly', desc: 'Works on any device' },
+  { Icon: BookOpen, label: 'Real-world service phrases', desc: 'Field-tested content' },
 ];
 
 const SECTOR_CARDS = [
-  {
-    Icon: GraduationCap,
-    title: 'Education',
-    description: 'Teachers and school staff communicate with students and parents.',
-    iconColor: 'text-green-600',
-    bg: 'bg-green-50',
-    border: 'border-green-100',
-  },
-  {
-    Icon: Heart,
-    title: 'Healthcare',
-    description: 'Nurses and medical staff ask essential questions quickly.',
-    iconColor: 'text-blue-600',
-    bg: 'bg-blue-50',
-    border: 'border-blue-100',
-  },
-  {
-    Icon: HardHat,
-    title: 'Construction',
-    description: 'Supervisors give safety instructions to multilingual crews.',
-    iconColor: 'text-orange-600',
-    bg: 'bg-orange-50',
-    border: 'border-orange-100',
-  },
-  {
-    Icon: Compass,
-    title: 'Community Outreach',
-    description: 'Workers connect people to shelters, food, and services.',
-    iconColor: 'text-teal-600',
-    bg: 'bg-teal-50',
-    border: 'border-teal-100',
-  },
+  { Icon: GraduationCap, title: 'Education', description: 'Teachers and school staff communicate with students and parents.', iconBg: 'bg-blue-100', iconColor: 'text-blue-600', border: 'border-blue-100', accentBg: 'bg-blue-50' },
+  { Icon: Heart, title: 'Healthcare', description: 'Nurses and medical staff ask essential questions quickly.', iconBg: 'bg-green-100', iconColor: 'text-green-600', border: 'border-green-100', accentBg: 'bg-green-50' },
+  { Icon: HardHat, title: 'Construction', description: 'Supervisors give safety instructions to multilingual crews.', iconBg: 'bg-orange-100', iconColor: 'text-orange-600', border: 'border-orange-100', accentBg: 'bg-orange-50' },
+  { Icon: Compass, title: 'Community Outreach', description: 'Workers connect people to shelters, food, and services.', iconBg: 'bg-teal-100', iconColor: 'text-teal-600', border: 'border-teal-100', accentBg: 'bg-teal-50' },
 ];
 
 const HOW_STEPS = [
@@ -67,11 +44,11 @@ const HOW_STEPS = [
 ];
 
 const LANGUAGES = [
-  { label: 'Spanish', flag: 'ES', color: 'bg-red-100 text-red-700 border-red-200' },
-  { label: 'Mandarin', flag: 'ZH', color: 'bg-amber-100 text-amber-700 border-amber-200' },
-  { label: 'Cantonese', flag: 'YUE', color: 'bg-orange-100 text-orange-700 border-orange-200' },
-  { label: 'Tagalog', flag: 'TL', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-  { label: 'Vietnamese', flag: 'VI', color: 'bg-green-100 text-green-700 border-green-200' },
+  { label: 'Spanish', abbr: 'ES', pill: 'bg-red-100 text-red-700 border-red-200' },
+  { label: 'Mandarin', abbr: 'ZH', pill: 'bg-amber-100 text-amber-700 border-amber-200' },
+  { label: 'Cantonese', abbr: 'YUE', pill: 'bg-orange-100 text-orange-700 border-orange-200' },
+  { label: 'Tagalog', abbr: 'TL', pill: 'bg-blue-100 text-blue-700 border-blue-200' },
+  { label: 'Vietnamese', abbr: 'VI', pill: 'bg-green-100 text-green-700 border-green-200' },
 ];
 
 interface LandingPageProps {
@@ -101,120 +78,169 @@ export default function LandingPage({
       />
 
       {/* Nav */}
-      <header className="border-b border-slate-100 bg-white/80 backdrop-blur-sm sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-slate-100 bg-white/90 backdrop-blur-md sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Languages className="w-6 h-6 text-blue-600" />
-            <span className="text-lg font-bold text-slate-800 tracking-tight">LangAccess</span>
+            <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
+              <Languages className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-base font-bold text-slate-900 tracking-tight">LangAccess</span>
           </div>
-          <nav className="hidden sm:flex items-center gap-6 text-sm text-slate-500">
-            <button onClick={onOpenCommunityNavigator} className="hover:text-slate-800 transition-colors">Community</button>
-            <button onClick={onOpenCertificates} className="hover:text-slate-800 transition-colors">Certificates</button>
-            <button onClick={onOpenAmbassadors} className="hover:text-slate-800 transition-colors">Ambassadors</button>
+          <nav className="hidden sm:flex items-center gap-1">
+            {[
+              { label: 'Community', action: onOpenCommunityNavigator },
+              { label: 'Certificates', action: onOpenCertificates },
+              { label: 'Ambassadors', action: onOpenAmbassadors },
+            ].map(({ label, action }) => (
+              <button
+                key={label}
+                onClick={action}
+                className="px-3 py-1.5 rounded-lg text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors font-medium"
+              >
+                {label}
+              </button>
+            ))}
           </nav>
+          <button
+            onClick={() => onSelectSector('healthcare')}
+            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
+          >
+            Get Started
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </header>
 
       <main className="flex-1">
 
-        {/* Hero */}
-        <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-          <div className="max-w-6xl mx-auto px-6 py-16 lg:py-24">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <div className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-500/30 text-blue-300 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-6">
-                  <Languages className="w-3.5 h-3.5" />
+        {/* ── HERO ── */}
+        <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
+          {/* Subtle grid texture */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '48px 48px' }} />
+          {/* Glow blobs */}
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative max-w-6xl mx-auto px-6 py-20 lg:py-28">
+            <div className="grid lg:grid-cols-2 gap-14 items-center">
+
+              {/* Left — copy */}
+              <div className="flex flex-col">
+                <div className="inline-flex items-center self-start gap-2 bg-blue-500/15 border border-blue-400/25 text-blue-300 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-8">
+                  <Languages className="w-3 h-3" />
                   Frontline Language Access Platform
                 </div>
-                <h1 className="text-4xl sm:text-5xl font-bold leading-tight mb-5 tracking-tight">
-                  Instant Language Access for Frontline Workers
+
+                <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold leading-[1.12] tracking-tight text-white mb-6">
+                  Instant Language Access<br className="hidden sm:block" />{' '}
+                  for Frontline Workers
                 </h1>
-                <p className="text-slate-300 text-lg leading-relaxed mb-3">
+
+                <p className="text-slate-300 text-lg leading-relaxed mb-3 max-w-lg">
                   Communicate instantly with limited-English speakers in Spanish, Mandarin, Cantonese, Tagalog, and Vietnamese.
                 </p>
-                <p className="text-slate-400 text-sm mb-8">
+
+                <p className="text-slate-400 text-sm leading-relaxed mb-10 max-w-md">
                   Designed for teachers, healthcare workers, construction supervisors, and community outreach teams.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 mb-6">
+
+                <div className="flex flex-col sm:flex-row gap-3 mb-8">
                   <button
                     onClick={() => onSelectSector('healthcare')}
-                    className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-6 py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/25 hover:shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98]"
+                    className="group inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-7 py-4 rounded-xl transition-all duration-200 shadow-xl shadow-blue-600/30 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] text-base"
                   >
                     Start Using LangAccess
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                   <button
                     onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold px-6 py-3.5 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                    className="inline-flex items-center justify-center gap-2 bg-white/8 hover:bg-white/12 border border-white/15 text-white font-semibold px-7 py-4 rounded-xl transition-all duration-200 text-base"
                   >
                     See How It Works
                   </button>
                 </div>
-                <p className="text-slate-500 text-xs">Built for real-world communication situations.</p>
+
+                <p className="text-slate-500 text-xs tracking-wide">Built for real-world communication situations. No sign-up required.</p>
               </div>
 
-              {/* Phone mock */}
+              {/* Right — Phone mock */}
               <div className="flex justify-center lg:justify-end">
                 <div className="relative">
-                  <div className="w-72 bg-slate-800 border border-slate-700 rounded-3xl shadow-2xl overflow-hidden">
-                    <div className="bg-slate-900 px-4 py-3 flex items-center justify-between border-b border-slate-700">
-                      <div className="flex items-center gap-2">
-                        <Languages className="w-4 h-4 text-blue-400" />
-                        <span className="text-white text-sm font-semibold">LangAccess</span>
-                      </div>
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-red-400" />
-                        <div className="w-2 h-2 rounded-full bg-yellow-400" />
-                        <div className="w-2 h-2 rounded-full bg-green-400" />
-                      </div>
-                    </div>
-                    <div className="p-4 space-y-3 bg-slate-850">
-                      <p className="text-slate-400 text-xs uppercase tracking-wider font-medium mb-2">Example Phrases</p>
-                      {EXAMPLE_PHRASES.map((item) => (
-                        <div
-                          key={item.sector}
-                          className={`${item.color} border rounded-xl p-3 flex items-center justify-between`}
-                        >
-                          <div>
-                            <span className={`${item.tag} text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full`}>
-                              {item.sector}
-                            </span>
-                            <p className="text-slate-700 text-sm font-medium mt-1.5 leading-snug">{item.phrase}</p>
+                  {/* Glow behind device */}
+                  <div className="absolute inset-0 scale-110 bg-blue-600/20 rounded-[40px] blur-3xl" />
+
+                  {/* Device shell */}
+                  <div className="relative w-[280px] bg-slate-950 rounded-[36px] shadow-2xl shadow-black/60 overflow-hidden border border-white/8" style={{ padding: '10px' }}>
+                    {/* Notch bar */}
+                    <div className="relative bg-slate-900 rounded-[28px] overflow-hidden">
+                      {/* Status bar */}
+                      <div className="flex items-center justify-between px-5 pt-4 pb-2">
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center">
+                            <Languages className="w-3 h-3 text-white" />
                           </div>
-                          <div className="w-8 h-8 flex items-center justify-center bg-white/70 rounded-full flex-shrink-0 ml-2">
-                            <Volume2 className="w-4 h-4 text-slate-500" />
-                          </div>
+                          <span className="text-white text-[11px] font-bold tracking-tight">LangAccess</span>
                         </div>
-                      ))}
+                        <div className="flex gap-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                        </div>
+                      </div>
+
+                      {/* Language selector row */}
+                      <div className="px-3 pb-3">
+                        <p className="text-slate-500 text-[9px] uppercase tracking-widest font-bold mb-2 px-1">Language</p>
+                        <div className="flex gap-1 overflow-hidden">
+                          {MOCK_LANGUAGES.map((lang, i) => (
+                            <div
+                              key={lang}
+                              className={`px-2 py-1 rounded-full text-[9px] font-bold whitespace-nowrap flex-shrink-0 ${i === 0 ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'}`}
+                            >
+                              {lang}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Phrase buttons */}
+                      <div className="px-3 pb-5 space-y-2">
+                        <p className="text-slate-500 text-[9px] uppercase tracking-widest font-bold mb-2 px-1">Phrases</p>
+                        {MOCK_PHRASES.map((item) => (
+                          <div
+                            key={item.phrase}
+                            className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-2.5 flex items-center gap-2.5"
+                          >
+                            <div className={`w-7 h-7 ${item.sectorColor} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                              <Volume2 className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wide mb-0.5">{item.sector}</div>
+                              <div className="text-slate-200 text-[11px] font-semibold leading-tight truncate">{item.phrase}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <div className="absolute -bottom-3 -right-3 w-24 h-24 bg-blue-600/20 rounded-full blur-2xl" />
-                  <div className="absolute -top-3 -left-3 w-20 h-20 bg-teal-400/15 rounded-full blur-2xl" />
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Frontline Professionals */}
-        <section className="py-16 bg-slate-50">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-slate-800 mb-3">Built for Frontline Professionals</h2>
-              <p className="text-slate-500 max-w-xl mx-auto">Every sector has unique communication needs. LangAccess is designed around real situations you face every day.</p>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {SECTOR_CARDS.map(({ Icon, title, description, iconColor, bg, border }) => (
-                <div
-                  key={title}
-                  className={`${bg} border ${border} rounded-2xl p-6 flex flex-col gap-4 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5`}
-                >
-                  <div className={`w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-sm`}>
-                    <Icon className={`w-6 h-6 ${iconColor}`} />
+        {/* ── VALUE BAND ── */}
+        <section className="bg-white border-b border-slate-100">
+          <div className="max-w-6xl mx-auto px-6 py-10">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              {VALUE_POINTS.map(({ Icon, label, desc }) => (
+                <div key={label} className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Icon className="w-4.5 h-4.5 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800 text-base mb-1.5">{title}</h3>
-                    <p className="text-slate-600 text-sm leading-relaxed">{description}</p>
+                    <p className="text-sm font-bold text-slate-800 leading-snug">{label}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{desc}</p>
                   </div>
                 </div>
               ))}
@@ -222,44 +248,77 @@ export default function LandingPage({
           </div>
         </section>
 
-        {/* How It Works */}
-        <section id="how-it-works" className="py-16 bg-white">
-          <div className="max-w-4xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-slate-800 mb-3">How LangAccess Works</h2>
-              <p className="text-slate-500">Three simple steps to clear communication.</p>
+        {/* ── BUILT FOR FRONTLINE ── */}
+        <section className="py-20 bg-slate-50">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-14">
+              <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">Who it's for</p>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Built for Frontline Professionals</h2>
+              <p className="text-slate-500 max-w-xl mx-auto text-base leading-relaxed">Every sector has unique communication needs. LangAccess is designed around real situations you face every day.</p>
             </div>
-            <div className="grid sm:grid-cols-3 gap-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {SECTOR_CARDS.map(({ Icon, title, description, iconBg, iconColor, border, accentBg }) => (
+                <div
+                  key={title}
+                  className={`bg-white border ${border} rounded-2xl p-6 flex flex-col gap-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}
+                >
+                  <div className={`w-12 h-12 ${iconBg} rounded-xl flex items-center justify-center`}>
+                    <Icon className={`w-6 h-6 ${iconColor}`} />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-slate-900 text-base mb-2">{title}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
+                  </div>
+                  <div className={`${accentBg} rounded-lg px-3 py-1.5`}>
+                    <p className={`text-xs font-semibold ${iconColor}`}>View phrases →</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── HOW IT WORKS ── */}
+        <section id="how-it-works" className="py-20 bg-white">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="text-center mb-14">
+              <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">Simple to use</p>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">How LangAccess Works</h2>
+              <p className="text-slate-500 text-base">Three steps to clear communication with anyone on your team.</p>
+            </div>
+
+            <div className="relative grid sm:grid-cols-3 gap-8">
+              {/* Connector line on desktop */}
+              <div className="hidden sm:block absolute top-7 left-[calc(16.666%+1.75rem)] right-[calc(16.666%+1.75rem)] h-px bg-slate-200" />
+
               {HOW_STEPS.map(({ step, label, desc }) => (
                 <div key={step} className="flex flex-col items-center text-center gap-4">
-                  <div className="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg shadow-blue-600/20">
+                  <div className="relative w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl font-extrabold shadow-lg shadow-blue-600/25 z-10">
                     {step}
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800 text-base mb-1">{label}</h3>
+                    <h3 className="font-bold text-slate-900 text-base mb-2">{label}</h3>
                     <p className="text-slate-500 text-sm leading-relaxed">{desc}</p>
                   </div>
-                  {step !== '3' && (
-                    <div className="hidden sm:block absolute" />
-                  )}
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Languages */}
-        <section className="py-16 bg-slate-900 text-white">
+        {/* ── LANGUAGES ── */}
+        <section className="py-20 bg-slate-900">
           <div className="max-w-4xl mx-auto px-6 text-center">
-            <h2 className="text-3xl font-bold mb-3">Languages Supported</h2>
-            <p className="text-slate-400 mb-10">Audio phrase translations available in five languages used across California communities.</p>
+            <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-4">Coverage</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Languages Supported</h2>
+            <p className="text-slate-400 mb-12 text-base max-w-lg mx-auto">Audio phrase translations available in five languages used across California communities.</p>
             <div className="flex flex-wrap justify-center gap-3">
-              {LANGUAGES.map(({ label, flag, color }) => (
+              {LANGUAGES.map(({ label, abbr, pill }) => (
                 <span
                   key={label}
-                  className={`${color} border font-semibold text-sm px-5 py-2.5 rounded-full flex items-center gap-2`}
+                  className={`${pill} border font-bold text-sm px-5 py-2.5 rounded-full inline-flex items-center gap-2 shadow-sm`}
                 >
-                  <span className="text-xs font-bold opacity-60">{flag}</span>
+                  <span className="text-[10px] font-black opacity-50 tracking-wider">{abbr}</span>
                   {label}
                 </span>
               ))}
@@ -267,11 +326,12 @@ export default function LandingPage({
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="py-14 bg-blue-600">
-          <div className="max-w-3xl mx-auto px-6 text-center">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Ready to communicate clearly?</h2>
-            <p className="text-blue-100 mb-8">Select your sector to get started. No sign-up required.</p>
+        {/* ── FINAL CTA ── */}
+        <section className="py-20 bg-gradient-to-br from-blue-600 to-blue-700 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
+          <div className="relative max-w-3xl mx-auto px-6 text-center">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Ready to communicate clearly?</h2>
+            <p className="text-blue-100 mb-10 text-base">Select your sector to get started. No account needed, works instantly.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {[
                 { id: 'education' as Sector, label: 'Education', Icon: GraduationCap },
@@ -281,7 +341,7 @@ export default function LandingPage({
                 <button
                   key={id}
                   onClick={() => onSelectSector(id)}
-                  className="flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/25 text-white font-semibold px-5 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2.5 bg-white/15 hover:bg-white/25 border border-white/25 text-white font-bold px-6 py-3.5 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-sm shadow-sm"
                 >
                   <Icon className="w-5 h-5" />
                   {label}
@@ -292,32 +352,31 @@ export default function LandingPage({
         </section>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white py-5 px-6">
+      {/* Footer */}
+      <footer className="border-t border-slate-100 bg-white py-6 px-6">
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
-          <button onClick={onOpenPolicy} className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors">
-            <FileText className="w-4 h-4" />
-            Language Access Policy
+          <div className="flex items-center gap-2 mr-4">
+            <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center">
+              <Languages className="w-3 h-3 text-white" />
+            </div>
+            <span className="font-bold text-slate-700 text-xs">LangAccess</span>
+          </div>
+          <button onClick={onOpenPolicy} className="flex items-center gap-1.5 text-slate-400 hover:text-blue-600 transition-colors text-xs">
+            <FileText className="w-3.5 h-3.5" />Language Access Policy
           </button>
-          <button onClick={onOpenPolicy} className="flex items-center gap-1.5 text-slate-500 hover:text-blue-600 transition-colors">
-            <MessageSquarePlus className="w-4 h-4" />
-            Request a Language
+          <button onClick={onOpenPolicy} className="flex items-center gap-1.5 text-slate-400 hover:text-blue-600 transition-colors text-xs">
+            <MessageSquarePlus className="w-3.5 h-3.5" />Request a Language
           </button>
-          <span className="text-slate-300 hidden sm:inline">|</span>
-          <button onClick={onOpenCertificates} className="flex items-center gap-1.5 text-slate-500 hover:text-yellow-600 transition-colors">
-            <Award className="w-4 h-4" />
-            Certificates
+          <button onClick={onOpenCertificates} className="flex items-center gap-1.5 text-slate-400 hover:text-yellow-600 transition-colors text-xs">
+            <Award className="w-3.5 h-3.5" />Certificates
           </button>
-          <button onClick={onOpenAmbassadors} className="flex items-center gap-1.5 text-slate-500 hover:text-green-600 transition-colors">
-            <Users className="w-4 h-4" />
-            Ambassadors
+          <button onClick={onOpenAmbassadors} className="flex items-center gap-1.5 text-slate-400 hover:text-green-600 transition-colors text-xs">
+            <Users className="w-3.5 h-3.5" />Ambassadors
           </button>
-          <span className="text-slate-300 hidden sm:inline">|</span>
-          <button onClick={onCheckForUpdates} className="flex items-center gap-1.5 text-slate-500 hover:text-emerald-600 transition-colors">
-            <RefreshCw className="w-4 h-4" />
-            Check for Updates
+          <button onClick={onCheckForUpdates} className="flex items-center gap-1.5 text-slate-400 hover:text-emerald-600 transition-colors text-xs">
+            <RefreshCw className="w-3.5 h-3.5" />Check for Updates
           </button>
-          <span className="text-slate-300 hidden sm:inline">|</span>
-          <span className="text-slate-400">California LEP Compliance Toolkit v1.0</span>
+          <span className="text-slate-300 text-xs ml-2">California LEP Compliance Toolkit v1.0</span>
         </div>
       </footer>
     </div>
