@@ -10,6 +10,7 @@ import { logInteraction } from '../utils/interactionLog';
 import { loadFavorites, addFavorite, removeFavorite, FavoritePhrase } from '../utils/favorites';
 import PointAndSpeak from './PointAndSpeak';
 import FavoritesPanel from './FavoritesPanel';
+import ResponseModePanel from './ResponseModePanel';
 
 const DEFAULT_REVIEWED_BY = 'LangAccess Editorial Review';
 const DEFAULT_VERSION = '1.0';
@@ -50,6 +51,8 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
   const [favorites, setFavorites] = useState<FavoritePhrase[]>([]);
   const [togglingFavKey, setTogglingFavKey] = useState<string | null>(null);
   const [showFavoritesPanel, setShowFavoritesPanel] = useState(false);
+  const [responsePanelKey, setResponsePanelKey] = useState<string | null>(null);
+  const [workerResponseToast, setWorkerResponseToast] = useState<string | null>(null);
 
   const isChineseLang = language === 'mandarin' || language === 'cantonese';
 
@@ -148,7 +151,13 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
       phraseEnglish: english || text,
       phraseTranslation: text,
     });
+    setResponsePanelKey(key);
   }, [language, sector, subcategory]);
+
+  const handleWorkerResponse = (english: string) => {
+    setWorkerResponseToast(english);
+    setTimeout(() => setWorkerResponseToast(null), 3500);
+  };
 
   const isFav = (english: string): FavoritePhrase | undefined =>
     favorites.find(f => f.phraseEnglish === english && f.language === language);
@@ -359,7 +368,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                         </div>
 
                         {/* Show to patient button */}
-                        <div className="px-5 pb-4 pt-1">
+                        <div className="px-5 pb-4 pt-1 space-y-2">
                           <button
                             onClick={() => setPointAndSpeak({ english: phrase.english, translation: displayTranslation })}
                             className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-semibold transition-colors active:scale-[0.98]"
@@ -367,6 +376,13 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                             <Eye className="w-4 h-4" />
                             {getShowToLabel()}
                           </button>
+                          {responsePanelKey === phraseId && (
+                            <ResponseModePanel
+                              language={language}
+                              onResponse={handleWorkerResponse}
+                              onClose={() => setResponsePanelKey(null)}
+                            />
+                          )}
                         </div>
 
                         {/* Quick Reply Buttons */}
@@ -551,6 +567,13 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
           </svg>
           Phrase saved successfully
+        </div>
+      )}
+
+      {workerResponseToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-700 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 flex flex-col items-center gap-1 min-w-[200px] text-center">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">They responded</span>
+          <span className="text-2xl font-black text-white">{workerResponseToast}</span>
         </div>
       )}
 
