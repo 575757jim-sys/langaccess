@@ -53,6 +53,7 @@ const LANGUAGES = [
 
 interface LandingPageProps {
   onSelectSector: (sector: Sector) => void;
+  onGetStarted: () => void;
   onOpenPolicy?: () => void;
   onOpenCommunityNavigator?: () => void;
   onOpenCertificates?: () => void;
@@ -62,6 +63,7 @@ interface LandingPageProps {
 
 export default function LandingPage({
   onSelectSector,
+  onGetStarted,
   onOpenPolicy,
   onOpenCommunityNavigator,
   onOpenCertificates,
@@ -102,7 +104,7 @@ export default function LandingPage({
             ))}
           </nav>
           <button
-            onClick={() => document.getElementById('sector-select')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={onGetStarted}
             className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
           >
             Get Started
@@ -160,10 +162,10 @@ export default function LandingPage({
 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
-                    onClick={() => onSelectSector('healthcare')}
+                    onClick={onGetStarted}
                     className="group inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-7 py-4 rounded-xl transition-all duration-200 shadow-xl shadow-blue-600/30 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] text-base"
                   >
-                    Try the Demo
+                    Get Started
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                   <button

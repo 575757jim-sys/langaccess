@@ -24,6 +24,7 @@ import { useUpdateManager } from './hooks/useUpdateManager';
 
 type AppView =
   | 'home'
+  | 'sector-select'
   | 'subcategory'
   | 'language'
   | 'phrases'
@@ -94,6 +95,15 @@ function App() {
   };
 
   const handleBackToHome = () => {
+    setSelectedSector(null);
+    setSelectedSubcategory(null);
+    setSelectedLanguage(null);
+    setTalkTogetherPending(false);
+    setJobSiteTalkPending(false);
+    setView('sector-select');
+  };
+
+  const handleBackToLanding = () => {
     setSelectedSector(null);
     setSelectedSubcategory(null);
     setSelectedLanguage(null);
@@ -210,9 +220,24 @@ function App() {
         />
       )}
 
+      {view === 'sector-select' && (
+        <HomeScreen
+          selectedSector={null}
+          onSelectSector={handleSelectSector}
+          onSelectLanguage={handleSelectLanguage}
+          onBackToSectorSelection={handleBackToLanding}
+          onOpenPolicy={() => setView('policy')}
+          onOpenCommunityNavigator={() => setView('community')}
+          onOpenCertificates={() => setView('certificates')}
+          onOpenAmbassadors={() => setView('ambassadors')}
+          onCheckForUpdates={checkForUpdates}
+        />
+      )}
+
       {view === 'home' && (
         <LandingPage
           onSelectSector={handleSelectSector}
+          onGetStarted={() => setView('sector-select')}
           onOpenPolicy={() => setView('policy')}
           onOpenCommunityNavigator={() => setView('community')}
           onOpenCertificates={() => setView('certificates')}
