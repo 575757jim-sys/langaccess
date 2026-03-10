@@ -3,13 +3,14 @@ import { Language, Phrase } from './phrases';
 export type HealthcareSubcategory = 'physical-health' | 'mental-health' | 'dental-health' | 'emergency-crisis';
 export type EducationSubcategory = 'student-discipline' | 'parent-outreach' | 'teacher-support' | 'special-needs';
 export type ConstructionSubcategory = 'safety-osha' | 'injury-emergency' | 'general-worksite';
+export type OutreachSubcategory = 'shelter-intake' | 'food-assistance' | 'medical-help' | 'safety-crisis';
 
-export type Subcategory = HealthcareSubcategory | EducationSubcategory | ConstructionSubcategory;
+export type Subcategory = HealthcareSubcategory | EducationSubcategory | ConstructionSubcategory | OutreachSubcategory;
 
 export interface SubcategoryInfo {
   id: Subcategory;
   label: string;
-  sector: 'healthcare' | 'education' | 'construction';
+  sector: 'healthcare' | 'education' | 'construction' | 'outreach';
 }
 
 export interface PhraseGroup {
@@ -37,10 +38,18 @@ export const constructionSubcategories: SubcategoryInfo[] = [
   { id: 'general-worksite', label: 'General Worksite', sector: 'construction' }
 ];
 
+export const outreachSubcategories: SubcategoryInfo[] = [
+  { id: 'shelter-intake', label: 'Shelter Intake', sector: 'outreach' },
+  { id: 'food-assistance', label: 'Food Assistance', sector: 'outreach' },
+  { id: 'medical-help', label: 'Medical Help', sector: 'outreach' },
+  { id: 'safety-crisis', label: 'Safety / Crisis', sector: 'outreach' },
+];
+
 export const allSubcategories: SubcategoryInfo[] = [
   ...healthcareSubcategories,
   ...educationSubcategories,
-  ...constructionSubcategories
+  ...constructionSubcategories,
+  ...outreachSubcategories,
 ];
 
 export interface SubcategoryPhraseData {
@@ -3125,4 +3134,1223 @@ export const subcategoryPhrases: SubcategoryPhraseData = {
     mandarin: [],
     cantonese: []
   }
+};
+
+export const outreachPhrases: SubcategoryPhraseData = {
+  'shelter-intake': {
+    spanish: [
+      {
+        groupLabel: 'Shelter Intake',
+        phrases: [
+          {
+            english: 'Do you need shelter tonight?',
+            translation: '¿Necesita refugio esta noche?',
+            responses: [
+              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
+              { translation: 'No', pronunciation: 'noh', english: 'No' },
+              { translation: 'No sé', pronunciation: 'noh seh', english: "I don't know" },
+            ],
+          },
+          {
+            english: 'The shelter opens at 6 PM.',
+            translation: 'El refugio abre a las 6 de la tarde.',
+            responses: [
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Entendido', pronunciation: 'en-ten-DEE-doh', english: 'Understood' },
+            ],
+          },
+          {
+            english: 'Please wait here.',
+            translation: 'Por favor, espere aquí.',
+            responses: [
+              { translation: 'Está bien', pronunciation: 'es-TAH bee-EN', english: 'Okay' },
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'We can help you find housing.',
+            translation: 'Podemos ayudarle a encontrar vivienda.',
+            responses: [
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Sí, por favor', pronunciation: 'see por fah-VOR', english: 'Yes, please' },
+            ],
+          },
+        ],
+      },
+    ],
+    tagalog: [
+      {
+        groupLabel: 'Shelter Intake',
+        phrases: [
+          {
+            english: 'Do you need shelter tonight?',
+            translation: 'Kailangan mo ba ng tirahan ngayong gabi?',
+            responses: [
+              { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
+              { translation: 'Hindi', pronunciation: 'HIN-dee', english: 'No' },
+            ],
+          },
+          {
+            english: 'The shelter opens at 6 PM.',
+            translation: 'Ang silungan ay bubukas ng alas-seis ng gabi.',
+            responses: [
+              { translation: 'Salamat', pronunciation: 'sah-LAH-maht', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'Please wait here.',
+            translation: 'Mangyaring maghintay dito.',
+            responses: [
+              { translation: 'Sige', pronunciation: 'SEE-geh', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'We can help you find housing.',
+            translation: 'Matutulungan ka naming makahanap ng tirahan.',
+            responses: [
+              { translation: 'Salamat', pronunciation: 'sah-LAH-maht', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+    vietnamese: [
+      {
+        groupLabel: 'Shelter Intake',
+        phrases: [
+          {
+            english: 'Do you need shelter tonight?',
+            translation: 'Bạn có cần chỗ ở tối nay không?',
+            responses: [
+              { translation: 'Có', pronunciation: 'kaw', english: 'Yes' },
+              { translation: 'Không', pronunciation: 'khome', english: 'No' },
+            ],
+          },
+          {
+            english: 'The shelter opens at 6 PM.',
+            translation: 'Nơi trú ẩn mở cửa lúc 6 giờ tối.',
+            responses: [
+              { translation: 'Cảm ơn', pronunciation: 'kahm uhn', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'Please wait here.',
+            translation: 'Vui lòng chờ ở đây.',
+            responses: [
+              { translation: 'Được', pronunciation: 'duh-uck', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'We can help you find housing.',
+            translation: 'Chúng tôi có thể giúp bạn tìm chỗ ở.',
+            responses: [
+              { translation: 'Cảm ơn', pronunciation: 'kahm uhn', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+    mandarin: [
+      {
+        groupLabel: 'Shelter Intake',
+        phrases: [
+          {
+            english: 'Do you need shelter tonight?',
+            translation: '您今晚需要庇护所吗？',
+            translations: { zh_simplified: '您今晚需要庇护所吗？', zh_traditional: '您今晚需要庇護所嗎？' },
+            responses: [
+              { translation: '是', pronunciation: 'shì', english: 'Yes' },
+              { translation: '不', pronunciation: 'bù', english: 'No' },
+            ],
+          },
+          {
+            english: 'The shelter opens at 6 PM.',
+            translation: '庇护所下午6点开门。',
+            translations: { zh_simplified: '庇护所下午6点开门。', zh_traditional: '庇護所下午6點開門。' },
+            responses: [
+              { translation: '谢谢', pronunciation: 'xiè xiè', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'Please wait here.',
+            translation: '请在这里等候。',
+            translations: { zh_simplified: '请在这里等候。', zh_traditional: '請在這裡等候。' },
+            responses: [
+              { translation: '好的', pronunciation: 'hǎo de', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'We can help you find housing.',
+            translation: '我们可以帮您找住所。',
+            translations: { zh_simplified: '我们可以帮您找住所。', zh_traditional: '我們可以幫您找住所。' },
+            responses: [
+              { translation: '谢谢', pronunciation: 'xiè xiè', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+    cantonese: [
+      {
+        groupLabel: 'Shelter Intake',
+        phrases: [
+          {
+            english: 'Do you need shelter tonight?',
+            translation: '你今晚需要庇護所嗎？',
+            responses: [
+              { translation: '係', pronunciation: 'hai', english: 'Yes' },
+              { translation: '唔係', pronunciation: 'mm-hai', english: 'No' },
+            ],
+          },
+          {
+            english: 'The shelter opens at 6 PM.',
+            translation: '庇護所下午六點開門。',
+            responses: [
+              { translation: '多謝', pronunciation: 'doh-jeh', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'Please wait here.',
+            translation: '請喺呢度等。',
+            responses: [
+              { translation: '好', pronunciation: 'ho', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'We can help you find housing.',
+            translation: '我哋可以幫你搵住處。',
+            responses: [
+              { translation: '多謝', pronunciation: 'doh-jeh', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+    hmong: [
+      {
+        groupLabel: 'Shelter Intake',
+        phrases: [
+          {
+            english: 'Do you need shelter tonight?',
+            translation: 'Koj puas xav tau tsev so hmo no?',
+            responses: [
+              { translation: 'Yog', pronunciation: 'yong', english: 'Yes' },
+              { translation: 'Tsis yog', pronunciation: 'chee yong', english: 'No' },
+            ],
+          },
+          {
+            english: 'The shelter opens at 6 PM.',
+            translation: 'Lub tsev so qhib thaum 6 teev tsaus ntuj.',
+            responses: [
+              { translation: 'Ua tsaug', pronunciation: 'wa-tsang', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'Please wait here.',
+            translation: 'Thov tos ntawm no.',
+            responses: [
+              { translation: 'Zoo', pronunciation: 'zong', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'We can help you find housing.',
+            translation: 'Peb pab tau koj nrhiav chaw nyob.',
+            responses: [
+              { translation: 'Ua tsaug', pronunciation: 'wa-tsang', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+    korean: [
+      {
+        groupLabel: 'Shelter Intake',
+        phrases: [
+          {
+            english: 'Do you need shelter tonight?',
+            translation: '오늘 밤 쉼터가 필요하세요?',
+            responses: [
+              { translation: '예', pronunciation: 'yeh', english: 'Yes' },
+              { translation: '아니요', pronunciation: 'ah-ni-yo', english: 'No' },
+            ],
+          },
+          {
+            english: 'The shelter opens at 6 PM.',
+            translation: '쉼터는 오후 6시에 열립니다.',
+            responses: [
+              { translation: '감사합니다', pronunciation: 'gam-sa-ham-ni-da', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'Please wait here.',
+            translation: '여기서 기다려 주세요.',
+            responses: [
+              { translation: '알겠습니다', pronunciation: 'al-get-seum-ni-da', english: 'Understood' },
+            ],
+          },
+          {
+            english: 'We can help you find housing.',
+            translation: '주거지를 찾는 것을 도와드릴 수 있습니다.',
+            responses: [
+              { translation: '감사합니다', pronunciation: 'gam-sa-ham-ni-da', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+    arabic: [
+      {
+        groupLabel: 'Shelter Intake',
+        phrases: [
+          {
+            english: 'Do you need shelter tonight?',
+            translation: 'هل تحتاج إلى مأوى الليلة؟',
+            responses: [
+              { translation: 'نعم', pronunciation: 'na-am', english: 'Yes' },
+              { translation: 'لا', pronunciation: 'laa', english: 'No' },
+            ],
+          },
+          {
+            english: 'The shelter opens at 6 PM.',
+            translation: 'يفتح المأوى الساعة السادسة مساءً.',
+            responses: [
+              { translation: 'شكراً', pronunciation: 'shuk-ran', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'Please wait here.',
+            translation: 'من فضلك انتظر هنا.',
+            responses: [
+              { translation: 'حسناً', pronunciation: 'has-nan', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'We can help you find housing.',
+            translation: 'يمكننا مساعدتك في إيجاد مسكن.',
+            responses: [
+              { translation: 'شكراً', pronunciation: 'shuk-ran', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  'food-assistance': {
+    spanish: [
+      {
+        groupLabel: 'Food Assistance',
+        phrases: [
+          {
+            english: 'Food is available here.',
+            translation: 'Hay comida disponible aquí.',
+            responses: [
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Entendido', pronunciation: 'en-ten-DEE-doh', english: 'Understood' },
+            ],
+          },
+          {
+            english: 'The food line starts there.',
+            translation: 'La fila para comida empieza allá.',
+            responses: [
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Está bien', pronunciation: 'es-TAH bee-EN', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Please wait for your turn.',
+            translation: 'Por favor, espere su turno.',
+            responses: [
+              { translation: 'Está bien', pronunciation: 'es-TAH bee-EN', english: 'Okay' },
+              { translation: 'Entendido', pronunciation: 'en-ten-DEE-doh', english: 'Understood' },
+            ],
+          },
+          {
+            english: 'Do you need food today?',
+            translation: '¿Necesita comida hoy?',
+            responses: [
+              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
+              { translation: 'No', pronunciation: 'noh', english: 'No' },
+              { translation: 'Para mi familia', pronunciation: 'PAH-rah mee fah-MEE-lee-ah', english: 'For my family' },
+            ],
+          },
+        ],
+      },
+    ],
+    tagalog: [
+      {
+        groupLabel: 'Food Assistance',
+        phrases: [
+          {
+            english: 'Food is available here.',
+            translation: 'May pagkain dito.',
+            responses: [
+              { translation: 'Salamat', pronunciation: 'sah-LAH-maht', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'The food line starts there.',
+            translation: 'Ang pila para sa pagkain ay nagsisimula doon.',
+            responses: [
+              { translation: 'Sige', pronunciation: 'SEE-geh', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Please wait for your turn.',
+            translation: 'Mangyaring maghintay ng iyong pagkakataon.',
+            responses: [
+              { translation: 'Sige', pronunciation: 'SEE-geh', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Do you need food today?',
+            translation: 'Kailangan mo ba ng pagkain ngayon?',
+            responses: [
+              { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
+              { translation: 'Hindi', pronunciation: 'HIN-dee', english: 'No' },
+            ],
+          },
+        ],
+      },
+    ],
+    vietnamese: [
+      {
+        groupLabel: 'Food Assistance',
+        phrases: [
+          {
+            english: 'Food is available here.',
+            translation: 'Có thức ăn ở đây.',
+            responses: [
+              { translation: 'Cảm ơn', pronunciation: 'kahm uhn', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'The food line starts there.',
+            translation: 'Hàng đợi thức ăn bắt đầu ở đó.',
+            responses: [
+              { translation: 'Được', pronunciation: 'duh-uck', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Please wait for your turn.',
+            translation: 'Vui lòng chờ đến lượt của bạn.',
+            responses: [
+              { translation: 'Được', pronunciation: 'duh-uck', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Do you need food today?',
+            translation: 'Bạn có cần thức ăn hôm nay không?',
+            responses: [
+              { translation: 'Có', pronunciation: 'kaw', english: 'Yes' },
+              { translation: 'Không', pronunciation: 'khome', english: 'No' },
+            ],
+          },
+        ],
+      },
+    ],
+    mandarin: [
+      {
+        groupLabel: 'Food Assistance',
+        phrases: [
+          {
+            english: 'Food is available here.',
+            translation: '这里有食物。',
+            translations: { zh_simplified: '这里有食物。', zh_traditional: '這裡有食物。' },
+            responses: [
+              { translation: '谢谢', pronunciation: 'xiè xiè', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'The food line starts there.',
+            translation: '食物队伍从那里开始。',
+            translations: { zh_simplified: '食物队伍从那里开始。', zh_traditional: '食物隊伍從那裡開始。' },
+            responses: [
+              { translation: '好的', pronunciation: 'hǎo de', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Please wait for your turn.',
+            translation: '请等待您的轮次。',
+            translations: { zh_simplified: '请等待您的轮次。', zh_traditional: '請等待您的輪次。' },
+            responses: [
+              { translation: '好的', pronunciation: 'hǎo de', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Do you need food today?',
+            translation: '您今天需要食物吗？',
+            translations: { zh_simplified: '您今天需要食物吗？', zh_traditional: '您今天需要食物嗎？' },
+            responses: [
+              { translation: '是', pronunciation: 'shì', english: 'Yes' },
+              { translation: '不', pronunciation: 'bù', english: 'No' },
+            ],
+          },
+        ],
+      },
+    ],
+    cantonese: [
+      {
+        groupLabel: 'Food Assistance',
+        phrases: [
+          {
+            english: 'Food is available here.',
+            translation: '呢度有食物。',
+            responses: [
+              { translation: '多謝', pronunciation: 'doh-jeh', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'The food line starts there.',
+            translation: '食物隊從嗰度開始。',
+            responses: [
+              { translation: '好', pronunciation: 'ho', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Please wait for your turn.',
+            translation: '請等輪到你。',
+            responses: [
+              { translation: '好', pronunciation: 'ho', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Do you need food today?',
+            translation: '你今日需要食物嗎？',
+            responses: [
+              { translation: '係', pronunciation: 'hai', english: 'Yes' },
+              { translation: '唔係', pronunciation: 'mm-hai', english: 'No' },
+            ],
+          },
+        ],
+      },
+    ],
+    hmong: [
+      {
+        groupLabel: 'Food Assistance',
+        phrases: [
+          {
+            english: 'Food is available here.',
+            translation: 'Muaj zaub mov ntawm no.',
+            responses: [
+              { translation: 'Ua tsaug', pronunciation: 'wa-tsang', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'The food line starts there.',
+            translation: 'Kab zaub mov pib ntawd.',
+            responses: [
+              { translation: 'Zoo', pronunciation: 'zong', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Please wait for your turn.',
+            translation: 'Thov tos koj lub sijhawm.',
+            responses: [
+              { translation: 'Zoo', pronunciation: 'zong', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Do you need food today?',
+            translation: 'Koj puas xav tau zaub mov hnub no?',
+            responses: [
+              { translation: 'Yog', pronunciation: 'yong', english: 'Yes' },
+              { translation: 'Tsis yog', pronunciation: 'chee yong', english: 'No' },
+            ],
+          },
+        ],
+      },
+    ],
+    korean: [
+      {
+        groupLabel: 'Food Assistance',
+        phrases: [
+          {
+            english: 'Food is available here.',
+            translation: '여기 음식이 있습니다.',
+            responses: [
+              { translation: '감사합니다', pronunciation: 'gam-sa-ham-ni-da', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'The food line starts there.',
+            translation: '음식 줄은 저쪽에서 시작됩니다.',
+            responses: [
+              { translation: '알겠습니다', pronunciation: 'al-get-seum-ni-da', english: 'Understood' },
+            ],
+          },
+          {
+            english: 'Please wait for your turn.',
+            translation: '차례를 기다려 주세요.',
+            responses: [
+              { translation: '알겠습니다', pronunciation: 'al-get-seum-ni-da', english: 'Understood' },
+            ],
+          },
+          {
+            english: 'Do you need food today?',
+            translation: '오늘 음식이 필요하세요?',
+            responses: [
+              { translation: '예', pronunciation: 'yeh', english: 'Yes' },
+              { translation: '아니요', pronunciation: 'ah-ni-yo', english: 'No' },
+            ],
+          },
+        ],
+      },
+    ],
+    arabic: [
+      {
+        groupLabel: 'Food Assistance',
+        phrases: [
+          {
+            english: 'Food is available here.',
+            translation: 'الطعام متوفر هنا.',
+            responses: [
+              { translation: 'شكراً', pronunciation: 'shuk-ran', english: 'Thank you' },
+            ],
+          },
+          {
+            english: 'The food line starts there.',
+            translation: 'طابور الطعام يبدأ هناك.',
+            responses: [
+              { translation: 'حسناً', pronunciation: 'has-nan', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Please wait for your turn.',
+            translation: 'من فضلك انتظر دورك.',
+            responses: [
+              { translation: 'حسناً', pronunciation: 'has-nan', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Do you need food today?',
+            translation: 'هل تحتاج إلى طعام اليوم؟',
+            responses: [
+              { translation: 'نعم', pronunciation: 'na-am', english: 'Yes' },
+              { translation: 'لا', pronunciation: 'laa', english: 'No' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  'medical-help': {
+    spanish: [
+      {
+        groupLabel: 'Medical Help',
+        phrases: [
+          {
+            english: 'Do you need medical help?',
+            translation: '¿Necesita ayuda médica?',
+            responses: [
+              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
+              { translation: 'No', pronunciation: 'noh', english: 'No' },
+            ],
+          },
+          {
+            english: 'Are you in pain?',
+            translation: '¿Tiene dolor?',
+            responses: [
+              { translation: 'Sí, mucho', pronunciation: 'see MOO-choh', english: 'Yes, a lot' },
+              { translation: 'Un poco', pronunciation: 'oon POH-koh', english: 'A little' },
+              { translation: 'No', pronunciation: 'noh', english: 'No' },
+            ],
+          },
+          {
+            english: 'We can call a doctor.',
+            translation: 'Podemos llamar a un médico.',
+            responses: [
+              { translation: 'Sí, por favor', pronunciation: 'see por fah-VOR', english: 'Yes, please' },
+              { translation: 'No, gracias', pronunciation: 'noh GRAH-see-ahs', english: 'No, thank you' },
+            ],
+          },
+          {
+            english: 'Please sit down.',
+            translation: 'Por favor, siéntese.',
+            responses: [
+              { translation: 'Está bien', pronunciation: 'es-TAH bee-EN', english: 'Okay' },
+              { translation: 'No puedo', pronunciation: 'noh PWEH-doh', english: "I can't" },
+            ],
+          },
+        ],
+      },
+    ],
+    tagalog: [
+      {
+        groupLabel: 'Medical Help',
+        phrases: [
+          {
+            english: 'Do you need medical help?',
+            translation: 'Kailangan mo ba ng medikal na tulong?',
+            responses: [
+              { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
+              { translation: 'Hindi', pronunciation: 'HIN-dee', english: 'No' },
+            ],
+          },
+          {
+            english: 'Are you in pain?',
+            translation: 'Mayroon ka bang sakit?',
+            responses: [
+              { translation: 'Oo, marami', pronunciation: 'oh-OH mah-RAH-mee', english: 'Yes, a lot' },
+              { translation: 'Kaunti', pronunciation: 'kah-OON-tee', english: 'A little' },
+              { translation: 'Hindi', pronunciation: 'HIN-dee', english: 'No' },
+            ],
+          },
+          {
+            english: 'We can call a doctor.',
+            translation: 'Maaari kaming tumawag ng doktor.',
+            responses: [
+              { translation: 'Oo, pakiusap', pronunciation: 'oh-OH pah-kee-OO-sahp', english: 'Yes, please' },
+            ],
+          },
+          {
+            english: 'Please sit down.',
+            translation: 'Mangyaring umupo.',
+            responses: [
+              { translation: 'Sige', pronunciation: 'SEE-geh', english: 'Okay' },
+            ],
+          },
+        ],
+      },
+    ],
+    vietnamese: [
+      {
+        groupLabel: 'Medical Help',
+        phrases: [
+          {
+            english: 'Do you need medical help?',
+            translation: 'Bạn có cần hỗ trợ y tế không?',
+            responses: [
+              { translation: 'Có', pronunciation: 'kaw', english: 'Yes' },
+              { translation: 'Không', pronunciation: 'khome', english: 'No' },
+            ],
+          },
+          {
+            english: 'Are you in pain?',
+            translation: 'Bạn có đau không?',
+            responses: [
+              { translation: 'Có, rất đau', pronunciation: 'kaw rat dau', english: 'Yes, a lot' },
+              { translation: 'Một chút', pronunciation: 'moht choot', english: 'A little' },
+              { translation: 'Không', pronunciation: 'khome', english: 'No' },
+            ],
+          },
+          {
+            english: 'We can call a doctor.',
+            translation: 'Chúng tôi có thể gọi bác sĩ.',
+            responses: [
+              { translation: 'Vâng, xin hãy', pronunciation: 'vang sin hay', english: 'Yes, please' },
+            ],
+          },
+          {
+            english: 'Please sit down.',
+            translation: 'Vui lòng ngồi xuống.',
+            responses: [
+              { translation: 'Được', pronunciation: 'duh-uck', english: 'Okay' },
+            ],
+          },
+        ],
+      },
+    ],
+    mandarin: [
+      {
+        groupLabel: 'Medical Help',
+        phrases: [
+          {
+            english: 'Do you need medical help?',
+            translation: '您需要医疗帮助吗？',
+            translations: { zh_simplified: '您需要医疗帮助吗？', zh_traditional: '您需要醫療幫助嗎？' },
+            responses: [
+              { translation: '是', pronunciation: 'shì', english: 'Yes' },
+              { translation: '不', pronunciation: 'bù', english: 'No' },
+            ],
+          },
+          {
+            english: 'Are you in pain?',
+            translation: '您有疼痛吗？',
+            translations: { zh_simplified: '您有疼痛吗？', zh_traditional: '您有疼痛嗎？' },
+            responses: [
+              { translation: '是，很痛', pronunciation: 'shì hěn tòng', english: 'Yes, a lot' },
+              { translation: '有一点', pronunciation: 'yǒu yī diǎn', english: 'A little' },
+              { translation: '不', pronunciation: 'bù', english: 'No' },
+            ],
+          },
+          {
+            english: 'We can call a doctor.',
+            translation: '我们可以叫医生。',
+            translations: { zh_simplified: '我们可以叫医生。', zh_traditional: '我們可以叫醫生。' },
+            responses: [
+              { translation: '好的，请', pronunciation: 'hǎo de qǐng', english: 'Yes, please' },
+            ],
+          },
+          {
+            english: 'Please sit down.',
+            translation: '请坐下。',
+            translations: { zh_simplified: '请坐下。', zh_traditional: '請坐下。' },
+            responses: [
+              { translation: '好的', pronunciation: 'hǎo de', english: 'Okay' },
+            ],
+          },
+        ],
+      },
+    ],
+    cantonese: [
+      {
+        groupLabel: 'Medical Help',
+        phrases: [
+          {
+            english: 'Do you need medical help?',
+            translation: '你需要醫療幫助嗎？',
+            responses: [
+              { translation: '係', pronunciation: 'hai', english: 'Yes' },
+              { translation: '唔係', pronunciation: 'mm-hai', english: 'No' },
+            ],
+          },
+          {
+            english: 'Are you in pain?',
+            translation: '你有痛楚嗎？',
+            responses: [
+              { translation: '係，好痛', pronunciation: 'hai ho-tung', english: 'Yes, a lot' },
+              { translation: '少少', pronunciation: 'siu-siu', english: 'A little' },
+              { translation: '唔係', pronunciation: 'mm-hai', english: 'No' },
+            ],
+          },
+          {
+            english: 'We can call a doctor.',
+            translation: '我哋可以叫醫生。',
+            responses: [
+              { translation: '好，唔該', pronunciation: 'ho mm-goi', english: 'Yes, please' },
+            ],
+          },
+          {
+            english: 'Please sit down.',
+            translation: '請坐低。',
+            responses: [
+              { translation: '好', pronunciation: 'ho', english: 'Okay' },
+            ],
+          },
+        ],
+      },
+    ],
+    hmong: [
+      {
+        groupLabel: 'Medical Help',
+        phrases: [
+          {
+            english: 'Do you need medical help?',
+            translation: 'Koj puas xav tau kev pab kho mob?',
+            responses: [
+              { translation: 'Yog', pronunciation: 'yong', english: 'Yes' },
+              { translation: 'Tsis yog', pronunciation: 'chee yong', english: 'No' },
+            ],
+          },
+          {
+            english: 'Are you in pain?',
+            translation: 'Koj puas mob?',
+            responses: [
+              { translation: 'Yog, mob heev', pronunciation: 'yong mob hev', english: 'Yes, a lot' },
+              { translation: 'Me ntsis', pronunciation: 'meh-ntsis', english: 'A little' },
+              { translation: 'Tsis yog', pronunciation: 'chee yong', english: 'No' },
+            ],
+          },
+          {
+            english: 'We can call a doctor.',
+            translation: 'Peb hu tau kws kho mob.',
+            responses: [
+              { translation: 'Yog, thov', pronunciation: 'yong thov', english: 'Yes, please' },
+            ],
+          },
+          {
+            english: 'Please sit down.',
+            translation: 'Thov zaum.',
+            responses: [
+              { translation: 'Zoo', pronunciation: 'zong', english: 'Okay' },
+            ],
+          },
+        ],
+      },
+    ],
+    korean: [
+      {
+        groupLabel: 'Medical Help',
+        phrases: [
+          {
+            english: 'Do you need medical help?',
+            translation: '의료 도움이 필요하세요?',
+            responses: [
+              { translation: '예', pronunciation: 'yeh', english: 'Yes' },
+              { translation: '아니요', pronunciation: 'ah-ni-yo', english: 'No' },
+            ],
+          },
+          {
+            english: 'Are you in pain?',
+            translation: '아프세요?',
+            responses: [
+              { translation: '예, 많이', pronunciation: 'yeh mah-ni', english: 'Yes, a lot' },
+              { translation: '조금', pronunciation: 'jo-geum', english: 'A little' },
+              { translation: '아니요', pronunciation: 'ah-ni-yo', english: 'No' },
+            ],
+          },
+          {
+            english: 'We can call a doctor.',
+            translation: '의사를 부를 수 있습니다.',
+            responses: [
+              { translation: '예, 부탁해요', pronunciation: 'yeh bu-tak-hae-yo', english: 'Yes, please' },
+            ],
+          },
+          {
+            english: 'Please sit down.',
+            translation: '앉아 주세요.',
+            responses: [
+              { translation: '알겠습니다', pronunciation: 'al-get-seum-ni-da', english: 'Understood' },
+            ],
+          },
+        ],
+      },
+    ],
+    arabic: [
+      {
+        groupLabel: 'Medical Help',
+        phrases: [
+          {
+            english: 'Do you need medical help?',
+            translation: 'هل تحتاج إلى مساعدة طبية؟',
+            responses: [
+              { translation: 'نعم', pronunciation: 'na-am', english: 'Yes' },
+              { translation: 'لا', pronunciation: 'laa', english: 'No' },
+            ],
+          },
+          {
+            english: 'Are you in pain?',
+            translation: 'هل تشعر بالألم؟',
+            responses: [
+              { translation: 'نعم، كثيراً', pronunciation: 'na-am ka-thee-ran', english: 'Yes, a lot' },
+              { translation: 'قليلاً', pronunciation: 'qa-lee-lan', english: 'A little' },
+              { translation: 'لا', pronunciation: 'laa', english: 'No' },
+            ],
+          },
+          {
+            english: 'We can call a doctor.',
+            translation: 'يمكننا الاتصال بطبيب.',
+            responses: [
+              { translation: 'نعم، من فضلك', pronunciation: 'na-am min fad-lak', english: 'Yes, please' },
+            ],
+          },
+          {
+            english: 'Please sit down.',
+            translation: 'من فضلك اجلس.',
+            responses: [
+              { translation: 'حسناً', pronunciation: 'has-nan', english: 'Okay' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+
+  'safety-crisis': {
+    spanish: [
+      {
+        groupLabel: 'Safety / Crisis',
+        phrases: [
+          {
+            english: 'Are you safe?',
+            translation: '¿Está usted seguro/a?',
+            responses: [
+              { translation: 'Sí', pronunciation: 'see', english: 'Yes' },
+              { translation: 'No', pronunciation: 'noh', english: 'No' },
+              { translation: 'No sé', pronunciation: 'noh seh', english: "I don't know" },
+            ],
+          },
+          {
+            english: 'Do you need help?',
+            translation: '¿Necesita ayuda?',
+            responses: [
+              { translation: 'Sí, ayuda', pronunciation: 'see ah-YOO-dah', english: 'Yes, help' },
+              { translation: 'No', pronunciation: 'noh', english: 'No' },
+            ],
+          },
+          {
+            english: 'Please stay here.',
+            translation: 'Por favor, quédese aquí.',
+            responses: [
+              { translation: 'Está bien', pronunciation: 'es-TAH bee-EN', english: 'Okay' },
+              { translation: 'No puedo', pronunciation: 'noh PWEH-doh', english: "I can't" },
+            ],
+          },
+          {
+            english: 'Emergency services are coming.',
+            translation: 'Los servicios de emergencia están en camino.',
+            responses: [
+              { translation: 'Gracias', pronunciation: 'GRAH-see-ahs', english: 'Thank you' },
+              { translation: 'Entendido', pronunciation: 'en-ten-DEE-doh', english: 'Understood' },
+            ],
+          },
+        ],
+      },
+    ],
+    tagalog: [
+      {
+        groupLabel: 'Safety / Crisis',
+        phrases: [
+          {
+            english: 'Are you safe?',
+            translation: 'Ligtas ka ba?',
+            responses: [
+              { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
+              { translation: 'Hindi', pronunciation: 'HIN-dee', english: 'No' },
+            ],
+          },
+          {
+            english: 'Do you need help?',
+            translation: 'Kailangan mo ba ng tulong?',
+            responses: [
+              { translation: 'Oo', pronunciation: 'oh-OH', english: 'Yes' },
+              { translation: 'Hindi', pronunciation: 'HIN-dee', english: 'No' },
+            ],
+          },
+          {
+            english: 'Please stay here.',
+            translation: 'Mangyaring manatili dito.',
+            responses: [
+              { translation: 'Sige', pronunciation: 'SEE-geh', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Emergency services are coming.',
+            translation: 'Paparating na ang mga emergency services.',
+            responses: [
+              { translation: 'Salamat', pronunciation: 'sah-LAH-maht', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+    vietnamese: [
+      {
+        groupLabel: 'Safety / Crisis',
+        phrases: [
+          {
+            english: 'Are you safe?',
+            translation: 'Bạn có an toàn không?',
+            responses: [
+              { translation: 'Có', pronunciation: 'kaw', english: 'Yes' },
+              { translation: 'Không', pronunciation: 'khome', english: 'No' },
+            ],
+          },
+          {
+            english: 'Do you need help?',
+            translation: 'Bạn có cần giúp đỡ không?',
+            responses: [
+              { translation: 'Có', pronunciation: 'kaw', english: 'Yes' },
+              { translation: 'Không', pronunciation: 'khome', english: 'No' },
+            ],
+          },
+          {
+            english: 'Please stay here.',
+            translation: 'Vui lòng ở lại đây.',
+            responses: [
+              { translation: 'Được', pronunciation: 'duh-uck', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Emergency services are coming.',
+            translation: 'Dịch vụ khẩn cấp đang đến.',
+            responses: [
+              { translation: 'Cảm ơn', pronunciation: 'kahm uhn', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+    mandarin: [
+      {
+        groupLabel: 'Safety / Crisis',
+        phrases: [
+          {
+            english: 'Are you safe?',
+            translation: '您安全吗？',
+            translations: { zh_simplified: '您安全吗？', zh_traditional: '您安全嗎？' },
+            responses: [
+              { translation: '是', pronunciation: 'shì', english: 'Yes' },
+              { translation: '不', pronunciation: 'bù', english: 'No' },
+            ],
+          },
+          {
+            english: 'Do you need help?',
+            translation: '您需要帮助吗？',
+            translations: { zh_simplified: '您需要帮助吗？', zh_traditional: '您需要幫助嗎？' },
+            responses: [
+              { translation: '是', pronunciation: 'shì', english: 'Yes' },
+              { translation: '不', pronunciation: 'bù', english: 'No' },
+            ],
+          },
+          {
+            english: 'Please stay here.',
+            translation: '请留在这里。',
+            translations: { zh_simplified: '请留在这里。', zh_traditional: '請留在這裡。' },
+            responses: [
+              { translation: '好的', pronunciation: 'hǎo de', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Emergency services are coming.',
+            translation: '紧急服务正在赶来。',
+            translations: { zh_simplified: '紧急服务正在赶来。', zh_traditional: '緊急服務正在趕來。' },
+            responses: [
+              { translation: '谢谢', pronunciation: 'xiè xiè', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+    cantonese: [
+      {
+        groupLabel: 'Safety / Crisis',
+        phrases: [
+          {
+            english: 'Are you safe?',
+            translation: '你安全嗎？',
+            responses: [
+              { translation: '係', pronunciation: 'hai', english: 'Yes' },
+              { translation: '唔係', pronunciation: 'mm-hai', english: 'No' },
+            ],
+          },
+          {
+            english: 'Do you need help?',
+            translation: '你需要幫助嗎？',
+            responses: [
+              { translation: '係', pronunciation: 'hai', english: 'Yes' },
+              { translation: '唔係', pronunciation: 'mm-hai', english: 'No' },
+            ],
+          },
+          {
+            english: 'Please stay here.',
+            translation: '請留喺呢度。',
+            responses: [
+              { translation: '好', pronunciation: 'ho', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Emergency services are coming.',
+            translation: '緊急服務快到喇。',
+            responses: [
+              { translation: '多謝', pronunciation: 'doh-jeh', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+    hmong: [
+      {
+        groupLabel: 'Safety / Crisis',
+        phrases: [
+          {
+            english: 'Are you safe?',
+            translation: 'Koj puas nyab xeeb?',
+            responses: [
+              { translation: 'Yog', pronunciation: 'yong', english: 'Yes' },
+              { translation: 'Tsis yog', pronunciation: 'chee yong', english: 'No' },
+            ],
+          },
+          {
+            english: 'Do you need help?',
+            translation: 'Koj puas xav tau kev pab?',
+            responses: [
+              { translation: 'Yog', pronunciation: 'yong', english: 'Yes' },
+              { translation: 'Tsis yog', pronunciation: 'chee yong', english: 'No' },
+            ],
+          },
+          {
+            english: 'Please stay here.',
+            translation: 'Thov nyob ntawm no.',
+            responses: [
+              { translation: 'Zoo', pronunciation: 'zong', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Emergency services are coming.',
+            translation: 'Kev pab ceev ceev tab tom tuaj.',
+            responses: [
+              { translation: 'Ua tsaug', pronunciation: 'wa-tsang', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+    korean: [
+      {
+        groupLabel: 'Safety / Crisis',
+        phrases: [
+          {
+            english: 'Are you safe?',
+            translation: '안전하세요?',
+            responses: [
+              { translation: '예', pronunciation: 'yeh', english: 'Yes' },
+              { translation: '아니요', pronunciation: 'ah-ni-yo', english: 'No' },
+            ],
+          },
+          {
+            english: 'Do you need help?',
+            translation: '도움이 필요하세요?',
+            responses: [
+              { translation: '예', pronunciation: 'yeh', english: 'Yes' },
+              { translation: '아니요', pronunciation: 'ah-ni-yo', english: 'No' },
+            ],
+          },
+          {
+            english: 'Please stay here.',
+            translation: '여기 있어 주세요.',
+            responses: [
+              { translation: '알겠습니다', pronunciation: 'al-get-seum-ni-da', english: 'Understood' },
+            ],
+          },
+          {
+            english: 'Emergency services are coming.',
+            translation: '응급 서비스가 오고 있습니다.',
+            responses: [
+              { translation: '감사합니다', pronunciation: 'gam-sa-ham-ni-da', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+    arabic: [
+      {
+        groupLabel: 'Safety / Crisis',
+        phrases: [
+          {
+            english: 'Are you safe?',
+            translation: 'هل أنت بأمان؟',
+            responses: [
+              { translation: 'نعم', pronunciation: 'na-am', english: 'Yes' },
+              { translation: 'لا', pronunciation: 'laa', english: 'No' },
+            ],
+          },
+          {
+            english: 'Do you need help?',
+            translation: 'هل تحتاج إلى مساعدة؟',
+            responses: [
+              { translation: 'نعم', pronunciation: 'na-am', english: 'Yes' },
+              { translation: 'لا', pronunciation: 'laa', english: 'No' },
+            ],
+          },
+          {
+            english: 'Please stay here.',
+            translation: 'من فضلك ابق هنا.',
+            responses: [
+              { translation: 'حسناً', pronunciation: 'has-nan', english: 'Okay' },
+            ],
+          },
+          {
+            english: 'Emergency services are coming.',
+            translation: 'خدمات الطوارئ في الطريق.',
+            responses: [
+              { translation: 'شكراً', pronunciation: 'shuk-ran', english: 'Thank you' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
 };
