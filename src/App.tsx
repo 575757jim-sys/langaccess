@@ -17,7 +17,8 @@ import {
   Subcategory,
   healthcareSubcategories,
   educationSubcategories,
-  constructionSubcategories
+  constructionSubcategories,
+  outreachSubcategories,
 } from './data/subcategories';
 import { initAudioUnlock } from './utils/speech';
 import { useUpdateManager } from './hooks/useUpdateManager';
@@ -130,6 +131,7 @@ function App() {
     if (selectedSector === 'healthcare') return healthcareSubcategories;
     if (selectedSector === 'education') return educationSubcategories;
     if (selectedSector === 'construction') return constructionSubcategories;
+    if (selectedSector === 'outreach') return outreachSubcategories;
     return [];
   };
 
@@ -137,6 +139,7 @@ function App() {
     if (selectedSector === 'healthcare') return 'Healthcare';
     if (selectedSector === 'education') return 'Education';
     if (selectedSector === 'construction') return 'Construction';
+    if (selectedSector === 'outreach') return 'Community Outreach';
     return '';
   };
 
