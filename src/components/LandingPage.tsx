@@ -331,7 +331,14 @@ export default function LandingPage({
           <div className="relative max-w-3xl mx-auto px-6 text-center">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Ready to communicate clearly?</h2>
             <p className="text-blue-100 mb-10 text-base">Select your sector to get started. No account needed, works instantly.</p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center">
+              <button
+                onClick={() => onOpenCommunityNavigator?.()}
+                className="flex items-center justify-center gap-2.5 bg-white/15 hover:bg-white/25 border border-white/25 text-white font-bold px-6 py-3.5 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-sm shadow-sm"
+              >
+                <Users className="w-5 h-5" />
+                Community Outreach
+              </button>
               {[
                 { id: 'education' as Sector, label: 'Education', Icon: GraduationCap },
                 { id: 'healthcare' as Sector, label: 'Healthcare', Icon: Heart },
