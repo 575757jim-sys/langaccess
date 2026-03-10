@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users, ChevronRight, Handshake, Star } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users, ChevronRight, Handshake, Star, HandHeart } from 'lucide-react';
 import FavoritesPanel from './FavoritesPanel';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
@@ -82,6 +82,22 @@ const SECTOR_CARDS = [
     accentText: 'text-orange-600',
     accentBorder: 'border-orange-100',
     gradientFrom: 'from-orange-50',
+  },
+  {
+    id: 'outreach' as Sector,
+    label: 'Community Outreach',
+    description: 'Frontline workers connect with community members for shelter, food, and safety.',
+    Icon: HandHeart,
+    iconBg: 'bg-cyan-600',
+    iconColor: 'text-white',
+    border: 'border-slate-200',
+    hoverBorder: 'hover:border-cyan-300',
+    hoverShadow: 'hover:shadow-cyan-100',
+    tagBg: 'bg-cyan-600',
+    accentBg: 'bg-cyan-50',
+    accentText: 'text-cyan-600',
+    accentBorder: 'border-cyan-100',
+    gradientFrom: 'from-cyan-50',
   },
 ];
 

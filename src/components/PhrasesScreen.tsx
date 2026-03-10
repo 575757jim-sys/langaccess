@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users, MessageSquare, HardHat, Star, Maximize2 } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
-import { Subcategory, subcategoryPhrases, PhraseGroup } from '../data/subcategories';
+import { Subcategory, subcategoryPhrases, outreachPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
 import { playAudioFromGesture } from '../utils/speech';
 import { exportPhrasesToCSV } from '../utils/exportToCSV';
@@ -33,7 +33,8 @@ interface PointAndSpeakData {
 
 export default function PhrasesScreen({ language, sector, subcategory, onBack, onOpenConversation, onOpenTalkTogether, onOpenJobSiteTalk }: PhrasesScreenProps) {
   const data = languageData[language];
-  const phraseGroups: PhraseGroup[] = subcategoryPhrases[subcategory]?.[language] || [];
+  const allPhraseData = { ...subcategoryPhrases, ...outreachPhrases };
+  const phraseGroups: PhraseGroup[] = allPhraseData[subcategory]?.[language] || [];
 
   const [fullscreenTranslation, setFullscreenTranslation] = useState<string | null>(null);
   const [expandedPhrases, setExpandedPhrases] = useState<Set<string>>(new Set());
