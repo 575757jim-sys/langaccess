@@ -102,7 +102,7 @@ export default function LandingPage({
             ))}
           </nav>
           <button
-            onClick={() => onSelectSector('healthcare')}
+            onClick={() => document.getElementById('sector-select')?.scrollIntoView({ behavior: 'smooth' })}
             className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
           >
             Get Started
@@ -326,7 +326,7 @@ export default function LandingPage({
         </section>
 
         {/* ── FINAL CTA ── */}
-        <section className="py-20 bg-gradient-to-br from-blue-600 to-blue-700 relative overflow-hidden">
+        <section id="sector-select" className="py-20 bg-gradient-to-br from-blue-600 to-blue-700 relative overflow-hidden">
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
           <div className="relative max-w-3xl mx-auto px-6 text-center">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Ready to communicate clearly?</h2>
