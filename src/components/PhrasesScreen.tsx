@@ -379,6 +379,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                           {responsePanelKey === phraseId && (
                             <ResponseModePanel
                               language={language}
+                              sector={sector}
                               onResponse={handleWorkerResponse}
                               onClose={() => setResponsePanelKey(null)}
                             />
