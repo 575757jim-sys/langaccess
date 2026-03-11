@@ -11,6 +11,10 @@ import { loadFavorites, addFavorite, removeFavorite, FavoritePhrase } from '../u
 import PointAndSpeak from './PointAndSpeak';
 import FavoritesPanel from './FavoritesPanel';
 import ResponseModePanel from './ResponseModePanel';
+import EmailCaptureModal from './EmailCaptureModal';
+
+const EMAIL_CAPTURED_KEY = 'langaccess_email_captured';
+const EMAIL_MODAL_DISMISSED_KEY = 'langaccess_email_modal_dismissed';
 
 const DEFAULT_REVIEWED_BY = 'LangAccess Editorial Review';
 const DEFAULT_VERSION = '1.0';
@@ -54,6 +58,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
   const [showFavoritesPanel, setShowFavoritesPanel] = useState(false);
   const [responsePanelKey, setResponsePanelKey] = useState<string | null>(null);
   const [workerResponseToast, setWorkerResponseToast] = useState<string | null>(null);
+  const [emailModalPending, setEmailModalPending] = useState<{ english: string; translation: string; key: string } | null>(null);
 
   const isChineseLang = language === 'mandarin' || language === 'cantonese';
 
@@ -163,23 +168,48 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
   const isFav = (english: string): FavoritePhrase | undefined =>
     favorites.find(f => f.phraseEnglish === english && f.language === language);
 
-  const handleToggleFavorite = async (phrase: { english: string; translation: string }, key: string) => {
+  const doAddFavorite = async (phrase: { english: string; translation: string }, key: string) => {
     setTogglingFavKey(key);
+    const added = await addFavorite({
+      language,
+      sector,
+      subcategory,
+      phraseEnglish: phrase.english,
+      phraseTranslation: phrase.translation,
+    });
+    if (added) setFavorites(prev => [added, ...prev]);
+    setTogglingFavKey(null);
+  };
+
+  const handleToggleFavorite = async (phrase: { english: string; translation: string }, key: string) => {
     const existing = isFav(phrase.english);
     if (existing) {
+      setTogglingFavKey(key);
       await removeFavorite(existing.id);
       setFavorites(prev => prev.filter(f => f.id !== existing.id));
-    } else {
-      const added = await addFavorite({
-        language,
-        sector,
-        subcategory,
-        phraseEnglish: phrase.english,
-        phraseTranslation: phrase.translation,
-      });
-      if (added) setFavorites(prev => [added, ...prev]);
+      setTogglingFavKey(null);
+      return;
     }
-    setTogglingFavKey(null);
+    const emailCaptured = localStorage.getItem(EMAIL_CAPTURED_KEY);
+    const modalDismissed = sessionStorage.getItem(EMAIL_MODAL_DISMISSED_KEY);
+    if (!emailCaptured && !modalDismissed) {
+      setEmailModalPending({ english: phrase.english, translation: phrase.translation, key });
+      return;
+    }
+    await doAddFavorite(phrase, key);
+  };
+
+  const handleEmailSave = async (email: string) => {
+    localStorage.setItem(EMAIL_CAPTURED_KEY, email);
+    setEmailModalPending(null);
+    if (emailModalPending) await doAddFavorite(emailModalPending, emailModalPending.key);
+  };
+
+  const handleEmailDismiss = async () => {
+    sessionStorage.setItem(EMAIL_MODAL_DISMISSED_KEY, '1');
+    const pending = emailModalPending;
+    setEmailModalPending(null);
+    if (pending) await doAddFavorite(pending, pending.key);
   };
 
   const toggleExpanded = (id: string) => {
@@ -581,6 +611,15 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
 
       {showFavoritesPanel && (
         <FavoritesPanel onClose={() => setShowFavoritesPanel(false)} />
+      )}
+
+      {emailModalPending && (
+        <EmailCaptureModal
+          sector={sector}
+          phrase={emailModalPending.english}
+          onSave={handleEmailSave}
+          onDismiss={handleEmailDismiss}
+        />
       )}
     </>
   );
