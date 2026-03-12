@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users, MessageSquare, HardHat, Star, Maximize2 } from 'lucide-react';
+import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users, MessageSquare, HardHat, Star, Maximize2, Mic, MicOff } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, outreachPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
@@ -59,6 +59,8 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
   const [responsePanelKey, setResponsePanelKey] = useState<string | null>(null);
   const [workerResponseToast, setWorkerResponseToast] = useState<string | null>(null);
   const [emailModalPending, setEmailModalPending] = useState<{ english: string; translation: string; key: string } | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
 
   const isChineseLang = language === 'mandarin' || language === 'cantonese';
 
@@ -163,6 +165,34 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
   const handleWorkerResponse = (english: string) => {
     setWorkerResponseToast(english);
     setTimeout(() => setWorkerResponseToast(null), 3500);
+  };
+
+  const handleVoiceInput = () => {
+    const SpeechRecognition = (window as unknown as Record<string, unknown>).SpeechRecognition as typeof globalThis.SpeechRecognition | undefined
+      ?? (window as unknown as Record<string, unknown>).webkitSpeechRecognition as typeof globalThis.SpeechRecognition | undefined;
+    if (!SpeechRecognition) {
+      setVoiceError('Voice input not available');
+      setTimeout(() => setVoiceError(null), 3000);
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    setIsListening(true);
+    setVoiceError(null);
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = event.results[0][0].transcript;
+      setNewEnglish(transcript);
+      setIsListening(false);
+    };
+    recognition.onerror = () => {
+      setIsListening(false);
+      setVoiceError('Voice input not available');
+      setTimeout(() => setVoiceError(null), 3000);
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
   };
 
   const isFav = (english: string): FavoritePhrase | undefined =>
@@ -490,12 +520,29 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
               <form onSubmit={handleAddCustomPhrase} className="bg-white rounded-2xl border border-slate-200 p-5 mb-4 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">English Phrase</label>
-                  <input
-                    type="text" value={newEnglish} onChange={e => setNewEnglish(e.target.value)}
-                    placeholder="Enter English phrase"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
+                  <div className="relative flex items-center gap-2">
+                    <input
+                      type="text" value={newEnglish} onChange={e => setNewEnglish(e.target.value)}
+                      placeholder={isListening ? 'Listening...' : 'Enter English phrase'}
+                      className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${isListening ? 'border-blue-400 bg-blue-50 placeholder:text-blue-500' : 'border-slate-300'}`}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={handleVoiceInput}
+                      disabled={isListening}
+                      aria-label={isListening ? 'Listening' : 'Speak phrase'}
+                      className={`flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg border transition-colors ${isListening ? 'bg-blue-100 border-blue-300 text-blue-600 animate-pulse' : 'bg-slate-50 border-slate-300 text-slate-500 hover:bg-slate-100 hover:text-slate-700'}`}
+                    >
+                      {isListening ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {voiceError && (
+                    <p className="mt-1 text-xs text-amber-600">{voiceError}</p>
+                  )}
+                  {isListening && (
+                    <p className="mt-1 text-xs text-blue-600">Listening... speak your phrase now</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
