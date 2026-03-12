@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users, MessageSquare, HardHat, Star, Maximize2, Mic, MicOff } from 'lucide-react';
+import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users, MessageSquare, HardHat, Star, Maximize2, Mic, MicOff, Share2, Monitor } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, outreachPhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
@@ -12,6 +12,7 @@ import PointAndSpeak from './PointAndSpeak';
 import FavoritesPanel from './FavoritesPanel';
 import ResponseModePanel from './ResponseModePanel';
 import EmailCaptureModal from './EmailCaptureModal';
+import ShowScreenOverlay from './ShowScreenOverlay';
 
 const EMAIL_CAPTURED_KEY = 'langaccess_email_captured';
 const EMAIL_MODAL_DISMISSED_KEY = 'langaccess_email_modal_dismissed';
@@ -63,6 +64,8 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [translationError, setTranslationError] = useState(false);
+  const [showScreen, setShowScreen] = useState<{ english: string; translation: string } | null>(null);
+  const [shareToast, setShareToast] = useState<string | null>(null);
 
   const isChineseLang = language === 'mandarin' || language === 'cantonese';
 
@@ -248,6 +251,26 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
     const pending = emailModalPending;
     setEmailModalPending(null);
     if (pending) await doAddFavorite(pending, pending.key);
+  };
+
+  const handleShare = async (english: string, translation: string) => {
+    const text = `${translation}\n\n${english}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ text });
+      } catch {
+        // user cancelled — do nothing
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(text);
+        setShareToast('Phrase copied — paste into your message.');
+        setTimeout(() => setShareToast(null), 3000);
+      } catch {
+        setShareToast('Unable to copy. Please copy manually.');
+        setTimeout(() => setShareToast(null), 3000);
+      }
+    }
   };
 
   const toggleExpanded = (id: string) => {
@@ -437,18 +460,37 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                                 ? <Loader2 className="w-4 h-4 text-yellow-400 animate-spin" />
                                 : <Star className={`w-4 h-4 transition-colors ${isFavorited ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300 group-hover/fav:text-yellow-400'}`} />}
                             </button>
+                            <button
+                              onClick={() => handleShare(phrase.english, displayTranslation)}
+                              className="flex-1 flex items-center justify-center hover:bg-green-50 transition-colors border-t border-slate-100 group/share"
+                              aria-label="Share phrase"
+                              title="Share phrase"
+                            >
+                              <Share2 className="w-4 h-4 text-slate-300 group-hover/share:text-green-500 transition-colors" />
+                            </button>
                           </div>
                         </div>
 
-                        {/* Show to patient button */}
+                        {/* Show to patient / Show Screen buttons */}
                         <div className="px-5 pb-4 pt-1 space-y-2">
-                          <button
-                            onClick={() => setPointAndSpeak({ english: phrase.english, translation: displayTranslation })}
-                            className="w-full flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-semibold transition-colors active:scale-[0.98]"
-                          >
-                            <Eye className="w-4 h-4" />
-                            {getShowToLabel()}
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setPointAndSpeak({ english: phrase.english, translation: displayTranslation })}
+                              className="flex-1 flex items-center justify-center gap-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white px-4 py-3 rounded-xl text-sm font-semibold transition-colors active:scale-[0.98]"
+                            >
+                              <Eye className="w-4 h-4" />
+                              {getShowToLabel()}
+                            </button>
+                            <button
+                              onClick={() => setShowScreen({ english: phrase.english, translation: displayTranslation })}
+                              className="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 px-4 py-3 rounded-xl text-sm font-semibold transition-colors active:scale-[0.98] flex-shrink-0"
+                              aria-label="Show Screen Mode — display phrase in large text"
+                              title="Show Screen Mode"
+                            >
+                              <Monitor className="w-4 h-4" />
+                              Show Screen
+                            </button>
+                          </div>
                           {responsePanelKey === phraseId && (
                             <ResponseModePanel
                               language={language}
@@ -704,12 +746,29 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
         />
       )}
 
+      {/* Show Screen overlay */}
+      {showScreen && (
+        <ShowScreenOverlay
+          english={showScreen.english}
+          translation={showScreen.translation}
+          language={language}
+          onClose={() => setShowScreen(null)}
+        />
+      )}
+
       {showSuccessToast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg z-50 flex items-center gap-2 text-sm font-medium">
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
           </svg>
           Phrase saved successfully
+        </div>
+      )}
+
+      {shareToast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-5 py-3 rounded-xl shadow-lg z-50 flex items-center gap-2 text-sm font-medium whitespace-nowrap">
+          <Share2 className="w-4 h-4 text-green-400 flex-shrink-0" />
+          {shareToast}
         </div>
       )}
 
