@@ -131,7 +131,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
 
   const getShowToLabel = () => {
     if (sector === 'healthcare') return 'Show to Patient';
-    if (sector === 'education') return 'Show to Student/Parent';
+    if (sector === 'education') return 'Show Translation';
     if (sector === 'construction') return 'Show to Worker';
     return 'Show';
   };
@@ -141,6 +141,39 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
     if (sector === 'education') return 'Student or Parent May Respond With';
     if (sector === 'construction') return 'Worker May Respond With';
     return 'Responses';
+  };
+
+  const getGroupHelperText = (label: string): string | null => {
+    const map: Record<string, string> = {
+      'Notifying Parent of Incident': 'Use these phrases when contacting parents about student behavior or incidents.',
+      'Daily Communication': 'Everyday phrases for communicating with students and families.',
+      'Attendance and Tardiness': 'Use these when discussing attendance issues with parents.',
+      'Academic Performance': 'Phrases for talking about grades, progress, and academic concerns.',
+      'Meeting and Conferences': 'Use these to schedule or conduct parent-teacher meetings.',
+      'Special Needs and Accommodations': 'Phrases for discussing special education services and accommodations.',
+      'Behavior and Discipline': 'Use these when addressing behavioral issues with students or families.',
+      'Emergency and Safety': 'Critical phrases for safety and emergency situations at school.',
+      'Homework and Assignments': 'Phrases for explaining homework expectations to parents.',
+      'Enrollment and Registration': 'Use these during the enrollment or registration process.',
+      'Health and Medical': 'Phrases for health-related communications with parents.',
+      'Parent Rights and Resources': 'Use these to inform parents of their rights and available resources.',
+      'Pain Assessment': 'Use these to identify where and how much a patient is hurting.',
+      'Medical History': 'Use these to gather background health information from the patient.',
+      'Consent and Procedures': 'Use these when explaining procedures or asking for consent.',
+      'Discharge Instructions': 'Use these when explaining post-visit care to a patient.',
+      'Mental Health Check-In': 'Use these to open a conversation about emotional wellbeing.',
+      'Safety Planning': 'Critical phrases for assessing and planning around safety risks.',
+      'Dental Examination': 'Use these during routine dental checks or cleanings.',
+      'Safety Instructions': 'Use these to communicate safety rules and requirements on site.',
+      'OSHA Compliance': 'Phrases for discussing required safety standards and compliance.',
+      'Injury Response': 'Use these immediately when a worker is hurt or needs medical attention.',
+      'General Worksite': 'Everyday communication phrases for the job site.',
+      'Shelter Intake': 'Use these when checking in guests at a shelter or intake facility.',
+      'Food Assistance': 'Phrases for food distribution or pantry intake situations.',
+      'Medical Help': 'Use these to assess or refer someone for medical care.',
+      'Safety and Crisis': 'Critical phrases for assessing immediate danger or crisis situations.',
+    };
+    return map[label] ?? null;
   };
 
   const getFilteredGroups = (): PhraseGroup[] => {
@@ -394,9 +427,14 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
             <div className="space-y-8">
               {filteredGroups.map((group, groupIndex) => (
                 <div key={groupIndex} className="space-y-3">
-                  <h3 className="text-base font-bold text-slate-600 border-b-2 border-blue-500 pb-2 uppercase tracking-wide">
-                    {group.groupLabel}
-                  </h3>
+                  <div className="border-b-2 border-blue-500 pb-2">
+                    <h3 className="text-base font-bold text-slate-600 uppercase tracking-wide">
+                      {group.groupLabel}
+                    </h3>
+                    {getGroupHelperText(group.groupLabel) && (
+                      <p className="text-xs text-slate-400 mt-0.5">{getGroupHelperText(group.groupLabel)}</p>
+                    )}
+                  </div>
                   {group.phrases.map((phrase, phraseIndex) => {
                     const phraseId = `${groupIndex}-${phraseIndex}`;
                     const isExpanded = expandedPhrases.has(phraseId);
@@ -434,7 +472,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                                 : <Volume2 className="w-6 h-6 text-white" />}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[15px] font-semibold text-slate-500 leading-snug mb-1">{phrase.english}</p>
+                              <p className="text-[17px] font-semibold text-slate-500 leading-snug mb-1">{phrase.english}</p>
                               <p className="text-xl font-bold text-slate-900 leading-tight">{displayTranslation}</p>
                             </div>
                           </button>
@@ -491,6 +529,16 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                               Show Screen
                             </button>
                           </div>
+                          {sector === 'education' && (
+                            <button
+                              onClick={() => handleShare(phrase.english, displayTranslation)}
+                              className="w-full flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 active:bg-blue-200 text-blue-700 border border-blue-200 px-4 py-3 rounded-xl text-sm font-semibold transition-colors active:scale-[0.98]"
+                              aria-label="Send this phrase to a parent"
+                            >
+                              <Share2 className="w-4 h-4" />
+                              Send to Parent
+                            </button>
+                          )}
                           {responsePanelKey === phraseId && (
                             <ResponseModePanel
                               language={language}
@@ -561,10 +609,13 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
           {/* Custom Phrases */}
           <div className="mt-10">
             <div className="flex items-center justify-between mb-1">
-              <h3 className="text-lg font-bold text-slate-800">Custom Phrases</h3>
+              <div>
+                <h3 className="text-lg font-bold text-slate-800">Custom Phrases</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Add phrases you use often.</p>
+              </div>
               <button
                 onClick={() => { setShowAddForm(!showAddForm); if (showAddForm) { setNewEnglish(''); setNewTranslation(''); setTranslationError(false); } }}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors flex-shrink-0"
               >
                 <Plus className="w-4 h-4" />Add Phrase
               </button>
