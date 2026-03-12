@@ -43,6 +43,8 @@ const HOW_STEPS = [
   { step: '3', label: 'Tap a phrase to play', desc: 'Hear the audio translation instantly in the target language.' },
 ];
 
+const PHRASE_REQUEST_HREF = 'mailto:LangAccessInfo@gmail.com?subject=LangAccess%20Phrase%20Request&body=Sector:%0A%20Situation:%0A%20Phrase%20needed:%0A%20Language:%0A%20Optional%20context:';
+
 const LANGUAGES = [
   { label: 'Spanish', abbr: 'ES', pill: 'bg-red-100 text-red-700 border-red-200' },
   { label: 'Mandarin', abbr: 'ZH', pill: 'bg-amber-100 text-amber-700 border-amber-200' },
@@ -333,6 +335,12 @@ export default function LandingPage({
           <div className="relative max-w-3xl mx-auto px-6 text-center">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Ready to communicate clearly?</h2>
             <p className="text-blue-100 mb-10 text-base">Select your sector to get started. No account needed, works instantly.</p>
+          <a
+            href={PHRASE_REQUEST_HREF}
+            className="inline-flex items-center gap-1.5 text-blue-200 hover:text-white text-sm font-medium underline underline-offset-2 mb-6 transition-colors"
+          >
+            Missing a phrase? Tell us here
+          </a>
             <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center">
               <button
                 onClick={() => onOpenCommunityNavigator?.()}
@@ -385,6 +393,12 @@ export default function LandingPage({
             <RefreshCw className="w-3.5 h-3.5" />Check for Updates
           </button>
           <span className="text-slate-300 text-xs ml-2">California LEP Compliance Toolkit v1.0</span>
+          <a
+            href="mailto:LangAccessInfo@gmail.com"
+            className="text-slate-400 hover:text-blue-600 transition-colors text-xs"
+          >
+            Questions? LangAccessInfo@gmail.com
+          </a>
         </div>
       </footer>
     </div>
