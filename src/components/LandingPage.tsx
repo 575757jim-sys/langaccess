@@ -123,27 +123,27 @@ export default function LandingPage({
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="relative max-w-6xl mx-auto px-6 py-24 lg:py-32">
+          <div className="relative max-w-6xl mx-auto px-6 py-28 lg:py-36">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
 
               {/* Left — copy */}
               <div className="flex flex-col">
-                <div className="inline-flex items-center self-start gap-2 bg-teal-500/15 border border-teal-400/25 text-teal-300 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-8">
+                <div className="inline-flex items-center self-start gap-2 bg-teal-500/15 border border-teal-400/25 text-teal-300 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-10">
                   <Languages className="w-3 h-3" />
                   Frontline Language Access Platform
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold leading-[1.08] tracking-tight text-white mb-6">
+                <h1 className="text-5xl sm:text-6xl lg:text-[4rem] font-extrabold leading-[1.06] tracking-tight text-white mb-8">
                   Instant Communication<br className="hidden sm:block" />{' '}
                   With Non-English<br className="hidden sm:block" />{' '}
                   Speakers
                 </h1>
 
-                <p className="text-slate-300 text-lg leading-relaxed mb-4 max-w-lg">
+                <p className="text-slate-200 text-xl leading-relaxed mb-5 max-w-lg">
                   LangAccess helps frontline workers communicate with non-English speakers in seconds using simple, situation-based phrases.
                 </p>
 
-                <p className="text-slate-400 text-sm font-medium mb-10 max-w-lg">
+                <p className="text-slate-400 text-base font-medium mb-12 max-w-lg">
                   Tap a situation &rarr; play the phrase &rarr; communicate instantly.
                 </p>
 
@@ -189,44 +189,47 @@ export default function LandingPage({
         </section>
 
         {/* ── TRUST BAR ── */}
-        <section className="bg-slate-800 border-b border-slate-700">
-          <div className="max-w-4xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-8">
-            <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
-              <Globe className="w-4 h-4 text-teal-400 flex-shrink-0" />
-              5 Languages
-            </div>
-            <span className="hidden sm:block w-px h-4 bg-slate-600" />
-            <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
-              <Compass className="w-4 h-4 text-teal-400 flex-shrink-0" />
-              4 Sectors
-            </div>
-            <span className="hidden sm:block w-px h-4 bg-slate-600" />
-            <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
-              <Shield className="w-4 h-4 text-teal-400 flex-shrink-0" />
-              Built for frontline communication
+        <section className="bg-slate-800 border-b border-slate-700/60">
+          <div className="max-w-4xl mx-auto px-6 py-5">
+            <p className="text-center text-slate-400 text-xs font-semibold uppercase tracking-widest mb-3">Trusted by professionals in</p>
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+              {[
+                { Icon: Heart, label: 'Healthcare', color: 'text-green-400' },
+                { Icon: GraduationCap, label: 'Education', color: 'text-blue-400' },
+                { Icon: HardHat, label: 'Construction', color: 'text-orange-400' },
+                { Icon: Compass, label: 'Community Outreach', color: 'text-teal-400' },
+              ].map(({ Icon, label, color }, i) => (
+                <span key={label} className="flex items-center gap-2">
+                  <span className="flex items-center gap-1.5 text-slate-300 text-sm font-medium">
+                    <Icon className={`w-3.5 h-3.5 ${color}`} />
+                    {label}
+                  </span>
+                  {i < 3 && <span className="text-slate-600 text-sm hidden sm:inline">·</span>}
+                </span>
+              ))}
             </div>
           </div>
         </section>
 
         {/* ── HOW IT WORKS ── (moved up, directly after hero) */}
-        <section id="how-it-works" className="py-20 sm:py-24 bg-white">
+        <section id="how-it-works" className="py-24 sm:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6">
-            <div className="text-center mb-14">
+            <div className="text-center mb-16">
               <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-3">Simple to use</p>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">How LangAccess Works</h2>
-              <p className="text-slate-500 text-[1.05rem] leading-relaxed">Three steps to clear communication with anyone on your team.</p>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-5 tracking-tight">How LangAccess Works</h2>
+              <p className="text-slate-500 text-lg leading-relaxed">Three steps to clear communication with anyone on your team.</p>
             </div>
 
             <div className="relative grid sm:grid-cols-3 gap-10">
-              <div className="hidden sm:block absolute top-7 left-[calc(16.666%+1.75rem)] right-[calc(16.666%+1.75rem)] h-px bg-slate-200" />
+              <div className="hidden sm:block absolute top-8 left-[calc(16.666%+2rem)] right-[calc(16.666%+2rem)] h-px bg-slate-200" />
               {HOW_STEPS.map(({ step, label, desc }) => (
-                <div key={step} className="flex flex-col items-center text-center gap-4">
-                  <div className="relative w-14 h-14 rounded-2xl bg-teal-600 text-white flex items-center justify-center text-2xl font-extrabold shadow-lg shadow-teal-600/25 z-10">
+                <div key={step} className="flex flex-col items-center text-center gap-5">
+                  <div className="relative w-16 h-16 rounded-2xl bg-teal-600 text-white flex items-center justify-center text-2xl font-extrabold shadow-lg shadow-teal-600/25 z-10">
                     {step}
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-base mb-2.5">{label}</h3>
-                    <p className="text-slate-500 text-[0.9375rem] leading-relaxed">{desc}</p>
+                    <h3 className="font-bold text-slate-900 text-lg mb-3">{label}</h3>
+                    <p className="text-slate-500 text-base leading-relaxed">{desc}</p>
                   </div>
                 </div>
               ))}
@@ -236,16 +239,16 @@ export default function LandingPage({
 
         {/* ── VALUE BAND ── */}
         <section className="bg-slate-50 border-y border-slate-100">
-          <div className="max-w-6xl mx-auto px-6 py-12">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="max-w-6xl mx-auto px-6 py-14">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-10">
               {VALUE_POINTS.map(({ Icon, label, desc }) => (
-                <div key={label} className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div key={label} className="flex items-start gap-4">
+                  <div className="w-11 h-11 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Icon className="w-5 h-5 text-teal-600" />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-slate-800 leading-snug">{label}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{desc}</p>
+                    <p className="text-sm text-slate-400 mt-1">{desc}</p>
                   </div>
                 </div>
               ))}
@@ -258,28 +261,28 @@ export default function LandingPage({
         <SituationPacks />
 
         {/* ── BUILT FOR FRONTLINE ── */}
-        <section className="py-20 sm:py-24 bg-slate-50">
+        <section className="py-24 sm:py-28 bg-slate-50">
           <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-14">
+            <div className="text-center mb-16">
               <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-3">Who it's for</p>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Built for Frontline Professionals</h2>
-              <p className="text-slate-500 max-w-xl mx-auto text-[1.05rem] leading-relaxed">Every sector has unique communication needs. LangAccess is designed around real situations you face every day.</p>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-5 tracking-tight">Built for Frontline Professionals</h2>
+              <p className="text-slate-500 max-w-xl mx-auto text-lg leading-relaxed">Every sector has unique communication needs. LangAccess is designed around real situations you face every day.</p>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-7">
               {SECTOR_CARDS.map(({ Icon, title, description, iconBg, iconColor, border, accentBg, accentText }) => (
                 <div
                   key={title}
-                  className={`bg-white border ${border} rounded-2xl p-7 flex flex-col gap-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}
+                  className={`bg-white border-2 ${border} rounded-2xl p-8 flex flex-col gap-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5`}
                 >
-                  <div className={`w-13 h-13 ${iconBg} rounded-xl flex items-center justify-center`} style={{ width: '3.25rem', height: '3.25rem' }}>
-                    <Icon className={`w-6 h-6 ${iconColor}`} />
+                  <div className={`${iconBg} rounded-xl flex items-center justify-center`} style={{ width: '3.5rem', height: '3.5rem', flexShrink: 0 }}>
+                    <Icon className={`w-7 h-7 ${iconColor}`} />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-slate-900 text-base mb-2.5">{title}</h3>
-                    <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
+                  <div className="flex-1 flex flex-col gap-2">
+                    <h3 className="font-bold text-slate-900 text-lg leading-snug">{title}</h3>
+                    <p className="text-slate-500 text-[0.9375rem] leading-relaxed">{description}</p>
                   </div>
-                  <div className={`${accentBg} rounded-lg px-3 py-2`}>
-                    <p className={`text-xs font-semibold ${accentText}`}>View phrases →</p>
+                  <div className={`${accentBg} rounded-xl px-4 py-2.5`}>
+                    <p className={`text-sm font-semibold ${accentText}`}>View phrases →</p>
                   </div>
                 </div>
               ))}
@@ -313,19 +316,19 @@ export default function LandingPage({
         </section>
 
         {/* ── LANGUAGES ── */}
-        <section className="py-24 sm:py-28 bg-slate-900">
+        <section className="py-28 sm:py-32 bg-slate-900">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <p className="text-xs font-bold text-teal-400 uppercase tracking-widest mb-4">Coverage</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Languages Supported</h2>
-            <p className="text-slate-400 mb-14 text-base max-w-lg mx-auto">Audio phrase translations available in five languages used across California communities.</p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-5 tracking-tight">Languages Supported</h2>
+            <p className="text-slate-400 mb-16 text-lg max-w-lg mx-auto leading-relaxed">Audio phrase translations available in five languages used across California communities.</p>
+            <div className="flex flex-wrap justify-center gap-5">
               {LANGUAGES.map(({ label, abbr, bg, border, text, abbr_color }) => (
                 <div
                   key={label}
-                  className={`${bg} ${border} border rounded-2xl px-8 py-5 flex flex-col items-center gap-1.5 shadow-sm min-w-[110px]`}
+                  className={`${bg} ${border} border-2 rounded-2xl px-10 py-7 flex flex-col items-center gap-2 shadow-md min-w-[130px] transition-transform duration-200 hover:-translate-y-1`}
                 >
                   <span className={`text-xs font-black ${abbr_color} tracking-widest uppercase`}>{abbr}</span>
-                  <span className={`text-base font-bold ${text}`}>{label}</span>
+                  <span className={`text-lg font-bold ${text}`}>{label}</span>
                 </div>
               ))}
             </div>
