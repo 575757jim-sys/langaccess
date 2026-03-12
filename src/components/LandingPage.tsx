@@ -31,10 +31,10 @@ const VALUE_POINTS = [
 ];
 
 const SECTOR_CARDS = [
-  { Icon: GraduationCap, title: 'Education', description: 'Teachers and school staff communicate with students and parents.', iconBg: 'bg-blue-100', iconColor: 'text-blue-600', border: 'border-blue-100', accentBg: 'bg-blue-50', accentText: 'text-blue-600' },
-  { Icon: Heart, title: 'Healthcare', description: 'Nurses and medical staff ask essential questions quickly.', iconBg: 'bg-green-100', iconColor: 'text-green-600', border: 'border-green-100', accentBg: 'bg-green-50', accentText: 'text-green-600' },
-  { Icon: HardHat, title: 'Construction', description: 'Supervisors give safety instructions to multilingual crews.', iconBg: 'bg-orange-100', iconColor: 'text-orange-600', border: 'border-orange-100', accentBg: 'bg-orange-50', accentText: 'text-orange-600' },
-  { Icon: Compass, title: 'Community Outreach', description: 'Workers connect people to shelters, food, and services.', iconBg: 'bg-teal-100', iconColor: 'text-teal-600', border: 'border-teal-100', accentBg: 'bg-teal-50', accentText: 'text-teal-600' },
+  { emoji: '🎓', title: 'Education', description: 'Teachers and school staff communicate clearly with students and parents across language barriers.', border: 'border-blue-100', accentBg: 'bg-blue-50', accentText: 'text-blue-500' },
+  { emoji: '🏥', title: 'Healthcare', description: 'Nurses and medical staff ask essential intake questions and deliver instructions quickly and accurately.', border: 'border-green-100', accentBg: 'bg-green-50', accentText: 'text-green-500' },
+  { emoji: '🦺', title: 'Construction', description: 'Supervisors deliver safety instructions and emergency directions to multilingual crews on-site.', border: 'border-orange-100', accentBg: 'bg-orange-50', accentText: 'text-orange-500' },
+  { emoji: '🤝', title: 'Community Outreach', description: 'Outreach workers connect community members to shelters, food assistance, and vital services.', border: 'border-teal-100', accentBg: 'bg-teal-50', accentText: 'text-teal-500' },
 ];
 
 const HOW_STEPS = [
@@ -46,11 +46,11 @@ const HOW_STEPS = [
 const PHRASE_REQUEST_HREF = 'mailto:LangAccessInfo@gmail.com?subject=LangAccess%20Phrase%20Request&body=Sector:%0A%20Situation:%0A%20Phrase%20needed:%0A%20Language:%0A%20Optional%20context:';
 
 const LANGUAGES = [
-  { label: 'Spanish', abbr: 'ES', bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', abbr_color: 'text-red-400' },
-  { label: 'Tagalog', abbr: 'TL', bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', abbr_color: 'text-blue-400' },
-  { label: 'Vietnamese', abbr: 'VI', bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', abbr_color: 'text-green-400' },
-  { label: 'Mandarin', abbr: 'ZH', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', abbr_color: 'text-amber-400' },
-  { label: 'Cantonese', abbr: 'YUE', bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', abbr_color: 'text-orange-400' },
+  { label: 'Spanish', flag: '🇲🇽', bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700' },
+  { label: 'Tagalog', flag: '🇵🇭', bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700' },
+  { label: 'Vietnamese', flag: '🇻🇳', bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700' },
+  { label: 'Mandarin', flag: '🇨🇳', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700' },
+  { label: 'Cantonese', flag: '🇹🇼', bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700' },
 ];
 
 interface LandingPageProps {
@@ -189,19 +189,26 @@ export default function LandingPage({
         </section>
 
         {/* ── TRUST BAR ── */}
-        <section className="bg-slate-50 border-y border-slate-200">
-          <div className="max-w-4xl mx-auto px-6 py-4 text-center">
-            <p className="text-slate-500 text-sm font-medium tracking-wide">
-              Serving{' '}
-              <span className="text-slate-700 font-semibold">Healthcare</span>
-              <span className="mx-2 text-slate-300">&middot;</span>
-              <span className="text-slate-700 font-semibold">Education</span>
-              <span className="mx-2 text-slate-300">&middot;</span>
-              <span className="text-slate-700 font-semibold">Construction</span>
-              <span className="mx-2 text-slate-300">&middot;</span>
-              <span className="text-slate-700 font-semibold">Community Organizations</span>
-              {' '}across the Bay Area
-            </p>
+        <section className="w-full border-y border-slate-200" style={{ backgroundColor: '#F5F5F5' }}>
+          <div className="max-w-6xl mx-auto px-6" style={{ paddingTop: '16px', paddingBottom: '16px' }}>
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+              <span className="text-slate-400 text-xs font-semibold uppercase tracking-widest mr-1 flex-shrink-0">Trusted by:</span>
+              {[
+                { label: 'Healthcare', emoji: '🏥' },
+                { label: 'Education', emoji: '🎓' },
+                { label: 'Construction', emoji: '🦺' },
+                { label: 'Community Organizations', emoji: '🤝' },
+              ].map(({ label, emoji }) => (
+                <span
+                  key={label}
+                  className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm"
+                >
+                  <span>{emoji}</span>
+                  {label}
+                </span>
+              ))}
+              <span className="text-slate-400 text-xs font-medium ml-1 flex-shrink-0">across the Bay Area</span>
+            </div>
           </div>
         </section>
 
@@ -262,21 +269,23 @@ export default function LandingPage({
               <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-5 tracking-tight">Built for Frontline Professionals</h2>
               <p className="text-slate-500 max-w-xl mx-auto text-lg leading-relaxed">Every sector has unique communication needs. LangAccess is designed around real situations you face every day.</p>
             </div>
-            <div className="grid sm:grid-cols-2 gap-6">
-              {SECTOR_CARDS.map(({ Icon, title, description, iconBg, iconColor, border, accentBg, accentText }) => (
+            <div className="grid min-[480px]:grid-cols-2 gap-6">
+              {SECTOR_CARDS.map(({ emoji, title, description, border, accentBg, accentText }) => (
                 <div
                   key={title}
-                  className={`bg-white border-2 ${border} rounded-2xl p-8 flex items-start gap-6 shadow-sm hover:shadow-lg transition-all duration-300`}
+                  className={`bg-white border-2 ${border} rounded-2xl p-7 flex items-start gap-5 shadow-sm hover:shadow-md transition-all duration-300`}
                 >
-                  <div className={`${iconBg} rounded-xl flex items-center justify-center flex-shrink-0`} style={{ width: '3.5rem', height: '3.5rem' }}>
-                    <Icon className={`w-7 h-7 ${iconColor}`} />
-                  </div>
+                  <span
+                    className="flex-shrink-0 select-none leading-none mt-0.5"
+                    style={{ fontSize: '2rem', lineHeight: 1 }}
+                    aria-hidden="true"
+                  >
+                    {emoji}
+                  </span>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-slate-900 text-lg leading-snug mb-2">{title}</h3>
-                    <p className="text-slate-500 text-[0.9375rem] leading-relaxed mb-4">{description}</p>
-                    <div className={`${accentBg} inline-block rounded-xl px-4 py-2`}>
-                      <p className={`text-sm font-semibold ${accentText}`}>View phrases →</p>
-                    </div>
+                    <p className="text-slate-500 text-sm leading-relaxed mb-4">{description}</p>
+                    <span className={`text-xs font-medium ${accentText} opacity-70`}>View phrases →</span>
                   </div>
                 </div>
               ))}
@@ -310,20 +319,21 @@ export default function LandingPage({
         </section>
 
         {/* ── LANGUAGES ── */}
-        <section className="py-28 sm:py-32 bg-slate-900">
+        <section className="bg-slate-900" style={{ paddingTop: '7rem', paddingBottom: '7rem' }}>
           <div className="max-w-4xl mx-auto px-6 text-center">
             <p className="text-xs font-bold text-teal-400 uppercase tracking-widest mb-4">Coverage</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-5 tracking-tight">Languages Supported</h2>
-            <p className="text-slate-400 mb-4 text-lg max-w-lg mx-auto leading-relaxed">Audio phrase translations available in five languages used across California communities.</p>
-            <p className="text-teal-400 font-semibold text-base mb-14 max-w-md mx-auto">Native-quality text, voice, and translation in every language</p>
-            <div className="flex flex-wrap justify-center gap-5">
-              {LANGUAGES.map(({ label, abbr, bg, border, text, abbr_color }) => (
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Languages Supported</h2>
+            <p className="text-teal-400 font-semibold text-base mb-3">Native-quality voice, text &amp; translation</p>
+            <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed mb-12">Available in five languages spoken by over 2 million Bay Area residents.</p>
+            <div className="flex flex-wrap justify-center gap-4" style={{ paddingTop: '4px', paddingBottom: '4px' }}>
+              {LANGUAGES.map(({ label, flag, bg, border, text }) => (
                 <div
                   key={label}
-                  className={`${bg} ${border} border-2 rounded-2xl px-10 py-7 flex flex-col items-center gap-2 shadow-md min-w-[130px] transition-transform duration-200 hover:-translate-y-1`}
+                  className={`${bg} ${border} border-2 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-md transition-transform duration-200 hover:-translate-y-1`}
+                  style={{ minWidth: '120px', height: '88px', padding: '0 1.5rem' }}
                 >
-                  <span className={`text-xs font-black ${abbr_color} tracking-widest uppercase`}>{abbr}</span>
-                  <span className={`text-lg font-bold ${text}`}>{label}</span>
+                  <span className="text-2xl leading-none select-none" aria-hidden="true">{flag}</span>
+                  <span className={`text-sm font-bold ${text} leading-tight`}>{label}</span>
                 </div>
               ))}
             </div>

@@ -666,7 +666,7 @@ export default function SituationPacks() {
           ))}
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-5">
+        <div className="grid min-[480px]:grid-cols-2 gap-5">
           {SITUATION_PACKS.map((pack) => (
             <PackCard key={pack.id} pack={pack} selectedLanguage={selectedLanguage} />
           ))}
