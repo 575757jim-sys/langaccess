@@ -66,6 +66,7 @@ export default function FavoritesPanel({ onClose }: FavoritesPanelProps) {
           </div>
           <button
             onClick={onClose}
+            aria-label="Close favorites panel"
             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-yellow-100 text-slate-400 transition-colors"
           >
             <X className="w-4 h-4" />
@@ -122,6 +123,7 @@ export default function FavoritesPanel({ onClose }: FavoritesPanelProps) {
                               <button
                                 onClick={() => setPointAndSpeak(fav)}
                                 className="flex-1 flex items-center justify-center hover:bg-blue-50 transition-colors rounded-tr-2xl group/ps"
+                                aria-label="Point and Speak — show fullscreen"
                                 title="Point & Speak"
                               >
                                 <Maximize2 className="w-3.5 h-3.5 text-slate-300 group-hover/ps:text-blue-500 transition-colors" />
@@ -129,6 +131,7 @@ export default function FavoritesPanel({ onClose }: FavoritesPanelProps) {
                               <button
                                 onClick={() => handleRemove(fav.id)}
                                 className="flex-1 flex items-center justify-center hover:bg-red-50 transition-colors border-t border-slate-100 rounded-br-2xl group/rm"
+                                aria-label="Remove from favorites"
                                 title="Remove from favorites"
                               >
                                 <X className="w-3.5 h-3.5 text-slate-300 group-hover/rm:text-red-400 transition-colors" />
