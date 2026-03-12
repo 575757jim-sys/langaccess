@@ -82,6 +82,11 @@ export default function EmailCaptureModal({ sector, phrase, onSave, onDismiss }:
                 id="email-capture-input"
                 type="email"
                 autoComplete="email"
+                inputMode="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                maxLength={254}
                 placeholder="you@example.com"
                 value={email}
                 onChange={e => { setEmail(e.target.value); setError(''); }}
