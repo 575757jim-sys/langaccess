@@ -145,14 +145,13 @@ export default function HomeScreen({
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-20">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-          {selectedSector && (
-            <button
-              onClick={onBackToSectorSelection}
-              className="flex items-center gap-1 text-slate-500 hover:text-slate-800 transition-colors flex-shrink-0"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-          )}
+          <button
+            onClick={onBackToSectorSelection}
+            className="flex items-center justify-center w-9 h-9 -ml-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors flex-shrink-0"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           <Languages className="w-6 h-6 text-blue-600 flex-shrink-0" />
           <span className="text-lg font-bold text-slate-800 tracking-tight">LangAccess</span>
           {sectorConfig && (
