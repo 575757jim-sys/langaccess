@@ -190,7 +190,7 @@ export default function LandingPage({
 
         {/* ── TRUST BAR ── */}
         <section className="w-full border-y border-slate-200" style={{ backgroundColor: '#F5F5F5' }}>
-          <div className="max-w-6xl mx-auto px-6" style={{ paddingTop: '16px', paddingBottom: '16px' }}>
+          <div className="max-w-6xl mx-auto px-6" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
               <span className="text-slate-400 text-xs font-semibold uppercase tracking-widest mr-1 flex-shrink-0">Trusted by:</span>
               {[
@@ -269,7 +269,7 @@ export default function LandingPage({
               <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-5 tracking-tight">Built for Frontline Professionals</h2>
               <p className="text-slate-500 max-w-xl mx-auto text-lg leading-relaxed">Every sector has unique communication needs. LangAccess is designed around real situations you face every day.</p>
             </div>
-            <div className="grid sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {SECTOR_CARDS.map(({ emoji, title, description, border, accentBg, accentText }) => (
                 <div
                   key={title}
@@ -330,7 +330,7 @@ export default function LandingPage({
                 <div
                   key={label}
                   className={`${bg} ${border} border-2 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-md transition-transform duration-200 hover:-translate-y-1`}
-                  style={{ minWidth: '120px', height: '88px', padding: '0 1.5rem' }}
+                  style={{ width: '130px', height: '88px', padding: '0 1rem' }}
                 >
                   <span className="text-2xl leading-none select-none" aria-hidden="true">{flag}</span>
                   <span className={`text-sm font-bold ${text} leading-tight`}>{label}</span>
