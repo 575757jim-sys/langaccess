@@ -1,4 +1,4 @@
-import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Globe } from 'lucide-react';
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
 import HomeDemoSection from './HomeDemoSection';
@@ -31,10 +31,10 @@ const VALUE_POINTS = [
 ];
 
 const SECTOR_CARDS = [
-  { Icon: GraduationCap, title: 'Education', description: 'Teachers and school staff communicate with students and parents.', iconBg: 'bg-blue-100', iconColor: 'text-blue-600', border: 'border-blue-100', accentBg: 'bg-blue-50' },
-  { Icon: Heart, title: 'Healthcare', description: 'Nurses and medical staff ask essential questions quickly.', iconBg: 'bg-green-100', iconColor: 'text-green-600', border: 'border-green-100', accentBg: 'bg-green-50' },
-  { Icon: HardHat, title: 'Construction', description: 'Supervisors give safety instructions to multilingual crews.', iconBg: 'bg-orange-100', iconColor: 'text-orange-600', border: 'border-orange-100', accentBg: 'bg-orange-50' },
-  { Icon: Compass, title: 'Community Outreach', description: 'Workers connect people to shelters, food, and services.', iconBg: 'bg-teal-100', iconColor: 'text-teal-600', border: 'border-teal-100', accentBg: 'bg-teal-50' },
+  { Icon: GraduationCap, title: 'Education', description: 'Teachers and school staff communicate with students and parents.', iconBg: 'bg-blue-100', iconColor: 'text-blue-600', border: 'border-blue-100', accentBg: 'bg-blue-50', accentText: 'text-blue-600' },
+  { Icon: Heart, title: 'Healthcare', description: 'Nurses and medical staff ask essential questions quickly.', iconBg: 'bg-green-100', iconColor: 'text-green-600', border: 'border-green-100', accentBg: 'bg-green-50', accentText: 'text-green-600' },
+  { Icon: HardHat, title: 'Construction', description: 'Supervisors give safety instructions to multilingual crews.', iconBg: 'bg-orange-100', iconColor: 'text-orange-600', border: 'border-orange-100', accentBg: 'bg-orange-50', accentText: 'text-orange-600' },
+  { Icon: Compass, title: 'Community Outreach', description: 'Workers connect people to shelters, food, and services.', iconBg: 'bg-teal-100', iconColor: 'text-teal-600', border: 'border-teal-100', accentBg: 'bg-teal-50', accentText: 'text-teal-600' },
 ];
 
 const HOW_STEPS = [
@@ -46,11 +46,11 @@ const HOW_STEPS = [
 const PHRASE_REQUEST_HREF = 'mailto:LangAccessInfo@gmail.com?subject=LangAccess%20Phrase%20Request&body=Sector:%0A%20Situation:%0A%20Phrase%20needed:%0A%20Language:%0A%20Optional%20context:';
 
 const LANGUAGES = [
-  { label: 'Spanish', abbr: 'ES', pill: 'bg-red-100 text-red-700 border-red-200' },
-  { label: 'Mandarin', abbr: 'ZH', pill: 'bg-amber-100 text-amber-700 border-amber-200' },
-  { label: 'Cantonese', abbr: 'YUE', pill: 'bg-orange-100 text-orange-700 border-orange-200' },
-  { label: 'Tagalog', abbr: 'TL', pill: 'bg-blue-100 text-blue-700 border-blue-200' },
-  { label: 'Vietnamese', abbr: 'VI', pill: 'bg-green-100 text-green-700 border-green-200' },
+  { label: 'Spanish', abbr: 'ES', bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', abbr_color: 'text-red-400' },
+  { label: 'Tagalog', abbr: 'TL', bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', abbr_color: 'text-blue-400' },
+  { label: 'Vietnamese', abbr: 'VI', bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', abbr_color: 'text-green-400' },
+  { label: 'Mandarin', abbr: 'ZH', bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', abbr_color: 'text-amber-400' },
+  { label: 'Cantonese', abbr: 'YUE', bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', abbr_color: 'text-orange-400' },
 ];
 
 interface LandingPageProps {
@@ -81,11 +81,11 @@ export default function LandingPage({
         jsonLd={JSON_LD_WEB_APP}
       />
 
-      {/* Nav */}
+      {/* ── NAV ── */}
       <header className="border-b border-slate-100 bg-white/90 backdrop-blur-md sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-teal-600 flex items-center justify-center">
               <Languages className="w-4 h-4 text-white" />
             </div>
             <span className="text-base font-bold text-slate-900 tracking-tight">LangAccess</span>
@@ -107,9 +107,9 @@ export default function LandingPage({
           </nav>
           <button
             onClick={onGetStarted}
-            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
+            className="flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
           >
-            Get Started
+            Get Started Free
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -119,70 +119,55 @@ export default function LandingPage({
 
         {/* ── HERO ── */}
         <section className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 overflow-hidden">
-          {/* Subtle grid texture */}
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '48px 48px' }} />
-          {/* Glow blobs */}
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="relative max-w-6xl mx-auto px-6 py-20 lg:py-28">
-            <div className="grid lg:grid-cols-2 gap-14 items-center">
+          <div className="relative max-w-6xl mx-auto px-6 py-24 lg:py-32">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
 
               {/* Left — copy */}
               <div className="flex flex-col">
-                <div className="inline-flex items-center self-start gap-2 bg-blue-500/15 border border-blue-400/25 text-blue-300 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-7">
+                <div className="inline-flex items-center self-start gap-2 bg-teal-500/15 border border-teal-400/25 text-teal-300 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-8">
                   <Languages className="w-3 h-3" />
                   Frontline Language Access Platform
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold leading-[1.1] tracking-tight text-white mb-5">
+                <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold leading-[1.08] tracking-tight text-white mb-6">
                   Instant Communication<br className="hidden sm:block" />{' '}
                   With Non-English<br className="hidden sm:block" />{' '}
                   Speakers
                 </h1>
 
-                <p className="text-slate-300 text-lg leading-relaxed mb-3 max-w-lg">
+                <p className="text-slate-300 text-lg leading-relaxed mb-4 max-w-lg">
                   LangAccess helps frontline workers communicate with non-English speakers in seconds using simple, situation-based phrases.
                 </p>
 
-                <p className="text-slate-400 text-sm font-medium mb-4 max-w-lg">
+                <p className="text-slate-400 text-sm font-medium mb-10 max-w-lg">
                   Tap a situation &rarr; play the phrase &rarr; communicate instantly.
                 </p>
 
-                <div className="flex items-center gap-2 flex-wrap mb-4">
-                  {['Spanish', 'Mandarin', 'Cantonese', 'Vietnamese', 'Tagalog'].map((lang, i) => (
-                    <span key={lang} className="flex items-center gap-1.5">
-                      <span className="text-slate-200 text-sm font-semibold">{lang}</span>
-                      {i < 4 && <span className="text-slate-600 text-sm">•</span>}
-                    </span>
-                  ))}
-                </div>
-
-                <p className="text-slate-400 text-sm leading-relaxed mb-9 max-w-md">
-                  Built for teachers, healthcare workers, outreach teams, and construction supervisors.
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={onGetStarted}
-                    className="group inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold px-7 py-4 rounded-xl transition-all duration-200 shadow-xl shadow-blue-600/30 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] text-base"
+                    className="group inline-flex items-center justify-center gap-2.5 bg-teal-500 hover:bg-teal-400 text-white font-bold px-8 py-4 rounded-xl transition-all duration-200 shadow-xl shadow-teal-600/30 hover:shadow-teal-500/40 hover:scale-[1.02] active:scale-[0.98] text-base min-h-[52px]"
                   >
-                    Get Started
+                    Get Started Free
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                   <button
                     onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="inline-flex items-center justify-center gap-2 bg-white/8 hover:bg-white/12 border border-white/20 text-white font-semibold px-7 py-4 rounded-xl transition-all duration-200 text-base"
+                    className="inline-flex items-center justify-center gap-2 border-2 border-white/30 hover:border-white/60 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-200 text-base hover:bg-white/8 min-h-[52px]"
                   >
                     See How It Works
                   </button>
                 </div>
               </div>
 
-              {/* Right — Example phrase cards */}
+              {/* Right — example phrase cards */}
               <div className="flex justify-center lg:justify-end">
                 <div className="w-full max-w-sm space-y-3">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Common frontline phrases</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Common frontline phrases</p>
                   {MOCK_PHRASES.map((item) => (
                     <div
                       key={item.phrase}
@@ -203,14 +188,60 @@ export default function LandingPage({
           </div>
         </section>
 
+        {/* ── TRUST BAR ── */}
+        <section className="bg-slate-800 border-b border-slate-700">
+          <div className="max-w-4xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-8">
+            <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
+              <Globe className="w-4 h-4 text-teal-400 flex-shrink-0" />
+              5 Languages
+            </div>
+            <span className="hidden sm:block w-px h-4 bg-slate-600" />
+            <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
+              <Compass className="w-4 h-4 text-teal-400 flex-shrink-0" />
+              4 Sectors
+            </div>
+            <span className="hidden sm:block w-px h-4 bg-slate-600" />
+            <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
+              <Shield className="w-4 h-4 text-teal-400 flex-shrink-0" />
+              Built for frontline communication
+            </div>
+          </div>
+        </section>
+
+        {/* ── HOW IT WORKS ── (moved up, directly after hero) */}
+        <section id="how-it-works" className="py-20 sm:py-24 bg-white">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="text-center mb-14">
+              <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-3">Simple to use</p>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">How LangAccess Works</h2>
+              <p className="text-slate-500 text-[1.05rem] leading-relaxed">Three steps to clear communication with anyone on your team.</p>
+            </div>
+
+            <div className="relative grid sm:grid-cols-3 gap-10">
+              <div className="hidden sm:block absolute top-7 left-[calc(16.666%+1.75rem)] right-[calc(16.666%+1.75rem)] h-px bg-slate-200" />
+              {HOW_STEPS.map(({ step, label, desc }) => (
+                <div key={step} className="flex flex-col items-center text-center gap-4">
+                  <div className="relative w-14 h-14 rounded-2xl bg-teal-600 text-white flex items-center justify-center text-2xl font-extrabold shadow-lg shadow-teal-600/25 z-10">
+                    {step}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-base mb-2.5">{label}</h3>
+                    <p className="text-slate-500 text-[0.9375rem] leading-relaxed">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── VALUE BAND ── */}
-        <section className="bg-white border-b border-slate-100">
-          <div className="max-w-6xl mx-auto px-6 py-10">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <section className="bg-slate-50 border-y border-slate-100">
+          <div className="max-w-6xl mx-auto px-6 py-12">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               {VALUE_POINTS.map(({ Icon, label, desc }) => (
-                <div key={label} className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Icon className="w-4.5 h-4.5 text-blue-600" />
+                <div key={label} className="flex items-start gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Icon className="w-5 h-5 text-teal-600" />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-slate-800 leading-snug">{label}</p>
@@ -227,28 +258,28 @@ export default function LandingPage({
         <SituationPacks />
 
         {/* ── BUILT FOR FRONTLINE ── */}
-        <section className="py-20 bg-slate-50">
+        <section className="py-20 sm:py-24 bg-slate-50">
           <div className="max-w-6xl mx-auto px-6">
             <div className="text-center mb-14">
-              <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">Who it's for</p>
+              <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-3">Who it's for</p>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Built for Frontline Professionals</h2>
               <p className="text-slate-500 max-w-xl mx-auto text-[1.05rem] leading-relaxed">Every sector has unique communication needs. LangAccess is designed around real situations you face every day.</p>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {SECTOR_CARDS.map(({ Icon, title, description, iconBg, iconColor, border, accentBg }) => (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {SECTOR_CARDS.map(({ Icon, title, description, iconBg, iconColor, border, accentBg, accentText }) => (
                 <div
                   key={title}
-                  className={`bg-white border ${border} rounded-2xl p-6 flex flex-col gap-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}
+                  className={`bg-white border ${border} rounded-2xl p-7 flex flex-col gap-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}
                 >
-                  <div className={`w-12 h-12 ${iconBg} rounded-xl flex items-center justify-center`}>
+                  <div className={`w-13 h-13 ${iconBg} rounded-xl flex items-center justify-center`} style={{ width: '3.25rem', height: '3.25rem' }}>
                     <Icon className={`w-6 h-6 ${iconColor}`} />
                   </div>
                   <div className="flex-1">
                     <h3 className="font-bold text-slate-900 text-base mb-2.5">{title}</h3>
-                    <p className="text-slate-500 text-[0.9375rem] leading-relaxed">{description}</p>
+                    <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
                   </div>
-                  <div className={`${accentBg} rounded-lg px-3 py-1.5`}>
-                    <p className={`text-xs font-semibold ${iconColor}`}>View phrases →</p>
+                  <div className={`${accentBg} rounded-lg px-3 py-2`}>
+                    <p className={`text-xs font-semibold ${accentText}`}>View phrases →</p>
                   </div>
                 </div>
               ))}
@@ -257,23 +288,23 @@ export default function LandingPage({
         </section>
 
         {/* ── MID-PAGE CTA ── */}
-        <section className="py-16 bg-blue-600 relative overflow-hidden">
+        <section className="py-20 bg-teal-700 relative overflow-hidden">
           <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '36px 36px' }} />
           <div className="relative max-w-3xl mx-auto px-6 text-center">
-            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest mb-3">Live demo</p>
+            <p className="text-xs font-bold text-teal-200 uppercase tracking-widest mb-3">Live demo</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">See LangAccess in Action</h2>
-            <p className="text-blue-100 text-[1.05rem] leading-relaxed mb-9 max-w-md mx-auto">Choose a language, select a situation, and hear the phrase instantly.</p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <p className="text-teal-100 text-[1.05rem] leading-relaxed mb-10 max-w-md mx-auto">Choose a language, select a situation, and hear the phrase instantly.</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => onSelectSector('healthcare')}
-                className="inline-flex items-center justify-center gap-2 bg-white text-blue-700 font-bold px-7 py-4 rounded-xl transition-all duration-200 hover:bg-blue-50 shadow-lg text-base hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-white font-bold px-8 py-4 rounded-xl transition-all duration-200 shadow-lg text-base hover:scale-[1.02] active:scale-[0.98] min-h-[52px]"
               >
                 Try the Demo
                 <ChevronRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => document.getElementById('situation-packs')?.scrollIntoView({ behavior: 'smooth' })}
-                className="inline-flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-semibold px-7 py-4 rounded-xl transition-all duration-200 text-base hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 border-2 border-white/40 hover:border-white/70 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-200 text-base hover:bg-white/10 min-h-[52px]"
               >
                 Choose Your Sector
               </button>
@@ -281,70 +312,42 @@ export default function LandingPage({
           </div>
         </section>
 
-        {/* ── HOW IT WORKS ── */}
-        <section id="how-it-works" className="py-20 bg-white">
-          <div className="max-w-5xl mx-auto px-6">
-            <div className="text-center mb-14">
-              <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">Simple to use</p>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">How LangAccess Works</h2>
-              <p className="text-slate-500 text-[1.05rem] leading-relaxed">Three steps to clear communication with anyone on your team.</p>
-            </div>
-
-            <div className="relative grid sm:grid-cols-3 gap-10">
-              {/* Connector line on desktop */}
-              <div className="hidden sm:block absolute top-7 left-[calc(16.666%+1.75rem)] right-[calc(16.666%+1.75rem)] h-px bg-slate-200" />
-
-              {HOW_STEPS.map(({ step, label, desc }) => (
-                <div key={step} className="flex flex-col items-center text-center gap-4">
-                  <div className="relative w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl font-extrabold shadow-lg shadow-blue-600/25 z-10">
-                    {step}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-900 text-base mb-2.5">{label}</h3>
-                    <p className="text-slate-500 text-[0.9375rem] leading-relaxed">{desc}</p>
-                  </div>
+        {/* ── LANGUAGES ── */}
+        <section className="py-24 sm:py-28 bg-slate-900">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <p className="text-xs font-bold text-teal-400 uppercase tracking-widest mb-4">Coverage</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Languages Supported</h2>
+            <p className="text-slate-400 mb-14 text-base max-w-lg mx-auto">Audio phrase translations available in five languages used across California communities.</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              {LANGUAGES.map(({ label, abbr, bg, border, text, abbr_color }) => (
+                <div
+                  key={label}
+                  className={`${bg} ${border} border rounded-2xl px-8 py-5 flex flex-col items-center gap-1.5 shadow-sm min-w-[110px]`}
+                >
+                  <span className={`text-xs font-black ${abbr_color} tracking-widest uppercase`}>{abbr}</span>
+                  <span className={`text-base font-bold ${text}`}>{label}</span>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── LANGUAGES ── */}
-        <section className="py-20 bg-slate-900">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-4">Coverage</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Languages Supported</h2>
-            <p className="text-slate-400 mb-12 text-base max-w-lg mx-auto">Audio phrase translations available in five languages used across California communities.</p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {LANGUAGES.map(({ label, abbr, pill }) => (
-                <span
-                  key={label}
-                  className={`${pill} border font-bold text-sm px-5 py-2.5 rounded-full inline-flex items-center gap-2 shadow-sm`}
-                >
-                  <span className="text-[10px] font-black opacity-50 tracking-wider">{abbr}</span>
-                  {label}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* ── FINAL CTA ── */}
-        <section id="sector-select" className="py-20 bg-gradient-to-br from-blue-600 to-blue-700 relative overflow-hidden">
+        <section id="sector-select" className="py-24 bg-gradient-to-br from-teal-700 to-teal-800 relative overflow-hidden">
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
           <div className="relative max-w-3xl mx-auto px-6 text-center">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Ready to communicate clearly?</h2>
-            <p className="text-blue-100 mb-10 text-base">Select your sector to get started. No account needed, works instantly.</p>
-          <a
-            href={PHRASE_REQUEST_HREF}
-            className="inline-flex items-center gap-1.5 text-blue-200 hover:text-white text-sm font-medium underline underline-offset-2 mb-6 transition-colors"
-          >
-            Missing a phrase? Tell us here
-          </a>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center">
+            <p className="text-teal-100 mb-4 text-base">Select your sector to get started. No account needed, works instantly.</p>
+            <a
+              href={PHRASE_REQUEST_HREF}
+              className="inline-flex items-center gap-1.5 text-teal-200 hover:text-white text-sm font-medium underline underline-offset-2 mb-10 transition-colors"
+            >
+              Missing a phrase? Tell us here
+            </a>
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center">
               <button
                 onClick={() => onOpenCommunityNavigator?.()}
-                className="flex items-center justify-center gap-2.5 bg-white/15 hover:bg-white/25 border border-white/25 text-white font-bold px-6 py-3.5 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-sm shadow-sm"
+                className="flex items-center justify-center gap-2.5 border-2 border-white/35 hover:border-white/65 hover:bg-white/10 text-white font-bold px-6 py-3.5 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-sm min-h-[50px]"
               >
                 <Users className="w-5 h-5" />
                 Community Outreach
@@ -357,7 +360,7 @@ export default function LandingPage({
                 <button
                   key={id}
                   onClick={() => onSelectSector(id)}
-                  className="flex items-center justify-center gap-2.5 bg-white/15 hover:bg-white/25 border border-white/25 text-white font-bold px-6 py-3.5 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-sm shadow-sm"
+                  className="flex items-center justify-center gap-2.5 border-2 border-white/35 hover:border-white/65 hover:bg-white/10 text-white font-bold px-6 py-3.5 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-sm min-h-[50px]"
                 >
                   <Icon className="w-5 h-5" />
                   {label}
@@ -368,19 +371,19 @@ export default function LandingPage({
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-100 bg-white py-6 px-6">
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-slate-100 bg-white py-8 px-6">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-3 text-sm">
           <div className="flex items-center gap-2 mr-4">
-            <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center">
+            <div className="w-5 h-5 rounded-md bg-teal-600 flex items-center justify-center">
               <Languages className="w-3 h-3 text-white" />
             </div>
             <span className="font-bold text-slate-700 text-xs">LangAccess</span>
           </div>
-          <button onClick={onOpenPolicy} className="flex items-center gap-1.5 text-slate-400 hover:text-blue-600 transition-colors text-xs">
+          <button onClick={onOpenPolicy} className="flex items-center gap-1.5 text-slate-400 hover:text-teal-600 transition-colors text-xs">
             <FileText className="w-3.5 h-3.5" />Language Access Policy
           </button>
-          <button onClick={onOpenPolicy} className="flex items-center gap-1.5 text-slate-400 hover:text-blue-600 transition-colors text-xs">
+          <button onClick={onOpenPolicy} className="flex items-center gap-1.5 text-slate-400 hover:text-teal-600 transition-colors text-xs">
             <MessageSquarePlus className="w-3.5 h-3.5" />Request a Language
           </button>
           <button onClick={onOpenCertificates} className="flex items-center gap-1.5 text-slate-400 hover:text-yellow-600 transition-colors text-xs">
@@ -395,7 +398,7 @@ export default function LandingPage({
           <span className="text-slate-300 text-xs ml-2">California LEP Compliance Toolkit v1.0</span>
           <a
             href="mailto:LangAccessInfo@gmail.com"
-            className="text-slate-400 hover:text-blue-600 transition-colors text-xs"
+            className="text-slate-400 hover:text-teal-600 transition-colors text-xs"
           >
             Questions? LangAccessInfo@gmail.com
           </a>
