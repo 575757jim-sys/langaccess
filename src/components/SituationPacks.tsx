@@ -575,33 +575,31 @@ function PackCard({ pack, selectedLanguage }: PackCardProps) {
 
   return (
     <div
-      className={`bg-white border ${pack.border} rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden`}
+      className={`bg-white border-2 ${pack.border} rounded-2xl shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden`}
     >
       <button
         onClick={() => setIsOpen((v) => !v)}
-        className="w-full text-left p-5 flex items-center gap-4"
+        className="w-full text-left p-6 flex items-start gap-4"
         aria-expanded={isOpen}
       >
-        <div className={`w-11 h-11 ${pack.iconBg} rounded-xl flex items-center justify-center flex-shrink-0`}>
-          <Icon className={`w-5 h-5 ${pack.iconColor}`} />
+        <div className={`w-12 h-12 ${pack.iconBg} rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5`}>
+          <Icon className={`w-6 h-6 ${pack.iconColor}`} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-slate-900 text-sm leading-snug">{pack.title}</p>
-          <p className="text-slate-500 text-xs mt-0.5 leading-snug">{pack.description}</p>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <span className={`hidden sm:inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full ${pack.badgeClass}`}>
+          <p className="font-bold text-slate-900 text-base leading-snug">{pack.title}</p>
+          <p className="text-slate-500 text-sm mt-1 leading-snug">{pack.description}</p>
+          <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full mt-2.5 ${pack.badgeClass}`}>
             {pack.phrases.length} phrases
           </span>
-          <div className="text-slate-400">
-            {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </div>
+        </div>
+        <div className="text-slate-400 flex-shrink-0 mt-1">
+          {isOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         </div>
       </button>
 
       {isOpen && (
-        <div className={`px-5 pb-5 border-t ${pack.border}`}>
-          <div className="pt-4 grid sm:grid-cols-2 gap-2.5">
+        <div className={`px-6 pb-6 border-t ${pack.border}`}>
+          <div className="pt-4 grid sm:grid-cols-2 gap-3">
             {pack.phrases.map((phrase, i) => {
               const key = `${pack.id}-${i}`;
               const isLoading = loadingKey === key;
@@ -639,28 +637,28 @@ export default function SituationPacks() {
   const [selectedLanguage, setSelectedLanguage] = useState<Language>('spanish');
 
   return (
-    <section className="py-20 bg-slate-50 border-b border-slate-100" id="situation-packs">
-      <div className="max-w-4xl mx-auto px-6">
+    <section className="py-24 sm:py-28 bg-white border-b border-slate-100" id="situation-packs">
+      <div className="max-w-5xl mx-auto px-6">
 
-        <div className="text-center mb-10">
-          <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">Ready-to-use</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
+        <div className="text-center mb-12">
+          <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-3">Ready-to-use</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-5 tracking-tight">
             Pre-Built Communication Packs
           </h2>
-          <p className="text-slate-500 text-[1.05rem] leading-relaxed max-w-md mx-auto">
+          <p className="text-slate-500 text-lg leading-relaxed max-w-lg mx-auto">
             Tap a pack to expand it, then tap any phrase to hear the audio in your chosen language.
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
+        <div className="flex flex-wrap justify-center gap-2.5 mb-10">
           {LANGUAGES.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setSelectedLanguage(id)}
-              className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all duration-150 ${
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold border transition-all duration-150 ${
                 selectedLanguage === id
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20'
-                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-100'
+                  ? 'bg-teal-600 text-white border-teal-600 shadow-md shadow-teal-600/20'
+                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
               }`}
             >
               {label}
@@ -668,7 +666,7 @@ export default function SituationPacks() {
           ))}
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="grid sm:grid-cols-2 gap-5">
           {SITUATION_PACKS.map((pack) => (
             <PackCard key={pack.id} pack={pack} selectedLanguage={selectedLanguage} />
           ))}
