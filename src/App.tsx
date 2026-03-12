@@ -145,46 +145,78 @@ function App() {
 
   const showToast = updateAvailable && !toastDismissed;
 
-  return (
-    <>
-      {view === 'certificates' && (
-        <CertificatesPage onBack={() => setView('home')} />
-      )}
+  useEffect(() => {
+    if (view === 'conversation' && !selectedLanguage) {
+      setView('language');
+    } else if (view === 'talk-together' && !selectedLanguage) {
+      setTalkTogetherPending(true);
+      setView('language');
+    } else if (view === 'job-site-talk' && !selectedLanguage) {
+      setJobSiteTalkPending(true);
+      setView('language');
+    } else if (view === 'phrases' && (!selectedLanguage || !selectedSector || !selectedSubcategory)) {
+      if (selectedSector && selectedSubcategory) {
+        setView('language');
+      } else if (selectedSector) {
+        setView('subcategory');
+      } else {
+        setView('sector-select');
+      }
+    } else if (view === 'language' && !selectedSector) {
+      setView('sector-select');
+    } else if (view === 'language' && !selectedSubcategory && !talkTogetherPending && !jobSiteTalkPending) {
+      setView('subcategory');
+    } else if (view === 'subcategory' && !selectedSector) {
+      setView('sector-select');
+    }
+  }, [view, selectedLanguage, selectedSector, selectedSubcategory, talkTogetherPending, jobSiteTalkPending]);
 
-      {view === 'ambassadors' && (
-        <AmbassadorsPage onBack={() => setView('home')} />
-      )}
+  const renderView = () => {
+    if (view === 'certificates') {
+      return <CertificatesPage onBack={() => setView('home')} />;
+    }
 
-      {view === 'policy' && (
-        <LanguageAccessPolicy onBack={() => setView('home')} />
-      )}
+    if (view === 'ambassadors') {
+      return <AmbassadorsPage onBack={() => setView('home')} />;
+    }
 
-      {view === 'community' && (
-        <CommunityNavigator onBack={() => setView('home')} />
-      )}
+    if (view === 'policy') {
+      return <LanguageAccessPolicy onBack={() => setView('home')} />;
+    }
 
-      {view === 'conversation' && selectedLanguage && (
+    if (view === 'community') {
+      return <CommunityNavigator onBack={() => setView('home')} />;
+    }
+
+    if (view === 'conversation' && selectedLanguage) {
+      return (
         <ConversationScreen
           language={selectedLanguage}
           onBack={() => setView('phrases')}
         />
-      )}
+      );
+    }
 
-      {view === 'talk-together' && selectedLanguage && (
+    if (view === 'talk-together' && selectedLanguage) {
+      return (
         <TalkTogetherScreen
           language={selectedLanguage}
           onBack={() => setView('subcategory')}
         />
-      )}
+      );
+    }
 
-      {view === 'job-site-talk' && selectedLanguage && (
+    if (view === 'job-site-talk' && selectedLanguage) {
+      return (
         <JobSiteTalkScreen
           language={selectedLanguage}
           onBack={() => setView('subcategory')}
         />
-      )}
+      );
+    }
 
-      {view === 'phrases' && selectedLanguage && selectedSector && selectedSubcategory && (
+    if (view === 'phrases' && selectedLanguage && selectedSector && selectedSubcategory) {
+      return (
         <PhrasesScreen
           language={selectedLanguage}
           sector={selectedSector}
@@ -194,9 +226,11 @@ function App() {
           onOpenTalkTogether={selectedSector === 'education' ? () => setView('talk-together') : undefined}
           onOpenJobSiteTalk={selectedSector === 'construction' ? () => setView('job-site-talk') : undefined}
         />
-      )}
+      );
+    }
 
-      {view === 'language' && selectedSector && (selectedSubcategory || talkTogetherPending || jobSiteTalkPending) && (
+    if (view === 'language' && selectedSector && (selectedSubcategory || talkTogetherPending || jobSiteTalkPending)) {
+      return (
         <HomeScreen
           selectedSector={selectedSector}
           selectedSubcategory={selectedSubcategory}
@@ -209,9 +243,11 @@ function App() {
           onOpenAmbassadors={() => setView('ambassadors')}
           onCheckForUpdates={checkForUpdates}
         />
-      )}
+      );
+    }
 
-      {view === 'subcategory' && selectedSector && (
+    if (view === 'subcategory' && selectedSector) {
+      return (
         <SubcategorySelector
           subcategories={getSubcategories()}
           sectorLabel={getSectorLabel()}
@@ -221,9 +257,11 @@ function App() {
           onOpenJobSiteTalk={selectedSector === 'construction' ? handleOpenJobSiteTalk : undefined}
           selectedLanguage={selectedLanguage}
         />
-      )}
+      );
+    }
 
-      {view === 'sector-select' && (
+    if (view === 'sector-select') {
+      return (
         <HomeScreen
           selectedSector={null}
           onSelectSector={handleSelectSector}
@@ -235,19 +273,25 @@ function App() {
           onOpenAmbassadors={() => setView('ambassadors')}
           onCheckForUpdates={checkForUpdates}
         />
-      )}
+      );
+    }
 
-      {view === 'home' && (
-        <LandingPage
-          onSelectSector={handleSelectSector}
-          onGetStarted={() => setView('sector-select')}
-          onOpenPolicy={() => setView('policy')}
-          onOpenCommunityNavigator={() => setView('community')}
-          onOpenCertificates={() => setView('certificates')}
-          onOpenAmbassadors={() => setView('ambassadors')}
-          onCheckForUpdates={checkForUpdates}
-        />
-      )}
+    return (
+      <LandingPage
+        onSelectSector={handleSelectSector}
+        onGetStarted={() => setView('sector-select')}
+        onOpenPolicy={() => setView('policy')}
+        onOpenCommunityNavigator={() => setView('community')}
+        onOpenCertificates={() => setView('certificates')}
+        onOpenAmbassadors={() => setView('ambassadors')}
+        onCheckForUpdates={checkForUpdates}
+      />
+    );
+  };
+
+  return (
+    <>
+      {renderView()}
 
       <UpdateToast
         visible={showToast}
