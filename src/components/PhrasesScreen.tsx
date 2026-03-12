@@ -15,6 +15,7 @@ import EmailCaptureModal from './EmailCaptureModal';
 
 const EMAIL_CAPTURED_KEY = 'langaccess_email_captured';
 const EMAIL_MODAL_DISMISSED_KEY = 'langaccess_email_modal_dismissed';
+const PHRASE_REQUEST_HREF = 'mailto:LangAccessInfo@gmail.com?subject=LangAccess%20Phrase%20Request&body=Sector:%0A%20Situation:%0A%20Phrase%20needed:%0A%20Language:%0A%20Optional%20context:';
 
 const DEFAULT_REVIEWED_BY = 'LangAccess Editorial Review';
 const DEFAULT_VERSION = '1.0';
@@ -517,7 +518,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
 
           {/* Custom Phrases */}
           <div className="mt-10">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-1">
               <h3 className="text-lg font-bold text-slate-800">Custom Phrases</h3>
               <button
                 onClick={() => { setShowAddForm(!showAddForm); if (showAddForm) { setNewEnglish(''); setNewTranslation(''); setTranslationError(false); } }}
@@ -526,6 +527,11 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                 <Plus className="w-4 h-4" />Add Phrase
               </button>
             </div>
+            <p className="text-xs text-slate-400 mb-4">
+              Can't find the phrase you need?{' '}
+              <a href={PHRASE_REQUEST_HREF} className="text-blue-500 hover:underline font-medium">Request it here.</a>
+              {' '}We use your suggestions to improve future phrase packs.
+            </p>
 
             {showAddForm && (
               <form onSubmit={handleAddCustomPhrase} className="bg-white rounded-2xl border border-slate-200 p-5 mb-4 space-y-4">
@@ -640,9 +646,31 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
             )}
           </div>
 
-          <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          {/* Request a Phrase CTA */}
+          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-blue-900">Missing a phrase?</p>
+              <p className="text-xs text-blue-700 mt-0.5">
+                <a href={PHRASE_REQUEST_HREF} className="underline underline-offset-2 hover:text-blue-900 transition-colors">Tell us here</a>
+                {' '}— we use your suggestions to build future phrase packs.
+              </p>
+            </div>
+            <a
+              href={PHRASE_REQUEST_HREF}
+              className="flex-shrink-0 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors active:scale-[0.98]"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Request a Phrase
+            </a>
+          </div>
+
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
             <p className="text-sm text-amber-900 text-center leading-relaxed">
               <strong>Disclaimer:</strong> This app is a communication aid only. For certified interpretation, contact your institutional interpreter service.
+            </p>
+            <p className="text-xs text-amber-700 text-center mt-2">
+              Questions or feedback?{' '}
+              <a href="mailto:LangAccessInfo@gmail.com" className="underline hover:text-amber-900 transition-colors">LangAccessInfo@gmail.com</a>
             </p>
           </div>
 

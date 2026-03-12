@@ -115,8 +115,12 @@ export default function LanguageAccessPolicy({ onBack }: LanguageAccessPolicyPro
           )}
         </section>
 
-        <footer className="text-center text-sm text-slate-400 pb-6">
-          LangAccess Editorial Policy v1.0 · Updated {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+        <footer className="text-center text-sm text-slate-400 pb-6 space-y-1">
+          <p>LangAccess Editorial Policy v1.0 · Updated {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <p>
+            Questions or feedback?{' '}
+            <a href="mailto:LangAccessInfo@gmail.com" className="text-blue-500 hover:underline transition-colors">LangAccessInfo@gmail.com</a>
+          </p>
         </footer>
       </div>
     </div>
