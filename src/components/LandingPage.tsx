@@ -133,7 +133,7 @@ export default function LandingPage({
                   Frontline Language Access Platform
                 </div>
 
-                <h1 className="text-5xl sm:text-6xl lg:text-[4rem] font-extrabold leading-[1.06] tracking-tight text-white mb-8">
+                <h1 className="font-extrabold leading-[1.06] tracking-tight text-white mb-8" style={{ fontSize: 'clamp(2rem, 6vw, 4rem)' }}>
                   Instant Communication<br className="hidden sm:block" />{' '}
                   With Non-English<br className="hidden sm:block" />{' '}
                   Speakers
@@ -201,7 +201,7 @@ export default function LandingPage({
               ].map(({ label, emoji }) => (
                 <span
                   key={label}
-                  className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm"
+                  className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 text-sm font-semibold px-3 py-2 rounded-full shadow-sm"
                 >
                   <span>{emoji}</span>
                   {label}
@@ -269,7 +269,7 @@ export default function LandingPage({
               <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-5 tracking-tight">Built for Frontline Professionals</h2>
               <p className="text-slate-500 max-w-xl mx-auto text-lg leading-relaxed">Every sector has unique communication needs. LangAccess is designed around real situations you face every day.</p>
             </div>
-            <div className="grid min-[480px]:grid-cols-2 gap-6">
+            <div className="grid sm:grid-cols-2 gap-6">
               {SECTOR_CARDS.map(({ emoji, title, description, border, accentBg, accentText }) => (
                 <div
                   key={title}
