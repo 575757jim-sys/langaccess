@@ -61,6 +61,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
   const [emailModalPending, setEmailModalPending] = useState<{ english: string; translation: string; key: string } | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [translationError, setTranslationError] = useState(false);
 
   const isChineseLang = language === 'mandarin' || language === 'cantonese';
 
@@ -100,13 +101,19 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
   const translateText = async (text: string) => {
     if (!text.trim()) return;
     setIsTranslating(true);
+    setTranslationError(false);
     try {
       const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${getLanguageCode(language)}`;
       const res = await fetch(url);
       const d = await res.json();
-      if (d.responseData?.translatedText) setNewTranslation(d.responseData.translatedText);
-    } catch (error) {
-      console.error('Translation error:', error);
+      if (d.responseData?.translatedText) {
+        setNewTranslation(d.responseData.translatedText);
+        setTranslationError(false);
+      } else {
+        setTranslationError(true);
+      }
+    } catch {
+      setTranslationError(true);
     } finally {
       setIsTranslating(false);
     }
@@ -286,12 +293,14 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
         <div className="sticky top-0 bg-white border-b border-slate-200 shadow-sm z-10">
           <div className="max-w-3xl mx-auto px-4 py-3">
             <div className="flex items-center gap-3 mb-3">
-              <button onClick={onBack} className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors flex-shrink-0 p-1 -ml-1 rounded-lg hover:bg-slate-100">
+              <button onClick={onBack} aria-label="Go back" className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors flex-shrink-0 p-1 -ml-1 rounded-lg hover:bg-slate-100">
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <div className="flex-1 min-w-0">
                 <h2 className="text-lg font-bold text-slate-800 leading-tight truncate">{data.name} Phrases</h2>
-                <p className="text-xs text-slate-400 capitalize mt-0.5 truncate">{sector} · {subcategory.replace(/-/g, ' ')}</p>
+                <p className="text-xs text-slate-400 mt-0.5 truncate capitalize">
+                  {sector} <span className="mx-0.5">›</span> {subcategory.replace(/-/g, ' ')} <span className="mx-0.5">›</span> {data.name}
+                </p>
               </div>
               <button
                 onClick={() => setShowFavoritesPanel(true)}
@@ -411,6 +420,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                             <button
                               onClick={() => setPointAndSpeak({ english: phrase.english, translation: displayTranslation })}
                               className="flex-1 flex items-center justify-center hover:bg-blue-50 transition-colors rounded-tr-2xl group/ps"
+                              aria-label="Point and Speak — show fullscreen"
                               title="Point & Speak"
                             >
                               <Maximize2 className="w-4 h-4 text-slate-300 group-hover/ps:text-blue-500 transition-colors" />
@@ -419,6 +429,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                               onClick={() => handleToggleFavorite({ english: phrase.english, translation: displayTranslation }, phraseId)}
                               disabled={isTogglingFav}
                               className="flex-1 flex items-center justify-center hover:bg-yellow-50 transition-colors border-t border-slate-100 group/fav"
+                              aria-label={isFavorited ? 'Remove from favorites' : 'Save to favorites'}
                               title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
                             >
                               {isTogglingFav
@@ -509,7 +520,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-slate-800">Custom Phrases</h3>
               <button
-                onClick={() => setShowAddForm(!showAddForm)}
+                onClick={() => { setShowAddForm(!showAddForm); if (showAddForm) { setNewEnglish(''); setNewTranslation(''); setTranslationError(false); } }}
                 className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
               >
                 <Plus className="w-4 h-4" />Add Phrase
@@ -524,6 +535,10 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                     <input
                       type="text" value={newEnglish} onChange={e => setNewEnglish(e.target.value)}
                       placeholder={isListening ? 'Listening...' : 'Enter English phrase'}
+                      autoCapitalize="sentences"
+                      autoCorrect="on"
+                      spellCheck={true}
+                      maxLength={300}
                       className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${isListening ? 'border-blue-400 bg-blue-50 placeholder:text-blue-500' : 'border-slate-300'}`}
                       required
                     />
@@ -550,15 +565,34 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                     {isTranslating && <span className="ml-2 text-xs text-blue-600 italic">Translating...</span>}
                   </label>
                   <input
-                    type="text" value={newTranslation} onChange={e => setNewTranslation(e.target.value)}
-                    placeholder="Translation will appear automatically"
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    type="text" value={newTranslation} onChange={e => { setNewTranslation(e.target.value); setTranslationError(false); }}
+                    placeholder={translationError ? 'Enter translation manually' : 'Translation will appear automatically'}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    maxLength={300}
+                    className={`w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${translationError ? 'border-amber-300 bg-amber-50' : 'border-slate-300'}`}
                     required
                   />
+                  {translationError && (
+                    <p className="mt-1 text-xs text-amber-600">Auto-translation unavailable — please enter the translation manually.</p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-semibold transition-colors">Save</button>
-                  <button type="button" onClick={() => { setShowAddForm(false); setNewEnglish(''); setNewTranslation(''); }} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg text-sm font-semibold transition-colors">Cancel</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if ((newEnglish.trim() || newTranslation.trim()) && !window.confirm('Discard this phrase?')) return;
+                      setShowAddForm(false);
+                      setNewEnglish('');
+                      setNewTranslation('');
+                      setTranslationError(false);
+                    }}
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-lg text-sm font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
                 </div>
               </form>
             )}
@@ -583,6 +617,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                     <button
                       onClick={() => setPointAndSpeak({ english: phrase.english, translation: phrase.translation })}
                       className="p-2 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      aria-label="Point and Speak — show fullscreen"
                       title="Point & Speak"
                     >
                       <Maximize2 className="w-4 h-4" />
@@ -590,6 +625,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                     <button
                       onClick={() => handleDeleteCustomPhrase(phrase.id)}
                       className="p-2 text-red-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      aria-label="Delete this phrase"
                       title="Delete phrase"
                     >
                       <Trash2 className="w-4 h-4" />
