@@ -173,28 +173,30 @@ export default function HomeScreen({
           </button>
         </div>
 
-        {/* Language Selector Bar */}
-        <div className="border-t border-slate-100 bg-slate-50/80">
-          <div className="max-w-3xl mx-auto px-4 py-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap mr-1 flex-shrink-0">
-              Language:
-            </span>
-            {LANGUAGES.map((lang) => (
-              <button
-                key={lang.id}
-                onClick={() => handleLanguageSelect(lang.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 whitespace-nowrap flex-shrink-0
-                  ${activeLanguage === lang.id
-                    ? `${lang.activeClass} shadow-sm`
-                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-white'
-                  }`}
-              >
-                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${activeLanguage === lang.id ? 'bg-white/60' : lang.dotColor}`} />
-                {lang.label}
-              </button>
-            ))}
+        {/* Language Selector Bar — only interactive when a sector is selected */}
+        {selectedSector && (
+          <div className="border-t border-slate-100 bg-slate-50/80">
+            <div className="max-w-3xl mx-auto px-4 py-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap mr-1 flex-shrink-0">
+                Language:
+              </span>
+              {LANGUAGES.map((lang) => (
+                <button
+                  key={lang.id}
+                  onClick={() => handleLanguageSelect(lang.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 whitespace-nowrap flex-shrink-0
+                    ${activeLanguage === lang.id
+                      ? `${lang.activeClass} shadow-sm`
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-white'
+                    }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${activeLanguage === lang.id ? 'bg-white/60' : lang.dotColor}`} />
+                  {lang.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </header>
 
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
