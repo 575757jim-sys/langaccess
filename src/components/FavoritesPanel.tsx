@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Star, Volume2, Loader2, X, Maximize2, Download, Monitor, MessageSquare } from 'lucide-react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { Star, Volume2, Loader2, X, Maximize2, Download, Monitor, MessageSquare, Trash2 } from 'lucide-react';
 import { FavoritePhrase, loadFavorites, removeFavorite } from '../utils/favorites';
 import { playAudioFromGesture } from '../utils/speech';
 import { fetchAllLogs, exportLogsToCSV } from '../utils/interactionLog';
@@ -20,6 +20,8 @@ export default function FavoritesPanel({ onClose }: FavoritesPanelProps) {
   const [pointAndSpeak, setPointAndSpeak] = useState<FavoritePhrase | null>(null);
   const [exportingLogs, setExportingLogs] = useState(false);
   const [showScreen, setShowScreen] = useState<FavoritePhrase | null>(null);
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
+  const confirmTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     loadFavorites().then(f => {
@@ -34,9 +36,17 @@ export default function FavoritesPanel({ onClose }: FavoritesPanelProps) {
     setTimeout(() => setPlayingId(null), 2500);
   }, []);
 
-  const handleRemove = async (id: string) => {
-    await removeFavorite(id);
-    setFavorites(prev => prev.filter(f => f.id !== id));
+  const handleRemoveRequest = (id: string) => {
+    if (pendingRemoveId === id) {
+      if (confirmTimeoutRef.current) clearTimeout(confirmTimeoutRef.current);
+      setPendingRemoveId(null);
+      removeFavorite(id);
+      setFavorites(prev => prev.filter(f => f.id !== id));
+    } else {
+      setPendingRemoveId(id);
+      if (confirmTimeoutRef.current) clearTimeout(confirmTimeoutRef.current);
+      confirmTimeoutRef.current = setTimeout(() => setPendingRemoveId(null), 3000);
+    }
   };
 
   const handleExportLogs = async () => {
@@ -141,12 +151,19 @@ export default function FavoritesPanel({ onClose }: FavoritesPanelProps) {
                                 <Monitor className="w-3.5 h-3.5 text-slate-300 group-hover/ss:text-slate-600 transition-colors" />
                               </button>
                               <button
-                                onClick={() => handleRemove(fav.id)}
-                                className="flex-1 flex items-center justify-center hover:bg-red-50 transition-colors border-t border-slate-100 rounded-br-2xl group/rm"
-                                aria-label="Remove from favorites"
-                                title="Remove from favorites"
+                                onClick={() => handleRemoveRequest(fav.id)}
+                                className={`flex-1 flex items-center justify-center transition-colors border-t border-slate-100 rounded-br-2xl
+                                  ${pendingRemoveId === fav.id
+                                    ? 'bg-red-500 hover:bg-red-600'
+                                    : 'hover:bg-red-50 group/rm'
+                                  }`}
+                                aria-label={pendingRemoveId === fav.id ? 'Confirm remove' : 'Remove from favorites'}
+                                title={pendingRemoveId === fav.id ? 'Tap again to confirm' : 'Remove from favorites'}
                               >
-                                <X className="w-3.5 h-3.5 text-slate-300 group-hover/rm:text-red-400 transition-colors" />
+                                {pendingRemoveId === fav.id
+                                  ? <Trash2 className="w-3.5 h-3.5 text-white" />
+                                  : <X className="w-3.5 h-3.5 text-slate-300 group-hover/rm:text-red-400 transition-colors" />
+                                }
                               </button>
                             </div>
                           </div>

@@ -7,7 +7,7 @@ import { playAudioFromGesture } from '../utils/speech';
 import { exportPhrasesToCSV } from '../utils/exportToCSV';
 import { supabase } from '../lib/supabase';
 import { logInteraction } from '../utils/interactionLog';
-import { loadFavorites, addFavorite, removeFavorite, FavoritePhrase } from '../utils/favorites';
+import { loadFavorites, addFavorite, removeFavorite, linkFavoritesToEmail, FavoritePhrase } from '../utils/favorites';
 import PointAndSpeak from './PointAndSpeak';
 import FavoritesPanel from './FavoritesPanel';
 import ResponseModePanel from './ResponseModePanel';
@@ -275,6 +275,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
 
   const handleEmailSave = async (email: string) => {
     localStorage.setItem(EMAIL_CAPTURED_KEY, email);
+    await linkFavoritesToEmail(email);
     setEmailModalPending(null);
     if (emailModalPending) await doAddFavorite(emailModalPending, emailModalPending.key);
   };

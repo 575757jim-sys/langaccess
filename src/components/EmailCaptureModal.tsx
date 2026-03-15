@@ -67,7 +67,7 @@ export default function EmailCaptureModal({ sector, phrase, onSave, onDismiss }:
             </h2>
           </div>
           <p className="text-slate-300 text-sm leading-relaxed">
-            Enter your email to access your favorites across devices. No account needed.
+            Share your email and we'll keep you updated on new phrase packs and features. Your phrases are saved on this device.
           </p>
         </div>
 
@@ -111,7 +111,7 @@ export default function EmailCaptureModal({ sector, phrase, onSave, onDismiss }:
             ) : (
               <>
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                Save Favorites
+                Keep Me Updated
               </>
             )}
           </button>

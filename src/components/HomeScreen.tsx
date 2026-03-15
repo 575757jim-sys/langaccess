@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users, ChevronRight, Handshake, Star, HandHeart } from 'lucide-react';
 import FavoritesPanel from './FavoritesPanel';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
+import { loadFavorites } from '../utils/favorites';
 import SEO from './SEO';
 
 const JSON_LD_WEB_APP = {
@@ -122,6 +123,11 @@ export default function HomeScreen({
 }: HomeScreenProps) {
   const [activeLanguage, setActiveLanguage] = useState<Language | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [favCount, setFavCount] = useState(0);
+
+  useEffect(() => {
+    loadFavorites().then(favs => setFavCount(favs.length));
+  }, []);
 
   const sectorConfig = selectedSector ? SECTOR_CARDS.find(s => s.id === selectedSector) : null;
 
@@ -167,8 +173,8 @@ export default function HomeScreen({
             onClick={() => setShowFavorites(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-200 hover:bg-yellow-100 text-yellow-700 text-xs font-semibold transition-colors flex-shrink-0"
           >
-            <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
-            My Phrases
+            <Star className={`w-3.5 h-3.5 ${favCount > 0 ? 'fill-yellow-500 text-yellow-500' : 'text-yellow-500'}`} />
+            {favCount > 0 ? `My Phrases (${favCount})` : 'My Phrases'}
           </button>
         </div>
 
@@ -379,7 +385,12 @@ export default function HomeScreen({
       </footer>
     </div>
 
-    {showFavorites && <FavoritesPanel onClose={() => setShowFavorites(false)} />}
+    {showFavorites && (
+      <FavoritesPanel onClose={() => {
+        setShowFavorites(false);
+        loadFavorites().then(favs => setFavCount(favs.length));
+      }} />
+    )}
     </>
   );
 }
