@@ -1,4 +1,4 @@
-import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Globe } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Globe, Wifi, Briefcase, CheckCircle, Tablet } from 'lucide-react';
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
 import HomeDemoSection from './HomeDemoSection';
@@ -28,6 +28,13 @@ const VALUE_POINTS = [
   { Icon: Shield, label: 'Built for frontline teams', desc: 'Sector-specific content' },
   { Icon: Smartphone, label: 'Mobile friendly', desc: 'Works on any device' },
   { Icon: BookOpen, label: 'Real-world service phrases', desc: 'Field-tested content' },
+];
+
+const HERO_VALUE_STRIP = [
+  { Icon: Wifi, label: 'Instant communication' },
+  { Icon: Briefcase, label: 'Field-ready workflow' },
+  { Icon: CheckCircle, label: 'Compliance-supportive' },
+  { Icon: Tablet, label: 'Mobile-friendly' },
 ];
 
 const SECTOR_CARDS = [
@@ -143,9 +150,34 @@ export default function LandingPage({
                   LangAccess helps frontline workers communicate with non-English speakers in seconds using simple, situation-based phrases.
                 </p>
 
-                <p className="text-slate-400 text-base font-medium mb-12 max-w-lg">
+                <p className="text-slate-400 text-base font-medium mb-5 max-w-lg">
                   Tap a situation &rarr; play the phrase &rarr; communicate instantly.
                 </p>
+
+                <p className="text-slate-300 text-base leading-relaxed mb-3 max-w-lg">
+                  Instant language access tools for healthcare, education, construction, and community services.
+                </p>
+
+                <p className="text-slate-400 text-sm leading-relaxed mb-3 max-w-lg">
+                  Use pre-built phrases, play instant translations, and bridge communication until a certified interpreter is available.
+                </p>
+
+                <p className="text-slate-500 text-xs leading-relaxed mb-8 max-w-lg">
+                  Supports Title VI Civil Rights language access compliance and California LEP access standards. Not legal advice.
+                </p>
+
+                <p className="text-slate-400 text-xs font-medium tracking-widest uppercase mb-3">
+                  Built for Healthcare &middot; Education &middot; Construction &middot; Community Outreach
+                </p>
+
+                <div className="flex flex-wrap gap-x-5 gap-y-2 mb-10">
+                  {HERO_VALUE_STRIP.map(({ Icon, label }) => (
+                    <div key={label} className="flex items-center gap-1.5 text-slate-400 text-xs font-medium">
+                      <Icon className="w-3.5 h-3.5 text-teal-400 flex-shrink-0" />
+                      <span>{label}</span>
+                    </div>
+                  ))}
+                </div>
 
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
