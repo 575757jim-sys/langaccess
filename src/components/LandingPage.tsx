@@ -3,6 +3,8 @@ import { Sector } from '../data/phrases';
 import SEO from './SEO';
 import HomeDemoSection from './HomeDemoSection';
 import SituationPacks from './SituationPacks';
+import HeroMiniDemo from './HeroMiniDemo';
+import ToolkitDownload from './ToolkitDownload';
 
 const JSON_LD_WEB_APP = {
   '@context': 'https://schema.org',
@@ -244,6 +246,8 @@ export default function LandingPage({
           </div>
         </section>
 
+        <HeroMiniDemo onSeeMore={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })} />
+
         {/* ── HOW IT WORKS ── (moved up, directly after hero) */}
         <section id="how-it-works" className="py-24 sm:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6">
@@ -407,8 +411,22 @@ export default function LandingPage({
                 </button>
               ))}
             </div>
+
+            <div className="mt-10 pt-8 border-t border-white/15">
+              <p className="text-teal-200 text-xs font-semibold uppercase tracking-widest mb-4">For Institutions &amp; Organizations</p>
+              <a
+                href={`mailto:LangAccessInfo@gmail.com?subject=${encodeURIComponent('LangAccess Institutional Pilot')}&body=${encodeURIComponent('Organization:\nSector:\nApproximate Staff Size:\nMessage:\n')}`}
+                className="inline-flex items-center gap-2 bg-white hover:bg-teal-50 text-teal-700 font-bold px-7 py-3.5 rounded-xl transition-all duration-200 shadow-xl hover:scale-[1.02] active:scale-[0.98] text-sm"
+              >
+                <Compass className="w-4 h-4" />
+                Request Institutional Pilot
+              </a>
+              <p className="text-teal-300/60 text-xs mt-3">For multi-team deployments, staff training, or compliance integration</p>
+            </div>
           </div>
         </section>
+
+        <ToolkitDownload />
       </main>
 
       {/* ── FOOTER ── */}
