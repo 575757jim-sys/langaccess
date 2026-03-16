@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Download, Mail, CheckCircle, X, Loader2, FileText } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
 const TOOLKIT_URL = '/LangAccess_Strategic_Framework_v3.pdf';
 
 type Step = 'idle' | 'email-prompt' | 'saving' | 'done';
@@ -42,6 +45,22 @@ export default function ToolkitDownload() {
         );
       } catch {
         // silent — don't block the download
+      }
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/send-toolkit-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ email: trimmed }),
+        });
+        if (!res.ok) {
+          console.error('send-toolkit-email: non-ok response', res.status);
+        }
+      } catch (emailErr) {
+        console.error('send-toolkit-email: fetch error', emailErr);
       }
     }
 
