@@ -118,12 +118,15 @@ Deno.serve(async (req: Request) => {
 
     if (!res.ok) {
       const body = await res.text();
-      console.error("send-toolkit-email: Resend error", res.status, body);
+      console.error("send-toolkit-email: Resend API call FAILED", res.status, body);
       return new Response(JSON.stringify({ error: "send failed" }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    const resBody = await res.json();
+    console.log("send-toolkit-email: Resend API call SUCCEEDED", JSON.stringify(resBody));
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
