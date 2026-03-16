@@ -4,6 +4,7 @@ import FavoritesPanel from './FavoritesPanel';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
 import { loadFavorites } from '../utils/favorites';
+import ToolkitRequestSection from './ToolkitRequestSection';
 import SEO from './SEO';
 
 const JSON_LD_WEB_APP = {
@@ -363,6 +364,8 @@ export default function HomeScreen({
           </>
         )}
       </main>
+
+      <ToolkitRequestSection />
 
       <footer className="border-t border-slate-200 bg-white py-4 px-6">
         <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
