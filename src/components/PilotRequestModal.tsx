@@ -50,14 +50,14 @@ export default function PilotRequestModal({ onClose }: Props) {
     setSubmitting(true);
 
     try {
-      const { error: dbError } = await supabase.from('pilot_requests').insert({
+      const { error: dbError } = await supabase.schema('public').from('pilot_requests').insert({
         organization: form.organization.trim(),
         sector: form.sector,
         staff_size: form.staff_size,
         name: form.name.trim(),
         email: form.email.trim(),
         message: form.message.trim(),
-      });
+      }, { count: 'exact' });
 
       if (dbError) throw new Error(dbError.message);
 
