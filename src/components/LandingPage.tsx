@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Globe, Wifi, Briefcase, CheckCircle, Tablet } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Wifi, Briefcase, CheckCircle, Tablet } from 'lucide-react';
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
-import HomeDemoSection from './HomeDemoSection';
-import HeroMiniDemo from './HeroMiniDemo';
 import ToolkitDownload from './ToolkitDownload';
 import PilotRequestModal from './PilotRequestModal';
 
@@ -250,8 +248,6 @@ export default function LandingPage({
           </div>
         </section>
 
-        <HeroMiniDemo onSeeMore={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })} />
-
         {/* ── HOW IT WORKS ── */}
         <section id="how-it-works" className="py-24 sm:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6">
@@ -300,8 +296,6 @@ export default function LandingPage({
             </div>
           </div>
         </section>
-
-        <HomeDemoSection />
 
         {/* ── BUILT FOR FRONTLINE ── */}
         <section className="py-24 sm:py-28 bg-slate-50">
