@@ -39,16 +39,16 @@ const HERO_VALUE_STRIP = [
 ];
 
 const SECTOR_CARDS = [
-  { emoji: '🎓', title: 'Education', description: 'Teachers and school staff communicate clearly with students and parents across language barriers.', border: 'border-blue-100', accentBg: 'bg-blue-50', accentText: 'text-blue-500' },
-  { emoji: '🏥', title: 'Healthcare', description: 'Nurses and medical staff ask essential intake questions and deliver instructions quickly and accurately.', border: 'border-green-100', accentBg: 'bg-green-50', accentText: 'text-green-500' },
-  { emoji: '🦺', title: 'Construction', description: 'Supervisors deliver safety instructions and emergency directions to multilingual crews on-site.', border: 'border-orange-100', accentBg: 'bg-orange-50', accentText: 'text-orange-500' },
-  { emoji: '🤝', title: 'Community Outreach', description: 'Outreach workers connect community members to shelters, food assistance, and vital services.', border: 'border-teal-100', accentBg: 'bg-teal-50', accentText: 'text-teal-500' },
+  { emoji: '🎓', title: 'Education', description: 'Teachers communicate clearly with students and families across languages.', border: 'border-blue-100', accentBg: 'bg-blue-50', accentText: 'text-blue-500' },
+  { emoji: '🏥', title: 'Healthcare', description: 'Medical staff deliver intake questions and instructions quickly and accurately.', border: 'border-green-100', accentBg: 'bg-green-50', accentText: 'text-green-500' },
+  { emoji: '🦺', title: 'Construction', description: 'Supervisors deliver safety instructions to multilingual crews on-site.', border: 'border-orange-100', accentBg: 'bg-orange-50', accentText: 'text-orange-500' },
+  { emoji: '🤝', title: 'Community Outreach', description: 'Outreach workers connect people to shelters, food, and vital services.', border: 'border-teal-100', accentBg: 'bg-teal-50', accentText: 'text-teal-500' },
 ];
 
 const HOW_STEPS = [
-  { step: '1', label: 'Choose your sector', desc: 'Select from Education, Healthcare, Construction, or Outreach.' },
-  { step: '2', label: 'Select a situation', desc: 'Pick the communication scenario that matches your need.' },
-  { step: '3', label: 'Tap a phrase to play', desc: 'Hear the audio translation instantly in the target language.' },
+  { step: '1', label: 'Choose your sector', desc: 'Pick Education, Healthcare, Construction, or Outreach.' },
+  { step: '2', label: 'Select a situation', desc: 'Choose the scenario that matches your need.' },
+  { step: '3', label: 'Tap a phrase to play', desc: 'Hear the translation instantly in any language.' },
 ];
 
 const PHRASE_REQUEST_HREF = 'mailto:LangAccessInfo@gmail.com?subject=LangAccess%20Phrase%20Request&body=Sector:%0A%20Situation:%0A%20Phrase%20needed:%0A%20Language:%0A%20Optional%20context:';
@@ -149,28 +149,8 @@ export default function LandingPage({
                   Speakers
                 </h1>
 
-                <p className="text-slate-200 text-xl leading-relaxed mb-5 max-w-lg">
-                  LangAccess helps frontline workers communicate with non-English speakers in seconds using simple, situation-based phrases.
-                </p>
-
-                <p className="text-slate-400 text-base font-medium mb-5 max-w-lg">
-                  Tap a situation &rarr; play the phrase &rarr; communicate instantly.
-                </p>
-
-                <p className="text-slate-300 text-base leading-relaxed mb-3 max-w-lg">
-                  Instant language access tools for healthcare, education, construction, and community services.
-                </p>
-
-                <p className="text-slate-400 text-sm leading-relaxed mb-3 max-w-lg">
-                  Use pre-built phrases, play instant translations, and bridge communication until a certified interpreter is available.
-                </p>
-
-                <p className="text-slate-500 text-xs leading-relaxed mb-8 max-w-lg">
-                  Supports Title VI Civil Rights language access compliance and California LEP access standards. Not legal advice.
-                </p>
-
-                <p className="text-slate-400 text-xs font-medium tracking-widest uppercase mb-3">
-                  Built for Healthcare &middot; Education &middot; Construction &middot; Community Outreach
+                <p className="text-slate-300 text-base leading-relaxed mb-8 max-w-lg">
+                  Supports Spanish, Tagalog, Vietnamese, Mandarin, and Cantonese. Built for healthcare, education, construction, and community organizations.
                 </p>
 
                 <div className="flex flex-wrap gap-x-5 gap-y-2 mb-10">
@@ -343,6 +323,7 @@ export default function LandingPage({
           <div className="relative max-w-3xl mx-auto px-6 text-center">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Ready to communicate clearly?</h2>
             <p className="text-teal-100 mb-4 text-base">Select your sector to get started. No account needed, works instantly.</p>
+
             <a
               href={PHRASE_REQUEST_HREF}
               className="inline-flex items-center gap-1.5 text-teal-200 hover:text-white text-sm font-medium underline underline-offset-2 mb-10 transition-colors"
