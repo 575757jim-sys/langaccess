@@ -61,7 +61,7 @@ export default function PilotRequestModal({ onClose }: Props) {
 
       if (dbError) throw new Error(dbError.message);
 
-      const res = await fetch('/.netlify/functions/send-pilot-notification', {
+      fetch('/.netlify/functions/send-pilot-notification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -72,12 +72,7 @@ export default function PilotRequestModal({ onClose }: Props) {
           email: form.email.trim(),
           message: form.message.trim(),
         }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? 'Failed to send notification');
-      }
+      }).catch(() => {});
 
       setSubmitted(true);
     } catch (err) {
