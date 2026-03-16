@@ -3,7 +3,6 @@ import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileTe
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
 import HomeDemoSection from './HomeDemoSection';
-import SituationPacks from './SituationPacks';
 import HeroMiniDemo from './HeroMiniDemo';
 import ToolkitDownload from './ToolkitDownload';
 import PilotRequestModal from './PilotRequestModal';
@@ -252,7 +251,7 @@ export default function LandingPage({
 
         <HeroMiniDemo onSeeMore={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })} />
 
-        {/* ── HOW IT WORKS ── (moved up, directly after hero) */}
+        {/* ── HOW IT WORKS ── */}
         <section id="how-it-works" className="py-24 sm:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6">
             <div className="text-center mb-16">
@@ -275,6 +274,10 @@ export default function LandingPage({
                 </div>
               ))}
             </div>
+
+            <p className="text-center text-slate-500 text-base mt-12">
+              Includes pre-built phrase packs for Healthcare, Construction, Education, and Community settings.
+            </p>
           </div>
         </section>
 
@@ -298,8 +301,6 @@ export default function LandingPage({
         </section>
 
         <HomeDemoSection />
-
-        <SituationPacks />
 
         {/* ── BUILT FOR FRONTLINE ── */}
         <section className="py-24 sm:py-28 bg-slate-50">
@@ -333,54 +334,7 @@ export default function LandingPage({
           </div>
         </section>
 
-        {/* ── MID-PAGE CTA ── */}
-        <section className="py-24 bg-teal-700 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '36px 36px' }} />
-          <div className="relative max-w-3xl mx-auto px-6 text-center">
-            <p className="text-xs font-bold text-teal-200 uppercase tracking-widest mb-3">Live demo</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">See LangAccess in Action</h2>
-            <p className="text-teal-100 text-lg leading-relaxed mb-10 max-w-md mx-auto">Choose a language, select a situation, and hear the phrase instantly.</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button
-                onClick={() => onSelectSector('healthcare')}
-                className="inline-flex items-center justify-center gap-2.5 bg-white hover:bg-slate-50 text-teal-700 font-bold px-10 py-4 rounded-xl transition-all duration-200 shadow-xl text-base hover:scale-[1.02] active:scale-[0.98] min-h-[54px]"
-              >
-                Try the Demo
-                <ChevronRight className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => document.getElementById('situation-packs')?.scrollIntoView({ behavior: 'smooth' })}
-                className="inline-flex items-center justify-center gap-2 text-teal-200 hover:text-white font-medium text-sm transition-colors min-h-[54px] px-4 underline underline-offset-4 decoration-teal-400/50 hover:decoration-white/70"
-              >
-                Browse Packs
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* ── LANGUAGES ── */}
-        <section className="bg-slate-900" style={{ paddingTop: '7rem', paddingBottom: '7rem' }}>
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <p className="text-xs font-bold text-teal-400 uppercase tracking-widest mb-4">Coverage</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Languages Supported</h2>
-            <p className="text-teal-400 font-semibold text-base mb-3">Native-quality voice, text &amp; translation</p>
-            <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed mb-12">Available in five languages spoken by over 2 million Bay Area residents.</p>
-            <div className="flex flex-wrap justify-center gap-4" style={{ paddingTop: '4px', paddingBottom: '4px' }}>
-              {LANGUAGES.map(({ label, flag, bg, border, text }) => (
-                <div
-                  key={label}
-                  className={`${bg} ${border} border-2 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-md transition-transform duration-200 hover:-translate-y-1`}
-                  style={{ width: '130px', height: '88px', padding: '0 1rem' }}
-                >
-                  <span className="text-2xl leading-none select-none" aria-hidden="true">{flag}</span>
-                  <span className={`text-sm font-bold ${text} leading-tight`}>{label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── FINAL CTA ── */}
+        {/* ── INSTITUTIONAL PILOT CTA ── */}
         <section id="sector-select" className="py-24 bg-gradient-to-br from-teal-700 to-teal-800 relative overflow-hidden">
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
           <div className="relative max-w-3xl mx-auto px-6 text-center">
@@ -431,6 +385,28 @@ export default function LandingPage({
         </section>
 
         <ToolkitDownload />
+
+        {/* ── LANGUAGES ── */}
+        <section className="bg-slate-900" style={{ paddingTop: '7rem', paddingBottom: '7rem' }}>
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <p className="text-xs font-bold text-teal-400 uppercase tracking-widest mb-4">Coverage</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Languages Supported</h2>
+            <p className="text-teal-400 font-semibold text-base mb-3">Native-quality voice, text &amp; translation</p>
+            <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed mb-12">Available in five languages spoken by over 2 million Bay Area residents.</p>
+            <div className="flex flex-wrap justify-center gap-4" style={{ paddingTop: '4px', paddingBottom: '4px' }}>
+              {LANGUAGES.map(({ label, flag, bg, border, text }) => (
+                <div
+                  key={label}
+                  className={`${bg} ${border} border-2 rounded-2xl flex flex-col items-center justify-center gap-2 shadow-md transition-transform duration-200 hover:-translate-y-1`}
+                  style={{ width: '130px', height: '88px', padding: '0 1rem' }}
+                >
+                  <span className="text-2xl leading-none select-none" aria-hidden="true">{flag}</span>
+                  <span className={`text-sm font-bold ${text} leading-tight`}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* ── FOOTER ── */}
