@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Globe, Wifi, Briefcase, CheckCircle, Tablet } from 'lucide-react';
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
@@ -5,6 +6,7 @@ import HomeDemoSection from './HomeDemoSection';
 import SituationPacks from './SituationPacks';
 import HeroMiniDemo from './HeroMiniDemo';
 import ToolkitDownload from './ToolkitDownload';
+import PilotRequestModal from './PilotRequestModal';
 
 const JSON_LD_WEB_APP = {
   '@context': 'https://schema.org',
@@ -81,6 +83,8 @@ export default function LandingPage({
   onOpenAmbassadors,
   onCheckForUpdates,
 }: LandingPageProps) {
+  const [showPilotModal, setShowPilotModal] = useState(false);
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <SEO
@@ -414,13 +418,13 @@ export default function LandingPage({
 
             <div className="mt-10 pt-8 border-t border-white/15">
               <p className="text-teal-200 text-xs font-semibold uppercase tracking-widest mb-4">For Institutions &amp; Organizations</p>
-              <a
-                href={`mailto:LangAccessInfo@gmail.com?subject=${encodeURIComponent('LangAccess Institutional Pilot')}&body=${encodeURIComponent('Organization:\nSector:\nApproximate Staff Size:\nMessage:\n')}`}
+              <button
+                onClick={() => setShowPilotModal(true)}
                 className="inline-flex items-center gap-2 bg-white hover:bg-teal-50 text-teal-700 font-bold px-7 py-3.5 rounded-xl transition-all duration-200 shadow-xl hover:scale-[1.02] active:scale-[0.98] text-sm"
               >
                 <Compass className="w-4 h-4" />
                 Request Institutional Pilot
-              </a>
+              </button>
               <p className="text-teal-300/60 text-xs mt-3">For multi-team deployments, staff training, or compliance integration</p>
             </div>
           </div>
@@ -462,6 +466,10 @@ export default function LandingPage({
           </a>
         </div>
       </footer>
+
+      {showPilotModal && (
+        <PilotRequestModal onClose={() => setShowPilotModal(false)} />
+      )}
     </div>
   );
 }
