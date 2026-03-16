@@ -203,7 +203,6 @@ export default function LandingPage({
               {/* Right — example phrase cards */}
               <div className="flex justify-center lg:justify-end">
                 <div className="w-full max-w-sm space-y-3">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Common frontline phrases</p>
                   {MOCK_PHRASES.map((item) => (
                     <div
                       key={item.phrase}
