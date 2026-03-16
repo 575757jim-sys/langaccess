@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Download, Mail, CheckCircle, X, Loader2, FileText } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
-const TOOLKIT_URL = 'mailto:LangAccessInfo@gmail.com?subject=Language%20Access%20Toolkit%20Request&body=Please%20send%20me%20the%20LangAccess%20Language%20Access%20Toolkit.';
+const TOOLKIT_URL = '/LangAccess_Strategic_Framework_v3.pdf';
 
 type Step = 'idle' | 'email-prompt' | 'saving' | 'done';
 
@@ -12,7 +12,7 @@ export default function ToolkitDownload() {
   const [emailError, setEmailError] = useState('');
 
   function openToolkit() {
-    window.location.href = TOOLKIT_URL;
+    window.open(TOOLKIT_URL, '_blank');
   }
 
   function handleDownloadClick() {
