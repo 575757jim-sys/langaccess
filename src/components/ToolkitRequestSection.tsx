@@ -14,12 +14,17 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
 export default function ToolkitRequestSection() {
   const [email, setEmail] = useState('');
   const [sector, setSector] = useState('');
   const [emailError, setEmailError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +41,25 @@ export default function ToolkitRequestSection() {
         sector: sector || null,
         source: 'toolkit_request',
       });
+      setSubmittedEmail(trimmed);
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/send-toolkit-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ email: trimmed }),
+        });
+        if (res.ok) {
+          setEmailSent(true);
+        } else {
+          console.error('send-toolkit-email: non-ok response', res.status);
+        }
+      } catch (emailErr) {
+        console.error('send-toolkit-email: fetch error', emailErr);
+      }
     } catch {
     } finally {
       setSubmitting(false);
@@ -86,7 +110,11 @@ export default function ToolkitRequestSection() {
                   <Download className="w-4 h-4" />
                   Download Toolkit
                 </a>
-                <p className="text-xs text-slate-400">A copy will also be sent to your email.</p>
+                <p className="text-xs text-slate-400">
+                  {emailSent
+                    ? `Your toolkit has been sent to ${submittedEmail}.`
+                    : 'A copy will also be sent to your email.'}
+                </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
