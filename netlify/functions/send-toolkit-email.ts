@@ -41,7 +41,7 @@ export const handler: Handler = async (event) => {
           <p style="margin: 24px 0;">
             <a href="${DOWNLOAD_URL}"
                style="background: #0d9488; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">
-              Download the Language Access Toolkit
+              Download Your Toolkit
             </a>
           </p>
           <p>This guide includes policy templates, staff checklists, and compliance documentation for Title VI and California LEP language access programs.</p>
