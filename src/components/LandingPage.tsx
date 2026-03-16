@@ -312,7 +312,7 @@ export default function LandingPage({
         <section className="w-full bg-slate-900 py-5">
           <div className="max-w-6xl mx-auto px-6 text-center">
             <p className="text-teal-500/80 text-xs font-medium leading-relaxed tracking-wide">
-              Designed for compliance teams in Healthcare, Education, and Construction &nbsp;&middot;&nbsp; Supports Title VI and California LEP requirements &nbsp;&middot;&nbsp; Used in the Bay Area and growing
+              Designed for compliance teams &nbsp;&middot;&nbsp; Supports Title VI and California LEP requirements &nbsp;&middot;&nbsp; Used in the Bay Area
             </p>
           </div>
         </section>
@@ -376,7 +376,6 @@ export default function LandingPage({
           <div className="max-w-4xl mx-auto px-6 text-center">
             <p className="text-xs font-bold text-teal-400 uppercase tracking-widest mb-4">Coverage</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Languages Supported</h2>
-            <p className="text-teal-400 font-semibold text-base mb-3">Native-quality voice, text &amp; translation</p>
             <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed mb-12">Available in five languages spoken by over 2 million Bay Area residents.</p>
             <div className="flex flex-wrap justify-center gap-4" style={{ paddingTop: '4px', paddingBottom: '4px' }}>
               {LANGUAGES.map(({ label, flag, bg, border, text }) => (
