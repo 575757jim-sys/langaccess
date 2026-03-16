@@ -199,6 +199,7 @@ export default function LandingPage({
                     See How It Works
                   </button>
                 </div>
+                <p className="text-slate-500 text-xs mt-3">Free to try. No credit card required.</p>
               </div>
 
               {/* Right — example phrase cards */}
@@ -334,6 +335,15 @@ export default function LandingPage({
           </div>
         </section>
 
+        {/* ── SOCIAL PROOF BAR ── */}
+        <section className="w-full bg-slate-900 py-5">
+          <div className="max-w-6xl mx-auto px-6 text-center">
+            <p className="text-teal-500/80 text-xs font-medium leading-relaxed tracking-wide">
+              Designed for compliance teams in Healthcare, Education, and Construction &nbsp;&middot;&nbsp; Supports Title VI and California LEP requirements &nbsp;&middot;&nbsp; Used in the Bay Area and growing
+            </p>
+          </div>
+        </section>
+
         {/* ── INSTITUTIONAL PILOT CTA ── */}
         <section id="sector-select" className="py-24 bg-gradient-to-br from-teal-700 to-teal-800 relative overflow-hidden">
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
@@ -372,6 +382,7 @@ export default function LandingPage({
 
             <div className="mt-10 pt-8 border-t border-white/15">
               <p className="text-teal-200 text-xs font-semibold uppercase tracking-widest mb-4">For Institutions &amp; Organizations</p>
+              <p className="text-teal-100/70 text-sm mb-5">Serving multi-team organizations and compliance departments.</p>
               <button
                 onClick={() => setShowPilotModal(true)}
                 className="inline-flex items-center gap-2 bg-white hover:bg-teal-50 text-teal-700 font-bold px-7 py-3.5 rounded-xl transition-all duration-200 shadow-xl hover:scale-[1.02] active:scale-[0.98] text-sm"
