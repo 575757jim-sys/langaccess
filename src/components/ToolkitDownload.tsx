@@ -45,11 +45,13 @@ export default function ToolkitDownload() {
       }
 
       try {
-        const { error: fnError } = await supabase.functions.invoke('send-toolkit-email', {
-          body: { email: trimmed },
+        const res = await fetch('/.netlify/functions/send-toolkit-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: trimmed }),
         });
-        if (fnError) {
-          console.error('send-toolkit-email: invoke error', fnError);
+        if (!res.ok) {
+          console.error('send-toolkit-email: non-ok response', res.status);
         }
       } catch (emailErr) {
         console.error('send-toolkit-email: fetch error', emailErr);
