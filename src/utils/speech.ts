@@ -81,19 +81,18 @@ async function fetchBlobUrl(text: string, language: string): Promise<string | nu
       return null;
     }
 
-    const contentType = res.headers.get('content-type') ?? '';
-    if (!contentType.includes('audio')) {
-      const body = await res.text();
-      console.error(`[tts] Unexpected content-type "${contentType}": ${body}`);
+    const data = await res.json();
+    if (!data.audioContent) {
+      console.error(`[tts] No audioContent in response for lang=${language}`);
       return null;
     }
 
-    const blob = await res.blob();
-    if (blob.size < 100) {
-      console.error(`[tts] Blob too small (${blob.size} bytes) for lang=${language}`);
-      return null;
+    const binary = atob(data.audioContent);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
     }
-
+    const blob = new Blob([bytes], { type: 'audio/mpeg' });
     const url = URL.createObjectURL(blob);
     blobCache.set(key, url);
     return url;
