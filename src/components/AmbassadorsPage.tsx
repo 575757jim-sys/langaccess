@@ -94,6 +94,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [duplicateEmail, setDuplicateEmail] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [statsVisible, setStatsVisible] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
 
@@ -128,81 +129,88 @@ export default function AmbassadorsPage({ onBack }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
 
     if (!validate()) return;
 
     setSubmitting(true);
 
-    const { data: existing } = await supabase
-      .from('ambassadors')
-      .select('id')
-      .eq('email', form.email.trim())
-      .maybeSingle();
-
-    if (existing) {
-      setDuplicateEmail(true);
-      setSubmitting(false);
-      return;
-    }
-
-    const ambassador_id = crypto.randomUUID();
-
-    const { error: insertError } = await supabase
-      .from('ambassadors')
-      .insert({
-        id: ambassador_id,
-        full_name: form.name.trim(),
-        email: form.email.trim(),
-        city_state: form.city.trim(),
-        profession: form.profession.trim(),
-        distribution_location: form.locations.trim(),
-        how_heard: form.source || null,
-        additional_context: form.message.trim() || null,
-        agreement_accepted: true,
-        agreement_timestamp: new Date().toISOString(),
-      });
-
-    if (insertError) {
-      console.error('Ambassador insert error:', insertError);
-      setErrors({ agreement: 'Signup failed: ' + (insertError?.message ?? 'unknown error') });
-      setSubmitting(false);
-      return;
-    }
-
-    let slug = '';
-    let qrUrl = '';
-
     try {
-      const qrRes = await fetch('/.netlify/functions/generate-qr-slug', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ambassador_id, full_name: form.name.trim(), city_state: form.city.trim() }),
-      });
-      if (qrRes.ok) {
-        const qrData = await qrRes.json();
-        slug = qrData.slug ?? '';
-        qrUrl = qrData.qrUrl ?? '';
-      } else {
-        console.error('QR generation failed — status:', qrRes.status);
+      const { data: existing, error: lookupError } = await supabase
+        .from('ambassadors')
+        .select('id')
+        .eq('email', form.email.trim())
+        .maybeSingle();
+
+      if (lookupError) {
+        console.error('Duplicate check error:', lookupError);
       }
-    } catch (err) {
-      console.error('QR generation fetch threw:', err);
+
+      if (existing) {
+        setDuplicateEmail(true);
+        return;
+      }
+
+      const ambassador_id = crypto.randomUUID();
+
+      const { error: insertError } = await supabase
+        .from('ambassadors')
+        .insert({
+          id: ambassador_id,
+          full_name: form.name.trim(),
+          email: form.email.trim(),
+          city_state: form.city.trim(),
+          profession: form.profession.trim(),
+          distribution_location: form.locations.trim(),
+          how_heard: form.source || null,
+          additional_context: form.message.trim() || null,
+          agreement_accepted: true,
+          agreement_timestamp: new Date().toISOString(),
+        });
+
+      if (insertError) {
+        console.error('Ambassador insert error:', insertError);
+        setSubmitError('Signup failed: ' + (insertError?.message ?? 'unknown error') + ' (code: ' + (insertError?.code ?? '?') + ')');
+        return;
+      }
+
+      let slug = '';
+      let qrUrl = '';
+
+      try {
+        const qrRes = await fetch('/.netlify/functions/generate-qr-slug', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ambassador_id, full_name: form.name.trim(), city_state: form.city.trim() }),
+        });
+        if (qrRes.ok) {
+          const qrData = await qrRes.json();
+          slug = qrData.slug ?? '';
+          qrUrl = qrData.qrUrl ?? '';
+        }
+      } catch {
+      }
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+      fetch(`${supabaseUrl}/functions/v1/send-ambassador-welcome`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+          'Apikey': supabaseAnonKey,
+        },
+        body: JSON.stringify({ full_name: form.name.trim(), email: form.email.trim(), slug, qrUrl }),
+      }).catch(err => { console.error('send-ambassador-welcome failed:', err); });
+
+      setSubmitted(true);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unexpected error. Please try again.';
+      console.error('handleSubmit threw:', err);
+      setSubmitError(msg);
+    } finally {
+      setSubmitting(false);
     }
-
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-    fetch(`${supabaseUrl}/functions/v1/send-ambassador-welcome`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseAnonKey}`,
-        'Apikey': supabaseAnonKey,
-      },
-      body: JSON.stringify({ full_name: form.name.trim(), email: form.email.trim(), slug, qrUrl }),
-    }).catch(err => { console.error('send-ambassador-welcome failed:', err); });
-
-    setSubmitting(false);
-    setSubmitted(true);
   };
 
   return (
@@ -313,6 +321,11 @@ export default function AmbassadorsPage({ onBack }: Props) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-8 border border-white/10 space-y-5">
+            {submitError && (
+              <div className="bg-red-500/10 border border-red-500/40 rounded-xl px-4 py-3 text-red-400 text-sm">
+                {submitError}
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
