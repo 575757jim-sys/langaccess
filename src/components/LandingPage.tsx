@@ -411,6 +411,9 @@ export default function LandingPage({
           <button onClick={onOpenCertificates} className="flex items-center gap-1.5 text-slate-400 hover:text-yellow-600 transition-colors text-xs">
             <Award className="w-3.5 h-3.5" />Certificates
           </button>
+          <button onClick={onOpenAmbassadors} className="flex items-center gap-1.5 text-slate-400 hover:text-teal-600 transition-colors text-xs">
+            <Users className="w-3.5 h-3.5" />Ambassadors
+          </button>
 
           <button onClick={onCheckForUpdates} className="flex items-center gap-1.5 text-slate-400 hover:text-emerald-600 transition-colors text-xs">
             <RefreshCw className="w-3.5 h-3.5" />Check for Updates
