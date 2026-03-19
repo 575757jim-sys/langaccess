@@ -104,7 +104,6 @@ export default function LandingPage({
             {[
               { label: 'Community', action: onOpenCommunityNavigator },
               { label: 'Certificates', action: onOpenCertificates },
-              { label: 'Ambassadors', action: onOpenAmbassadors },
             ].map(({ label, action }) => (
               <button
                 key={label}
@@ -114,6 +113,12 @@ export default function LandingPage({
                 {label}
               </button>
             ))}
+            <a
+              href="/ambassadors"
+              className="px-3 py-1.5 rounded-lg text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors font-medium"
+            >
+              Ambassadors
+            </a>
           </nav>
           <button
             onClick={onGetStarted}
@@ -411,9 +416,7 @@ export default function LandingPage({
           <button onClick={onOpenCertificates} className="flex items-center gap-1.5 text-slate-400 hover:text-yellow-600 transition-colors text-xs">
             <Award className="w-3.5 h-3.5" />Certificates
           </button>
-          <button onClick={onOpenAmbassadors} className="flex items-center gap-1.5 text-slate-400 hover:text-green-600 transition-colors text-xs">
-            <Users className="w-3.5 h-3.5" />Ambassadors
-          </button>
+
           <button onClick={onCheckForUpdates} className="flex items-center gap-1.5 text-slate-400 hover:text-emerald-600 transition-colors text-xs">
             <RefreshCw className="w-3.5 h-3.5" />Check for Updates
           </button>
