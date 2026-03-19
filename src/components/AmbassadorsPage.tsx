@@ -184,17 +184,10 @@ export default function AmbassadorsPage({ onBack }: Props) {
         slug = qrData.slug ?? '';
         qrUrl = qrData.qrUrl ?? '';
       } else {
-        const body = await qrRes.text();
-        console.error('QR generation failed — status:', qrRes.status, 'body:', body);
-        setErrors({ agreement: 'QR generation failed: ' + qrRes.status });
-        setSubmitting(false);
-        return;
+        console.error('QR generation failed — status:', qrRes.status);
       }
     } catch (err) {
       console.error('QR generation fetch threw:', err);
-      setErrors({ agreement: 'QR generation failed: network error' });
-      setSubmitting(false);
-      return;
     }
 
     fetch('/.netlify/functions/send-ambassador-welcome', {
