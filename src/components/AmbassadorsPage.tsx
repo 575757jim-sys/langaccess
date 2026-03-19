@@ -189,9 +189,15 @@ export default function AmbassadorsPage({ onBack }: Props) {
       console.error('QR generation fetch threw:', err);
     }
 
-    fetch('/.netlify/functions/send-ambassador-welcome', {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+    fetch(`${supabaseUrl}/functions/v1/send-ambassador-welcome`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${supabaseAnonKey}`,
+        'Apikey': supabaseAnonKey,
+      },
       body: JSON.stringify({ full_name: form.name.trim(), email: form.email.trim(), slug, qrUrl }),
     }).catch(err => { console.error('send-ambassador-welcome failed:', err); });
 
