@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Users, MapPin, Send, CheckCircle } from 'lucide-react';
 import SEO from './SEO';
+import { supabase } from '../lib/supabase';
 
 interface Props {
   onBack: () => void;
@@ -14,6 +15,15 @@ interface AmbassadorForm {
   locations: string;
   source: string;
   message: string;
+}
+
+interface FormErrors {
+  name?: string;
+  email?: string;
+  city?: string;
+  profession?: string;
+  locations?: string;
+  agreement?: string;
 }
 
 const EMPTY_FORM: AmbassadorForm = {
@@ -79,9 +89,11 @@ function StatCounter({ value, label, started }: { value: number; label: string; 
 
 export default function AmbassadorsPage({ onBack }: Props) {
   const [form, setForm] = useState<AmbassadorForm>(EMPTY_FORM);
+  const [agreementChecked, setAgreementChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState('');
+  const [duplicateEmail, setDuplicateEmail] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
   const [statsVisible, setStatsVisible] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
 
@@ -95,56 +107,92 @@ export default function AmbassadorsPage({ onBack }: Props) {
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    if (errors[name as keyof FormErrors]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const validate = (): boolean => {
+    const next: FormErrors = {};
+    if (!form.name.trim()) next.name = 'Full name is required.';
+    if (!form.email.trim()) next.email = 'Email is required.';
+    if (!form.city.trim()) next.city = 'City & state is required.';
+    if (!form.profession.trim()) next.profession = 'Profession is required.';
+    if (!form.locations.trim()) next.locations = 'Distribution location is required.';
+    if (!agreementChecked) next.agreement = 'You must agree to the terms before submitting.';
+    setErrors(next);
+    return Object.keys(next).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validate()) return;
+
     setSubmitting(true);
-    setError('');
 
-    const airtableKey = import.meta.env.VITE_AIRTABLE_API_KEY as string | undefined;
-    const airtableBase = import.meta.env.VITE_AIRTABLE_BASE_ID as string | undefined;
+    const { data: existing } = await supabase
+      .from('ambassadors')
+      .select('id')
+      .eq('email', form.email.trim())
+      .maybeSingle();
 
-    if (airtableKey && airtableBase) {
-      try {
-        const res = await fetch(`https://api.airtable.com/v0/${airtableBase}/Ambassadors`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${airtableKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            fields: {
-              Name: form.name,
-              Email: form.email,
-              City: form.city,
-              Profession: form.profession,
-              Locations: form.locations,
-              Source: form.source,
-              Message: form.message,
-              'Submitted At': new Date().toISOString(),
-            },
-          }),
-        });
-        if (!res.ok) throw new Error('Airtable error');
-        setSubmitted(true);
-      } catch {
-        setError('Could not submit via API. Opening email fallback...');
-        openMailto();
-      }
-    } else {
-      openMailto();
+    if (existing) {
+      setDuplicateEmail(true);
+      setSubmitting(false);
+      return;
     }
 
-    setSubmitting(false);
-  };
+    const { data: inserted, error: insertError } = await supabase
+      .from('ambassadors')
+      .insert({
+        full_name: form.name.trim(),
+        email: form.email.trim(),
+        city_state: form.city.trim(),
+        profession: form.profession.trim(),
+        distribution_location: form.locations.trim(),
+        how_heard: form.source || null,
+        additional_context: form.message.trim() || null,
+        agreement_accepted: true,
+        agreement_timestamp: new Date().toISOString(),
+      })
+      .select('id')
+      .single();
 
-  const openMailto = () => {
-    const body = encodeURIComponent(
-      `Ambassador Signup\n\nName: ${form.name}\nEmail: ${form.email}\nCity: ${form.city}\nProfession: ${form.profession}\nDistribution Locations: ${form.locations}\nHow they heard: ${form.source}\n\nMessage:\n${form.message}`
-    );
-    window.open(`mailto:hello@langaccess.org?subject=Ambassador+Signup&body=${body}`, '_blank');
+    if (insertError || !inserted) {
+      setErrors({ agreement: 'Something went wrong. Please try again.' });
+      setSubmitting(false);
+      return;
+    }
+
+    const ambassador_id = inserted.id;
+
+    let slug = '';
+    let qrUrl = '';
+
+    try {
+      const qrRes = await fetch('/.netlify/functions/generate-qr-slug', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ambassador_id, full_name: form.name.trim(), city_state: form.city.trim() }),
+      });
+      if (qrRes.ok) {
+        const qrData = await qrRes.json();
+        slug = qrData.slug ?? '';
+        qrUrl = qrData.qrUrl ?? '';
+      }
+    } catch {
+    }
+
+    fetch('/.netlify/functions/send-ambassador-welcome', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ full_name: form.name.trim(), email: form.email.trim(), slug, qrUrl }),
+    }).catch(() => {});
+
+    setSubmitting(false);
     setSubmitted(true);
   };
 
@@ -234,18 +282,28 @@ export default function AmbassadorsPage({ onBack }: Props) {
           <p className="text-slate-400 text-sm">Fill out the form below. We'll reach out within 48 hours.</p>
         </div>
 
-        {submitted ? (
+        {duplicateEmail ? (
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-12 text-center">
+            <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-blue-400" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Already registered</h3>
+            <p className="text-slate-400 text-sm">
+              This email is already registered. Check your inbox for your welcome email.
+            </p>
+          </div>
+        ) : submitted ? (
           <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-12 text-center">
             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-400" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">You're in!</h3>
+            <h3 className="text-xl font-bold text-white mb-3">You're in.</h3>
             <p className="text-slate-400 text-sm">
-              Thanks for joining, {form.name || 'Ambassador'}. We'll reach out at {form.email || 'your email'} within 48 hours with your card pack info.
+              Check your email — your QR code and next steps are waiting. Your free card pack ships within 5 days.
             </p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-[#111827] rounded-2xl p-8 border border-white/10 space-y-5">
+          <form onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-8 border border-white/10 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
@@ -255,10 +313,10 @@ export default function AmbassadorsPage({ onBack }: Props) {
                   name="name"
                   value={form.name}
                   onChange={handleChange}
-                  required
                   placeholder="Maria Sanchez"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-green-500/50 text-sm transition-colors"
+                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.name ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
                 />
+                {errors.name && <p className="text-red-400 text-xs mt-1.5">{errors.name}</p>}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
@@ -269,10 +327,10 @@ export default function AmbassadorsPage({ onBack }: Props) {
                   type="email"
                   value={form.email}
                   onChange={handleChange}
-                  required
                   placeholder="maria@example.com"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-green-500/50 text-sm transition-colors"
+                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.email ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
                 />
+                {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email}</p>}
               </div>
             </div>
 
@@ -287,11 +345,11 @@ export default function AmbassadorsPage({ onBack }: Props) {
                     name="city"
                     value={form.city}
                     onChange={handleChange}
-                    required
                     placeholder="San Jose, CA"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-green-500/50 text-sm transition-colors"
+                    className={`w-full bg-white/5 border rounded-xl pl-9 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.city ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
                   />
                 </div>
+                {errors.city && <p className="text-red-400 text-xs mt-1.5">{errors.city}</p>}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
@@ -301,10 +359,10 @@ export default function AmbassadorsPage({ onBack }: Props) {
                   name="profession"
                   value={form.profession}
                   onChange={handleChange}
-                  required
                   placeholder="Nurse, Teacher, Foreman..."
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-green-500/50 text-sm transition-colors"
+                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.profession ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
                 />
+                {errors.profession && <p className="text-red-400 text-xs mt-1.5">{errors.profession}</p>}
               </div>
             </div>
 
@@ -316,10 +374,10 @@ export default function AmbassadorsPage({ onBack }: Props) {
                 name="locations"
                 value={form.locations}
                 onChange={handleChange}
-                required
                 placeholder="Valley Medical Center waiting room, Lincoln Elementary break room..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-green-500/50 text-sm transition-colors"
+                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.locations ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
               />
+              {errors.locations && <p className="text-red-400 text-xs mt-1.5">{errors.locations}</p>}
             </div>
 
             <div>
@@ -353,11 +411,34 @@ export default function AmbassadorsPage({ onBack }: Props) {
               />
             </div>
 
-            {error && (
-              <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
-                {error}
-              </p>
-            )}
+            <div>
+              <label className={`flex items-start gap-3 cursor-pointer group`}>
+                <div className="relative mt-0.5 flex-shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={agreementChecked}
+                    onChange={e => {
+                      setAgreementChecked(e.target.checked);
+                      if (e.target.checked && errors.agreement) {
+                        setErrors(prev => ({ ...prev, agreement: undefined }));
+                      }
+                    }}
+                    className="sr-only peer"
+                  />
+                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${errors.agreement ? 'border-red-500/60' : 'border-white/20 group-hover:border-green-500/50'} ${agreementChecked ? 'bg-green-500 border-green-500' : 'bg-white/5'}`}>
+                    {agreementChecked && (
+                      <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <span className="text-sm text-slate-300 leading-snug">
+                  I agree to distribute cards only in professional settings and not to misrepresent LangAccess services.
+                </span>
+              </label>
+              {errors.agreement && <p className="text-red-400 text-xs mt-1.5 ml-8">{errors.agreement}</p>}
+            </div>
 
             <button
               type="submit"
