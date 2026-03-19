@@ -10,6 +10,7 @@ import TalkTogetherScreen from './components/TalkTogetherScreen';
 import JobSiteTalkScreen from './components/JobSiteTalkScreen';
 import CertificatesPage from './components/CertificatesPage';
 import AmbassadorsPage from './components/AmbassadorsPage';
+import QRScanPage from './components/QRScanPage';
 import UpdateToast from './components/UpdateToast';
 import DebugOverlay from './components/DebugOverlay';
 import { Language, Sector } from './data/phrases';
@@ -37,7 +38,13 @@ type AppView =
   | 'certificates'
   | 'ambassadors';
 
+function getQRSlug(): string | null {
+  const match = window.location.pathname.match(/^\/r\/([^/]+)/);
+  return match ? match[1] : null;
+}
+
 function App() {
+  const qrSlug = getQRSlug();
   const [view, setView] = useState<AppView>('home');
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
@@ -288,6 +295,15 @@ function App() {
       />
     );
   };
+
+  if (qrSlug) {
+    return (
+      <QRScanPage
+        slug={qrSlug}
+        onSelectLanguage={() => {}}
+      />
+    );
+  }
 
   return (
     <>
