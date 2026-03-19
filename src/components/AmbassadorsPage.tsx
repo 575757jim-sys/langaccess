@@ -162,7 +162,8 @@ export default function AmbassadorsPage({ onBack }: Props) {
       .single();
 
     if (insertError || !inserted) {
-      setErrors({ agreement: 'Something went wrong. Please try again.' });
+      console.error('Ambassador insert error:', insertError);
+      setErrors({ agreement: 'Signup failed: ' + (insertError?.message ?? 'unknown error') });
       setSubmitting(false);
       return;
     }
@@ -182,15 +183,25 @@ export default function AmbassadorsPage({ onBack }: Props) {
         const qrData = await qrRes.json();
         slug = qrData.slug ?? '';
         qrUrl = qrData.qrUrl ?? '';
+      } else {
+        const body = await qrRes.text();
+        console.error('QR generation failed — status:', qrRes.status, 'body:', body);
+        setErrors({ agreement: 'QR generation failed: ' + qrRes.status });
+        setSubmitting(false);
+        return;
       }
-    } catch {
+    } catch (err) {
+      console.error('QR generation fetch threw:', err);
+      setErrors({ agreement: 'QR generation failed: network error' });
+      setSubmitting(false);
+      return;
     }
 
     fetch('/.netlify/functions/send-ambassador-welcome', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ full_name: form.name.trim(), email: form.email.trim(), slug, qrUrl }),
-    }).catch(() => {});
+    }).catch(err => { console.error('send-ambassador-welcome failed:', err); });
 
     setSubmitting(false);
     setSubmitted(true);
