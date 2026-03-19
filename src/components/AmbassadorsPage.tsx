@@ -145,9 +145,12 @@ export default function AmbassadorsPage({ onBack }: Props) {
       return;
     }
 
-    const { data: inserted, error: insertError } = await supabase
+    const ambassador_id = crypto.randomUUID();
+
+    const { error: insertError } = await supabase
       .from('ambassadors')
       .insert({
+        id: ambassador_id,
         full_name: form.name.trim(),
         email: form.email.trim(),
         city_state: form.city.trim(),
@@ -157,18 +160,14 @@ export default function AmbassadorsPage({ onBack }: Props) {
         additional_context: form.message.trim() || null,
         agreement_accepted: true,
         agreement_timestamp: new Date().toISOString(),
-      })
-      .select('id')
-      .single();
+      });
 
-    if (insertError || !inserted) {
+    if (insertError) {
       console.error('Ambassador insert error:', insertError);
       setErrors({ agreement: 'Signup failed: ' + (insertError?.message ?? 'unknown error') });
       setSubmitting(false);
       return;
     }
-
-    const ambassador_id = inserted.id;
 
     let slug = '';
     let qrUrl = '';
