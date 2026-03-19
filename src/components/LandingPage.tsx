@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Wifi, Briefcase, CheckCircle, Tablet } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Wifi, Briefcase, CheckCircle, Tablet, Menu, X } from 'lucide-react';
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
 import ToolkitDownload from './ToolkitDownload';
@@ -81,6 +81,9 @@ export default function LandingPage({
   onCheckForUpdates,
 }: LandingPageProps) {
   const [showPilotModal, setShowPilotModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -100,11 +103,14 @@ export default function LandingPage({
             </div>
             <span className="text-base font-bold text-slate-900 tracking-tight">LangAccess</span>
           </div>
+
+          {/* Desktop nav */}
           <nav className="hidden sm:flex items-center gap-1">
             {[
-              { label: 'Community', action: onOpenCommunityNavigator },
-              { label: 'Certificates', action: onOpenCertificates },
-              { label: 'Ambassadors', action: onOpenAmbassadors },
+              { label: 'How It Works', action: () => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }) },
+              { label: 'For Institutions', action: () => document.getElementById('sectors')?.scrollIntoView({ behavior: 'smooth' }) },
+              { label: 'Ambassador Network', action: onOpenAmbassadors },
+              { label: 'Pricing', action: () => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }) },
             ].map(({ label, action }) => (
               <button
                 key={label}
@@ -115,14 +121,53 @@ export default function LandingPage({
               </button>
             ))}
           </nav>
-          <button
-            onClick={onGetStarted}
-            className="flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
-          >
-            Get Started Free
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onGetStarted}
+              className="flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
+            >
+              Get Started Free
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Hamburger — mobile only */}
+            <button
+              onClick={() => setMobileMenuOpen(o => !o)}
+              className="sm:hidden flex items-center justify-center w-9 h-9 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="sm:hidden border-t border-slate-100 bg-white px-6 py-4 flex flex-col gap-1">
+            {[
+              { label: 'How It Works', action: () => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
+              { label: 'For Institutions', action: () => { document.getElementById('sectors')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
+              { label: 'Ambassador Network', action: () => { onOpenAmbassadors?.(); closeMobileMenu(); } },
+              { label: 'Pricing', action: () => { document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
+            ].map(({ label, action }) => (
+              <button
+                key={label}
+                onClick={action}
+                className="w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium"
+              >
+                {label}
+              </button>
+            ))}
+            <button
+              onClick={() => { onGetStarted(); closeMobileMenu(); }}
+              className="mt-2 w-full flex items-center justify-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors shadow-sm"
+            >
+              Get Started Free
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
       </header>
 
       <main className="flex-1">
@@ -411,10 +456,6 @@ export default function LandingPage({
           <button onClick={onOpenCertificates} className="flex items-center gap-1.5 text-slate-400 hover:text-yellow-600 transition-colors text-xs">
             <Award className="w-3.5 h-3.5" />Certificates
           </button>
-          <button onClick={onOpenAmbassadors} className="flex items-center gap-1.5 text-slate-400 hover:text-teal-600 transition-colors text-xs">
-            <Users className="w-3.5 h-3.5" />Ambassadors
-          </button>
-
           <button onClick={onCheckForUpdates} className="flex items-center gap-1.5 text-slate-400 hover:text-emerald-600 transition-colors text-xs">
             <RefreshCw className="w-3.5 h-3.5" />Check for Updates
           </button>
