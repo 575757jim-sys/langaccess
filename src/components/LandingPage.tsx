@@ -104,6 +104,7 @@ export default function LandingPage({
             {[
               { label: 'Community', action: onOpenCommunityNavigator },
               { label: 'Certificates', action: onOpenCertificates },
+              { label: 'Ambassadors', action: onOpenAmbassadors },
             ].map(({ label, action }) => (
               <button
                 key={label}
@@ -113,12 +114,6 @@ export default function LandingPage({
                 {label}
               </button>
             ))}
-            <a
-              href="/ambassadors"
-              className="px-3 py-1.5 rounded-lg text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors font-medium"
-            >
-              Ambassadors
-            </a>
           </nav>
           <button
             onClick={onGetStarted}
