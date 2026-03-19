@@ -86,13 +86,3 @@ export const handler: Handler = async (event) => {
 };
 ```
 
-Commit message: `Remove resend import — use fetch only`
-
----
-
-Also I can see from the build log something very useful at lines 103-106 — your env vars are already confirmed present:
-```
-RESEND_API_KEY        ✅
-VITE_GOOGLE_TTS_API_KEY  ✅
-VITE_SUPABASE_ANON_KEY   ✅
-VITE_SUPABASE_URL        ✅
