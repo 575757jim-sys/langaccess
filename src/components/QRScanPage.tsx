@@ -1,7 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Language } from '../data/phrases';
+
+const LANGUAGE_ROUTES: Record<string, string> = {
+  spanish: '/resources/es',
+  english: '/resources/en',
+  tagalog: '/resources/tl',
+  vietnamese: '/resources/vi',
+  mandarin: '/resources/zh',
+};
 
 interface Props {
   slug: string;
@@ -17,14 +25,29 @@ const LANGUAGES: { id: Language; label: string; activeClass: string; abbr: strin
 ];
 
 export default function QRScanPage({ slug, onSelectLanguage }: Props) {
+  const scanInserted = useRef(false);
+
   useEffect(() => {
+    if (scanInserted.current) return;
+    scanInserted.current = true;
     supabase
       .from('qr_scans')
       .insert({ qr_slug: slug, scanned_at: new Date().toISOString() })
       .then(() => {});
   }, [slug]);
 
-  const handleLanguageSelect = (_language: Language) => {
+  const handleLanguageSelect = (language: Language) => {
+    onSelectLanguage(language);
+    supabase
+      .from('qr_scans')
+      .update({ language_selected: language })
+      .eq('qr_slug', slug)
+      .is('language_selected', null)
+      .then(() => {});
+    const route = LANGUAGE_ROUTES[language];
+    if (route) {
+      window.location.href = route;
+    }
   };
 
   return (
