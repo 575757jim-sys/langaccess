@@ -11,6 +11,7 @@ interface AmbassadorForm {
   name: string;
   email: string;
   city: string;
+  mailingAddress: string;
   profession: string;
   locations: string;
   source: string;
@@ -21,6 +22,7 @@ interface FormErrors {
   name?: string;
   email?: string;
   city?: string;
+  mailingAddress?: string;
   profession?: string;
   locations?: string;
   agreement?: string;
@@ -30,6 +32,7 @@ const EMPTY_FORM: AmbassadorForm = {
   name: '',
   email: '',
   city: '',
+  mailingAddress: '',
   profession: '',
   locations: '',
   source: '',
@@ -120,6 +123,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
     if (!form.name.trim()) next.name = 'Full name is required.';
     if (!form.email.trim()) next.email = 'Email is required.';
     if (!form.city.trim()) next.city = 'City & state is required.';
+    if (!form.mailingAddress.trim()) next.mailingAddress = 'Mailing address is required so we can ship your card pack.';
     if (!form.profession.trim()) next.profession = 'Profession is required.';
     if (!form.locations.trim()) next.locations = 'Distribution location is required.';
     if (!agreementChecked) next.agreement = 'You must agree to the terms before submitting.';
@@ -160,6 +164,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
           full_name: form.name.trim(),
           email: form.email.trim(),
           city_state: form.city.trim(),
+          mailing_address: form.mailingAddress.trim(),
           profession: form.profession.trim(),
           distribution_location: form.locations.trim(),
           how_heard: form.source || null,
@@ -193,15 +198,29 @@ export default function AmbassadorsPage({ onBack }: Props) {
 
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-      fetch(`${supabaseUrl}/functions/v1/send-ambassador-welcome`, {
+
+      const emailRes = await fetch(`${supabaseUrl}/functions/v1/send-ambassador-welcome`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${supabaseAnonKey}`,
           'Apikey': supabaseAnonKey,
         },
-        body: JSON.stringify({ full_name: form.name.trim(), email: form.email.trim(), slug, qrUrl }),
-      }).catch(err => { console.error('send-ambassador-welcome failed:', err); });
+        body: JSON.stringify({
+          full_name: form.name.trim(),
+          email: form.email.trim(),
+          mailing_address: form.mailingAddress.trim(),
+          slug,
+          qrUrl,
+        }),
+      });
+
+      if (!emailRes.ok) {
+        const errBody = await emailRes.text();
+        console.error('send-ambassador-welcome error:', errBody);
+        setSubmitError('You\'re registered, but we had trouble sending your confirmation email. Please contact langaccessinfo@gmail.com.');
+        return;
+      }
 
       setSubmitted(true);
     } catch (err: unknown) {
@@ -296,7 +315,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
       <div id="signup" className="max-w-2xl mx-auto px-4 pb-16">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-2">Join the Brigade</h2>
-          <p className="text-slate-400 text-sm">Fill out the form below. We'll reach out within 48 hours.</p>
+          <p className="text-slate-400 text-sm">Fill out the form below and we'll ship your free card pack.</p>
         </div>
 
         {duplicateEmail ? (
@@ -314,9 +333,12 @@ export default function AmbassadorsPage({ onBack }: Props) {
             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-400" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-3">You're in.</h3>
+            <h3 className="text-xl font-bold text-white mb-3">You're in!</h3>
+            <p className="text-slate-300 text-sm leading-relaxed mb-2">
+              Check your email — your QR code and next steps are on their way.
+            </p>
             <p className="text-slate-400 text-sm">
-              Check your email — your QR code and next steps are waiting. Your free card pack ships within 5 days.
+              Your free 25-card pack ships to your address within 5 business days.
             </p>
           </div>
         ) : (
@@ -326,6 +348,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
                 {submitError}
               </div>
             )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
@@ -386,6 +409,21 @@ export default function AmbassadorsPage({ onBack }: Props) {
                 />
                 {errors.profession && <p className="text-red-400 text-xs mt-1.5">{errors.profession}</p>}
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+                Mailing Address for Card Pack *
+              </label>
+              <input
+                name="mailingAddress"
+                value={form.mailingAddress}
+                onChange={handleChange}
+                placeholder="123 Main St, San Jose, CA 95112"
+                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.mailingAddress ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+              />
+              {errors.mailingAddress && <p className="text-red-400 text-xs mt-1.5">{errors.mailingAddress}</p>}
+              <p className="text-slate-500 text-xs mt-1.5">Street address where we'll ship your free 25-card pack.</p>
             </div>
 
             <div>
@@ -468,7 +506,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
               className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-50 text-white font-bold text-base transition-colors flex items-center justify-center gap-2"
             >
               {submitting ? 'Submitting...' : 'Join the Ambassador Brigade'}
-              <Send className="w-4 h-4" />
+              {!submitting && <Send className="w-4 h-4" />}
             </button>
           </form>
         )}

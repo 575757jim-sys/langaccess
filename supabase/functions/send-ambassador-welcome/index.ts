@@ -13,7 +13,7 @@ Deno.serve(async (req: Request) => {
 
   try {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
-    const { full_name, email, slug, qrUrl } = await req.json();
+    const { full_name, email, mailing_address, slug, qrUrl } = await req.json();
     const firstName = full_name.split(" ")[0];
 
     await fetch("https://api.resend.com/emails", {
@@ -29,6 +29,7 @@ Deno.serve(async (req: Request) => {
         html:
           "<p><strong>" + full_name + "</strong> signed up as an Ambassador.</p>" +
           "<p>Email: " + email + "</p>" +
+          (mailing_address ? "<p>Ship to: " + mailing_address + "</p>" : "") +
           "<p>Slug: " + (slug || "(pending QR generation)") + "</p>" +
           "<p>Order 25-card pack via Printful then set <code>free_pack_shipped = true</code> in Supabase.</p>",
       }),
@@ -46,10 +47,11 @@ Deno.serve(async (req: Request) => {
         subject: "Welcome to the Brigade, " + firstName + "!",
         html:
           "<p>You're in, " + firstName + "! Your free 25-card pack ships within 5 business days.</p>" +
+          (mailing_address ? "<p>Shipping to: <strong>" + mailing_address + "</strong></p>" : "") +
           (qrUrl
-            ? '<p>Your QR code:<br/><img src="' + qrUrl + '" width="160" height="160"/></p>'
+            ? '<p>Your QR code:<br/><img src="' + qrUrl + '" width="160" height="160" alt="Your QR code"/></p>'
             : "") +
-          (slug ? "<p>Your referral link: langaccess.org/r/" + slug + "</p>" : "") +
+          (slug ? '<p>Your referral link: <a href="https://langaccess.org/r/' + slug + '">langaccess.org/r/' + slug + '</a></p>' : "") +
           "<p>Questions? Reply to this email.</p><p>— The LangAccess Team</p>",
       }),
     });
