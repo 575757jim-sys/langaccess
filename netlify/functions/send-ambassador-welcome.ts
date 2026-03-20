@@ -8,11 +8,12 @@ const post = (to: string, subject: string, body: string) =>
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      from: 'LangAccess <hello@langaccess.org>',
-      to: to,
-      subject: subject,
-      html: body
-    })
+  from: 'LangAccess <hello@langaccess.org>',
+  to: to,
+  reply_to: 'LangAccessInfo@gmail.com',
+  subject: subject,
+  html: body
+})
   });
 export const handler: Handler = async (event) => {
   if (event.httpMethod !== 'POST') {
