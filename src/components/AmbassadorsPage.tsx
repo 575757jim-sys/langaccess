@@ -154,6 +154,9 @@ export default function AmbassadorsPage({ onBack }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
+
+    if (!validate()) return;
+
     setSubmitting(true);
 
     const fullName = form.name;
@@ -213,7 +216,8 @@ export default function AmbassadorsPage({ onBack }: Props) {
       window.scrollTo(0, 0);
 
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Unexpected error. Please try again.';
+      console.error('Submit error:', err);
+      const msg = (err as { message?: string })?.message ?? JSON.stringify(err);
       setSubmitError('Error: ' + msg);
     } finally {
       setSubmitting(false);
