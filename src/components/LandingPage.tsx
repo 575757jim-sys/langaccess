@@ -109,7 +109,7 @@ export default function LandingPage({
             {[
               { label: 'How It Works', action: () => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }) },
               { label: 'For Institutions', action: () => document.getElementById('sectors')?.scrollIntoView({ behavior: 'smooth' }) },
-              { label: 'Ambassador Network', action: onOpenAmbassadors },
+              { label: 'Ambassador Brigade', action: onOpenAmbassadors },
               { label: 'Pricing', action: () => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }) },
             ].map(({ label, action }) => (
               <button
@@ -148,7 +148,7 @@ export default function LandingPage({
             {[
               { label: 'How It Works', action: () => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
               { label: 'For Institutions', action: () => { document.getElementById('sectors')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
-              { label: 'Ambassador Network', action: () => { onOpenAmbassadors?.(); closeMobileMenu(); } },
+              { label: 'Ambassador Brigade', action: () => { onOpenAmbassadors?.(); closeMobileMenu(); } },
               { label: 'Pricing', action: () => { document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
             ].map(({ label, action }) => (
               <button
