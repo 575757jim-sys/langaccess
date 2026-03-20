@@ -298,7 +298,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
         <iframe
           width="100%"
           style={{ aspectRatio: '16/9', borderRadius: '12px' }}
-          src="https://www.youtube.com/embed/RDKW0K_Kgnk"
+          src="https://www.youtube.com/embed/QjjaAvaHlZ0"
           title="LangAccess Ambassador Program Explainer"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
