@@ -350,6 +350,27 @@ export default function LandingPage({
                 </div>
               ))}
             </div>
+
+            <div className="mt-16">
+              <p style={{ textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>
+                LangAccess in the Classroom
+              </p>
+              <img
+                src="/education-demo.png"
+                alt="LangAccess in the Classroom"
+                style={{
+                  width: '100%',
+                  maxWidth: '640px',
+                  borderRadius: '16px',
+                  display: 'block',
+                  margin: '2rem auto',
+                  boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                }}
+              />
+              <p style={{ textAlign: 'center', fontSize: '0.875rem', color: '#64748b', maxWidth: '560px', margin: '0 auto', lineHeight: 1.7 }}>
+                Teachers use LangAccess to communicate instantly with Spanish, Tagalog, Vietnamese, Mandarin, and Cantonese speaking students and families. No interpreter needed. No app to download.
+              </p>
+            </div>
           </div>
         </section>
 
