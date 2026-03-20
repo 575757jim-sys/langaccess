@@ -7,7 +7,7 @@ interface Props {
   onBack: () => void;
 }
 
-interface AmbassadorForm {
+interface FormState {
   name: string;
   email: string;
   streetAddress: string;
@@ -29,10 +29,11 @@ interface FormErrors {
   zipCode?: string;
   profession?: string;
   locations?: string;
+  source?: string;
   agreement?: string;
 }
 
-const EMPTY_FORM: AmbassadorForm = {
+const EMPTY_FORM: FormState = {
   name: '',
   email: '',
   streetAddress: '',
@@ -108,11 +109,10 @@ function StatCounter({ value, label, started }: { value: number; label: string; 
 }
 
 export default function AmbassadorsPage({ onBack }: Props) {
-  const [form, setForm] = useState<AmbassadorForm>(EMPTY_FORM);
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [agreementChecked, setAgreementChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [duplicateEmail, setDuplicateEmail] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [statsVisible, setStatsVisible] = useState(false);
@@ -146,6 +146,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
     else if (!/^\d{5}$/.test(form.zipCode.trim())) next.zipCode = 'ZIP code must be 5 digits.';
     if (!form.profession.trim()) next.profession = 'Profession is required.';
     if (!form.locations.trim()) next.locations = 'Distribution location is required.';
+    if (!form.source) next.source = 'Please let us know how you heard about us.';
     if (!agreementChecked) next.agreement = 'You must agree to the terms before submitting.';
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -159,61 +160,48 @@ export default function AmbassadorsPage({ onBack }: Props) {
 
     setSubmitting(true);
 
-    const fullName = form.name;
-    const email = form.email;
-    const streetAddress = form.streetAddress;
-    const city = form.city;
-    const state = form.state;
-    const zipCode = form.zipCode;
-    const profession = form.profession;
-    const distributeWhere = form.locations;
-    const howHeard = form.source;
-    const additionalContext = form.message;
-
     try {
       const { data, error } = await supabase
         .from('ambassadors')
         .insert({
-          full_name: fullName,
-          email: email,
-          street_address: streetAddress,
-          city_state: city + ', ' + state,
-          zip_code: zipCode,
-          profession: profession,
-          distribution_location: distributeWhere,
-          how_heard: howHeard,
-          additional_context: additionalContext,
+          full_name: form.name.trim(),
+          email: form.email.trim(),
+          street_address: form.streetAddress.trim(),
+          city_state: form.city.trim() + ', ' + form.state,
+          zip_code: form.zipCode.trim(),
+          profession: form.profession.trim(),
+          distribution_location: form.locations.trim(),
+          how_heard: form.source,
+          additional_context: form.message.trim(),
           agreement_accepted: true,
-          agreement_timestamp: new Date().toISOString()
+          agreement_timestamp: new Date().toISOString(),
         })
         .select()
         .single();
 
       if (error) throw error;
 
+      setSubmitted(true);
+      window.scrollTo(0, 0);
+
+      const fullName = form.name.trim();
+      const email = form.email.trim();
+      const cityState = form.city.trim() + ', ' + form.state;
+
       fetch('/.netlify/functions/generate-qr-slug', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ambassador_id: data.id,
-          full_name: fullName,
-          city_state: city + ', ' + state
+        body: JSON.stringify({ ambassador_id: data.id, full_name: fullName, city_state: cityState }),
+      })
+        .then(r => r.json())
+        .then(qrData => {
+          fetch('/.netlify/functions/send-ambassador-welcome', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ full_name: fullName, email, slug: qrData.slug, qrUrl: qrData.qrUrl }),
+          });
         })
-      }).then(r => r.json()).then(qrData => {
-        fetch('/.netlify/functions/send-ambassador-welcome', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            full_name: fullName,
-            email: email,
-            slug: qrData.slug,
-            qrUrl: qrData.qrUrl
-          })
-        });
-      });
-
-      setSubmitted(true);
-      window.scrollTo(0, 0);
+        .catch(() => {});
 
     } catch (err: unknown) {
       console.error('Submit error:', err);
@@ -224,6 +212,9 @@ export default function AmbassadorsPage({ onBack }: Props) {
     }
   };
 
+  const fieldClass = (err?: string) =>
+    `w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${err ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`;
+
   const signupSection = (
     <div id="signup" className="max-w-2xl mx-auto px-4 pb-16">
       <div className="text-center mb-8">
@@ -231,54 +222,28 @@ export default function AmbassadorsPage({ onBack }: Props) {
         <p className="text-slate-400 text-sm">Fill out the form below and we'll ship your free card pack.</p>
       </div>
 
-      {duplicateEmail ? (
-        <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-blue-400" />
-          </div>
-          <h3 className="text-xl font-bold text-white mb-2">Already registered</h3>
-          <p className="text-slate-400 text-sm">
-            This email is already registered. Check your inbox for your welcome email.
-          </p>
-        </div>
-      ) : submitted ? (
-        <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+      {submitted ? (
+        <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-14 text-center">
+          <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-8 h-8 text-green-400" />
           </div>
-          <h3 className="text-2xl font-bold text-green-400 mb-4">You are in the Brigade.</h3>
-          <p className="text-green-300 text-sm leading-relaxed">
-            Check your email. Your free 25-card pack ships within 5 business days.
+          <h3 className="text-3xl font-bold text-green-400 mb-4">You are in the Brigade.</h3>
+          <p className="text-green-200 text-base leading-relaxed max-w-md mx-auto">
+            Check your email for your QR code and shipping details. Your free 25-card pack ships within 5 days.
           </p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-8 border border-white/10 space-y-5">
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                Full Name *
-              </label>
-              <input
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="Maria Sanchez"
-                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.name ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
-              />
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Full Name *</label>
+              <input name="name" value={form.name} onChange={handleChange} placeholder="Maria Sanchez" className={fieldClass(errors.name)} />
               {errors.name && <p className="text-red-400 text-xs mt-1.5">{errors.name}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                Email *
-              </label>
-              <input
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="maria@example.com"
-                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.email ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
-              />
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Email *</label>
+              <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="maria@example.com" className={fieldClass(errors.email)} />
               {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email}</p>}
             </div>
           </div>
@@ -289,13 +254,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
             </label>
             <div className="space-y-3">
               <div>
-                <input
-                  name="streetAddress"
-                  value={form.streetAddress}
-                  onChange={handleChange}
-                  placeholder="123 Main St"
-                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.streetAddress ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
-                />
+                <input name="streetAddress" value={form.streetAddress} onChange={handleChange} placeholder="123 Main St" className={fieldClass(errors.streetAddress)} />
                 {errors.streetAddress && <p className="text-red-400 text-xs mt-1.5">{errors.streetAddress}</p>}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -317,9 +276,9 @@ export default function AmbassadorsPage({ onBack }: Props) {
                     name="state"
                     value={form.state}
                     onChange={handleChange}
-                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white focus:outline-none text-sm transition-colors appearance-none ${errors.state ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'} ${!form.state ? 'text-slate-600' : 'text-white'}`}
+                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none text-sm transition-colors appearance-none ${errors.state ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'} ${!form.state ? 'text-slate-600' : 'text-white'}`}
                   >
-                    <option value="" className="bg-[#111827] text-slate-400">Select state</option>
+                    <option value="" className="bg-[#111827] text-slate-400">State</option>
                     {US_STATES.map(s => (
                       <option key={s} value={s} className="bg-[#111827] text-white">{s}</option>
                     ))}
@@ -331,9 +290,9 @@ export default function AmbassadorsPage({ onBack }: Props) {
                     name="zipCode"
                     value={form.zipCode}
                     onChange={handleChange}
-                    placeholder="e.g. 95110"
+                    placeholder="ZIP code"
                     maxLength={5}
-                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.zipCode ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+                    className={fieldClass(errors.zipCode)}
                   />
                   {errors.zipCode && <p className="text-red-400 text-xs mt-1.5">{errors.zipCode}</p>}
                 </div>
@@ -342,53 +301,42 @@ export default function AmbassadorsPage({ onBack }: Props) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-              Profession *
-            </label>
-            <input
-              name="profession"
-              value={form.profession}
-              onChange={handleChange}
-              placeholder="Nurse, Teacher, Foreman..."
-              className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.profession ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
-            />
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Profession *</label>
+            <input name="profession" value={form.profession} onChange={handleChange} placeholder="Nurse, Teacher, Foreman..." className={fieldClass(errors.profession)} />
             {errors.profession && <p className="text-red-400 text-xs mt-1.5">{errors.profession}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-              Where Would You Hand Out Cards? *
-            </label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Where Would You Hand Out Cards? *</label>
             <input
               name="locations"
               value={form.locations}
               onChange={handleChange}
               placeholder="Valley Medical Center waiting room, Lincoln Elementary break room..."
-              className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.locations ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+              className={fieldClass(errors.locations)}
             />
             {errors.locations && <p className="text-red-400 text-xs mt-1.5">{errors.locations}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-              How Did You Hear About Us?
-            </label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">How Did You Hear About Us? *</label>
             <select
               name="source"
               value={form.source}
               onChange={handleChange}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500/50 text-sm transition-colors appearance-none"
+              className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none text-sm transition-colors appearance-none ${errors.source ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'} ${!form.source ? 'text-slate-600' : 'text-white'}`}
             >
               <option value="" className="bg-[#111827] text-slate-400">Select one...</option>
               {SOURCE_OPTIONS.map(opt => (
-                <option key={opt} value={opt} className="bg-[#111827]">{opt}</option>
+                <option key={opt} value={opt} className="bg-[#111827] text-white">{opt}</option>
               ))}
             </select>
+            {errors.source && <p className="text-red-400 text-xs mt-1.5">{errors.source}</p>}
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-              Tell Us About a Language Barrier You Have Witnessed (Optional)
+              Tell Us About a Language Barrier You Witnessed <span className="normal-case font-normal text-slate-500">(optional)</span>
             </label>
             <textarea
               name="message"
@@ -412,7 +360,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
                       setErrors(prev => ({ ...prev, agreement: undefined }));
                     }
                   }}
-                  className="sr-only peer"
+                  className="sr-only"
                 />
                 <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${errors.agreement ? 'border-red-500/60' : 'border-white/20 group-hover:border-green-500/50'} ${agreementChecked ? 'bg-green-500 border-green-500' : 'bg-white/5'}`}>
                   {agreementChecked && (
@@ -429,17 +377,32 @@ export default function AmbassadorsPage({ onBack }: Props) {
             {errors.agreement && <p className="text-red-400 text-xs mt-1.5 ml-8">{errors.agreement}</p>}
           </div>
 
+          {submitError && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
+              <p className="text-red-400 text-sm">{submitError}</p>
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-50 text-white font-bold text-base transition-colors flex items-center justify-center gap-2"
+            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-2"
           >
-            {submitting ? 'Sending...' : 'Send Me My Free Cards'}
-            {!submitting && <Send className="w-4 h-4" />}
+            {submitting ? (
+              <>
+                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+                Submitting...
+              </>
+            ) : (
+              <>
+                Send Me My Free Cards
+                <Send className="w-4 h-4" />
+              </>
+            )}
           </button>
-          {submitError && (
-            <p className="text-red-400 text-sm mt-2">{submitError}</p>
-          )}
         </form>
       )}
     </div>
