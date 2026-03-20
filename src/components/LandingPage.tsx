@@ -95,7 +95,7 @@ export default function LandingPage({
       />
 
       {/* ── NAV ── */}
-      <header className="border-b border-slate-100 bg-white/90 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-slate-100 bg-white/90 backdrop-blur-md sticky top-0 z-30" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-teal-600 flex items-center justify-center">
