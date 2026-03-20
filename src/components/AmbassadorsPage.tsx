@@ -10,8 +10,9 @@ interface Props {
 interface AmbassadorForm {
   name: string;
   email: string;
+  streetAddress: string;
   city: string;
-  mailingAddress: string;
+  state: string;
   profession: string;
   locations: string;
   source: string;
@@ -21,8 +22,9 @@ interface AmbassadorForm {
 interface FormErrors {
   name?: string;
   email?: string;
+  streetAddress?: string;
   city?: string;
-  mailingAddress?: string;
+  state?: string;
   profession?: string;
   locations?: string;
   agreement?: string;
@@ -31,13 +33,25 @@ interface FormErrors {
 const EMPTY_FORM: AmbassadorForm = {
   name: '',
   email: '',
+  streetAddress: '',
   city: '',
-  mailingAddress: '',
+  state: '',
   profession: '',
   locations: '',
   source: '',
   message: '',
 };
+
+const US_STATES = [
+  'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
+  'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
+  'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan',
+  'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+  'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio',
+  'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota',
+  'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia',
+  'Wisconsin', 'Wyoming',
+];
 
 const PLACEHOLDER_AMBASSADORS = [
   { name: 'Maria S.', city: 'San Jose, CA', profession: 'Pediatric Nurse', initial: 'M' },
@@ -100,6 +114,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [statsVisible, setStatsVisible] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
+  const successRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -122,8 +137,9 @@ export default function AmbassadorsPage({ onBack }: Props) {
     const next: FormErrors = {};
     if (!form.name.trim()) next.name = 'Full name is required.';
     if (!form.email.trim()) next.email = 'Email is required.';
-    if (!form.city.trim()) next.city = 'City & state is required.';
-    if (!form.mailingAddress.trim()) next.mailingAddress = 'Mailing address is required so we can ship your card pack.';
+    if (!form.streetAddress.trim()) next.streetAddress = 'Street address is required.';
+    if (!form.city.trim()) next.city = 'City is required.';
+    if (!form.state) next.state = 'State is required.';
     if (!form.profession.trim()) next.profession = 'Profession is required.';
     if (!form.locations.trim()) next.locations = 'Distribution location is required.';
     if (!agreementChecked) next.agreement = 'You must agree to the terms before submitting.';
@@ -157,14 +173,17 @@ export default function AmbassadorsPage({ onBack }: Props) {
 
       const ambassador_id = crypto.randomUUID();
 
+      const cityState = `${form.city.trim()}, ${form.state}`;
+
       const { error: insertError } = await supabase
         .from('ambassadors')
         .insert({
           id: ambassador_id,
           full_name: form.name.trim(),
           email: form.email.trim(),
-          city_state: form.city.trim(),
-          mailing_address: form.mailingAddress.trim(),
+          street_address: form.streetAddress.trim(),
+          city_state: cityState,
+          mailing_address: `${form.streetAddress.trim()}, ${cityState}`,
           profession: form.profession.trim(),
           distribution_location: form.locations.trim(),
           how_heard: form.source || null,
@@ -186,7 +205,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
         const qrRes = await fetch('/.netlify/functions/generate-qr-slug', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ambassador_id, full_name: form.name.trim(), city_state: form.city.trim() }),
+          body: JSON.stringify({ ambassador_id, full_name: form.name.trim(), city_state: cityState }),
         });
         if (qrRes.ok) {
           const qrData = await qrRes.json();
@@ -223,6 +242,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
       }
 
       setSubmitted(true);
+      setTimeout(() => successRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unexpected error. Please try again.';
       console.error('handleSubmit threw:', err);
@@ -350,26 +370,17 @@ export default function AmbassadorsPage({ onBack }: Props) {
             </p>
           </div>
         ) : submitted ? (
-          <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-12 text-center">
+          <div ref={successRef} className="bg-green-500/10 border border-green-500/30 rounded-2xl p-12 text-center">
             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-400" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-3">You're in!</h3>
-            <p className="text-slate-300 text-sm leading-relaxed mb-2">
-              Check your email — your QR code and next steps are on their way.
-            </p>
-            <p className="text-slate-400 text-sm">
-              Your free 25-card pack ships to your address within 5 business days.
+            <h3 className="text-2xl font-bold text-green-400 mb-4">You are in the Brigade.</h3>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              Check your email for your QR code and shipping details. Your 25-card pack ships free within 5 business days. Every card you hand out is tracked and makes a difference.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-8 border border-white/10 space-y-5">
-            {submitError && (
-              <div className="bg-red-500/10 border border-red-500/40 rounded-xl px-4 py-3 text-red-400 text-sm">
-                {submitError}
-              </div>
-            )}
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
@@ -400,56 +411,70 @@ export default function AmbassadorsPage({ onBack }: Props) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                  City & State *
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+                Mailing Address for Your Free Card Pack *
+              </label>
+              <div className="space-y-3">
+                <div>
                   <input
-                    name="city"
-                    value={form.city}
+                    name="streetAddress"
+                    value={form.streetAddress}
                     onChange={handleChange}
-                    placeholder="San Jose, CA"
-                    className={`w-full bg-white/5 border rounded-xl pl-9 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.city ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+                    placeholder="123 Main St"
+                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.streetAddress ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
                   />
+                  {errors.streetAddress && <p className="text-red-400 text-xs mt-1.5">{errors.streetAddress}</p>}
                 </div>
-                {errors.city && <p className="text-red-400 text-xs mt-1.5">{errors.city}</p>}
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                  Profession *
-                </label>
-                <input
-                  name="profession"
-                  value={form.profession}
-                  onChange={handleChange}
-                  placeholder="Nurse, Teacher, Foreman..."
-                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.profession ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
-                />
-                {errors.profession && <p className="text-red-400 text-xs mt-1.5">{errors.profession}</p>}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                      <input
+                        name="city"
+                        value={form.city}
+                        onChange={handleChange}
+                        placeholder="San Jose"
+                        className={`w-full bg-white/5 border rounded-xl pl-9 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.city ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+                      />
+                    </div>
+                    {errors.city && <p className="text-red-400 text-xs mt-1.5">{errors.city}</p>}
+                  </div>
+                  <div>
+                    <select
+                      name="state"
+                      value={form.state}
+                      onChange={handleChange}
+                      className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white focus:outline-none text-sm transition-colors appearance-none ${errors.state ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'} ${!form.state ? 'text-slate-600' : 'text-white'}`}
+                    >
+                      <option value="" className="bg-[#111827] text-slate-400">Select state</option>
+                      {US_STATES.map(s => (
+                        <option key={s} value={s} className="bg-[#111827] text-white">{s}</option>
+                      ))}
+                    </select>
+                    {errors.state && <p className="text-red-400 text-xs mt-1.5">{errors.state}</p>}
+                  </div>
+                </div>
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                Mailing Address for Card Pack *
+                Profession *
               </label>
               <input
-                name="mailingAddress"
-                value={form.mailingAddress}
+                name="profession"
+                value={form.profession}
                 onChange={handleChange}
-                placeholder="123 Main St, San Jose, CA 95112"
-                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.mailingAddress ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+                placeholder="Nurse, Teacher, Foreman..."
+                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.profession ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
               />
-              {errors.mailingAddress && <p className="text-red-400 text-xs mt-1.5">{errors.mailingAddress}</p>}
-              <p className="text-slate-500 text-xs mt-1.5">Street address where we'll ship your free 25-card pack.</p>
+              {errors.profession && <p className="text-red-400 text-xs mt-1.5">{errors.profession}</p>}
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                Where Would You Distribute Cards? *
+                Where Would You Hand Out Cards? *
               </label>
               <input
                 name="locations"
@@ -480,7 +505,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
 
             <div>
               <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                Anything Else? (Optional)
+                Tell Us About a Language Barrier You Have Witnessed (Optional)
               </label>
               <textarea
                 name="message"
@@ -526,9 +551,14 @@ export default function AmbassadorsPage({ onBack }: Props) {
               disabled={submitting}
               className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-50 text-white font-bold text-base transition-colors flex items-center justify-center gap-2"
             >
-              {submitting ? 'Submitting...' : 'Join the Ambassador Brigade'}
+              {submitting ? 'Submitting...' : 'Send Me My Free Cards'}
               {!submitting && <Send className="w-4 h-4" />}
             </button>
+            {submitError && (
+              <div className="bg-red-500/10 border border-red-500/40 rounded-xl px-4 py-3 text-red-400 text-sm">
+                {submitError}
+              </div>
+            )}
           </form>
         )}
       </div>
