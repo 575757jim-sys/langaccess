@@ -154,119 +154,67 @@ export default function AmbassadorsPage({ onBack }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
-
-    console.log('Step 1 validating');
-    if (!validate()) return;
-
     setSubmitting(true);
 
+    const fullName = form.name;
+    const email = form.email;
+    const streetAddress = form.streetAddress;
+    const city = form.city;
+    const state = form.state;
+    const zipCode = form.zipCode;
+    const profession = form.profession;
+    const distributeWhere = form.locations;
+    const howHeard = form.source;
+    const additionalContext = form.message;
+
     try {
-      console.log('Step 2 checking duplicate');
-      const { data: existing, error: lookupError } = await supabase
-        .from('ambassadors')
-        .select('id')
-        .eq('email', form.email.trim())
-        .maybeSingle();
-
-      if (lookupError) {
-        console.error('Duplicate check error:', lookupError);
-        setSubmitError('Error checking registration: ' + lookupError.message);
-        return;
-      }
-
-      if (existing) {
-        setDuplicateEmail(true);
-        return;
-      }
-
-      const ambassador_id = crypto.randomUUID();
-      const cityState = `${form.city.trim()}, ${form.state}`;
-
-      console.log('Step 3 inserting to Supabase');
-      const insertResult = await supabase
+      const { data, error } = await supabase
         .from('ambassadors')
         .insert({
-          id: ambassador_id,
-          full_name: form.name.trim(),
-          email: form.email.trim(),
-          street_address: form.streetAddress.trim(),
-          zip_code: form.zipCode.trim(),
-          city_state: cityState,
-          mailing_address: `${form.streetAddress.trim()}, ${cityState} ${form.zipCode.trim()}`,
-          profession: form.profession.trim(),
-          distribution_location: form.locations.trim(),
-          how_heard: form.source || null,
-          additional_context: form.message.trim() || null,
+          full_name: fullName,
+          email: email,
+          street_address: streetAddress,
+          city_state: city + ', ' + state,
+          zip_code: zipCode,
+          profession: profession,
+          distribution_location: distributeWhere,
+          how_heard: howHeard,
+          additional_context: additionalContext,
           agreement_accepted: true,
-          agreement_timestamp: new Date().toISOString(),
-        });
-      console.log('Step 3 insert result:', insertResult);
+          agreement_timestamp: new Date().toISOString()
+        })
+        .select()
+        .single();
 
-      if (insertResult.error) {
-        const err = insertResult.error;
-        console.error('Ambassador insert error:', err);
-        setSubmitError('Signup failed: ' + (err.message ?? 'unknown error') + ' (code: ' + (err.code ?? '?') + ')');
-        return;
-      }
+      if (error) throw error;
 
-      let slug = '';
-      let qrUrl = '';
-
-      console.log('Step 4 calling generate-qr-slug');
-      try {
-        const qrRes = await fetch('/.netlify/functions/generate-qr-slug', {
+      fetch('/.netlify/functions/generate-qr-slug', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ambassador_id: data.id,
+          full_name: fullName,
+          city_state: city + ', ' + state
+        })
+      }).then(r => r.json()).then(qrData => {
+        fetch('/.netlify/functions/send-ambassador-welcome', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ambassador_id, full_name: form.name.trim(), city_state: cityState }),
+          body: JSON.stringify({
+            full_name: fullName,
+            email: email,
+            slug: qrData.slug,
+            qrUrl: qrData.qrUrl
+          })
         });
-        console.log('Step 4 response:', qrRes.status, qrRes.ok);
-        if (qrRes.ok) {
-          const qrData = await qrRes.json();
-          slug = qrData.slug ?? '';
-          qrUrl = qrData.qrUrl ?? '';
-        } else {
-          const errText = await qrRes.text();
-          console.error('generate-qr-slug failed:', errText);
-        }
-      } catch (qrErr) {
-        console.error('generate-qr-slug threw:', qrErr);
-      }
-
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-
-      console.log('Step 5 calling send-ambassador-welcome');
-      const emailRes = await fetch(`${supabaseUrl}/functions/v1/send-ambassador-welcome`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseAnonKey}`,
-          'Apikey': supabaseAnonKey,
-        },
-        body: JSON.stringify({
-          full_name: form.name.trim(),
-          email: form.email.trim(),
-          mailing_address: `${form.streetAddress.trim()}, ${cityState} ${form.zipCode.trim()}`,
-          slug,
-          qrUrl,
-        }),
       });
-      console.log('Step 5 response:', emailRes.status, emailRes.ok);
 
-      if (!emailRes.ok) {
-        const errBody = await emailRes.text();
-        console.error('send-ambassador-welcome failed response:', errBody);
-        setSubmitError("You're registered, but we had trouble sending your confirmation email. Please contact langaccessinfo@gmail.com.");
-        return;
-      }
-
-      console.log('Step 6 showing success');
       setSubmitted(true);
       window.scrollTo(0, 0);
+
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unexpected error. Please try again.';
-      console.error('handleSubmit threw:', err);
-      setSubmitError(msg);
+      setSubmitError('Error: ' + msg);
     } finally {
       setSubmitting(false);
     }
@@ -295,8 +243,8 @@ export default function AmbassadorsPage({ onBack }: Props) {
             <CheckCircle className="w-8 h-8 text-green-400" />
           </div>
           <h3 className="text-2xl font-bold text-green-400 mb-4">You are in the Brigade.</h3>
-          <p className="text-slate-300 text-sm leading-relaxed">
-            Check your email. Your free 25-card pack ships within 5 business days. Every card is tracked.
+          <p className="text-green-300 text-sm leading-relaxed">
+            Check your email. Your free 25-card pack ships within 5 business days.
           </p>
         </div>
       ) : (
@@ -482,7 +430,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
             disabled={submitting}
             className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-50 text-white font-bold text-base transition-colors flex items-center justify-center gap-2"
           >
-            {submitting ? 'Submitting...' : 'Send Me My Free Cards'}
+            {submitting ? 'Sending...' : 'Send Me My Free Cards'}
             {!submitting && <Send className="w-4 h-4" />}
           </button>
           {submitError && (
