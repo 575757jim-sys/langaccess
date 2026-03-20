@@ -8,7 +8,7 @@ const post = (to: string, subject: string, body: string) =>
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      from: 'LangAccess <onboarding@resend.dev>',
+      from: 'LangAccess <hello@langaccess.org>',
       to: to,
       subject: subject,
       html: body
