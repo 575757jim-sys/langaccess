@@ -13,6 +13,7 @@ interface AmbassadorForm {
   streetAddress: string;
   city: string;
   state: string;
+  zipCode: string;
   profession: string;
   locations: string;
   source: string;
@@ -25,6 +26,7 @@ interface FormErrors {
   streetAddress?: string;
   city?: string;
   state?: string;
+  zipCode?: string;
   profession?: string;
   locations?: string;
   agreement?: string;
@@ -36,6 +38,7 @@ const EMPTY_FORM: AmbassadorForm = {
   streetAddress: '',
   city: '',
   state: '',
+  zipCode: '',
   profession: '',
   locations: '',
   source: '',
@@ -114,7 +117,6 @@ export default function AmbassadorsPage({ onBack }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [statsVisible, setStatsVisible] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
-  const successRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -140,6 +142,8 @@ export default function AmbassadorsPage({ onBack }: Props) {
     if (!form.streetAddress.trim()) next.streetAddress = 'Street address is required.';
     if (!form.city.trim()) next.city = 'City is required.';
     if (!form.state) next.state = 'State is required.';
+    if (!form.zipCode.trim()) next.zipCode = 'ZIP code is required.';
+    else if (!/^\d{5}$/.test(form.zipCode.trim())) next.zipCode = 'ZIP code must be 5 digits.';
     if (!form.profession.trim()) next.profession = 'Profession is required.';
     if (!form.locations.trim()) next.locations = 'Distribution location is required.';
     if (!agreementChecked) next.agreement = 'You must agree to the terms before submitting.';
@@ -151,11 +155,13 @@ export default function AmbassadorsPage({ onBack }: Props) {
     e.preventDefault();
     setSubmitError(null);
 
+    console.log('Step 1 validating');
     if (!validate()) return;
 
     setSubmitting(true);
 
     try {
+      console.log('Step 2 checking duplicate');
       const { data: existing, error: lookupError } = await supabase
         .from('ambassadors')
         .select('id')
@@ -164,6 +170,8 @@ export default function AmbassadorsPage({ onBack }: Props) {
 
       if (lookupError) {
         console.error('Duplicate check error:', lookupError);
+        setSubmitError('Error checking registration: ' + lookupError.message);
+        return;
       }
 
       if (existing) {
@@ -172,18 +180,19 @@ export default function AmbassadorsPage({ onBack }: Props) {
       }
 
       const ambassador_id = crypto.randomUUID();
-
       const cityState = `${form.city.trim()}, ${form.state}`;
 
-      const { error: insertError } = await supabase
+      console.log('Step 3 inserting to Supabase');
+      const insertResult = await supabase
         .from('ambassadors')
         .insert({
           id: ambassador_id,
           full_name: form.name.trim(),
           email: form.email.trim(),
           street_address: form.streetAddress.trim(),
+          zip_code: form.zipCode.trim(),
           city_state: cityState,
-          mailing_address: `${form.streetAddress.trim()}, ${cityState}`,
+          mailing_address: `${form.streetAddress.trim()}, ${cityState} ${form.zipCode.trim()}`,
           profession: form.profession.trim(),
           distribution_location: form.locations.trim(),
           how_heard: form.source || null,
@@ -191,33 +200,42 @@ export default function AmbassadorsPage({ onBack }: Props) {
           agreement_accepted: true,
           agreement_timestamp: new Date().toISOString(),
         });
+      console.log('Step 3 insert result:', insertResult);
 
-      if (insertError) {
-        console.error('Ambassador insert error:', insertError);
-        setSubmitError('Signup failed: ' + (insertError?.message ?? 'unknown error') + ' (code: ' + (insertError?.code ?? '?') + ')');
+      if (insertResult.error) {
+        const err = insertResult.error;
+        console.error('Ambassador insert error:', err);
+        setSubmitError('Signup failed: ' + (err.message ?? 'unknown error') + ' (code: ' + (err.code ?? '?') + ')');
         return;
       }
 
       let slug = '';
       let qrUrl = '';
 
+      console.log('Step 4 calling generate-qr-slug');
       try {
         const qrRes = await fetch('/.netlify/functions/generate-qr-slug', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ambassador_id, full_name: form.name.trim(), city_state: cityState }),
         });
+        console.log('Step 4 response:', qrRes.status, qrRes.ok);
         if (qrRes.ok) {
           const qrData = await qrRes.json();
           slug = qrData.slug ?? '';
           qrUrl = qrData.qrUrl ?? '';
+        } else {
+          const errText = await qrRes.text();
+          console.error('generate-qr-slug failed:', errText);
         }
-      } catch {
+      } catch (qrErr) {
+        console.error('generate-qr-slug threw:', qrErr);
       }
 
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
+      console.log('Step 5 calling send-ambassador-welcome');
       const emailRes = await fetch(`${supabaseUrl}/functions/v1/send-ambassador-welcome`, {
         method: 'POST',
         headers: {
@@ -228,21 +246,23 @@ export default function AmbassadorsPage({ onBack }: Props) {
         body: JSON.stringify({
           full_name: form.name.trim(),
           email: form.email.trim(),
-          mailing_address: form.mailingAddress.trim(),
+          mailing_address: `${form.streetAddress.trim()}, ${cityState} ${form.zipCode.trim()}`,
           slug,
           qrUrl,
         }),
       });
+      console.log('Step 5 response:', emailRes.status, emailRes.ok);
 
       if (!emailRes.ok) {
         const errBody = await emailRes.text();
-        console.error('send-ambassador-welcome error:', errBody);
-        setSubmitError('You\'re registered, but we had trouble sending your confirmation email. Please contact langaccessinfo@gmail.com.');
+        console.error('send-ambassador-welcome failed response:', errBody);
+        setSubmitError("You're registered, but we had trouble sending your confirmation email. Please contact langaccessinfo@gmail.com.");
         return;
       }
 
+      console.log('Step 6 showing success');
       setSubmitted(true);
-      setTimeout(() => successRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+      window.scrollTo(0, 0);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unexpected error. Please try again.';
       console.error('handleSubmit threw:', err);
@@ -251,6 +271,227 @@ export default function AmbassadorsPage({ onBack }: Props) {
       setSubmitting(false);
     }
   };
+
+  const signupSection = (
+    <div id="signup" className="max-w-2xl mx-auto px-4 pb-16">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-white mb-2">Join the Brigade</h2>
+        <p className="text-slate-400 text-sm">Fill out the form below and we'll ship your free card pack.</p>
+      </div>
+
+      {duplicateEmail ? (
+        <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-12 text-center">
+          <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-8 h-8 text-blue-400" />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">Already registered</h3>
+          <p className="text-slate-400 text-sm">
+            This email is already registered. Check your inbox for your welcome email.
+          </p>
+        </div>
+      ) : submitted ? (
+        <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-12 text-center">
+          <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="w-8 h-8 text-green-400" />
+          </div>
+          <h3 className="text-2xl font-bold text-green-400 mb-4">You are in the Brigade.</h3>
+          <p className="text-slate-300 text-sm leading-relaxed">
+            Check your email. Your free 25-card pack ships within 5 business days. Every card is tracked.
+          </p>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-8 border border-white/10 space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+                Full Name *
+              </label>
+              <input
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Maria Sanchez"
+                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.name ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+              />
+              {errors.name && <p className="text-red-400 text-xs mt-1.5">{errors.name}</p>}
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+                Email *
+              </label>
+              <input
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="maria@example.com"
+                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.email ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+              />
+              {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email}</p>}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+              Mailing Address for Your Free Card Pack *
+            </label>
+            <div className="space-y-3">
+              <div>
+                <input
+                  name="streetAddress"
+                  value={form.streetAddress}
+                  onChange={handleChange}
+                  placeholder="123 Main St"
+                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.streetAddress ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+                />
+                {errors.streetAddress && <p className="text-red-400 text-xs mt-1.5">{errors.streetAddress}</p>}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                    <input
+                      name="city"
+                      value={form.city}
+                      onChange={handleChange}
+                      placeholder="San Jose"
+                      className={`w-full bg-white/5 border rounded-xl pl-9 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.city ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+                    />
+                  </div>
+                  {errors.city && <p className="text-red-400 text-xs mt-1.5">{errors.city}</p>}
+                </div>
+                <div>
+                  <select
+                    name="state"
+                    value={form.state}
+                    onChange={handleChange}
+                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white focus:outline-none text-sm transition-colors appearance-none ${errors.state ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'} ${!form.state ? 'text-slate-600' : 'text-white'}`}
+                  >
+                    <option value="" className="bg-[#111827] text-slate-400">Select state</option>
+                    {US_STATES.map(s => (
+                      <option key={s} value={s} className="bg-[#111827] text-white">{s}</option>
+                    ))}
+                  </select>
+                  {errors.state && <p className="text-red-400 text-xs mt-1.5">{errors.state}</p>}
+                </div>
+                <div>
+                  <input
+                    name="zipCode"
+                    value={form.zipCode}
+                    onChange={handleChange}
+                    placeholder="e.g. 95110"
+                    maxLength={5}
+                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.zipCode ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+                  />
+                  {errors.zipCode && <p className="text-red-400 text-xs mt-1.5">{errors.zipCode}</p>}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+              Profession *
+            </label>
+            <input
+              name="profession"
+              value={form.profession}
+              onChange={handleChange}
+              placeholder="Nurse, Teacher, Foreman..."
+              className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.profession ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+            />
+            {errors.profession && <p className="text-red-400 text-xs mt-1.5">{errors.profession}</p>}
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+              Where Would You Hand Out Cards? *
+            </label>
+            <input
+              name="locations"
+              value={form.locations}
+              onChange={handleChange}
+              placeholder="Valley Medical Center waiting room, Lincoln Elementary break room..."
+              className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.locations ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+            />
+            {errors.locations && <p className="text-red-400 text-xs mt-1.5">{errors.locations}</p>}
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+              How Did You Hear About Us?
+            </label>
+            <select
+              name="source"
+              value={form.source}
+              onChange={handleChange}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500/50 text-sm transition-colors appearance-none"
+            >
+              <option value="" className="bg-[#111827] text-slate-400">Select one...</option>
+              {SOURCE_OPTIONS.map(opt => (
+                <option key={opt} value={opt} className="bg-[#111827]">{opt}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
+              Tell Us About a Language Barrier You Have Witnessed (Optional)
+            </label>
+            <textarea
+              name="message"
+              value={form.message}
+              onChange={handleChange}
+              rows={3}
+              placeholder="Tell us about a time language barriers impacted someone you work with..."
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-green-500/50 text-sm transition-colors resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <div className="relative mt-0.5 flex-shrink-0">
+                <input
+                  type="checkbox"
+                  checked={agreementChecked}
+                  onChange={e => {
+                    setAgreementChecked(e.target.checked);
+                    if (e.target.checked && errors.agreement) {
+                      setErrors(prev => ({ ...prev, agreement: undefined }));
+                    }
+                  }}
+                  className="sr-only peer"
+                />
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${errors.agreement ? 'border-red-500/60' : 'border-white/20 group-hover:border-green-500/50'} ${agreementChecked ? 'bg-green-500 border-green-500' : 'bg-white/5'}`}>
+                  {agreementChecked && (
+                    <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span className="text-sm text-slate-300 leading-snug">
+                I agree to distribute cards only in professional settings and not to misrepresent LangAccess services.
+              </span>
+            </label>
+            {errors.agreement && <p className="text-red-400 text-xs mt-1.5 ml-8">{errors.agreement}</p>}
+          </div>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-50 text-white font-bold text-base transition-colors flex items-center justify-center gap-2"
+          >
+            {submitting ? 'Submitting...' : 'Send Me My Free Cards'}
+            {!submitting && <Send className="w-4 h-4" />}
+          </button>
+          {submitError && (
+            <p className="text-red-400 text-sm mt-2">{submitError}</p>
+          )}
+        </form>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#0a0f1e] text-white">
@@ -341,7 +582,6 @@ export default function AmbassadorsPage({ onBack }: Props) {
         </p>
 
         <div className="flex flex-col md:flex-row gap-6 items-start justify-center">
-          {/* Card Front */}
           <div
             className="w-full max-w-[480px] mx-auto rounded-2xl shadow-2xl overflow-hidden flex-shrink-0"
             style={{ background: '#0b0d0c', border: '1px solid rgba(255,255,255,0.08)' }}
@@ -452,7 +692,6 @@ export default function AmbassadorsPage({ onBack }: Props) {
             </div>
           </div>
 
-          {/* Card Back */}
           <div
             className="w-full max-w-[480px] mx-auto rounded-2xl shadow-2xl overflow-hidden flex-shrink-0"
             style={{ background: '#0a2214', border: '1px solid rgba(255,255,255,0.08)' }}
@@ -527,215 +766,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
         </div>
       </div>
 
-      <div id="signup" className="max-w-2xl mx-auto px-4 pb-16">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-white mb-2">Join the Brigade</h2>
-          <p className="text-slate-400 text-sm">Fill out the form below and we'll ship your free card pack.</p>
-        </div>
-
-        {duplicateEmail ? (
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-blue-400" />
-            </div>
-            <h3 className="text-xl font-bold text-white mb-2">Already registered</h3>
-            <p className="text-slate-400 text-sm">
-              This email is already registered. Check your inbox for your welcome email.
-            </p>
-          </div>
-        ) : submitted ? (
-          <div ref={successRef} className="bg-green-500/10 border border-green-500/30 rounded-2xl p-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-400" />
-            </div>
-            <h3 className="text-2xl font-bold text-green-400 mb-4">You are in the Brigade.</h3>
-            <p className="text-slate-300 text-sm leading-relaxed">
-              Check your email for your QR code and shipping details. Your 25-card pack ships free within 5 business days. Every card you hand out is tracked and makes a difference.
-            </p>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-8 border border-white/10 space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                  Full Name *
-                </label>
-                <input
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  placeholder="Maria Sanchez"
-                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.name ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
-                />
-                {errors.name && <p className="text-red-400 text-xs mt-1.5">{errors.name}</p>}
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                  Email *
-                </label>
-                <input
-                  name="email"
-                  type="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="maria@example.com"
-                  className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.email ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
-                />
-                {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email}</p>}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                Mailing Address for Your Free Card Pack *
-              </label>
-              <div className="space-y-3">
-                <div>
-                  <input
-                    name="streetAddress"
-                    value={form.streetAddress}
-                    onChange={handleChange}
-                    placeholder="123 Main St"
-                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.streetAddress ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
-                  />
-                  {errors.streetAddress && <p className="text-red-400 text-xs mt-1.5">{errors.streetAddress}</p>}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                      <input
-                        name="city"
-                        value={form.city}
-                        onChange={handleChange}
-                        placeholder="San Jose"
-                        className={`w-full bg-white/5 border rounded-xl pl-9 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.city ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
-                      />
-                    </div>
-                    {errors.city && <p className="text-red-400 text-xs mt-1.5">{errors.city}</p>}
-                  </div>
-                  <div>
-                    <select
-                      name="state"
-                      value={form.state}
-                      onChange={handleChange}
-                      className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white focus:outline-none text-sm transition-colors appearance-none ${errors.state ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'} ${!form.state ? 'text-slate-600' : 'text-white'}`}
-                    >
-                      <option value="" className="bg-[#111827] text-slate-400">Select state</option>
-                      {US_STATES.map(s => (
-                        <option key={s} value={s} className="bg-[#111827] text-white">{s}</option>
-                      ))}
-                    </select>
-                    {errors.state && <p className="text-red-400 text-xs mt-1.5">{errors.state}</p>}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                Profession *
-              </label>
-              <input
-                name="profession"
-                value={form.profession}
-                onChange={handleChange}
-                placeholder="Nurse, Teacher, Foreman..."
-                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.profession ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
-              />
-              {errors.profession && <p className="text-red-400 text-xs mt-1.5">{errors.profession}</p>}
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                Where Would You Hand Out Cards? *
-              </label>
-              <input
-                name="locations"
-                value={form.locations}
-                onChange={handleChange}
-                placeholder="Valley Medical Center waiting room, Lincoln Elementary break room..."
-                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.locations ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
-              />
-              {errors.locations && <p className="text-red-400 text-xs mt-1.5">{errors.locations}</p>}
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                How Did You Hear About Us?
-              </label>
-              <select
-                name="source"
-                value={form.source}
-                onChange={handleChange}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500/50 text-sm transition-colors appearance-none"
-              >
-                <option value="" className="bg-[#111827] text-slate-400">Select one...</option>
-                {SOURCE_OPTIONS.map(opt => (
-                  <option key={opt} value={opt} className="bg-[#111827]">{opt}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-                Tell Us About a Language Barrier You Have Witnessed (Optional)
-              </label>
-              <textarea
-                name="message"
-                value={form.message}
-                onChange={handleChange}
-                rows={3}
-                placeholder="Tell us about a time language barriers impacted someone you work with..."
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-green-500/50 text-sm transition-colors resize-none"
-              />
-            </div>
-
-            <div>
-              <label className={`flex items-start gap-3 cursor-pointer group`}>
-                <div className="relative mt-0.5 flex-shrink-0">
-                  <input
-                    type="checkbox"
-                    checked={agreementChecked}
-                    onChange={e => {
-                      setAgreementChecked(e.target.checked);
-                      if (e.target.checked && errors.agreement) {
-                        setErrors(prev => ({ ...prev, agreement: undefined }));
-                      }
-                    }}
-                    className="sr-only peer"
-                  />
-                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${errors.agreement ? 'border-red-500/60' : 'border-white/20 group-hover:border-green-500/50'} ${agreementChecked ? 'bg-green-500 border-green-500' : 'bg-white/5'}`}>
-                    {agreementChecked && (
-                      <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
-                        <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
-                  </div>
-                </div>
-                <span className="text-sm text-slate-300 leading-snug">
-                  I agree to distribute cards only in professional settings and not to misrepresent LangAccess services.
-                </span>
-              </label>
-              {errors.agreement && <p className="text-red-400 text-xs mt-1.5 ml-8">{errors.agreement}</p>}
-            </div>
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-50 text-white font-bold text-base transition-colors flex items-center justify-center gap-2"
-            >
-              {submitting ? 'Submitting...' : 'Send Me My Free Cards'}
-              {!submitting && <Send className="w-4 h-4" />}
-            </button>
-            {submitError && (
-              <div className="bg-red-500/10 border border-red-500/40 rounded-xl px-4 py-3 text-red-400 text-sm">
-                {submitError}
-              </div>
-            )}
-          </form>
-        )}
-      </div>
+      {signupSection}
 
       <div className="max-w-4xl mx-auto px-4 pb-20">
         <div className="text-center mb-8">
