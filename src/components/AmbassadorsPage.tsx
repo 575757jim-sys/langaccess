@@ -206,7 +206,11 @@ export default function AmbassadorsPage({ onBack }: Props) {
     } catch (err: unknown) {
       console.error('Submit error:', err);
       const msg = (err as { message?: string })?.message ?? JSON.stringify(err);
-      setSubmitError('Error: ' + msg);
+      if (msg.includes('duplicate key')) {
+        setSubmitError('This email is already registered as an Ambassador. Check your inbox for your welcome email.');
+      } else {
+        setSubmitError('Error: ' + msg);
+      }
     } finally {
       setSubmitting(false);
     }
