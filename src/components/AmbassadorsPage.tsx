@@ -288,6 +288,27 @@ export default function AmbassadorsPage({ onBack }: Props) {
         </div>
       </div>
 
+      <div className="max-w-[680px] mx-auto px-4 py-16">
+        <p className="text-xs font-semibold text-green-400 uppercase tracking-widest text-center mb-3">
+          Hear How It Works
+        </p>
+        <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-8 leading-snug">
+          Two minutes. Then you will get it.
+        </h2>
+        <iframe
+          width="100%"
+          style={{ aspectRatio: '16/9', borderRadius: '12px' }}
+          src="https://www.youtube.com/embed/RDKW0K_Kgnk"
+          title="LangAccess Ambassador Program Explainer"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+        <p className="text-slate-500 text-sm text-center mt-5 leading-relaxed">
+          A plain-language overview of how LangAccess cards reach people who need them — and how you fit in.
+        </p>
+      </div>
+
       <div ref={statsRef} className="max-w-4xl mx-auto px-4 py-16">
         <div className="grid grid-cols-3 gap-6 bg-[#111827] rounded-2xl p-8 border border-white/10">
           <StatCounter value={20} label="Active Ambassadors" started={statsVisible} />
