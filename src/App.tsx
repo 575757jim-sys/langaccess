@@ -13,6 +13,7 @@ import AmbassadorsPage from './components/AmbassadorsPage';
 import QRScanPage from './components/QRScanPage';
 import UpdateToast from './components/UpdateToast';
 import DebugOverlay from './components/DebugOverlay';
+import InstallBanner from './components/InstallBanner';
 import { Language, Sector } from './data/phrases';
 import {
   Subcategory,
@@ -316,6 +317,7 @@ function App() {
       />
 
       <DebugOverlay />
+      <InstallBanner />
     </>
   );
 }
