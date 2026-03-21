@@ -1,11 +1,11 @@
 {
-  "name": "LangAccess — Healthcare Phrases",
+  "name": "LangAccess",
   "short_name": "LangAccess",
   "description": "Multilingual phrase guide for healthcare, education, and construction professionals.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#2563eb",
+  "background_color": "#0b0d0c",
+  "theme_color": "#2dff72",
   "orientation": "portrait",
   "icons": [
     {
