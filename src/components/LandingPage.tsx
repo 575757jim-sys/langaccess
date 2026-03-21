@@ -110,7 +110,7 @@ export default function LandingPage({
               { label: 'How It Works', action: () => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }) },
               { label: 'For Institutions', action: () => document.getElementById('sectors')?.scrollIntoView({ behavior: 'smooth' }) },
               { label: 'Ambassador Brigade', action: onOpenAmbassadors },
-              { label: 'Pricing', action: () => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }) },
+              { label: 'Certificates', action: () => onOpenCertificates?.() },
             ].map(({ label, action }) => (
               <button
                 key={label}
@@ -149,7 +149,7 @@ export default function LandingPage({
               { label: 'How It Works', action: () => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
               { label: 'For Institutions', action: () => { document.getElementById('sectors')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
               { label: 'Ambassador Brigade', action: () => { onOpenAmbassadors?.(); closeMobileMenu(); } },
-              { label: 'Pricing', action: () => { document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
+              { label: 'Certificates', action: () => { onOpenCertificates?.(); closeMobileMenu(); } },
             ].map(({ label, action }) => (
               <button
                 key={label}
