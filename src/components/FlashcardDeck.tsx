@@ -32,6 +32,7 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const speakerBtnRef = useRef<HTMLButtonElement>(null);
   const speakerTouched = useRef(false);
 
   const learningCards = cards.filter(c => c.status === 'learning');
@@ -78,7 +79,17 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
     }, 280);
   }, [exiting, currentCard]);
 
+  function isSpeakerTarget(target: EventTarget | null): boolean {
+    if (!speakerBtnRef.current || !target) return false;
+    return speakerBtnRef.current === target || speakerBtnRef.current.contains(target as Node);
+  }
+
   function handleTouchStart(e: React.TouchEvent) {
+    if (isSpeakerTarget(e.target)) {
+      speakerTouched.current = true;
+      return;
+    }
+    speakerTouched.current = false;
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
   }
@@ -283,8 +294,8 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
                 {currentCard ? spanishPhonetic(currentCard.phrase.spanish) : ''}
               </p>
               <button
+                ref={speakerBtnRef}
                 onClick={(e) => { e.stopPropagation(); handleSpeak(e); }}
-                onTouchStart={(e) => { e.stopPropagation(); speakerTouched.current = true; }}
                 onTouchEnd={(e) => { e.stopPropagation(); handleSpeak(e); }}
                 style={{
                   display: 'flex',
