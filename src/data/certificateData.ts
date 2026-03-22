@@ -882,6 +882,69 @@ const hazardCommQuestions: QuizQuestion[] = [
   },
 ];
 
+const emergencyProceduresQuestions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Call 911 immediately'?",
+    options: ['Llame al supervisor inmediatamente', 'Llame al 911 inmediatamente', 'Llame a la ambulancia inmediatamente', 'Llame a la oficina inmediatamente'],
+    correctIndex: 1,
+    explanation: "'Llame al 911 inmediatamente' = Call 911 immediately. In any life-threatening emergency on a job site, calling 911 must be the first action to get professional emergency responders on the way.",
+  },
+  {
+    question: '"Punto de reunión" means:',
+    options: ['Safety meeting', 'Break room', 'Assembly point', 'First aid station'],
+    correctIndex: 2,
+    explanation: "'Punto de reunión' = assembly point. All workers must know the designated assembly point so supervisors can account for everyone during an evacuation. Never re-enter until cleared.",
+  },
+  {
+    question: "How do you ask 'Is anyone injured?'",
+    options: ['¿Alguien necesita ayuda?', '¿Hay alguien herido?', '¿Alguien vio lo que pasó?', '¿Alguien llamó al supervisor?'],
+    correctIndex: 1,
+    explanation: "'¿Hay alguien herido?' = Is anyone injured? This is a critical first question after any incident to quickly identify who needs immediate medical attention.",
+  },
+  {
+    question: "Which phrase means 'Do not move an injured worker'?",
+    options: ['Ayude al trabajador lesionado a moverse', 'No mueva a un trabajador lesionado', 'Lleve al trabajador lesionado a la oficina', 'Pida al trabajador lesionado que descanse'],
+    correctIndex: 1,
+    explanation: "'No mueva a un trabajador lesionado' = Do not move an injured worker. Moving someone with a spinal or serious injury can cause permanent paralysis or death. Keep them still until EMS arrives.",
+  },
+  {
+    question: '"Reporte de incidente" means:',
+    options: ['Safety checklist', 'Work order', 'Incident report', 'Daily log'],
+    correctIndex: 2,
+    explanation: "'Reporte de incidente' = incident report. Incident reports must be completed after any workplace injury or near-miss. They document facts, help identify root causes, and are required by OSHA.",
+  },
+  {
+    question: "How do you say 'Evacuate the building now'?",
+    options: ['Reúnanse en la entrada del edificio', 'Evacúen el edificio ahora', 'Quédense dentro del edificio', 'Esperen instrucciones dentro del edificio'],
+    correctIndex: 1,
+    explanation: "'Evacúen el edificio ahora' = Evacuate the building now. When an evacuation order is given, everyone must exit immediately using designated routes and proceed to the assembly point.",
+  },
+  {
+    question: "Which phrase asks 'Where were you when the accident happened?'",
+    options: ['¿Qué estaba haciendo cuando ocurrió el accidente?', '¿Dónde estaba cuando ocurrió el accidente?', '¿Cómo ocurrió el accidente?', '¿Cuándo ocurrió el accidente?'],
+    correctIndex: 1,
+    explanation: "'¿Dónde estaba cuando ocurrió el accidente?' = Where were you when the accident happened? Location details are essential in incident investigations to reconstruct the sequence of events.",
+  },
+  {
+    question: '"RCP" stands for:',
+    options: ['Respiratory Control Procedure', 'Reanimación Cardiopulmonar', 'Risk Control Plan', 'Rescue Contact Protocol'],
+    correctIndex: 1,
+    explanation: "'RCP' = Reanimación Cardiopulmonar (Cardiopulmonary Resuscitation / CPR). RCP training is encouraged for all workers. Early CPR dramatically increases survival rates in cardiac emergencies.",
+  },
+  {
+    question: "How do you say 'Stay calm and follow instructions'?",
+    options: ['Corra hacia la salida más cercana', 'Mantenga la calma y siga las instrucciones', 'Llame a su familia inmediatamente', 'Espere a que lleguen los bomberos'],
+    correctIndex: 1,
+    explanation: "'Mantenga la calma y siga las instrucciones' = Stay calm and follow instructions. Panic during emergencies causes accidents. Following the designated emergency plan keeps everyone safe.",
+  },
+  {
+    question: "How do you ask 'Did you witness the accident?'",
+    options: ['¿Estuvo involucrado en el accidente?', '¿Fue testigo del accidente?', '¿Reportó el accidente?', '¿Conoce a la persona lesionada?'],
+    correctIndex: 1,
+    explanation: "'¿Fue testigo del accidente?' = Did you witness the accident? Witness accounts provide crucial information for incident investigations and help prevent similar accidents in the future.",
+  },
+];
+
 const socialServicesQuestions: QuizQuestion[] = [
   {
     question: "'¿Cómo puedo ayudarle hoy?' means:",
@@ -1047,7 +1110,7 @@ export const CERT_TRACKS: CertTrack[] = [
       { id: 1, title: 'Jobsite Safety Basics', questions: constructionQuestions },
       { id: 2, title: 'PPE & Equipment', questions: ppeQuestions },
       { id: 3, title: 'Hazard Communication', questions: hazardCommQuestions },
-      { id: 4, title: 'Emergency Procedures', questions: constructionQuestions.map(q => ({ ...q })) },
+      { id: 4, title: 'Emergency Procedures', questions: emergencyProceduresQuestions },
       { id: 5, title: 'Toolbox Talks & Supervision', questions: constructionQuestions.map(q => ({ ...q })) },
     ],
   },
