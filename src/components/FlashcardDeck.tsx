@@ -32,6 +32,7 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const speakerTouched = useRef(false);
 
   const learningCards = cards.filter(c => c.status === 'learning');
   const doneCount = cards.filter(c => c.status === 'done').length;
@@ -83,6 +84,12 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
   }
 
   function handleTouchEnd(e: React.TouchEvent) {
+    if (speakerTouched.current) {
+      speakerTouched.current = false;
+      touchStartX.current = null;
+      touchStartY.current = null;
+      return;
+    }
     if (touchStartX.current === null || touchStartY.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     const dy = e.changedTouches[0].clientY - touchStartY.current;
@@ -277,7 +284,8 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
               </p>
               <button
                 onClick={(e) => { e.stopPropagation(); handleSpeak(e); }}
-                onTouchEnd={(e) => { e.stopPropagation(); }}
+                onTouchStart={(e) => { e.stopPropagation(); speakerTouched.current = true; }}
+                onTouchEnd={(e) => { e.stopPropagation(); handleSpeak(e); }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
