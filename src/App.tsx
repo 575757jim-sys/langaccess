@@ -9,6 +9,7 @@ import ConversationScreen from './components/ConversationScreen';
 import TalkTogetherScreen from './components/TalkTogetherScreen';
 import JobSiteTalkScreen from './components/JobSiteTalkScreen';
 import CertificatesPage from './components/CertificatesPage';
+import CertVerifyPage from './components/CertVerifyPage';
 import AmbassadorsPage from './components/AmbassadorsPage';
 import QRScanPage from './components/QRScanPage';
 import UpdateToast from './components/UpdateToast';
@@ -37,6 +38,7 @@ type AppView =
   | 'talk-together'
   | 'job-site-talk'
   | 'certificates'
+  | 'cert-verify'
   | 'ambassadors';
 
 function getQRSlug(): string | null {
@@ -44,9 +46,14 @@ function getQRSlug(): string | null {
   return match ? match[1] : null;
 }
 
+function getVerifyPath(): boolean {
+  return window.location.pathname === '/verify';
+}
+
 function App() {
   const qrSlug = getQRSlug();
-  const [view, setView] = useState<AppView>('home');
+  const isVerifyPath = getVerifyPath();
+  const [view, setView] = useState<AppView>(isVerifyPath ? 'cert-verify' : 'home');
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
@@ -180,8 +187,12 @@ function App() {
   }, [view, selectedLanguage, selectedSector, selectedSubcategory, talkTogetherPending, jobSiteTalkPending]);
 
   const renderView = () => {
+    if (view === 'cert-verify') {
+      return <CertVerifyPage onBack={() => setView('certificates')} />;
+    }
+
     if (view === 'certificates') {
-      return <CertificatesPage onBack={() => setView('home')} />;
+      return <CertificatesPage onBack={() => setView('home')} onVerify={() => setView('cert-verify')} />;
     }
 
     if (view === 'ambassadors') {

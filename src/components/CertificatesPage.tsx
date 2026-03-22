@@ -1,21 +1,22 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Award, Lock, CheckCircle, ChevronRight, Download, BookOpen, Star } from 'lucide-react';
+import { ArrowLeft, Award, Lock, CheckCircle, ChevronRight, Download, BookOpen, Star, ShieldCheck } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import { CERT_TRACKS, CERT_PRICE, CertProgress, TrackId } from '../data/certificateData';
 import {
-  CERT_TRACKS,
-  CERT_PRICE,
-  loadProgress,
-  saveProgress,
-  generateCertId,
+  loadLocalProgress,
+  saveLocalProgress,
+  loadProgressFromSupabase,
+  saveModuleResult,
+  saveCertificateRecord,
   isTrackComplete,
-  CertProgress,
-  TrackId,
-} from '../data/certificateData';
+  generateCertId,
+} from '../utils/certPersistence';
 import CertQuizEngine from './CertQuizEngine';
 import SEO from './SEO';
 
 interface Props {
   onBack: () => void;
+  onVerify?: () => void;
 }
 
 const JSON_LD_FAQ = {
@@ -52,8 +53,8 @@ const JSON_LD_FAQ = {
 type QuizState = { trackId: TrackId; moduleId: number } | null;
 type NamePromptState = { trackId: TrackId } | null;
 
-export default function CertificatesPage({ onBack }: Props) {
-  const [progress, setProgress] = useState<CertProgress>(loadProgress);
+export default function CertificatesPage({ onBack, onVerify }: Props) {
+  const [progress, setProgress] = useState<CertProgress>(loadLocalProgress);
   const [activeQuiz, setActiveQuiz] = useState<QuizState>(null);
   const [namePrompt, setNamePrompt] = useState<NamePromptState>(null);
   const [nameInput, setNameInput] = useState('');
@@ -61,7 +62,25 @@ export default function CertificatesPage({ onBack }: Props) {
   const [certGenerated, setCertGenerated] = useState<TrackId | null>(null);
 
   useEffect(() => {
-    saveProgress(progress);
+    loadProgressFromSupabase().then(remote => {
+      if (Object.keys(remote.moduleScores || {}).length > 0 || Object.keys(remote.certIds || {}).length > 0) {
+        setProgress(prev => {
+          const merged: CertProgress = {
+            userName: remote.userName || prev.userName,
+            purchased: { ...prev.purchased, ...(remote.purchased || {}) } as Record<TrackId, boolean>,
+            moduleScores: { ...prev.moduleScores, ...(remote.moduleScores || {}) },
+            completedModules: { ...prev.completedModules, ...(remote.completedModules || {}) },
+            certIds: { ...prev.certIds, ...(remote.certIds || {}) } as Record<TrackId, string>,
+          };
+          saveLocalProgress(merged);
+          return merged;
+        });
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    saveLocalProgress(progress);
   }, [progress]);
 
   const handleStartModule = (trackId: TrackId, moduleId: number) => {
@@ -81,7 +100,7 @@ export default function CertificatesPage({ onBack }: Props) {
     setActiveQuiz({ trackId: namePrompt.trackId, moduleId: 1 });
   };
 
-  const handleQuizComplete = (score: number, passed: boolean) => {
+  const handleQuizComplete = async (score: number, passed: boolean) => {
     if (!activeQuiz) return;
     const { trackId, moduleId } = activeQuiz;
     const key = `${trackId}-${moduleId}`;
@@ -93,9 +112,19 @@ export default function CertificatesPage({ onBack }: Props) {
         ...(passed ? { [key]: true } : {}),
       },
     };
-    if (passed && isTrackComplete(trackId, updated) && !updated.certIds[trackId]) {
-      updated.certIds = { ...updated.certIds, [trackId]: generateCertId() };
+
+    await saveModuleResult(progress.userName, trackId, moduleId, score, passed);
+
+    const trackDone = await isTrackComplete(trackId, updated);
+    if (passed && trackDone && !updated.certIds[trackId]) {
+      const certId = generateCertId();
+      updated.certIds = { ...updated.certIds, [trackId]: certId };
+      const track = CERT_TRACKS.find(t => t.id === trackId);
+      if (track) {
+        await saveCertificateRecord(progress.userName, trackId, track.title, certId);
+      }
     }
+
     setProgress(updated);
   };
 
@@ -181,7 +210,7 @@ export default function CertificatesPage({ onBack }: Props) {
 
     doc.setTextColor(100, 110, 130);
     doc.setFontSize(8);
-    doc.text('langaccess.org | hello@langaccess.org | California LEP Compliance Toolkit', W / 2, 395, { align: 'center' });
+    doc.text('Verify at langaccess.org/verify | hello@langaccess.org | California LEP Compliance Toolkit', W / 2, 395, { align: 'center' });
 
     doc.save(`LangAccess-Certificate-${track.title.replace(/\s+/g, '-')}-${certId}.pdf`);
     setCertGenerated(trackId);
@@ -198,15 +227,26 @@ export default function CertificatesPage({ onBack }: Props) {
       />
 
       <div className="sticky top-0 bg-[#0a0f1e]/95 backdrop-blur border-b border-white/10 z-20">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-4">
-          <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm font-medium">Back</span>
-          </button>
-          <div>
-            <h1 className="text-lg font-bold text-white leading-tight">Certificate Program</h1>
-            <p className="text-xs text-slate-500">Professional Spanish Communication</p>
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+              <span className="text-sm font-medium">Back</span>
+            </button>
+            <div>
+              <h1 className="text-lg font-bold text-white leading-tight">Certificate Program</h1>
+              <p className="text-xs text-slate-500">Professional Spanish Communication</p>
+            </div>
           </div>
+          {onVerify && (
+            <button
+              onClick={onVerify}
+              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-green-400 transition-colors border border-white/10 hover:border-green-500/30 rounded-lg px-3 py-2"
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              Verify Certificate
+            </button>
+          )}
         </div>
       </div>
 
@@ -259,7 +299,9 @@ export default function CertificatesPage({ onBack }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-16">
           {CERT_TRACKS.map((track) => {
             const purchased = !!progress.purchased[track.id];
-            const completed = isTrackComplete(track.id, progress);
+            const completed = CERT_TRACKS.find(t => t.id === track.id)?.modules.every(
+              m => !!progress.completedModules[`${track.id}-${m.id}`]
+            );
             const certId = progress.certIds[track.id];
             const isExpanded = expandedTrack === track.id;
             const completedCount = track.modules.filter(
@@ -401,7 +443,7 @@ export default function CertificatesPage({ onBack }: Props) {
             {[
               { label: '5 Modules', desc: 'Each track includes 5 focused modules covering real workplace scenarios.' },
               { label: 'Instant Certificate', desc: 'Pass all modules and download your PDF certificate immediately.' },
-              { label: 'Lifetime Access', desc: 'Retake any module any time. Progress is saved to your device.' },
+              { label: 'Verifiable Records', desc: 'Every certificate is stored in our database and verifiable at langaccess.org/verify.' },
             ].map(item => (
               <div key={item.label} className="text-left p-4 bg-white/3 rounded-xl border border-white/5">
                 <p className="text-green-400 font-bold mb-1">{item.label}</p>
