@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { CheckCircle, XCircle, ChevronRight, Award } from 'lucide-react';
 import { CertModule, QuizQuestion, PASS_THRESHOLD } from '../data/certificateData';
+import QuizPhrasePreview from './QuizPhrasePreview';
 
 interface Props {
   module: CertModule;
@@ -16,7 +17,7 @@ interface ShuffledQuestion {
   explanation: string;
 }
 
-type Phase = 'quiz' | 'result';
+type Phase = 'preview' | 'quiz' | 'result';
 
 function shuffleQuestions(questions: QuizQuestion[]): ShuffledQuestion[] {
   return questions.map(q => {
@@ -35,7 +36,7 @@ function shuffleQuestions(questions: QuizQuestion[]): ShuffledQuestion[] {
 }
 
 export default function CertQuizEngine({ module, trackTitle, onComplete, onClose }: Props) {
-  const [phase, setPhase] = useState<Phase>('quiz');
+  const [phase, setPhase] = useState<Phase>('preview');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<boolean[]>([]);
@@ -71,6 +72,18 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
     ? answers.filter(Boolean).length / totalQuestions
     : 0;
   const passed = finalScore >= PASS_THRESHOLD;
+
+  if (phase === 'preview') {
+    return (
+      <QuizPhrasePreview
+        moduleTitle={module.title}
+        trackTitle={trackTitle}
+        keyPhrases={module.keyPhrases}
+        onReady={() => setPhase('quiz')}
+        onClose={onClose}
+      />
+    );
+  }
 
   if (phase === 'result') {
     const correct = answers.filter(Boolean).length;

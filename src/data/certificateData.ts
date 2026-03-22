@@ -7,10 +7,17 @@ export interface QuizQuestion {
   explanation: string;
 }
 
+export interface KeyPhrase {
+  english: string;
+  spanish: string;
+  context: string;
+}
+
 export interface CertModule {
   id: number;
   title: string;
   questions: QuizQuestion[];
+  keyPhrases: KeyPhrase[];
 }
 
 export interface CertTrack {
@@ -1386,6 +1393,331 @@ const socialServicesCaseClosureQuestions: QuizQuestion[] = [
   },
 ];
 
+const hc1Phrases: KeyPhrase[] = [
+  { english: 'Do you have pain?', spanish: '¿Tiene dolor?', context: 'Patient intake — first pain screening question' },
+  { english: 'Are you allergic to any medication?', spanish: '¿Es usted alérgico a algún medicamento?', context: 'Allergy check before prescribing treatment' },
+  { english: 'Take a deep breath.', spanish: 'Respire profundamente.', context: 'Instruction during physical examination' },
+  { english: 'Do not eat or drink after midnight.', spanish: 'No coma ni beba nada después de la medianoche.', context: 'Pre-procedure fasting instruction' },
+  { english: 'Are you pregnant?', spanish: '¿Está embarazada?', context: 'Safety screening before X-rays or certain medications' },
+  { english: 'I need to take your blood pressure.', spanish: 'Necesito tomarle la presión arterial.', context: 'Routine vitals check during intake' },
+  { english: 'Point to where it hurts.', spanish: 'Señale dónde le duele.', context: 'Pain location identification during intake' },
+  { english: 'When did the symptoms start?', spanish: '¿Cuándo comenzaron los síntomas?', context: 'Triage history-taking question' },
+  { english: 'Take this medication twice a day.', spanish: 'Tome este medicamento dos veces al día.', context: 'Discharge medication instruction' },
+  { english: 'Yes, I understand.', spanish: 'Sí, entiendo.', context: 'Patient confirmation of understanding' },
+];
+
+const hc2Phrases: KeyPhrase[] = [
+  { english: 'Where does it hurt?', spanish: '¿Dónde le duele?', context: 'Fundamental pain location question' },
+  { english: 'On a scale from one to ten…', spanish: 'En una escala del uno al diez…', context: 'Numeric pain rating scale prompt' },
+  { english: 'How long have you had this pain?', spanish: '¿Desde cuándo tiene este dolor?', context: 'Pain duration assessment for diagnosis' },
+  { english: 'Is the pain constant or does it come and go?', spanish: '¿El dolor es constante o va y viene?', context: 'Distinguishing chronic from intermittent pain' },
+  { english: 'Dizziness', spanish: 'Mareo', context: 'Symptom vocabulary — different from nausea' },
+  { english: 'Do you have shortness of breath?', spanish: '¿Tiene dificultad para respirar?', context: 'Respiratory distress screening during triage' },
+  { english: 'Nausea', spanish: 'Náuseas', context: 'Symptom vocabulary — distinguish from dizziness' },
+  { english: 'Does the pain radiate anywhere?', spanish: '¿El dolor se irradia a algún lugar?', context: 'Identifying referred pain patterns such as cardiac events' },
+  { english: 'Do you have a fever?', spanish: '¿Tiene fiebre?', context: 'Common symptom screening in every clinical encounter' },
+  { english: 'Point to where you feel the pain.', spanish: 'Señale dónde siente el dolor.', context: 'Non-verbal pain location method when verbal description is difficult' },
+];
+
+const hc3Phrases: KeyPhrase[] = [
+  { english: 'Take one tablet twice a day.', spanish: 'Tome una pastilla dos veces al día.', context: 'Accurate dosage instruction for medication safety' },
+  { english: 'On an empty stomach', spanish: 'En ayunas', context: 'Medication absorption requirement for certain drugs' },
+  { english: 'Are you currently taking any medications?', spanish: '¿Toma actualmente algún medicamento?', context: 'Medication reconciliation to prevent interactions' },
+  { english: 'Do not drive after taking this medication.', spanish: 'No maneje después de tomar este medicamento.', context: 'Safety warning for sedating or narcotic medications' },
+  { english: 'Side effects', spanish: 'Efectos secundarios', context: 'Vocabulary for patient education after prescribing' },
+  { english: 'Take this medication with food.', spanish: 'Tome este medicamento con comida.', context: 'Reducing nausea or stomach irritation from certain drugs' },
+  { english: 'This prescription needs to be refilled.', spanish: 'Esta receta necesita renovarse.', context: 'Communicating refill needs for chronic medications' },
+  { english: 'Do not mix with alcohol.', spanish: 'No mezcle con alcohol.', context: 'Safety warning for antibiotics and blood thinners' },
+  { english: 'Do you have any drug allergies?', spanish: '¿Tiene alergia a algún medicamento?', context: 'Must be asked before any medication is administered' },
+  { english: 'Finish all of the medication.', spanish: 'Termine todo el medicamento.', context: 'Antibiotic compliance to prevent resistance' },
+];
+
+const hc4Phrases: KeyPhrase[] = [
+  { english: 'We need your signature here.', spanish: 'Necesitamos su firma aquí.', context: 'Obtaining legal consent before procedures' },
+  { english: 'Informed consent', spanish: 'Consentimiento informado', context: 'Required before any treatment begins' },
+  { english: 'Do you understand the procedure?', spanish: '¿Entiende el procedimiento?', context: 'Confirming patient comprehension for valid consent' },
+  { english: 'You have the right to refuse treatment.', spanish: 'Usted tiene derecho a rechazar el tratamiento.', context: 'Fundamental patient rights disclosure' },
+  { english: 'Local anesthesia', spanish: 'Anestesia local', context: 'Clarifying anesthesia type to reduce patient anxiety' },
+  { english: 'This procedure takes about 30 minutes.', spanish: 'Este procedimiento tarda unos 30 minutos.', context: 'Setting time expectations before a procedure' },
+  { english: 'Do you have any questions before we begin?', spanish: '¿Tiene preguntas antes de comenzar?', context: 'Ensuring understanding as part of the consent process' },
+  { english: 'Risks and benefits', spanish: 'Riesgos y beneficios', context: 'Core component of informed consent discussion' },
+  { english: 'Please do not eat or drink after midnight.', spanish: 'Por favor, no coma ni beba después de medianoche.', context: 'Pre-surgical fasting instruction' },
+  { english: 'Is there someone who can make decisions for you?', spanish: '¿Hay alguien que pueda tomar decisiones por usted?', context: 'Identifying a surrogate when patient cannot consent' },
+];
+
+const hc5Phrases: KeyPhrase[] = [
+  { english: 'Your follow-up appointment is in two weeks.', spanish: 'Su cita de seguimiento es en dos semanas.', context: 'Follow-up scheduling at discharge' },
+  { english: 'Discharge instructions', spanish: 'Instrucciones de alta', context: 'Written instructions given when leaving the facility' },
+  { english: 'Call us if you have a fever above 101°F.', spanish: 'Llámenos si tiene fiebre de más de 101°F.', context: 'Specific symptom threshold for when to seek care' },
+  { english: 'Do not lift anything heavy for two weeks.', spanish: 'No levante objetos pesados por dos semanas.', context: 'Activity restriction to prevent post-procedure complications' },
+  { english: 'Warning signs', spanish: 'Señales de advertencia', context: 'Symptoms that require immediate medical attention' },
+  { english: 'Do you have a way to get home?', spanish: '¿Tiene cómo llegar a casa?', context: 'Safe discharge check — patients may not drive themselves' },
+  { english: 'Keep the wound clean and dry.', spanish: 'Mantenga la herida limpia y seca.', context: 'Wound care instruction to prevent infection' },
+  { english: 'Follow-up appointment', spanish: 'Cita de seguimiento', context: 'Scheduling continuity of care after discharge' },
+  { english: 'Go to the emergency room if symptoms worsen.', spanish: 'Vaya a urgencias si los síntomas empeoran.', context: 'Escalation instruction for post-discharge emergencies' },
+  { english: 'Here are your discharge papers.', spanish: 'Aquí están sus papeles de alta.', context: 'Handing over documentation for home reference' },
+];
+
+const ed1Phrases: KeyPhrase[] = [
+  { english: 'Welcome to our school.', spanish: 'Bienvenido a nuestra escuela.', context: 'Greeting new families at enrollment' },
+  { english: 'How old is your child?', spanish: '¿Cuántos años tiene su hijo?', context: 'Age determines grade placement during enrollment' },
+  { english: 'School enrollment', spanish: 'Registración escolar', context: 'Process required before a child can begin attending' },
+  { english: 'Does your child have any special needs?', spanish: '¿Su hijo tiene necesidades especiales?', context: 'Identifying IEP or 504 needs at enrollment' },
+  { english: 'Please bring proof of address.', spanish: 'Por favor, traiga comprobante de domicilio.', context: 'Residency verification required for enrollment' },
+  { english: 'Immunization record', spanish: 'Certificado de vacunación', context: 'Required vaccination documentation for school enrollment' },
+  { english: 'School starts at 8 AM.', spanish: 'La escuela empieza a las 8 de la mañana.', context: 'Schedule information for timely arrival' },
+  { english: 'What language does your child speak at home?', spanish: '¿Qué idioma habla su hijo en casa?', context: 'Home language survey required for ELL identification' },
+  { english: 'Emergency contact form', spanish: 'Formulario de emergencia', context: 'Current contact info required for every enrolled student' },
+  { english: 'Who has permission to pick up your child?', spanish: '¿Quién tiene permiso de recoger a su hijo?', context: 'Authorized pickup safety requirement' },
+];
+
+const ed2Phrases: KeyPhrase[] = [
+  { english: 'Your child is progressing very well in class.', spanish: 'Su hijo está progresando muy bien en clase.', context: 'Positive academic feedback during parent-teacher conference' },
+  { english: 'Grades', spanish: 'Calificaciones', context: 'Primary conference topic alongside attendance and behavior' },
+  { english: 'Does your child do homework at home?', spanish: '¿Su hijo hace la tarea en casa?', context: 'Identifying whether home academic support is needed' },
+  { english: 'Your child needs extra help in reading.', spanish: 'Su hijo necesita ayuda adicional en lectura.', context: 'Communicating literacy needs to support home learning' },
+  { english: 'Attendance', spanish: 'Asistencia', context: 'Tracked by every school — directly impacts student learning' },
+  { english: 'We are concerned about your child\'s progress.', spanish: 'Estamos preocupados por el progreso de su hijo.', context: 'Opening a constructive conversation about academic concerns' },
+  { english: 'Does your child mention school at home?', spanish: '¿Su hijo habla de la escuela en casa?', context: 'Indicator of school engagement and well-being' },
+  { english: 'Classroom behavior', spanish: 'Comportamiento en clase', context: 'Standard conference topic alongside grades' },
+  { english: 'I would like to schedule another meeting.', spanish: 'Me gustaría programar otra reunión.', context: 'Follow-up meetings for continued family communication' },
+  { english: 'Do you have any questions or concerns?', spanish: '¿Tiene preguntas o inquietudes?', context: 'Inviting families to voice concerns — two-way conference' },
+];
+
+const ed3Phrases: KeyPhrase[] = [
+  { english: 'Individualized Education Program', spanish: 'Programa de Educación Individualizado (IEP)', context: 'Legally binding document for students with disabilities' },
+  { english: 'Your child qualifies for special services.', spanish: 'Su hijo califica para servicios especiales.', context: 'Key message that opens IEP planning process' },
+  { english: 'We will evaluate your child.', spanish: 'Vamos a evaluar a su hijo.', context: 'Families must be informed before formal assessment begins' },
+  { english: 'Accommodations', spanish: 'Adaptaciones', context: 'Adjustments supporting a student\'s access to learning' },
+  { english: 'You have the right to attend all IEP meetings.', spanish: 'Usted tiene derecho a asistir a todas las reuniones del IEP.', context: 'Legal protection under IDEA for parental participation' },
+  { english: 'Do you agree with this plan?', spanish: '¿Está de acuerdo con este plan?', context: 'Parental consent required before implementing an IEP' },
+  { english: 'Speech therapy', spanish: 'Terapia del habla', context: 'Most common related service provided under an IEP' },
+  { english: 'Your signature is required to proceed.', spanish: 'Su firma es requerida para continuar.', context: 'Written parental consent required before services begin' },
+  { english: 'Your child will be reassessed annually.', spanish: 'Su hijo será reevaluado anualmente.', context: 'Annual reviews keep IEP goals appropriate to student progress' },
+  { english: 'Do you need an interpreter at the next meeting?', spanish: '¿Necesita un intérprete en la próxima reunión?', context: 'Schools must provide language access for IEP meetings' },
+];
+
+const ed4Phrases: KeyPhrase[] = [
+  { english: 'Your child was involved in an incident today.', spanish: 'Su hijo estuvo involucrado en un incidente hoy.', context: 'Factual language for reporting behavioral incidents' },
+  { english: 'Suspension', spanish: 'Suspensión', context: 'Temporary removal from school — distinct from expulsion' },
+  { english: 'Can you come to school to discuss this?', spanish: '¿Puede venir a la escuela a hablar sobre esto?', context: 'In-person dialogue for serious behavioral concerns' },
+  { english: 'This behavior cannot be tolerated.', spanish: 'Este comportamiento no puede tolerarse.', context: 'Setting clear expectations that apply to all students' },
+  { english: 'Code of conduct', spanish: 'Código de conducta', context: 'Document families receive at the start of each school year' },
+  { english: 'Your child has been bullying other students.', spanish: 'Su hijo ha estado acosando a otros estudiantes.', context: 'Direct language distinguishing the child as causing harm' },
+  { english: 'Is everything okay at home?', spanish: '¿Todo está bien en casa?', context: 'Empathic question to understand context behind behavior' },
+  { english: 'Consequences', spanish: 'Consecuencias', context: 'Explaining the school\'s response to behavior clearly' },
+  { english: 'We want to support your child, not punish them.', spanish: 'Queremos apoyar a su hijo, no castigarlo.', context: 'Reframing discipline as a collaborative, supportive process' },
+  { english: 'What can we do together to help your child?', spanish: '¿Qué podemos hacer juntos para ayudar a su hijo?', context: 'Collaborative language positioning school and family as partners' },
+];
+
+const ed5Phrases: KeyPhrase[] = [
+  { english: 'Congratulations on your graduation.', spanish: 'Felicitaciones por su graduación.', context: 'Celebrating student achievement at ceremony or transition' },
+  { english: 'Your child has met all graduation requirements.', spanish: 'Su hijo ha cumplido con todos los requisitos de graduación.', context: 'Confirming eligibility for graduation' },
+  { english: 'Transcript', spanish: 'Expediente académico', context: 'Official record required for college applications and transfers' },
+  { english: 'Your child has been accepted to college.', spanish: 'Su hijo ha sido aceptado en la universidad.', context: 'Sharing college acceptance news with family' },
+  { english: 'Financial aid', spanish: 'Ayuda financiera', context: 'Assistance programs for families with college costs' },
+  { english: 'We are proud of your child\'s hard work.', spanish: 'Estamos orgullosos del trabajo duro de su hijo.', context: 'Acknowledging effort throughout the student\'s school career' },
+  { english: 'Your child will receive their diploma by mail.', spanish: 'Su hijo recibirá su diploma por correo.', context: 'Logistics communication for diploma delivery' },
+  { english: 'Career and technical education', spanish: 'Educación técnica y vocacional', context: 'Pathway option for students not pursuing a four-year college' },
+  { english: 'Does your child have a plan after graduation?', spanish: '¿Su hijo tiene un plan después de la graduación?', context: 'Transition planning conversation at end of high school' },
+  { english: 'We wish your child the best in the future.', spanish: 'Le deseamos lo mejor a su hijo en el futuro.', context: 'Closing message to family at end of school career' },
+];
+
+const con1Phrases: KeyPhrase[] = [
+  { english: 'Always wear your hard hat on this jobsite.', spanish: 'Siempre use su casco en esta obra.', context: 'Mandatory PPE rule communicated during site orientation' },
+  { english: 'Do not enter this area without authorization.', spanish: 'No entre a esta área sin autorización.', context: 'Restricted zone warning to prevent unauthorized access' },
+  { english: 'Report all injuries immediately.', spanish: 'Reporte todas las lesiones de inmediato.', context: 'OSHA-required incident reporting instruction' },
+  { english: 'Where is the nearest emergency exit?', spanish: '¿Dónde está la salida de emergencia más cercana?', context: 'Safety orientation question every worker must know' },
+  { english: 'This area is a fall hazard.', spanish: 'Esta área es un peligro de caída.', context: 'Fall protection warning in elevated work zones' },
+  { english: 'Toolbox talk', spanish: 'Charla de seguridad', context: 'Daily safety meeting held before work begins' },
+  { english: 'Keep this area clean and organized.', spanish: 'Mantenga esta área limpia y organizada.', context: 'Housekeeping instruction to prevent trip hazards' },
+  { english: 'Do not operate equipment without training.', spanish: 'No opere equipo sin capacitación.', context: 'Preventing untrained workers from using heavy machinery' },
+  { english: 'The foreman is in charge of site safety.', spanish: 'El capataz está a cargo de la seguridad en la obra.', context: 'Establishing the chain of command for safety issues' },
+  { english: 'Safety first on every job.', spanish: 'La seguridad es primero en todo trabajo.', context: 'Core safety culture message reinforced daily' },
+];
+
+const con2Phrases: KeyPhrase[] = [
+  { english: 'You must wear safety glasses at all times.', spanish: 'Debe usar lentes de seguridad en todo momento.', context: 'Eye protection requirement in hazardous work areas' },
+  { english: 'Put on your high-visibility vest before entering.', spanish: 'Póngase el chaleco de alta visibilidad antes de entrar.', context: 'Visibility requirement near active traffic or equipment' },
+  { english: 'Steel-toed boots are required on this site.', spanish: 'Se requieren botas con punta de acero en esta obra.', context: 'Foot protection standard for all construction workers' },
+  { english: 'Use gloves when handling sharp materials.', spanish: 'Use guantes al manejar materiales filosos.', context: 'Hand protection instruction for cut hazard prevention' },
+  { english: 'This equipment requires a spotter.', spanish: 'Este equipo requiere un observador.', context: 'Operational safety requirement for heavy machinery' },
+  { english: 'Inspect your harness before each use.', spanish: 'Inspeccione su arnés antes de cada uso.', context: 'Fall protection pre-use check procedure' },
+  { english: 'Respirator', spanish: 'Respirador', context: 'Required PPE when working with dust, fumes, or chemicals' },
+  { english: 'Hearing protection is required in this zone.', spanish: 'Se requiere protección auditiva en esta zona.', context: 'Noise hazard area requiring ear plugs or muffs' },
+  { english: 'Check that all guards are in place before starting.', spanish: 'Verifique que todas las guardas estén en su lugar antes de comenzar.', context: 'Machine guarding pre-operation safety check' },
+  { english: 'Do not modify or remove safety equipment.', spanish: 'No modifique ni retire el equipo de seguridad.', context: 'Preventing tampering with protective devices' },
+];
+
+const con3Phrases: KeyPhrase[] = [
+  { english: 'This chemical is hazardous.', spanish: 'Este químico es peligroso.', context: 'HAZCOM warning for workers handling chemicals' },
+  { english: 'Read the safety data sheet before use.', spanish: 'Lea la hoja de datos de seguridad antes de usar.', context: 'OSHA GHS requirement for chemical handling' },
+  { english: 'Do not mix these two chemicals.', spanish: 'No mezcle estos dos químicos.', context: 'Preventing dangerous chemical reactions on site' },
+  { english: 'Store flammable materials away from heat sources.', spanish: 'Almacene materiales inflamables lejos de fuentes de calor.', context: 'Fire prevention through proper chemical storage' },
+  { english: 'Wash your hands before eating or drinking.', spanish: 'Lávese las manos antes de comer o beber.', context: 'Preventing chemical ingestion from contaminated hands' },
+  { english: 'This area has been treated with chemicals.', spanish: 'Esta área ha sido tratada con químicos.', context: 'Site notification after chemical application' },
+  { english: 'Where is the nearest eye wash station?', spanish: '¿Dónde está la estación de lavado de ojos más cercana?', context: 'Emergency response question for chemical splash incidents' },
+  { english: 'Dispose of chemical waste properly.', spanish: 'Deseche los residuos químicos correctamente.', context: 'Environmental compliance and site safety rule' },
+  { english: 'Do not eat or drink near chemical storage.', spanish: 'No coma ni beba cerca del almacenamiento de químicos.', context: 'Contamination prevention near hazardous materials' },
+  { english: 'Poison', spanish: 'Veneno', context: 'Hazard label vocabulary for toxic substance identification' },
+];
+
+const con4Phrases: KeyPhrase[] = [
+  { english: 'Call 911 immediately.', spanish: 'Llame al 911 de inmediato.', context: 'First response instruction in any life-threatening emergency' },
+  { english: 'There has been an accident on site.', spanish: 'Hubo un accidente en la obra.', context: 'Reporting an incident to the foreman or safety officer' },
+  { english: 'Where is the first aid kit?', spanish: '¿Dónde está el botiquín de primeros auxilios?', context: 'Locating emergency medical supplies on site' },
+  { english: 'Do not move the injured worker.', spanish: 'No mueva al trabajador lesionado.', context: 'Preventing further injury after a fall or trauma' },
+  { english: 'Evacuate the building immediately.', spanish: 'Evacúe el edificio de inmediato.', context: 'Fire, gas leak, or structural emergency directive' },
+  { english: 'The emergency meeting point is outside the gate.', spanish: 'El punto de reunión de emergencia está fuera de la puerta.', context: 'Muster point location communicated during site orientation' },
+  { english: 'Someone is not breathing.', spanish: 'Alguien no está respirando.', context: 'Critical communication during a medical emergency' },
+  { english: 'Is anyone injured?', spanish: '¿Hay alguien lesionado?', context: 'First question asked after any site incident' },
+  { english: 'The foreman has been notified.', spanish: 'El capataz ha sido notificado.', context: 'Confirming the chain of command has been alerted' },
+  { english: 'Stay calm and follow instructions.', spanish: 'Manténgase calmado y siga las instrucciones.', context: 'Emergency crowd control and safety directive' },
+];
+
+const con5Phrases: KeyPhrase[] = [
+  { english: 'Today\'s toolbox talk is about fall protection.', spanish: 'La charla de seguridad de hoy es sobre protección contra caídas.', context: 'Opening a daily safety meeting on a specific topic' },
+  { english: 'Does anyone have a safety concern to raise?', spanish: '¿Alguien tiene alguna preocupación de seguridad que plantear?', context: 'Inviting worker feedback at the start of a safety talk' },
+  { english: 'This is a new safety procedure starting today.', spanish: 'Este es un nuevo procedimiento de seguridad a partir de hoy.', context: 'Introducing updated safety rules to the crew' },
+  { english: 'You are responsible for your team\'s safety.', spanish: 'Usted es responsable por la seguridad de su equipo.', context: 'Establishing supervisor accountability for crew safety' },
+  { english: 'Sign the attendance sheet after the safety talk.', spanish: 'Firme la hoja de asistencia después de la charla de seguridad.', context: 'OSHA compliance documentation for training records' },
+  { english: 'Never skip a safety step to save time.', spanish: 'Nunca omita un paso de seguridad para ahorrar tiempo.', context: 'Core safety culture message against shortcutting procedures' },
+  { english: 'What did we cover in last week\'s safety talk?', spanish: '¿Qué cubrimos en la charla de seguridad de la semana pasada?', context: 'Knowledge reinforcement through review at start of meeting' },
+  { english: 'If you see something unsafe, say something.', spanish: 'Si ve algo inseguro, dígalo.', context: 'Encouraging a speak-up safety culture on site' },
+  { english: 'All workers must attend the safety briefing.', spanish: 'Todos los trabajadores deben asistir a la sesión informativa de seguridad.', context: 'Mandatory participation rule for safety meetings' },
+  { english: 'Your supervisor will review the new procedures with you.', spanish: 'Su supervisor revisará los nuevos procedimientos con usted.', context: 'Directing workers to the appropriate person for further guidance' },
+];
+
+const ss1Phrases: KeyPhrase[] = [
+  { english: 'Welcome. How can I help you today?', spanish: 'Bienvenido. ¿En qué puedo ayudarle hoy?', context: 'Standard greeting at a social services intake desk' },
+  { english: 'Everything you share with us is confidential.', spanish: 'Todo lo que comparta con nosotros es confidencial.', context: 'Building trust and assuring privacy at intake' },
+  { english: 'You have the right to an interpreter.', spanish: 'Usted tiene derecho a un intérprete.', context: 'Required language access disclosure under Title VI' },
+  { english: 'Please fill out this intake form.', spanish: 'Por favor, complete este formulario de admisión.', context: 'Starting the client intake process' },
+  { english: 'Do you have any identification with you?', spanish: '¿Tiene alguna identificación con usted?', context: 'Document request during client registration' },
+  { english: 'What services are you looking for today?', spanish: '¿Qué servicios está buscando hoy?', context: 'Needs assessment at first point of contact' },
+  { english: 'We will connect you with the right services.', spanish: 'Le conectaremos con los servicios adecuados.', context: 'Reassuring the client during intake navigation' },
+  { english: 'Your information will not be shared without your consent.', spanish: 'Su información no será compartida sin su consentimiento.', context: 'HIPAA and privacy rights disclosure at intake' },
+  { english: 'Do you feel safe right now?', spanish: '¿Se siente seguro en este momento?', context: 'Safety screening question at initial client contact' },
+  { english: 'We are here to help you, not to judge you.', spanish: 'Estamos aquí para ayudarle, no para juzgarle.', context: 'Trauma-informed communication that reduces client shame' },
+];
+
+const ss2Phrases: KeyPhrase[] = [
+  { english: 'Are you currently housed?', spanish: '¿Tiene vivienda en este momento?', context: 'Immediate housing stability screening question' },
+  { english: 'We can help you find emergency shelter.', spanish: 'Podemos ayudarle a encontrar un refugio de emergencia.', context: 'Connecting clients to same-day emergency housing' },
+  { english: 'How long have you been without stable housing?', spanish: '¿Cuánto tiempo ha estado sin vivienda estable?', context: 'Housing history for prioritization in shelter programs' },
+  { english: 'Do you have children with you?', spanish: '¿Tiene hijos con usted?', context: 'Families with children are often prioritized for housing' },
+  { english: 'The shelter has space available tonight.', spanish: 'El refugio tiene espacio disponible esta noche.', context: 'Real-time availability communication for emergency housing' },
+  { english: 'You will need to follow shelter rules.', spanish: 'Deberá seguir las reglas del refugio.', context: 'Setting expectations before placement in a shelter program' },
+  { english: 'We can help you apply for rental assistance.', spanish: 'Podemos ayudarle a solicitar asistencia de renta.', context: 'Connecting clients to housing subsidy programs' },
+  { english: 'Have you been evicted recently?', spanish: '¿Ha sido desalojado recientemente?', context: 'Eviction history affects eligibility for some programs' },
+  { english: 'Here is the address of the nearest shelter.', spanish: 'Aquí está la dirección del refugio más cercano.', context: 'Providing immediate, actionable next steps to clients' },
+  { english: 'A case manager will follow up with you.', spanish: 'Un gestor de casos le dará seguimiento.', context: 'Setting expectations for ongoing housing support' },
+];
+
+const ss3Phrases: KeyPhrase[] = [
+  { english: 'Do you currently receive any government benefits?', spanish: '¿Recibe actualmente algún beneficio del gobierno?', context: 'Benefits history check to prevent duplication and identify gaps' },
+  { english: 'You may qualify for food assistance.', spanish: 'Puede calificar para asistencia de alimentos.', context: 'Introducing SNAP or food bank eligibility to a client' },
+  { english: 'What is your household income?', spanish: '¿Cuál es el ingreso de su hogar?', context: 'Income verification required for benefit eligibility determination' },
+  { english: 'How many people live in your household?', spanish: '¿Cuántas personas viven en su hogar?', context: 'Household size is a key factor in benefits calculations' },
+  { english: 'We can help you apply for Medi-Cal.', spanish: 'Podemos ayudarle a solicitar Medi-Cal.', context: 'Connecting uninsured clients to state health coverage' },
+  { english: 'You will need to renew your benefits annually.', spanish: 'Deberá renovar sus beneficios anualmente.', context: 'Preventing benefit loss due to missed renewal deadlines' },
+  { english: 'Do you have a Social Security number?', spanish: '¿Tiene número de Seguro Social?', context: 'Required for most federal and state benefit applications' },
+  { english: 'Your application is being processed.', spanish: 'Su solicitud está siendo procesada.', context: 'Status update to reduce client anxiety after applying' },
+  { english: 'Here is a list of documents you will need.', spanish: 'Aquí hay una lista de documentos que necesitará.', context: 'Preparation guidance before a benefits appointment' },
+  { english: 'You have been approved for benefits.', spanish: 'Ha sido aprobado para recibir beneficios.', context: 'Communicating a positive eligibility determination' },
+];
+
+const ss4Phrases: KeyPhrase[] = [
+  { english: 'You are safe here.', spanish: 'Está seguro aquí.', context: 'Immediate safety reassurance for DV survivors' },
+  { english: 'Do you feel safe at home?', spanish: '¿Se siente seguro en casa?', context: 'Routine DV screening question in social services settings' },
+  { english: 'Has someone hurt you or threatened you?', spanish: '¿Alguien le ha lastimado o amenazado?', context: 'Direct DV disclosure question requiring careful delivery' },
+  { english: 'We can help you create a safety plan.', spanish: 'Podemos ayudarle a crear un plan de seguridad.', context: 'Practical safety planning for clients in dangerous situations' },
+  { english: 'The hotline number is available 24 hours.', spanish: 'El número de la línea de ayuda está disponible las 24 horas.', context: 'Providing DV crisis hotline contact information' },
+  { english: 'You are not alone.', spanish: 'No está solo.', context: 'Emotional support statement that reduces isolation for survivors' },
+  { english: 'We can help you find emergency shelter tonight.', spanish: 'Podemos ayudarle a encontrar un refugio de emergencia esta noche.', context: 'Immediate safety response for survivors in crisis' },
+  { english: 'This information will be kept private.', spanish: 'Esta información se mantendrá privada.', context: 'Confidentiality assurance critical for DV disclosures' },
+  { english: 'You have legal rights and options.', spanish: 'Usted tiene derechos y opciones legales.', context: 'Empowering survivors with knowledge of restraining orders and legal aid' },
+  { english: 'There is no excuse for violence.', spanish: 'No hay excusa para la violencia.', context: 'Clear statement that removes self-blame from survivors' },
+];
+
+const ss5Phrases: KeyPhrase[] = [
+  { english: 'We are closing your case today.', spanish: 'Estamos cerrando su caso hoy.', context: 'Formal case closure notification to the client' },
+  { english: 'Have your needs been met?', spanish: '¿Han sido satisfechas sus necesidades?', context: 'Final needs assessment before closing a case' },
+  { english: 'Here is a summary of the services you received.', spanish: 'Aquí hay un resumen de los servicios que recibió.', context: 'Documentation review at case closure meeting' },
+  { english: 'You can contact us again if you need help.', spanish: 'Puede contactarnos nuevamente si necesita ayuda.', context: 'Open-door message encouraging clients to return if needed' },
+  { english: 'We will do a 30-day follow-up call.', spanish: 'Haremos una llamada de seguimiento a los 30 días.', context: 'Post-closure check-in to verify continued stability' },
+  { english: 'Do you have a support system in place?', spanish: '¿Tiene una red de apoyo establecida?', context: 'Ensuring the client has resources after case closure' },
+  { english: 'Here is a list of community resources.', spanish: 'Aquí hay una lista de recursos comunitarios.', context: 'Transition planning resource packet given at closure' },
+  { english: 'It has been a pleasure working with you.', spanish: 'Ha sido un placer trabajar con usted.', context: 'Professional closing statement that affirms the client\'s dignity' },
+  { english: 'Your case has been resolved successfully.', spanish: 'Su caso ha sido resuelto exitosamente.', context: 'Positive outcome statement reinforcing the client\'s progress' },
+  { english: 'May we contact you for a follow-up in 30 days?', spanish: '¿Podemos contactarle para un seguimiento en 30 días?', context: 'Consent request for post-closure outreach' },
+];
+
+const mh1Phrases: KeyPhrase[] = [
+  { english: 'I am here to listen, not to judge.', spanish: 'Estoy aquí para escuchar, no para juzgar.', context: 'Establishing psychological safety at the start of an assessment' },
+  { english: 'Are you having thoughts of harming yourself?', spanish: '¿Está teniendo pensamientos de hacerse daño?', context: 'Direct suicide risk screening question' },
+  { english: 'You are not alone in what you are feeling.', spanish: 'No está solo en lo que siente.', context: 'Normalizing distress to reduce shame during crisis' },
+  { english: 'Everything you tell me is confidential.', spanish: 'Todo lo que me diga es confidencial.', context: 'Privacy assurance that encourages honest disclosure' },
+  { english: 'How long have you been feeling this way?', spanish: '¿Cuánto tiempo lleva sintiéndose así?', context: 'Duration question for initial mental health assessment' },
+  { english: 'Do you have a safety plan?', spanish: '¿Tiene un plan de seguridad?', context: 'Checking for existing crisis planning with at-risk clients' },
+  { english: 'I want to make sure you are safe.', spanish: 'Quiero asegurarme de que esté seguro.', context: 'Safety-focused language during an initial mental health assessment' },
+  { english: 'Have you ever received mental health services before?', spanish: '¿Ha recibido servicios de salud mental antes?', context: 'Treatment history question in an initial assessment' },
+  { english: 'How would you describe your mood today?', spanish: '¿Cómo describiría su estado de ánimo hoy?', context: 'Open-ended mood assessment question' },
+  { english: 'We are going to figure this out together.', spanish: 'Vamos a resolver esto juntos.', context: 'Collaborative framing that builds therapeutic alliance' },
+];
+
+const mh2Phrases: KeyPhrase[] = [
+  { english: 'Have you been feeling sad or hopeless lately?', spanish: '¿Ha estado sintiéndose triste o sin esperanza últimamente?', context: 'Depression screening question from PHQ-9' },
+  { english: 'Have you lost interest in things you used to enjoy?', spanish: '¿Ha perdido interés en cosas que antes disfrutaba?', context: 'Anhedonia screening — core depression symptom' },
+  { english: 'Are you having trouble sleeping?', spanish: '¿Tiene problemas para dormir?', context: 'Sleep disturbance screening for depression and anxiety' },
+  { english: 'Do you feel nervous or anxious most of the time?', spanish: '¿Se siente nervioso o ansioso la mayor parte del tiempo?', context: 'Generalized anxiety screening question' },
+  { english: 'Have you had panic attacks?', spanish: '¿Ha tenido ataques de pánico?', context: 'Panic disorder screening question' },
+  { english: 'On a scale of 1 to 10, how is your mood today?', spanish: 'En una escala del 1 al 10, ¿cómo está su estado de ánimo hoy?', context: 'Standardized mood tracking tool used in ongoing sessions' },
+  { english: 'Have you been able to eat regularly?', spanish: '¿Ha podido comer regularmente?', context: 'Appetite and self-care assessment in depression screening' },
+  { english: 'Do you feel overwhelmed by daily tasks?', spanish: '¿Se siente abrumado por las tareas diarias?', context: 'Functional impairment screening in depression and anxiety' },
+  { english: 'How long have these feelings been going on?', spanish: '¿Cuánto tiempo llevan estos sentimientos?', context: 'Duration assessment to distinguish adjustment from clinical disorder' },
+  { english: 'You showed a lot of courage coming here today.', spanish: 'Mostró mucho valor al venir aquí hoy.', context: 'Affirming the client for seeking help — reduces stigma' },
+];
+
+const mh3Phrases: KeyPhrase[] = [
+  { english: 'I want to understand your experience.', spanish: 'Quiero entender su experiencia.', context: 'Trauma-informed opening that centers the client\'s perspective' },
+  { english: 'You do not have to share anything you are not ready to share.', spanish: 'No tiene que compartir nada que no esté listo para compartir.', context: 'Respecting client pace in trauma-informed care' },
+  { english: 'What happened to you is not your fault.', spanish: 'Lo que le pasó no es su culpa.', context: 'Core trauma-informed statement that removes self-blame' },
+  { english: 'Have you experienced a traumatic event in your life?', spanish: '¿Ha experimentado un evento traumático en su vida?', context: 'Trauma history screening in an intake or assessment setting' },
+  { english: 'Your feelings are a normal response to what you experienced.', spanish: 'Sus sentimientos son una respuesta normal a lo que vivió.', context: 'Normalizing trauma reactions as part of psychoeducation' },
+  { english: 'We will go at a pace that is comfortable for you.', spanish: 'Iremos a un ritmo que sea cómodo para usted.', context: 'Trauma-informed pacing that gives control to the client' },
+  { english: 'Do you feel safe in your current environment?', spanish: '¿Se siente seguro en su entorno actual?', context: 'Present-moment safety check throughout trauma-informed care' },
+  { english: 'You have survived very difficult things.', spanish: 'Ha sobrevivido cosas muy difíciles.', context: 'Strengths-based reframe acknowledging resilience' },
+  { english: 'It takes courage to talk about painful experiences.', spanish: 'Se necesita valor para hablar sobre experiencias dolorosas.', context: 'Affirming the client for engaging in trauma work' },
+  { english: 'I believe what you are telling me.', spanish: 'Creo lo que me está diciendo.', context: 'Validation statement essential in trauma-informed practice' },
+];
+
+const mh4Phrases: KeyPhrase[] = [
+  { english: 'Are you thinking about suicide right now?', spanish: '¿Está pensando en el suicidio en este momento?', context: 'Direct crisis assessment question during acute intervention' },
+  { english: 'Do you have a plan to hurt yourself?', spanish: '¿Tiene un plan para hacerse daño?', context: 'Lethality assessment question for suicide risk' },
+  { english: 'I am going to stay with you right now.', spanish: 'Voy a quedarme con usted en este momento.', context: 'Crisis de-escalation through physical presence and support' },
+  { english: 'We need to get you immediate help.', spanish: 'Necesitamos conseguirle ayuda inmediata.', context: 'Directing to emergency services during a mental health crisis' },
+  { english: 'You called the right place.', spanish: 'Llamó al lugar correcto.', context: 'Validating the client\'s decision to reach out during a crisis' },
+  { english: 'Can you tell me where you are right now?', spanish: '¿Puede decirme dónde está en este momento?', context: 'Location question needed to dispatch emergency services' },
+  { english: 'Is there someone who can be with you?', spanish: '¿Hay alguien que pueda estar con usted?', context: 'Safety planning through social support during a crisis' },
+  { english: 'Let\'s make a plan to keep you safe tonight.', spanish: 'Hagamos un plan para mantenerlo seguro esta noche.', context: 'Short-term safety planning during crisis intervention' },
+  { english: 'The crisis line is available 24 hours a day.', spanish: 'La línea de crisis está disponible las 24 horas del día.', context: 'Connecting client to after-hours crisis support resources' },
+  { english: 'You matter, and your life has value.', spanish: 'Usted importa, y su vida tiene valor.', context: 'Affirmation of the client\'s worth during suicidal crisis' },
+];
+
+const mh5Phrases: KeyPhrase[] = [
+  { english: 'How have you been feeling since our last session?', spanish: '¿Cómo se ha sentido desde nuestra última sesión?', context: 'Check-in opening that tracks progress between appointments' },
+  { english: 'What coping strategies have worked for you?', spanish: '¿Qué estrategias de afrontamiento le han funcionado?', context: 'Building on client strengths in recovery planning' },
+  { english: 'Recovery is a journey, not a destination.', spanish: 'La recuperación es un camino, no un destino.', context: 'Psychoeducation that reframes setbacks as part of the process' },
+  { english: 'Let\'s set a goal for this week.', spanish: 'Establezcamos una meta para esta semana.', context: 'Collaborative goal-setting in a wellness plan session' },
+  { english: 'What does a good day look like for you?', spanish: '¿Cómo se ve un buen día para usted?', context: 'Identifying baseline wellbeing markers for treatment planning' },
+  { english: 'Have you been taking your medication as prescribed?', spanish: '¿Ha estado tomando sus medicamentos como se le indicó?', context: 'Medication adherence check in a recovery follow-up session' },
+  { english: 'What support do you have outside of these sessions?', spanish: '¿Qué apoyo tiene fuera de estas sesiones?', context: 'Assessing social support network in a wellness plan' },
+  { english: 'You have made a lot of progress.', spanish: 'Ha progresado mucho.', context: 'Affirming client gains to reinforce motivation in recovery' },
+  { english: 'What would help you stay on track?', spanish: '¿Qué le ayudaría a mantenerse en el camino correcto?', context: 'Client-centered question to identify relapse prevention strategies' },
+  { english: 'I am proud of the work you have done.', spanish: 'Estoy orgulloso del trabajo que ha realizado.', context: 'Closing affirmation in a wellness or recovery planning session' },
+];
+
 export const CERT_TRACKS: CertTrack[] = [
   {
     id: 'healthcare',
@@ -1394,11 +1726,11 @@ export const CERT_TRACKS: CertTrack[] = [
     icon: '🏥',
     color: 'from-blue-600 to-blue-800',
     modules: [
-      { id: 1, title: 'Patient Intake & Vitals', questions: healthcareQuestions },
-      { id: 2, title: 'Symptoms & Pain Assessment', questions: healthcareModule2Questions },
-      { id: 3, title: 'Medications & Instructions', questions: healthcareModule3Questions },
-      { id: 4, title: 'Procedures & Consent', questions: healthcareModule4Questions },
-      { id: 5, title: 'Discharge & Follow-Up', questions: healthcareModule5Questions },
+      { id: 1, title: 'Patient Intake & Vitals', questions: healthcareQuestions, keyPhrases: hc1Phrases },
+      { id: 2, title: 'Symptoms & Pain Assessment', questions: healthcareModule2Questions, keyPhrases: hc2Phrases },
+      { id: 3, title: 'Medications & Instructions', questions: healthcareModule3Questions, keyPhrases: hc3Phrases },
+      { id: 4, title: 'Procedures & Consent', questions: healthcareModule4Questions, keyPhrases: hc4Phrases },
+      { id: 5, title: 'Discharge & Follow-Up', questions: healthcareModule5Questions, keyPhrases: hc5Phrases },
     ],
   },
   {
@@ -1408,11 +1740,11 @@ export const CERT_TRACKS: CertTrack[] = [
     icon: '🎓',
     color: 'from-green-600 to-green-800',
     modules: [
-      { id: 1, title: 'Enrollment & Registration', questions: educationQuestions },
-      { id: 2, title: 'Parent-Teacher Conferences', questions: educationModule2Questions },
-      { id: 3, title: 'Special Education & IEPs', questions: educationModule3Questions },
-      { id: 4, title: 'Student Behavior & Discipline', questions: educationModule4Questions },
-      { id: 5, title: 'Graduation & Transitions', questions: educationModule5Questions },
+      { id: 1, title: 'Enrollment & Registration', questions: educationQuestions, keyPhrases: ed1Phrases },
+      { id: 2, title: 'Parent-Teacher Conferences', questions: educationModule2Questions, keyPhrases: ed2Phrases },
+      { id: 3, title: 'Special Education & IEPs', questions: educationModule3Questions, keyPhrases: ed3Phrases },
+      { id: 4, title: 'Student Behavior & Discipline', questions: educationModule4Questions, keyPhrases: ed4Phrases },
+      { id: 5, title: 'Graduation & Transitions', questions: educationModule5Questions, keyPhrases: ed5Phrases },
     ],
   },
   {
@@ -1422,11 +1754,11 @@ export const CERT_TRACKS: CertTrack[] = [
     icon: '\u{1F3D7}\uFE0F',
     color: 'from-orange-600 to-orange-800',
     modules: [
-      { id: 1, title: 'Jobsite Safety Basics', questions: constructionQuestions },
-      { id: 2, title: 'PPE & Equipment', questions: ppeQuestions },
-      { id: 3, title: 'Hazard Communication', questions: hazardCommQuestions },
-      { id: 4, title: 'Emergency Procedures', questions: emergencyProceduresQuestions },
-      { id: 5, title: 'Toolbox Talks & Supervision', questions: toolboxTalksQuestions },
+      { id: 1, title: 'Jobsite Safety Basics', questions: constructionQuestions, keyPhrases: con1Phrases },
+      { id: 2, title: 'PPE & Equipment', questions: ppeQuestions, keyPhrases: con2Phrases },
+      { id: 3, title: 'Hazard Communication', questions: hazardCommQuestions, keyPhrases: con3Phrases },
+      { id: 4, title: 'Emergency Procedures', questions: emergencyProceduresQuestions, keyPhrases: con4Phrases },
+      { id: 5, title: 'Toolbox Talks & Supervision', questions: toolboxTalksQuestions, keyPhrases: con5Phrases },
     ],
   },
   {
@@ -1436,11 +1768,11 @@ export const CERT_TRACKS: CertTrack[] = [
     icon: '🤝',
     color: 'from-teal-600 to-teal-800',
     modules: [
-      { id: 1, title: 'Client Intake & Rights', questions: socialServicesClientIntakeQuestions },
-      { id: 2, title: 'Housing & Shelter Services', questions: socialServicesHousingQuestions },
-      { id: 3, title: 'Benefits & Eligibility', questions: socialServicesBenefitsQuestions },
-      { id: 4, title: 'Domestic Violence Resources', questions: socialServicesDVQuestions },
-      { id: 5, title: 'Case Closure & Follow-Up', questions: socialServicesCaseClosureQuestions },
+      { id: 1, title: 'Client Intake & Rights', questions: socialServicesClientIntakeQuestions, keyPhrases: ss1Phrases },
+      { id: 2, title: 'Housing & Shelter Services', questions: socialServicesHousingQuestions, keyPhrases: ss2Phrases },
+      { id: 3, title: 'Benefits & Eligibility', questions: socialServicesBenefitsQuestions, keyPhrases: ss3Phrases },
+      { id: 4, title: 'Domestic Violence Resources', questions: socialServicesDVQuestions, keyPhrases: ss4Phrases },
+      { id: 5, title: 'Case Closure & Follow-Up', questions: socialServicesCaseClosureQuestions, keyPhrases: ss5Phrases },
     ],
   },
   {
@@ -1450,11 +1782,11 @@ export const CERT_TRACKS: CertTrack[] = [
     icon: '🧠',
     color: 'from-rose-600 to-rose-800',
     modules: [
-      { id: 1, title: 'Initial Assessment & Safety', questions: mentalHealthQuestions },
-      { id: 2, title: 'Depression & Anxiety Screening', questions: mentalHealthQuestions.map(q => ({ ...q })) },
-      { id: 3, title: 'Trauma-Informed Approaches', questions: mentalHealthQuestions.map(q => ({ ...q })) },
-      { id: 4, title: 'Crisis Intervention', questions: mentalHealthQuestions.map(q => ({ ...q })) },
-      { id: 5, title: 'Recovery & Wellness Plans', questions: mentalHealthQuestions.map(q => ({ ...q })) },
+      { id: 1, title: 'Initial Assessment & Safety', questions: mentalHealthQuestions, keyPhrases: mh1Phrases },
+      { id: 2, title: 'Depression & Anxiety Screening', questions: mentalHealthQuestions.map(q => ({ ...q })), keyPhrases: mh2Phrases },
+      { id: 3, title: 'Trauma-Informed Approaches', questions: mentalHealthQuestions.map(q => ({ ...q })), keyPhrases: mh3Phrases },
+      { id: 4, title: 'Crisis Intervention', questions: mentalHealthQuestions.map(q => ({ ...q })), keyPhrases: mh4Phrases },
+      { id: 5, title: 'Recovery & Wellness Plans', questions: mentalHealthQuestions.map(q => ({ ...q })), keyPhrases: mh5Phrases },
     ],
   },
 ];
