@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Volume2, Loader2, ChevronRight, BookOpen } from 'lucide-react';
+import { Volume2, Loader2, ChevronRight, BookOpen, Layers } from 'lucide-react';
 import { KeyPhrase } from '../data/certificateData';
 import { playAudioFromGesture, unlockAudioContext } from '../utils/speech';
+import FlashcardDeck from './FlashcardDeck';
 
 interface Props {
   moduleTitle: string;
@@ -13,12 +14,25 @@ interface Props {
 
 export default function QuizPhrasePreview({ moduleTitle, trackTitle, keyPhrases, onReady, onClose }: Props) {
   const [playing, setPlaying] = useState<number | null>(null);
+  const [showFlashcards, setShowFlashcards] = useState(false);
 
   async function handleSpeak(index: number, spanish: string) {
     unlockAudioContext();
     setPlaying(index);
     playAudioFromGesture(spanish, 'spanish');
     setTimeout(() => setPlaying(prev => (prev === index ? null : prev)), 3000);
+  }
+
+  if (showFlashcards) {
+    return (
+      <FlashcardDeck
+        moduleTitle={moduleTitle}
+        trackTitle={trackTitle}
+        keyPhrases={keyPhrases}
+        onStartQuiz={onReady}
+        onBack={() => setShowFlashcards(false)}
+      />
+    );
   }
 
   return (
@@ -45,7 +59,7 @@ export default function QuizPhrasePreview({ moduleTitle, trackTitle, keyPhrases,
           </p>
         </div>
 
-        <div className="px-4 pb-4 overflow-y-auto max-h-[55vh] space-y-2.5">
+        <div className="px-4 pb-4 overflow-y-auto max-h-[50vh] space-y-2.5">
           {keyPhrases.map((phrase, i) => (
             <div
               key={i}
@@ -79,7 +93,14 @@ export default function QuizPhrasePreview({ moduleTitle, trackTitle, keyPhrases,
           ))}
         </div>
 
-        <div className="px-6 pb-6 pt-3 border-t border-white/8">
+        <div className="px-6 pb-6 pt-3 border-t border-white/8 space-y-3">
+          <button
+            onClick={() => setShowFlashcards(true)}
+            className="w-full py-3 rounded-xl bg-white/6 hover:bg-white/10 border border-white/10 text-slate-200 font-semibold transition-all flex items-center justify-center gap-2 text-sm"
+          >
+            <Layers className="w-4 h-4 text-blue-400" />
+            Practice with Flashcards
+          </button>
           <button
             onClick={onReady}
             className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors flex items-center justify-center gap-2 text-sm"
