@@ -756,6 +756,69 @@ const constructionQuestions: QuizQuestion[] = [
   },
 ];
 
+const ppeQuestions: QuizQuestion[] = [
+  {
+    question: '"Equipo de protección personal" means:',
+    options: ['Power tools', 'Safety training', 'Personal protective equipment', 'Work uniform'],
+    correctIndex: 2,
+    explanation: "'Equipo de protección personal' = personal protective equipment (PPE). This umbrella term covers all gear worn to minimize exposure to hazards on the job site.",
+  },
+  {
+    question: "How do you say 'You must wear safety glasses'?",
+    options: ['Se recomienda usar lentes de seguridad', 'Debe usar lentes de seguridad', 'Puede usar lentes de seguridad', 'Los lentes de seguridad son opcionales'],
+    correctIndex: 1,
+    explanation: "'Debe usar lentes de seguridad' = You must wear safety glasses. Eye injuries are among the most preventable on construction sites when proper protection is enforced.",
+  },
+  {
+    question: "Which phrase means 'Your harness must be properly secured'?",
+    options: ['Su arnés debe estar disponible siempre', 'Su arnés debe estar bien asegurado', 'Su arnés debe ser inspeccionado mensualmente', 'Su arnés debe ser reemplazado anualmente'],
+    correctIndex: 1,
+    explanation: "'Su arnés debe estar bien asegurado' = Your harness must be properly secured. An improperly secured harness provides no fall protection and creates a false sense of safety.",
+  },
+  {
+    question: '"Guantes resistentes a cortes" means:',
+    options: ['Heat-resistant gloves', 'Cut-resistant gloves', 'Waterproof gloves', 'Chemical-resistant gloves'],
+    correctIndex: 1,
+    explanation: "'Guantes resistentes a cortes' = cut-resistant gloves. Hand lacerations are one of the most frequent construction injuries; the right glove type is critical.",
+  },
+  {
+    question: "How do you ask 'Is your equipment inspected before each use?'",
+    options: ['¿Su equipo es nuevo?', '¿Su equipo es inspeccionado antes de cada uso?', '¿Su equipo está asegurado?', '¿Su equipo tiene garantía?'],
+    correctIndex: 1,
+    explanation: "'¿Su equipo es inspeccionado antes de cada uso?' = Is your equipment inspected before each use? Pre-use inspections catch defects before they cause injuries or fatalities.",
+  },
+  {
+    question: "Which phrase means 'Damaged equipment must be removed from service'?",
+    options: ['El equipo dañado debe ser reparado pronto', 'El equipo dañado debe ser retirado del servicio', 'El equipo dañado puede usarse con cuidado', 'El equipo dañado debe ser reportado mensualmente'],
+    correctIndex: 1,
+    explanation: "'El equipo dañado debe ser retirado del servicio' = Damaged equipment must be removed from service. Using compromised PPE can be more dangerous than using none at all.",
+  },
+  {
+    question: '"Protección auditiva" means:',
+    options: ['Eye protection', 'Head protection', 'Hearing protection', 'Foot protection'],
+    correctIndex: 2,
+    explanation: "'Protección auditiva' = hearing protection. Prolonged noise exposure above 85 dB causes permanent hearing loss — earplugs and earmuffs are essential in loud environments.",
+  },
+  {
+    question: "How do you say 'Wear steel-toed boots on this site'?",
+    options: ['Use botas cómodas en esta obra', 'Use botas con punta de acero en esta obra', 'Use botas impermeables en esta obra', 'Use botas altas en esta obra'],
+    correctIndex: 1,
+    explanation: "'Use botas con punta de acero en esta obra' = Wear steel-toed boots on this site. Steel-toed footwear protects against crushing injuries from falling objects and heavy equipment.",
+  },
+  {
+    question: "Which phrase asks 'Do you need replacement equipment?'",
+    options: ['¿Su equipo está guardado correctamente?', '¿Necesita equipo de reemplazo?', '¿Su equipo fue aprobado?', '¿Dónde guarda su equipo?'],
+    correctIndex: 1,
+    explanation: "'¿Necesita equipo de reemplazo?' = Do you need replacement equipment? Workers should never continue using worn or broken PPE; replacement must be immediate.",
+  },
+  {
+    question: "How do you say 'Never operate equipment without proper training'?",
+    options: ['Nunca use equipo sin supervisión', 'Nunca opere equipo sin el entrenamiento adecuado', 'Nunca preste su equipo a otros', 'Nunca use equipo en condiciones húmedas'],
+    correctIndex: 1,
+    explanation: "'Nunca opere equipo sin el entrenamiento adecuado' = Never operate equipment without proper training. Untrained equipment operation is a leading cause of serious and fatal construction accidents.",
+  },
+];
+
 const socialServicesQuestions: QuizQuestion[] = [
   {
     question: "'¿Cómo puedo ayudarle hoy?' means:",
@@ -919,7 +982,7 @@ export const CERT_TRACKS: CertTrack[] = [
     color: 'from-orange-600 to-orange-800',
     modules: [
       { id: 1, title: 'Jobsite Safety Basics', questions: constructionQuestions },
-      { id: 2, title: 'PPE & Equipment', questions: constructionQuestions.map(q => ({ ...q })) },
+      { id: 2, title: 'PPE & Equipment', questions: ppeQuestions },
       { id: 3, title: 'Hazard Communication', questions: constructionQuestions.map(q => ({ ...q })) },
       { id: 4, title: 'Emergency Procedures', questions: constructionQuestions.map(q => ({ ...q })) },
       { id: 5, title: 'Toolbox Talks & Supervision', questions: constructionQuestions.map(q => ({ ...q })) },
