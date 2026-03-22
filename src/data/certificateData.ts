@@ -1197,6 +1197,69 @@ const socialServicesBenefitsQuestions: QuizQuestion[] = [
   },
 ];
 
+const socialServicesDVQuestions: QuizQuestion[] = [
+  {
+    question: "How do you ask 'Are you safe at home?'",
+    options: ['¿Le gusta su hogar?', '¿Está seguro en casa?', '¿Tiene problemas en casa?', '¿Necesita ayuda en casa?'],
+    correctIndex: 1,
+    explanation: "'¿Está seguro en casa?' = Are you safe at home? Safety screening is the first priority in any DV encounter. This direct question — asked privately and without judgment — gives clients an opening to disclose abuse that they may not have been able to name on their own.",
+  },
+  {
+    question: '"Orden de alejamiento" means:',
+    options: ['Custody order', 'Restraining order', 'Child support order', 'Protective custody'],
+    correctIndex: 1,
+    explanation: "'Orden de alejamiento' = restraining order / protective order. This legal tool prohibits an abuser from contacting or approaching the victim. Workers must use this term precisely — not 'orden de protección' interchangeably — as different jurisdictions may distinguish between the two.",
+  },
+  {
+    question: "How do you say 'You are not alone. Help is available'?",
+    options: ['Muchas personas pasan por lo mismo que usted', 'No está solo. Hay ayuda disponible', 'Debe buscar ayuda inmediatamente', 'Nadie más sabe lo que está pasando'],
+    correctIndex: 1,
+    explanation: "'No está solo. Hay ayuda disponible' = You are not alone. Help is available. Isolation is a core tactic of abusers. This phrase directly counters that tactic and is often the first step toward a survivor feeling safe enough to accept services.",
+  },
+  {
+    question: "Which phrase means 'Your safety is our priority'?",
+    options: ['Su caso es muy importante para nosotros', 'Su seguridad es nuestra prioridad', 'Su familia necesita saber lo que pasa', 'Su situación puede mejorar con tiempo'],
+    correctIndex: 1,
+    explanation: "'Su seguridad es nuestra prioridad' = Your safety is our priority. Stating this explicitly tells the survivor that the worker's role is not to preserve the relationship, involve the family, or minimize the situation — it is solely to protect them.",
+  },
+  {
+    question: '"Casa de acogida" means:',
+    options: ['Social services office', 'Safe house / domestic violence shelter', 'Community center', "Children's shelter"],
+    correctIndex: 1,
+    explanation: "'Casa de acogida' = safe house / domestic violence shelter. Knowing the correct term is essential when making referrals. Clients who don't understand what a 'casa de acogida' is may decline a referral that could save their lives.",
+  },
+  {
+    question: "How do you say 'You can leave when you are ready'?",
+    options: ['Debe irse ahora por su seguridad', 'Puede irse cuando esté listo', 'No tiene que irse si no quiere', 'Puede regresar a casa si promete que estará bien'],
+    correctIndex: 1,
+    explanation: "'Puede irse cuando esté listo' = You can leave when you are ready. Trauma-informed care means respecting autonomy. Pressuring survivors to leave before they are ready can increase danger. This phrase affirms their control over the decision.",
+  },
+  {
+    question: "Which phrase asks 'Is there a safe number where we can reach you?'",
+    options: ['¿Tiene teléfono propio?', '¿Hay un número seguro donde podamos contactarle?', '¿Con quién vive actualmente?', '¿Puede llamarnos usted?'],
+    correctIndex: 1,
+    explanation: "'¿Hay un número seguro donde podamos contactarle?' = Is there a safe number where we can reach you? Contacting a survivor at an unsafe number can put them at risk of discovery by their abuser. Workers must always confirm a communication channel that won't be monitored.",
+  },
+  {
+    question: '"Plan de seguridad" means:',
+    options: ['Legal strategy', 'Safety plan', 'Relocation plan', 'Financial plan'],
+    correctIndex: 1,
+    explanation: "'Plan de seguridad' = safety plan. A safety plan is a personalized, practical guide that helps a survivor prepare for dangerous situations — what to take, where to go, who to call. Workers must be able to name and explain this tool clearly.",
+  },
+  {
+    question: "How do you say 'The National DV Hotline is 1-800-799-7233'?",
+    options: ['Llame al 911 si está en peligro inmediato', 'La línea nacional de violencia doméstica es 1-800-799-7233', 'Llame a la policía si necesita ayuda', 'Llame a nuestra oficina para más información'],
+    correctIndex: 1,
+    explanation: "'La línea nacional de violencia doméstica es 1-800-799-7233' = The National DV Hotline is 1-800-799-7233. This hotline operates 24/7 in more than 200 languages. Every worker serving DV-affected clients must be able to provide this number clearly and correctly.",
+  },
+  {
+    question: "How do you ask 'Do you have children who are also in danger?'",
+    options: ['¿Sus hijos saben lo que está pasando?', '¿Tiene hijos que también están en peligro?', '¿Sus hijos están en la escuela ahora?', '¿Sus hijos pueden quedarse con familiares?'],
+    correctIndex: 1,
+    explanation: "'¿Tiene hijos que también están en peligro?' = Do you have children who are also in danger? Children in DV households face direct harm, trauma, and mandated reporting obligations. This question triggers both child welfare assessment and appropriate multi-service coordination.",
+  },
+];
+
 const mentalHealthQuestions: QuizQuestion[] = [
   {
     question: "'¿Cómo se ha sentido emocionalmente esta semana?' asks:",
@@ -1313,7 +1376,7 @@ export const CERT_TRACKS: CertTrack[] = [
       { id: 1, title: 'Client Intake & Rights', questions: socialServicesClientIntakeQuestions },
       { id: 2, title: 'Housing & Shelter Services', questions: socialServicesHousingQuestions },
       { id: 3, title: 'Benefits & Eligibility', questions: socialServicesBenefitsQuestions },
-      { id: 4, title: 'Domestic Violence Resources', questions: [] },
+      { id: 4, title: 'Domestic Violence Resources', questions: socialServicesDVQuestions },
       { id: 5, title: 'Case Closure & Follow-Up', questions: [] },
     ],
   },
