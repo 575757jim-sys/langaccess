@@ -504,6 +504,69 @@ const educationModule2Questions: QuizQuestion[] = [
   },
 ];
 
+const educationModule3Questions: QuizQuestion[] = [
+  {
+    question: '"IEP" stands for:',
+    options: ['Individual Education Program', 'Integrated English Program', 'Independent Evaluation Process', 'Instructional Enrichment Plan'],
+    correctIndex: 0,
+    explanation: "IEP = Individualized Education Program. It is a legally binding document outlining services and goals for students with disabilities.",
+  },
+  {
+    question: "How do you say 'Your child qualifies for special services'?",
+    options: ['Su hijo no necesita servicios especiales', 'Su hijo califica para servicios especiales', 'Su hijo ya recibe servicios especiales', 'Su hijo será evaluado para servicios'],
+    correctIndex: 1,
+    explanation: "'Califica para servicios especiales' = qualifies for special services. This is a key message that opens the door to IEP planning.",
+  },
+  {
+    question: "Which phrase means 'We will evaluate your child'?",
+    options: ['Vamos a ayudar a su hijo en clase', 'Vamos a evaluar a su hijo', 'Vamos a cambiar a su hijo de clase', 'Vamos a hablar con su hijo'],
+    correctIndex: 1,
+    explanation: "'Vamos a evaluar a su hijo' = We will evaluate your child. Families must be informed before any formal assessment begins.",
+  },
+  {
+    question: '"Adaptaciones" in special education means:',
+    options: ['Evaluations', 'Accommodations', 'Goals', 'Services'],
+    correctIndex: 1,
+    explanation: "'Adaptaciones' = accommodations. These are adjustments made to support a student's access to learning without changing the curriculum.",
+  },
+  {
+    question: "How do you say 'You have the right to attend all IEP meetings'?",
+    options: ['Usted debe asistir a todas las reuniones del IEP', 'Usted tiene derecho a asistir a todas las reuniones del IEP', 'Usted puede asistir a algunas reuniones del IEP', 'Usted será informado de las reuniones del IEP'],
+    correctIndex: 1,
+    explanation: "'Usted tiene derecho' = you have the right. Parental participation in IEP meetings is a legal protection under IDEA.",
+  },
+  {
+    question: "Which phrase asks 'Do you agree with this plan?'",
+    options: ['¿Entiende este plan?', '¿Tiene preguntas sobre este plan?', '¿Está de acuerdo con este plan?', '¿Ha visto este plan antes?'],
+    correctIndex: 2,
+    explanation: "'¿Está de acuerdo con este plan?' = Do you agree with this plan? Parental consent is required before implementing an IEP.",
+  },
+  {
+    question: '"Terapia del habla" means:',
+    options: ['Physical therapy', 'Occupational therapy', 'Speech therapy', 'Behavioral therapy'],
+    correctIndex: 2,
+    explanation: "'Terapia del habla' = speech therapy. It is one of the most common related services provided under an IEP.",
+  },
+  {
+    question: "How do you say 'Your signature is required to proceed'?",
+    options: ['Su firma es opcional', 'Su firma es requerida para continuar', 'Su firma fue recibida', 'Su firma no es necesaria hoy'],
+    correctIndex: 1,
+    explanation: "'Su firma es requerida para continuar' = Your signature is required to proceed. Written parental consent is legally required before services begin.",
+  },
+  {
+    question: "Which phrase means 'Your child will be reassessed annually'?",
+    options: ['Su hijo fue evaluado el año pasado', 'Su hijo será reevaluado anualmente', 'Su hijo no necesita más evaluaciones', 'Su hijo será evaluado en dos años'],
+    correctIndex: 1,
+    explanation: "'Será reevaluado anualmente' = will be reassessed annually. Annual reviews ensure IEP goals remain appropriate as the student progresses.",
+  },
+  {
+    question: "How do you ask 'Do you want an interpreter at the next meeting?'",
+    options: ['¿Habla inglés bien?', '¿Necesita un intérprete en la próxima reunión?', '¿Prefiere reuniones en español?', '¿Trae a alguien que traduzca?'],
+    correctIndex: 1,
+    explanation: "'¿Necesita un intérprete?' = Do you need an interpreter? Schools are required to provide language access so families can meaningfully participate in IEP meetings.",
+  },
+];
+
 const constructionQuestions: QuizQuestion[] = [
   {
     question: "How do you say 'Always wear your hard hat' in Spanish?",
@@ -717,7 +780,7 @@ export const CERT_TRACKS: CertTrack[] = [
     modules: [
       { id: 1, title: 'Enrollment & Registration', questions: educationQuestions },
       { id: 2, title: 'Parent-Teacher Conferences', questions: educationModule2Questions },
-      { id: 3, title: 'Special Education & IEPs', questions: educationQuestions.map(q => ({ ...q })) },
+      { id: 3, title: 'Special Education & IEPs', questions: educationModule3Questions },
       { id: 4, title: 'Student Behavior & Discipline', questions: educationQuestions.map(q => ({ ...q })) },
       { id: 5, title: 'Graduation & Transitions', questions: educationQuestions.map(q => ({ ...q })) },
     ],
