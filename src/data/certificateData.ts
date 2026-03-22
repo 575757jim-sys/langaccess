@@ -567,6 +567,69 @@ const educationModule3Questions: QuizQuestion[] = [
   },
 ];
 
+const educationModule4Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Your child was involved in an incident today'?",
+    options: ['Su hijo tuvo un buen día hoy', 'Su hijo estuvo involucrado en un incidente hoy', 'Su hijo faltó a clase hoy', 'Su hijo llegó tarde hoy'],
+    correctIndex: 1,
+    explanation: "'Involucrado en un incidente' = involved in an incident. Clear, factual language helps families understand what occurred without escalating emotions.",
+  },
+  {
+    question: '"Suspensión" in a school context means:',
+    options: ['Expulsion', 'Detention', 'Suspension', 'Warning'],
+    correctIndex: 2,
+    explanation: "'Suspensión' = suspension. It is a temporary removal from school, distinct from expulsion which is permanent.",
+  },
+  {
+    question: "How do you ask 'Can you come to school to discuss this?'",
+    options: ['¿Puede llamar a la escuela?', '¿Puede venir a la escuela a hablar sobre esto?', '¿Puede enviar un correo electrónico?', '¿Puede hablar con su hijo sobre esto?'],
+    correctIndex: 1,
+    explanation: "'¿Puede venir a la escuela a hablar sobre esto?' invites in-person dialogue, which is most effective for serious behavioral concerns.",
+  },
+  {
+    question: "Which phrase means 'This behavior cannot be tolerated'?",
+    options: ['Este comportamiento es inusual', 'Este comportamiento no puede tolerarse', 'Este comportamiento será monitoreado', 'Este comportamiento debe mejorar'],
+    correctIndex: 1,
+    explanation: "'No puede tolerarse' = cannot be tolerated. Setting clear expectations communicates that standards apply equally to all students.",
+  },
+  {
+    question: '"Código de conducta" means:',
+    options: ['Report card', 'Code of conduct', 'Dress code', 'Honor code'],
+    correctIndex: 1,
+    explanation: "'Código de conducta' = code of conduct. Families should receive and understand this document at the start of each school year.",
+  },
+  {
+    question: "How do you say 'Your child has been bullying other students'?",
+    options: ['Su hijo ha sido víctima de acoso escolar', 'Su hijo ha estado acosando a otros estudiantes', 'Su hijo reportó un caso de acoso', 'Su hijo presenció un caso de acoso'],
+    correctIndex: 1,
+    explanation: "'Acosando a otros estudiantes' = bullying other students. This phrasing is direct and distinguishes the child as the one causing harm, not experiencing it.",
+  },
+  {
+    question: "Which phrase asks 'Is everything okay at home?'",
+    options: ['¿Su hijo tiene problemas con sus amigos?', '¿Todo está bien en casa?', '¿Su hijo ha cambiado de comportamiento?', '¿Su hijo necesita apoyo emocional?'],
+    correctIndex: 1,
+    explanation: "'¿Todo está bien en casa?' shows empathy and opens space for families to share context that may be influencing behavior at school.",
+  },
+  {
+    question: '"Consecuencias" in a school discipline context means:',
+    options: ['Counseling sessions', 'Parent notifications', 'Consequences', 'Interventions'],
+    correctIndex: 2,
+    explanation: "'Consecuencias' = consequences. Explaining consequences clearly ensures families understand the school's response to behavior.",
+  },
+  {
+    question: "How do you say 'We want to support your child, not punish them'?",
+    options: ['Su hijo recibirá una suspensión', 'Queremos apoyar a su hijo, no castigarlo', 'Su hijo debe cambiar de escuela', 'Su hijo necesita disciplina más estricta'],
+    correctIndex: 1,
+    explanation: "'Queremos apoyar a su hijo, no castigarlo' reframes discipline conversations as collaborative. It builds trust and encourages family partnership.",
+  },
+  {
+    question: "How do you ask 'What can we do together to help your child?'",
+    options: ['¿Qué ha intentado usted en casa?', '¿Qué podemos hacer juntos para ayudar a su hijo?', '¿Qué dice su hijo que pasó?', '¿Qué espera usted de la escuela?'],
+    correctIndex: 1,
+    explanation: "'¿Qué podemos hacer juntos?' = What can we do together? This collaborative language positions the school and family as partners in the child's success.",
+  },
+];
+
 const constructionQuestions: QuizQuestion[] = [
   {
     question: "How do you say 'Always wear your hard hat' in Spanish?",
@@ -781,7 +844,7 @@ export const CERT_TRACKS: CertTrack[] = [
       { id: 1, title: 'Enrollment & Registration', questions: educationQuestions },
       { id: 2, title: 'Parent-Teacher Conferences', questions: educationModule2Questions },
       { id: 3, title: 'Special Education & IEPs', questions: educationModule3Questions },
-      { id: 4, title: 'Student Behavior & Discipline', questions: educationQuestions.map(q => ({ ...q })) },
+      { id: 4, title: 'Student Behavior & Discipline', questions: educationModule4Questions },
       { id: 5, title: 'Graduation & Transitions', questions: educationQuestions.map(q => ({ ...q })) },
     ],
   },
