@@ -252,6 +252,69 @@ const healthcareModule3Questions: QuizQuestion[] = [
   },
 ];
 
+const healthcareModule4Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'We need your signature here'?",
+    options: ['Necesitamos su seguro aquí', 'Necesitamos su firma aquí', 'Necesitamos su identificación aquí', 'Necesitamos su dirección aquí'],
+    correctIndex: 1,
+    explanation: "'Firma' = signature. Obtaining proper consent signatures is a legal requirement before procedures.",
+  },
+  {
+    question: '"Consentimiento informado" means:',
+    options: ['Medical history form', 'Insurance authorization', 'Informed consent', 'Discharge summary'],
+    correctIndex: 2,
+    explanation: "'Consentimiento informado' = informed consent. Patients must understand and agree to treatment before it begins.",
+  },
+  {
+    question: "How do you ask 'Do you understand the procedure?'",
+    options: ['¿Tiene preguntas sobre el seguro?', '¿Entiende el procedimiento?', '¿Conoce al médico?', '¿Ha tenido este procedimiento antes?'],
+    correctIndex: 1,
+    explanation: "'¿Entiende el procedimiento?' confirms patient comprehension — required for valid informed consent.",
+  },
+  {
+    question: "Which phrase means 'You have the right to refuse treatment'?",
+    options: ['Usted tiene que firmar este formulario', 'Usted tiene derecho a rechazar el tratamiento', 'Usted necesita una segunda opinión', 'Usted debe seguir las instrucciones del médico'],
+    correctIndex: 1,
+    explanation: "Patients must be informed of their right to refuse treatment — a fundamental patient rights principle.",
+  },
+  {
+    question: '"Anestesia local" means:',
+    options: ['General anesthesia', 'Local anesthesia', 'Sedation', 'Pain medication'],
+    correctIndex: 1,
+    explanation: "'Anestesia local' = local anesthesia. Clarifying anesthesia type reduces patient anxiety before procedures.",
+  },
+  {
+    question: "How do you say 'This procedure takes about 30 minutes'?",
+    options: ['Este procedimiento es muy sencillo', 'Este procedimiento tarda unos 30 minutos', 'Este procedimiento requiere hospitalización', 'Este procedimiento se hace mañana'],
+    correctIndex: 1,
+    explanation: "Setting time expectations with 'tarda unos 30 minutos' reduces patient anxiety and aids scheduling.",
+  },
+  {
+    question: "Which phrase asks 'Do you have any questions before we begin?'",
+    options: ['¿Está listo para empezar?', '¿Tiene preguntas antes de comenzar?', '¿Ha comido hoy?', '¿Trajo a alguien con usted?'],
+    correctIndex: 1,
+    explanation: "Inviting questions before a procedure ensures understanding and strengthens the consent process.",
+  },
+  {
+    question: '"Riesgos y beneficios" means:',
+    options: ['Rights and responsibilities', 'Risks and benefits', 'Rules and regulations', 'Results and recommendations'],
+    correctIndex: 1,
+    explanation: "'Riesgos y beneficios' = risks and benefits. Explaining both is a core component of informed consent.",
+  },
+  {
+    question: "How do you say 'Please fast after midnight'?",
+    options: ['Por favor, no beba agua después de medianoche', 'Por favor, no coma ni beba después de medianoche', 'Por favor, tome sus medicamentos a medianoche', 'Por favor, llegue antes de medianoche'],
+    correctIndex: 1,
+    explanation: "'No coma ni beba' (do not eat or drink) covers both food and liquids — critical pre-surgical instruction.",
+  },
+  {
+    question: "How do you ask 'Is there someone who can make decisions for you?'",
+    options: ['¿Tiene médico de cabecera?', '¿Hay alguien que pueda tomar decisiones por usted?', '¿Tiene poder notarial médico?', '¿Tiene seguro de vida?'],
+    correctIndex: 1,
+    explanation: "Identifying a surrogate decision-maker is essential when a patient cannot consent for themselves.",
+  },
+];
+
 const educationQuestions: QuizQuestion[] = [
   {
     question: "How do you say 'Welcome to our school' in Spanish?",
@@ -515,7 +578,7 @@ export const CERT_TRACKS: CertTrack[] = [
       { id: 1, title: 'Patient Intake & Vitals', questions: healthcareQuestions },
       { id: 2, title: 'Symptoms & Pain Assessment', questions: healthcareModule2Questions },
       { id: 3, title: 'Medications & Instructions', questions: healthcareModule3Questions },
-      { id: 4, title: 'Procedures & Consent', questions: healthcareQuestions.map(q => ({ ...q })) },
+      { id: 4, title: 'Procedures & Consent', questions: healthcareModule4Questions },
       { id: 5, title: 'Discharge & Follow-Up', questions: healthcareQuestions.map(q => ({ ...q })) },
     ],
   },
