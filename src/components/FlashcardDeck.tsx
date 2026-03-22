@@ -206,49 +206,94 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
           onMouseUp={handleMouseUp}
         >
           <div
-            className="relative w-full transition-transform duration-500 ease-out"
             style={{
-              transformStyle: 'preserve-3d',
-              transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+              position: 'relative',
+              width: '100%',
               minHeight: '340px',
+              transformStyle: 'preserve-3d',
+              transition: 'transform 0.5s ease-out',
+              transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
             }}
           >
+            {/* Front — English */}
             <div
-              className="absolute inset-0 backface-hidden bg-[#111827] border border-white/10 rounded-2xl flex flex-col items-center justify-center p-8 shadow-2xl"
-              style={{ backfaceVisibility: 'hidden' }}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                background: '#111827',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '2rem',
+                boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
+              }}
             >
-              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mb-4">English</p>
-              <p className="text-2xl font-bold text-white text-center leading-snug mb-8">{currentCard?.phrase.english}</p>
-              <p className="text-[11px] text-slate-600 text-center italic">{currentCard?.phrase.context}</p>
-              <div className="absolute bottom-5 right-5">
-                <p className="text-[10px] text-slate-600">Tap to flip</p>
-              </div>
+              <p style={{ fontSize: '10px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: '1.25rem' }}>
+                English
+              </p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', textAlign: 'center', lineHeight: 1.35, marginBottom: '2rem' }}>
+                {currentCard?.phrase.english}
+              </p>
+              <p style={{ fontSize: '11px', color: '#475569', textAlign: 'center', fontStyle: 'italic' }}>
+                Tap to see Spanish
+              </p>
             </div>
 
+            {/* Back — Spanish */}
             <div
-              className="absolute inset-0 backface-hidden bg-[#0f1c2e] border border-blue-500/20 rounded-2xl flex flex-col items-center justify-center p-8 shadow-2xl"
-              style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                transform: 'rotateY(180deg)',
+                background: '#0f1c2e',
+                border: '1px solid rgba(59,130,246,0.25)',
+                borderRadius: '1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '2rem',
+                boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
+              }}
             >
-              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mb-4">Spanish</p>
-              <p className="text-2xl font-bold text-white text-center leading-snug mb-3">{currentCard?.phrase.spanish}</p>
-              <p className="text-[12px] text-blue-400/80 text-center leading-relaxed mb-6 font-mono">
+              <p style={{ fontSize: '10px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: '1.25rem' }}>
+                Español
+              </p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', textAlign: 'center', lineHeight: 1.35, marginBottom: '0.75rem' }}>
+                {currentCard?.phrase.spanish}
+              </p>
+              <p style={{ fontSize: '12px', color: 'rgba(147,197,253,0.75)', textAlign: 'center', lineHeight: 1.6, marginBottom: '1.5rem', fontFamily: 'monospace' }}>
                 {currentCard ? spanishPhonetic(currentCard.phrase.spanish) : ''}
               </p>
               <button
                 onClick={handleSpeak}
                 onTouchEnd={(e) => { e.stopPropagation(); }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  playing
-                    ? 'bg-blue-500/20 text-blue-400'
-                    : 'bg-white/8 text-slate-300 hover:bg-blue-500/20 hover:text-blue-400'
-                }`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: playing ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.06)',
+                  color: playing ? '#93c5fd' : '#cbd5e1',
+                  transition: 'all 0.15s',
+                }}
               >
                 {playing ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Volume2 className="w-4 h-4" />
                 )}
-                <span className="text-xs font-medium">Hear pronunciation</span>
+                <span style={{ fontSize: '12px', fontWeight: 500 }}>Hear pronunciation</span>
               </button>
             </div>
           </div>
