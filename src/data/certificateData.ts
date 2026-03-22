@@ -126,6 +126,132 @@ const healthcareQuestions: QuizQuestion[] = [
   },
 ];
 
+const healthcareModule2Questions: QuizQuestion[] = [
+  {
+    question: "How do you ask 'Where does it hurt?'",
+    options: ['¿Cuánto le duele?', '¿Dónde le duele?', '¿Cuándo empezó el dolor?', '¿Cómo es el dolor?'],
+    correctIndex: 1,
+    explanation: "'¿Dónde le duele?' directly asks 'Where does it hurt?' — the most fundamental pain location question.",
+  },
+  {
+    question: '"En una escala del uno al diez" means:',
+    options: ['On a scale from one to ten', 'For one to ten minutes', 'Once or twice a day', 'One tablet at a time'],
+    correctIndex: 0,
+    explanation: "'En una escala del uno al diez' is used to ask patients to rate their pain numerically.",
+  },
+  {
+    question: "How do you ask 'How long have you had this pain?'",
+    options: ['¿Qué tan fuerte es el dolor?', '¿Dónde siente el dolor?', '¿Desde cuándo tiene este dolor?', '¿El dolor se mueve?'],
+    correctIndex: 2,
+    explanation: "'¿Desde cuándo tiene este dolor?' asks how long the pain has been present — key for diagnosis.",
+  },
+  {
+    question: "Which phrase means 'Is the pain constant or does it come and go?'",
+    options: ['¿El dolor es fuerte o suave?', '¿El dolor es constante o va y viene?', '¿El dolor empeora por la noche?', '¿El dolor mejora con medicamento?'],
+    correctIndex: 1,
+    explanation: "'¿El dolor es constante o va y viene?' helps distinguish chronic from intermittent pain patterns.",
+  },
+  {
+    question: '"Mareo" means:',
+    options: ['Nausea', 'Headache', 'Dizziness', 'Fatigue'],
+    correctIndex: 2,
+    explanation: "'Mareo' = dizziness. Important symptom to distinguish from náuseas (nausea) and dolor de cabeza (headache).",
+  },
+  {
+    question: "How do you say 'Do you have shortness of breath?'",
+    options: ['¿Tiene tos?', '¿Tiene fiebre?', '¿Tiene dificultad para respirar?', '¿Tiene dolor de pecho?'],
+    correctIndex: 2,
+    explanation: "'¿Tiene dificultad para respirar?' screens for respiratory distress — critical for triage prioritization.",
+  },
+  {
+    question: '"Náuseas" means:',
+    options: ['Dizziness', 'Nausea', 'Headache', 'Chest pain'],
+    correctIndex: 1,
+    explanation: "'Náuseas' = nausea. Distinguishing from 'mareo' (dizziness) ensures accurate symptom documentation.",
+  },
+  {
+    question: "How do you ask 'Does the pain radiate anywhere?'",
+    options: ['¿El dolor es constante?', '¿El dolor se irradia a algún lugar?', '¿El dolor empezó hoy?', '¿El dolor mejora al descansar?'],
+    correctIndex: 1,
+    explanation: "'¿El dolor se irradia a algún lugar?' is critical for identifying referred pain patterns like cardiac events.",
+  },
+  {
+    question: "Which phrase means 'Do you have a fever?'",
+    options: ['¿Tiene escalofríos?', '¿Tiene sudoración?', '¿Tiene fiebre?', '¿Tiene cansancio?'],
+    correctIndex: 2,
+    explanation: "'¿Tiene fiebre?' is one of the most common symptom screening questions in any clinical encounter.",
+  },
+  {
+    question: "How do you say 'Point to where you feel the pain'?",
+    options: ['Muéstreme sus medicamentos', 'Señale dónde siente el dolor', 'Dígame cuándo empezó', 'Describa cómo es el dolor'],
+    correctIndex: 1,
+    explanation: "'Señale dónde siente el dolor' is especially useful when language barriers make verbal description difficult.",
+  },
+];
+
+const healthcareModule3Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Take one tablet twice a day'?",
+    options: ['Tome una pastilla tres veces al día', 'Tome una pastilla dos veces al día', 'Tome dos pastillas una vez al día', 'Tome una pastilla con el desayuno'],
+    correctIndex: 1,
+    explanation: "'Dos veces al día' = twice a day. Accurate dosage instructions are critical to medication safety.",
+  },
+  {
+    question: '"En ayunas" means:',
+    options: ['With food', 'At bedtime', 'On an empty stomach', 'With water only'],
+    correctIndex: 2,
+    explanation: "'En ayunas' = on an empty stomach. Some medications require fasting for proper absorption.",
+  },
+  {
+    question: "How do you ask 'Are you currently taking any medications?'",
+    options: ['¿Toma vitaminas?', '¿Toma actualmente algún medicamento?', '¿Tiene receta médica?', '¿Compra medicamentos sin receta?'],
+    correctIndex: 1,
+    explanation: "'¿Toma actualmente algún medicamento?' is essential to prevent dangerous drug interactions.",
+  },
+  {
+    question: "Which phrase means 'Do not drive after taking this medication'?",
+    options: ['No tome alcohol con este medicamento', 'No maneje después de tomar este medicamento', 'No tome este medicamento con comida', 'No suspenda este medicamento sin consultar'],
+    correctIndex: 1,
+    explanation: "'No maneje después de tomar este medicamento' is required for sedating medications and narcotics.",
+  },
+  {
+    question: '"Efectos secundarios" means:',
+    options: ['Dosage instructions', 'Drug interactions', 'Side effects', 'Prescription refills'],
+    correctIndex: 2,
+    explanation: "'Efectos secundarios' = side effects. Patients must understand what to watch for after starting new medications.",
+  },
+  {
+    question: "How do you say 'Take this medication with food'?",
+    options: ['Tome este medicamento en ayunas', 'Tome este medicamento con agua', 'Tome este medicamento con comida', 'Tome este medicamento antes de dormir'],
+    correctIndex: 2,
+    explanation: "'Con comida' = with food. Certain medications cause nausea or stomach irritation when taken without food.",
+  },
+  {
+    question: "Which phrase means 'This prescription needs to be refilled'?",
+    options: ['Esta receta está vencida', 'Esta receta necesita renovarse', 'Esta receta es genérica', 'Esta receta es nueva'],
+    correctIndex: 1,
+    explanation: "'Esta receta necesita renovarse' communicates a refill need — critical for chronic medication management.",
+  },
+  {
+    question: '"No mezcle con alcohol" means:',
+    options: ['Take with juice', 'Do not take on empty stomach', 'Do not mix with alcohol', 'Avoid dairy products'],
+    correctIndex: 2,
+    explanation: "'No mezcle con alcohol' is a vital safety warning for antibiotics, blood thinners, and many other drugs.",
+  },
+  {
+    question: "How do you ask 'Do you have any drug allergies?'",
+    options: ['¿Toma medicamentos naturales?', '¿Tiene alergia a algún medicamento?', '¿Cuántos medicamentos toma?', '¿Dónde compra sus medicamentos?'],
+    correctIndex: 1,
+    explanation: "'¿Tiene alergia a algún medicamento?' must be asked before prescribing or administering any medication.",
+  },
+  {
+    question: "How do you say 'Finish all of the medication'?",
+    options: ['Guarde el medicamento sobrante', 'Tome el medicamento solo cuando tenga dolor', 'Termine todo el medicamento', 'Divida el medicamento por la mitad'],
+    correctIndex: 2,
+    explanation: "'Termine todo el medicamento' is critical for antibiotic courses to prevent resistance and treatment failure.",
+  },
+];
+
 const educationQuestions: QuizQuestion[] = [
   {
     question: "How do you say 'Welcome to our school' in Spanish?",
@@ -387,8 +513,8 @@ export const CERT_TRACKS: CertTrack[] = [
     color: 'from-blue-600 to-blue-800',
     modules: [
       { id: 1, title: 'Patient Intake & Vitals', questions: healthcareQuestions },
-      { id: 2, title: 'Symptoms & Pain Assessment', questions: healthcareQuestions.map(q => ({ ...q })) },
-      { id: 3, title: 'Medications & Instructions', questions: healthcareQuestions.map(q => ({ ...q })) },
+      { id: 2, title: 'Symptoms & Pain Assessment', questions: healthcareModule2Questions },
+      { id: 3, title: 'Medications & Instructions', questions: healthcareModule3Questions },
       { id: 4, title: 'Procedures & Consent', questions: healthcareQuestions.map(q => ({ ...q })) },
       { id: 5, title: 'Discharge & Follow-Up', questions: healthcareQuestions.map(q => ({ ...q })) },
     ],
