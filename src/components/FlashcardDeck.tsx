@@ -88,6 +88,7 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
     const dy = e.changedTouches[0].clientY - touchStartY.current;
     touchStartX.current = null;
     touchStartY.current = null;
+    e.preventDefault();
 
     if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.2) {
       handleFlip();
@@ -107,7 +108,10 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
     const dx = e.clientX - touchStartX.current;
     touchStartX.current = null;
     touchStartY.current = null;
-    if (Math.abs(dx) < 8) return;
+    if (Math.abs(dx) < 40) {
+      handleFlip();
+      return;
+    }
     if (dx < -40) advance('left');
     else if (dx > 40) advance('right');
   }
@@ -199,7 +203,6 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
           ref={cardRef}
           className={`relative w-full max-w-sm cursor-pointer select-none transition-all duration-[280ms] ease-out ${exitTransformClass}`}
           style={{ perspective: '1000px' }}
-          onClick={handleFlip}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onMouseDown={handleMouseDown}
