@@ -819,6 +819,69 @@ const ppeQuestions: QuizQuestion[] = [
   },
 ];
 
+const hazardCommQuestions: QuizQuestion[] = [
+  {
+    question: '"Hoja de datos de seguridad" means:',
+    options: ['Work order', 'Safety data sheet', 'Inspection report', 'Incident form'],
+    correctIndex: 1,
+    explanation: "'Hoja de datos de seguridad' = safety data sheet (SDS). SDS documents provide critical information about chemical hazards, handling, storage, and emergency response procedures.",
+  },
+  {
+    question: "How do you say 'This chemical is hazardous'?",
+    options: ['Este químico es inflamable', 'Este químico es peligroso', 'Este químico es tóxico', 'Este químico es corrosivo'],
+    correctIndex: 1,
+    explanation: "'Este químico es peligroso' = This chemical is hazardous. 'Peligroso' is the general term for dangerous/hazardous, while other options describe specific hazard types (flammable, toxic, corrosive).",
+  },
+  {
+    question: "Which phrase means 'Read the label before using any chemical'?",
+    options: ['Guarde los químicos en lugar seguro', 'Lea la etiqueta antes de usar cualquier químico', 'Pida ayuda antes de usar químicos', 'Evite contacto con químicos desconocidos'],
+    correctIndex: 1,
+    explanation: "'Lea la etiqueta antes de usar cualquier químico' = Read the label before using any chemical. Chemical labels contain hazard warnings, PPE requirements, and first aid instructions that must be reviewed before use.",
+  },
+  {
+    question: '"Señal de advertencia" means:',
+    options: ['Exit sign', 'No entry sign', 'Warning sign', 'Informational sign'],
+    correctIndex: 2,
+    explanation: "'Señal de advertencia' = warning sign. Warning signs alert workers to potential hazards in an area and are a key component of hazard communication systems on job sites.",
+  },
+  {
+    question: "How do you ask 'Are there any hazardous materials in this area?'",
+    options: ['¿Hay materiales peligrosos en esta área?', '¿Hay químicos almacenados aquí?', '¿Se usan químicos en este proyecto?', '¿Hay restricciones en esta área?'],
+    correctIndex: 0,
+    explanation: "'¿Hay materiales peligrosos en esta área?' = Are there any hazardous materials in this area? Always ask this before starting work in an unfamiliar space to identify chemical exposure risks.",
+  },
+  {
+    question: '"Ventilación adecuada" means:',
+    options: ['Proper lighting', 'Proper ventilation', 'Proper drainage', 'Proper temperature'],
+    correctIndex: 1,
+    explanation: "'Ventilación adecuada' = proper ventilation. Adequate airflow is essential when working with chemicals to prevent dangerous buildup of fumes or vapors that can cause health problems or fires.",
+  },
+  {
+    question: "How do you say 'Do not mix these two chemicals'?",
+    options: ['Use estos químicos con cuidado', 'No mezcle estos dos químicos', 'Mantenga estos químicos separados', 'Almacene estos químicos juntos'],
+    correctIndex: 1,
+    explanation: "'No mezcle estos dos químicos' = Do not mix these two chemicals. Mixing incompatible chemicals can create toxic gases, fires, or explosions — always verify compatibility before combining any substances.",
+  },
+  {
+    question: "Which phrase means 'In case of chemical spill, evacuate immediately'?",
+    options: ['En caso de derrame químico, llame al supervisor', 'En caso de derrame químico, evacúe inmediatamente', 'En caso de derrame químico, cubra el área', 'En caso de derrame químico, use guantes'],
+    correctIndex: 1,
+    explanation: "'En caso de derrame químico, evacúe inmediatamente' = In case of chemical spill, evacuate immediately. Rapid evacuation prevents exposure injuries; trained spill response teams handle cleanup.",
+  },
+  {
+    question: '"Inflamable" means:',
+    options: ['Toxic', 'Corrosive', 'Flammable', 'Explosive'],
+    correctIndex: 2,
+    explanation: "'Inflamable' = flammable. Flammable chemicals ignite easily and require specific storage, handling, and fire suppression measures. Never store flammables near heat sources or open flames.",
+  },
+  {
+    question: "How do you say 'Store chemicals in a locked cabinet'?",
+    options: ['Tire los químicos usados correctamente', 'Almacene los químicos en un gabinete con llave', 'Marque los químicos claramente', 'Inspeccione los químicos regularmente'],
+    correctIndex: 1,
+    explanation: "'Almacene los químicos en un gabinete con llave' = Store chemicals in a locked cabinet. Locked storage prevents unauthorized access, accidental spills, and theft of hazardous substances.",
+  },
+];
+
 const socialServicesQuestions: QuizQuestion[] = [
   {
     question: "'¿Cómo puedo ayudarle hoy?' means:",
@@ -983,7 +1046,7 @@ export const CERT_TRACKS: CertTrack[] = [
     modules: [
       { id: 1, title: 'Jobsite Safety Basics', questions: constructionQuestions },
       { id: 2, title: 'PPE & Equipment', questions: ppeQuestions },
-      { id: 3, title: 'Hazard Communication', questions: constructionQuestions.map(q => ({ ...q })) },
+      { id: 3, title: 'Hazard Communication', questions: hazardCommQuestions },
       { id: 4, title: 'Emergency Procedures', questions: constructionQuestions.map(q => ({ ...q })) },
       { id: 5, title: 'Toolbox Talks & Supervision', questions: constructionQuestions.map(q => ({ ...q })) },
     ],
