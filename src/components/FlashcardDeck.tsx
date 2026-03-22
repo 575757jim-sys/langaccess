@@ -70,8 +70,10 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
         const remaining = updated.filter(c => c.status === 'learning');
         if (remaining.length === 0) {
           setAllDone(true);
-        } else {
+        } else if (direction === 'right') {
           setCurrentIndex(i => i % remaining.length);
+        } else {
+          setCurrentIndex(i => (i + 1) % remaining.length);
         }
         return updated;
       });
