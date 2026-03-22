@@ -945,6 +945,69 @@ const emergencyProceduresQuestions: QuizQuestion[] = [
   },
 ];
 
+const toolboxTalksQuestions: QuizQuestion[] = [
+  {
+    question: '"Charla de seguridad" means:',
+    options: ['Safety inspection', 'Safety toolbox talk', 'Safety training course', 'Safety certification'],
+    correctIndex: 1,
+    explanation: "'Charla de seguridad' = safety toolbox talk. These brief, focused meetings are held before shifts to review hazards, procedures, and reminders specific to the day's work.",
+  },
+  {
+    question: "How do you say 'Attendance at safety meetings is mandatory'?",
+    options: ['Las reuniones de seguridad son recomendadas', 'La asistencia a las reuniones de seguridad es obligatoria', 'Las reuniones de seguridad son opcionales', 'Las reuniones de seguridad son mensuales'],
+    correctIndex: 1,
+    explanation: "'La asistencia a las reuniones de seguridad es obligatoria' = Attendance at safety meetings is mandatory. All workers are required to attend — missing a safety briefing means missing critical information that could prevent injury.",
+  },
+  {
+    question: "Which phrase means 'Sign here to confirm you attended'?",
+    options: ['Marque aquí si tiene preguntas', 'Firme aquí para confirmar su asistencia', 'Escriba aquí sus comentarios', 'Anote aquí su nombre'],
+    correctIndex: 1,
+    explanation: "'Firme aquí para confirmar su asistencia' = Sign here to confirm you attended. Attendance signatures create a legal record showing each worker received the safety information for that day.",
+  },
+  {
+    question: '"Supervisor de seguridad" means:',
+    options: ['Safety inspector', 'Safety supervisor', 'Safety trainer', 'Safety officer'],
+    correctIndex: 1,
+    explanation: "'Supervisor de seguridad' = safety supervisor. This person is responsible for enforcing safety rules, conducting toolbox talks, investigating incidents, and ensuring all workers follow OSHA standards.",
+  },
+  {
+    question: "How do you ask 'Do you have any safety concerns to report?'",
+    options: ['¿Ha tenido accidentes anteriores?', '¿Tiene alguna inquietud de seguridad que reportar?', '¿Ha completado su entrenamiento?', '¿Conoce las reglas del sitio?'],
+    correctIndex: 1,
+    explanation: "'¿Tiene alguna inquietud de seguridad que reportar?' = Do you have any safety concerns to report? Workers are the first line of defense — their observations often catch hazards before accidents happen.",
+  },
+  {
+    question: "Which phrase means 'You have the right to refuse unsafe work'?",
+    options: ['Usted debe completar el trabajo asignado', 'Usted tiene derecho a rechazar trabajo inseguro', 'Usted puede pausar el trabajo si está cansado', 'Usted puede reportar trabajo inseguro después'],
+    correctIndex: 1,
+    explanation: "'Usted tiene derecho a rechazar trabajo inseguro' = You have the right to refuse unsafe work. Under OSHA Section 11(c), workers are legally protected from retaliation when they refuse genuinely dangerous tasks.",
+  },
+  {
+    question: '"Corrección inmediata" means:',
+    options: ['Immediate inspection', 'Immediate correction', 'Immediate reporting', 'Immediate training'],
+    correctIndex: 1,
+    explanation: "'Corrección inmediata' = immediate correction. When a hazard is identified, immediate correction means fixing it on the spot rather than waiting — preventing the next person from being injured.",
+  },
+  {
+    question: "How do you say 'No shortcuts on safety procedures'?",
+    options: ['Siga los procedimientos de seguridad cuando sea posible', 'No haga atajos en los procedimientos de seguridad', 'Los procedimientos de seguridad pueden ajustarse', 'Consulte al supervisor antes de hacer cambios'],
+    correctIndex: 1,
+    explanation: "'No haga atajos en los procedimientos de seguridad' = No shortcuts on safety procedures. Most workplace injuries happen when workers skip steps to save time. Procedures exist because shortcuts have caused deaths.",
+  },
+  {
+    question: "Which phrase asks 'Did you understand today\\'s safety topic?'",
+    options: ['¿Tiene preguntas sobre el equipo?', '¿Entendió el tema de seguridad de hoy?', '¿Asistió a la reunión de la semana pasada?', '¿Necesita más entrenamiento?'],
+    correctIndex: 1,
+    explanation: "'¿Entendió el tema de seguridad de hoy?' = Did you understand today's safety topic? Checking comprehension at the end of a toolbox talk ensures the message was clear and workers can apply it on the job.",
+  },
+  {
+    question: "How do you say 'Safety is everyone\\'s responsibility'?",
+    options: ['La seguridad es responsabilidad del supervisor', 'La seguridad es responsabilidad de todos', 'La seguridad es responsabilidad del trabajador', 'La seguridad es responsabilidad de la empresa'],
+    correctIndex: 1,
+    explanation: "'La seguridad es responsabilidad de todos' = Safety is everyone's responsibility. A strong safety culture requires every worker — regardless of role — to watch out for each other and speak up about hazards.",
+  },
+];
+
 const socialServicesQuestions: QuizQuestion[] = [
   {
     question: "'¿Cómo puedo ayudarle hoy?' means:",
@@ -1111,7 +1174,7 @@ export const CERT_TRACKS: CertTrack[] = [
       { id: 2, title: 'PPE & Equipment', questions: ppeQuestions },
       { id: 3, title: 'Hazard Communication', questions: hazardCommQuestions },
       { id: 4, title: 'Emergency Procedures', questions: emergencyProceduresQuestions },
-      { id: 5, title: 'Toolbox Talks & Supervision', questions: constructionQuestions.map(q => ({ ...q })) },
+      { id: 5, title: 'Toolbox Talks & Supervision', questions: toolboxTalksQuestions },
     ],
   },
   {
