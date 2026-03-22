@@ -276,7 +276,7 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
                 {currentCard ? spanishPhonetic(currentCard.phrase.spanish) : ''}
               </p>
               <button
-                onClick={handleSpeak}
+                onClick={(e) => { e.stopPropagation(); handleSpeak(e); }}
                 onTouchEnd={(e) => { e.stopPropagation(); }}
                 style={{
                   display: 'flex',
