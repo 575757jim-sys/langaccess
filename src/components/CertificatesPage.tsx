@@ -429,6 +429,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                               Enroll — ${CERT_PRICE}
                             </button>
                             <p className="text-center text-slate-500 text-xs mt-1.5">Less than one hour of interpreter fees</p>
+                            <p className="text-center text-slate-600 text-[10px] leading-snug mt-1">Required under Title VI of the Civil Rights Act for organizations receiving federal funding.</p>
                           </div>
                         )}
                       </>

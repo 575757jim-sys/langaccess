@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Download, Mail, CheckCircle, X, Loader2, FileText } from 'lucide-react';
+import { Download, Mail, CheckCircle, X, Loader2, FileText, ChevronDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+
+const INDUSTRIES = ['Healthcare', 'Education', 'Construction', 'Social Services', 'Mental Health'];
 
 const TOOLKIT_URL = '/LangAccess_Strategic_Framework_v3.pdf';
 
@@ -9,6 +11,7 @@ type Step = 'idle' | 'email-prompt' | 'saving' | 'done';
 export default function ToolkitDownload() {
   const [step, setStep] = useState<Step>('idle');
   const [email, setEmail] = useState('');
+  const [industry, setIndustry] = useState('');
   const [emailError, setEmailError] = useState('');
 
   function openToolkit() {
@@ -37,7 +40,7 @@ export default function ToolkitDownload() {
       setStep('saving');
       try {
         await supabase.from('email_captures').upsert(
-          { email: trimmed, source: 'toolkit_download' },
+          { email: trimmed, source: 'toolkit_download', sector: industry || null },
           { onConflict: 'email' }
         );
       } catch {
@@ -65,6 +68,7 @@ export default function ToolkitDownload() {
   function handleClose() {
     setStep('idle');
     setEmail('');
+    setIndustry('');
     setEmailError('');
   }
 
@@ -112,8 +116,8 @@ export default function ToolkitDownload() {
                     </div>
                     <p className="text-xs text-slate-400 mb-3">Optional — skip to download immediately.</p>
 
-                    <div className="flex flex-col sm:flex-row gap-2 mb-2">
-                      <div className="relative flex-1">
+                    <div className="flex flex-col gap-2 mb-2">
+                      <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
                         <input
                           type="email"
@@ -125,10 +129,24 @@ export default function ToolkitDownload() {
                           className="w-full pl-9 pr-3 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-500 transition-colors disabled:opacity-50"
                         />
                       </div>
+                      <div className="relative">
+                        <select
+                          value={industry}
+                          onChange={(e) => setIndustry(e.target.value)}
+                          disabled={step === 'saving'}
+                          className="w-full appearance-none pl-3 pr-9 py-2.5 bg-slate-800 border border-slate-600 rounded-lg text-sm text-white focus:outline-none focus:border-teal-500 transition-colors disabled:opacity-50"
+                        >
+                          <option value="">Select your sector</option>
+                          {INDUSTRIES.map(i => (
+                            <option key={i} value={i}>{i}</option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                      </div>
                       <button
                         onClick={handleSubmitEmail}
                         disabled={step === 'saving'}
-                        className="inline-flex items-center justify-center gap-1.5 bg-teal-500 hover:bg-teal-400 text-white font-semibold px-4 py-2.5 rounded-lg text-sm transition-all duration-150 disabled:opacity-60 flex-shrink-0"
+                        className="inline-flex items-center justify-center gap-1.5 bg-teal-500 hover:bg-teal-400 text-white font-semibold px-4 py-2.5 rounded-lg text-sm transition-all duration-150 disabled:opacity-60"
                       >
                         {step === 'saving' ? (
                           <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving...</>
