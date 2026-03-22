@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Volume2, Loader2, ChevronRight, RotateCcw, X, CheckCircle } from 'lucide-react';
 import { KeyPhrase } from '../data/certificateData';
 import { playAudioFromGesture, unlockAudioContext } from '../utils/speech';
@@ -79,42 +79,77 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
     }, 280);
   }, [exiting, currentCard]);
 
-  function isSpeakerTarget(target: EventTarget | null): boolean {
-    if (!speakerBtnRef.current || !target) return false;
-    return speakerBtnRef.current === target || speakerBtnRef.current.contains(target as Node);
-  }
+  const advanceRef = useRef(advance);
+  advanceRef.current = advance;
+  const handleFlipRef = useRef(handleFlip);
+  handleFlipRef.current = handleFlip;
+  const currentCardRef = useRef(currentCard);
+  currentCardRef.current = currentCard;
 
-  function handleTouchStart(e: React.TouchEvent) {
-    if (isSpeakerTarget(e.target)) {
-      speakerTouched.current = true;
-      return;
-    }
-    speakerTouched.current = false;
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
-  }
+  useEffect(() => {
+    const card = cardRef.current;
+    const speakerBtn = speakerBtnRef.current;
+    if (!card) return;
 
-  function handleTouchEnd(e: React.TouchEvent) {
-    if (speakerTouched.current) {
+    function onTouchStart(e: TouchEvent) {
+      if (speakerBtn && (e.target === speakerBtn || speakerBtn.contains(e.target as Node))) {
+        speakerTouched.current = true;
+        return;
+      }
       speakerTouched.current = false;
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+    }
+
+    function onTouchEnd(e: TouchEvent) {
+      if (speakerTouched.current) {
+        speakerTouched.current = false;
+        touchStartX.current = null;
+        touchStartY.current = null;
+        return;
+      }
+      if (touchStartX.current === null || touchStartY.current === null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX.current;
+      const dy = e.changedTouches[0].clientY - touchStartY.current;
       touchStartX.current = null;
       touchStartY.current = null;
-      return;
+      e.preventDefault();
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.2) {
+        handleFlipRef.current();
+        return;
+      }
+      if (dx < -40) advanceRef.current('left');
+      else if (dx > 40) advanceRef.current('right');
     }
-    if (touchStartX.current === null || touchStartY.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    const dy = e.changedTouches[0].clientY - touchStartY.current;
-    touchStartX.current = null;
-    touchStartY.current = null;
-    e.preventDefault();
 
-    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.2) {
-      handleFlip();
-      return;
+    function onSpeakerTouchEnd(e: TouchEvent) {
+      e.stopPropagation();
+      e.preventDefault();
+      if (!speakerBtn) return;
+      const rect = speakerBtn.getBoundingClientRect();
+      const touch = e.changedTouches[0];
+      if (
+        touch.clientX >= rect.left && touch.clientX <= rect.right &&
+        touch.clientY >= rect.top && touch.clientY <= rect.bottom
+      ) {
+        const card = currentCardRef.current;
+        if (!card) return;
+        unlockAudioContext();
+        setPlaying(true);
+        playAudioFromGesture(card.phrase.spanish, 'spanish');
+        setTimeout(() => setPlaying(false), 3000);
+      }
     }
-    if (dx < -40) advance('left');
-    else if (dx > 40) advance('right');
-  }
+
+    card.addEventListener('touchstart', onTouchStart, { passive: true });
+    card.addEventListener('touchend', onTouchEnd, { passive: false });
+    if (speakerBtn) speakerBtn.addEventListener('touchend', onSpeakerTouchEnd, { passive: false });
+    return () => {
+      card.removeEventListener('touchstart', onTouchStart);
+      card.removeEventListener('touchend', onTouchEnd);
+      if (speakerBtn) speakerBtn.removeEventListener('touchend', onSpeakerTouchEnd);
+    };
+  }, []);
 
   function handleMouseDown(e: React.MouseEvent) {
     touchStartX.current = e.clientX;
@@ -221,8 +256,6 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
           ref={cardRef}
           className={`relative w-full max-w-sm cursor-pointer select-none transition-all duration-[280ms] ease-out ${exitTransformClass}`}
           style={{ perspective: '1000px' }}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
         >
@@ -296,7 +329,6 @@ export default function FlashcardDeck({ moduleTitle, trackTitle, keyPhrases, onS
               <button
                 ref={speakerBtnRef}
                 onClick={(e) => { e.stopPropagation(); handleSpeak(e); }}
-                onTouchEnd={(e) => { e.stopPropagation(); handleSpeak(e); }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
