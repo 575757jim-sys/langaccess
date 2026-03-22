@@ -315,6 +315,69 @@ const healthcareModule4Questions: QuizQuestion[] = [
   },
 ];
 
+const healthcareModule5Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Your follow-up appointment is in two weeks'?",
+    options: ['Su cita de seguimiento es mañana', 'Su cita de seguimiento es en dos semanas', 'Su cita de seguimiento es en dos meses', 'Su cita de seguimiento fue cancelada'],
+    correctIndex: 1,
+    explanation: "'En dos semanas' = in two weeks. Clear follow-up timing improves patient compliance and outcomes.",
+  },
+  {
+    question: '"Instrucciones de alta" means:',
+    options: ['Emergency instructions', 'Discharge instructions', 'Admission instructions', 'Prescription instructions'],
+    correctIndex: 1,
+    explanation: "'Alta' = discharge. Providing written discharge instructions reduces readmission rates significantly.",
+  },
+  {
+    question: "How do you say 'Call us if you have a fever above 101°F'?",
+    options: ['Regrese si el dolor empeora', 'Llámenos si tiene fiebre de más de 101°F', 'Tome ibuprofeno si tiene fiebre', 'Vaya a urgencias si tiene náuseas'],
+    correctIndex: 1,
+    explanation: "'Llámenos' = call us. Giving patients specific fever thresholds helps them know when to seek care.",
+  },
+  {
+    question: "Which phrase means 'Do not lift anything heavy for two weeks'?",
+    options: ['No maneje por dos semanas', 'No levante objetos pesados por dos semanas', 'No trabaje por dos semanas', 'No haga ejercicio por dos semanas'],
+    correctIndex: 1,
+    explanation: "'No levante objetos pesados' = do not lift heavy objects. Activity restrictions prevent post-procedure complications.",
+  },
+  {
+    question: '"Señales de advertencia" means:',
+    options: ['Medication instructions', 'Follow-up schedule', 'Warning signs', 'Dietary restrictions'],
+    correctIndex: 2,
+    explanation: "'Señales de advertencia' = warning signs. Patients need to recognize when symptoms require immediate attention.",
+  },
+  {
+    question: "How do you ask 'Do you have a way to get home?'",
+    options: ['¿Tiene seguro para el transporte?', '¿Tiene cómo llegar a casa?', '¿Vive lejos del hospital?', '¿Necesita una ambulancia?'],
+    correctIndex: 1,
+    explanation: "'¿Tiene cómo llegar a casa?' ensures safe discharge — patients cannot drive themselves after many procedures.",
+  },
+  {
+    question: "Which phrase means 'Keep the wound clean and dry'?",
+    options: ['Cambie el vendaje todos los días', 'Mantenga la herida limpia y seca', 'Cubra la herida con hielo', 'Aplique crema en la herida'],
+    correctIndex: 1,
+    explanation: "'Limpia y seca' = clean and dry. Proper wound care instructions prevent post-surgical infection.",
+  },
+  {
+    question: '"Cita de seguimiento" means:',
+    options: ['Emergency visit', 'Initial appointment', 'Follow-up appointment', 'Specialist referral'],
+    correctIndex: 2,
+    explanation: "'Cita de seguimiento' = follow-up appointment. Scheduling follow-ups at discharge improves continuity of care.",
+  },
+  {
+    question: "How do you say 'Go to the emergency room if symptoms worsen'?",
+    options: ['Llame a su médico si tiene preguntas', 'Vaya a urgencias si los síntomas empeoran', 'Regrese a la clínica mañana por la mañana', 'Tome más medicamento si tiene dolor'],
+    correctIndex: 1,
+    explanation: "'Vaya a urgencias' = go to the emergency room. Patients must know when escalation to emergency care is necessary.",
+  },
+  {
+    question: "How do you say 'Here are your discharge papers'?",
+    options: ['Aquí están sus resultados de laboratorio', 'Aquí están sus papeles de alta', 'Aquí está su receta médica', 'Aquí está su factura del hospital'],
+    correctIndex: 1,
+    explanation: "'Papeles de alta' = discharge papers. Handing over documentation ensures patients have instructions to reference at home.",
+  },
+];
+
 const educationQuestions: QuizQuestion[] = [
   {
     question: "How do you say 'Welcome to our school' in Spanish?",
@@ -579,7 +642,7 @@ export const CERT_TRACKS: CertTrack[] = [
       { id: 2, title: 'Symptoms & Pain Assessment', questions: healthcareModule2Questions },
       { id: 3, title: 'Medications & Instructions', questions: healthcareModule3Questions },
       { id: 4, title: 'Procedures & Consent', questions: healthcareModule4Questions },
-      { id: 5, title: 'Discharge & Follow-Up', questions: healthcareQuestions.map(q => ({ ...q })) },
+      { id: 5, title: 'Discharge & Follow-Up', questions: healthcareModule5Questions },
     ],
   },
   {
