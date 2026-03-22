@@ -441,6 +441,69 @@ const educationQuestions: QuizQuestion[] = [
   },
 ];
 
+const educationModule2Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Your child is doing very well in class'?",
+    options: ['Su hijo necesita mejorar en clase', 'Su hijo se porta muy bien en clase', 'Su hijo está progresando muy bien en clase', 'Su hijo falta mucho a clase'],
+    correctIndex: 2,
+    explanation: "'Está progresando muy bien' = is doing very well / progressing well. This is positive feedback about academic performance.",
+  },
+  {
+    question: '"Calificaciones" means:',
+    options: ['Attendance', 'Behavior', 'Grades', 'Homework'],
+    correctIndex: 2,
+    explanation: "'Calificaciones' = grades. During parent-teacher conferences, reviewing grades is a primary agenda item.",
+  },
+  {
+    question: "How do you ask 'Does your child do homework at home?'",
+    options: ['¿Su hijo tiene libros en casa?', '¿Su hijo hace la tarea en casa?', '¿Su hijo estudia con amigos?', '¿Su hijo necesita ayuda con la tarea?'],
+    correctIndex: 1,
+    explanation: "'¿Hace la tarea en casa?' = Does your child do homework at home? This helps identify if support is needed at home.",
+  },
+  {
+    question: "Which phrase means 'Your child needs extra help in reading'?",
+    options: ['Su hijo lee muy bien', 'Su hijo necesita ayuda adicional en lectura', 'Su hijo lee en dos idiomas', 'Su hijo no le gusta leer'],
+    correctIndex: 1,
+    explanation: "'Necesita ayuda adicional en lectura' = needs extra help in reading. Communicating this clearly helps families support literacy at home.",
+  },
+  {
+    question: '"Asistencia" in a school context means:',
+    options: ['Teacher assistance', 'Homework help', 'Attendance', 'Academic support'],
+    correctIndex: 2,
+    explanation: "'Asistencia' = attendance. Regular attendance directly impacts student learning and is tracked by every school.",
+  },
+  {
+    question: "How do you say 'We are concerned about your child's progress'?",
+    options: ['Estamos contentos con el progreso de su hijo', 'Estamos preocupados por el progreso de su hijo', 'Estamos sorprendidos por su hijo', 'Estamos esperando mejoras de su hijo'],
+    correctIndex: 1,
+    explanation: "'Estamos preocupados' = we are concerned. Expressing concern clearly — without alarm — opens a productive conversation with families.",
+  },
+  {
+    question: "Which phrase asks 'Does your child mention school at home?'",
+    options: ['¿Su hijo tiene amigos en la escuela?', '¿Su hijo habla de la escuela en casa?', '¿Su hijo quiere cambiar de escuela?', '¿Su hijo prefiere quedarse en casa?'],
+    correctIndex: 1,
+    explanation: "'¿Habla de la escuela en casa?' gauges how connected a child feels to school, which is an indicator of engagement and well-being.",
+  },
+  {
+    question: '"Comportamiento en clase" means:',
+    options: ['Academic performance', 'Classroom behavior', 'Learning style', 'Social skills'],
+    correctIndex: 1,
+    explanation: "'Comportamiento en clase' = classroom behavior. This is a standard conference topic alongside grades and attendance.",
+  },
+  {
+    question: "How do you say 'I would like to schedule another meeting'?",
+    options: ['Esta fue nuestra última reunión', 'Me gustaría programar otra reunión', 'No necesitamos otra reunión', 'La próxima reunión es obligatoria'],
+    correctIndex: 1,
+    explanation: "'Me gustaría programar otra reunión' = I would like to schedule another meeting. Follow-up meetings ensure continued communication with families.",
+  },
+  {
+    question: "How do you ask 'Do you have any questions or concerns?'",
+    options: ['¿Tiene tiempo para hablar ahora?', '¿Tiene preguntas o inquietudes?', '¿Tiene el reporte de calificaciones?', '¿Tiene acceso al portal de padres?'],
+    correctIndex: 1,
+    explanation: "'¿Tiene preguntas o inquietudes?' invites families to voice concerns, ensuring the conference is a two-way conversation.",
+  },
+];
+
 const constructionQuestions: QuizQuestion[] = [
   {
     question: "How do you say 'Always wear your hard hat' in Spanish?",
@@ -653,7 +716,7 @@ export const CERT_TRACKS: CertTrack[] = [
     color: 'from-green-600 to-green-800',
     modules: [
       { id: 1, title: 'Enrollment & Registration', questions: educationQuestions },
-      { id: 2, title: 'Parent-Teacher Conferences', questions: educationQuestions.map(q => ({ ...q })) },
+      { id: 2, title: 'Parent-Teacher Conferences', questions: educationModule2Questions },
       { id: 3, title: 'Special Education & IEPs', questions: educationQuestions.map(q => ({ ...q })) },
       { id: 4, title: 'Student Behavior & Discipline', questions: educationQuestions.map(q => ({ ...q })) },
       { id: 5, title: 'Graduation & Transitions', questions: educationQuestions.map(q => ({ ...q })) },
