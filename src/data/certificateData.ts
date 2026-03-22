@@ -630,6 +630,69 @@ const educationModule4Questions: QuizQuestion[] = [
   },
 ];
 
+const educationModule5Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Congratulations on your graduation'?",
+    options: ['Buena suerte en la universidad', 'Felicitaciones por su graduación', 'Estamos orgullosos de su esfuerzo', 'Ha sido un placer tenerlo en nuestra escuela'],
+    correctIndex: 1,
+    explanation: "'Felicitaciones por su graduación' = Congratulations on your graduation. Celebratory language acknowledges the student's achievement and strengthens the family-school relationship.",
+  },
+  {
+    question: '"Transcripción oficial" means:',
+    options: ['Diploma', 'Official transcript', 'Graduation program', 'Class schedule'],
+    correctIndex: 1,
+    explanation: "'Transcripción oficial' = official transcript. This document is required for college applications, employment verification, and transfer credits.",
+  },
+  {
+    question: "How do you ask 'What are your plans after graduation?'",
+    options: ['¿Cuándo se gradúa?', '¿Cuáles son sus planes después de graduarse?', '¿Tiene trabajo después de la escuela?', '¿Va a continuar sus estudios?'],
+    correctIndex: 1,
+    explanation: "'¿Cuáles son sus planes después de graduarse?' opens an open-ended conversation about post-secondary goals, covering college, career, and trade paths.",
+  },
+  {
+    question: "Which phrase means 'You need these credits to graduate'?",
+    options: ['Ya tiene suficientes créditos para graduarse', 'Necesita estos créditos para graduarse', 'Le faltan muchos créditos para graduarse', 'Sus créditos han sido transferidos'],
+    correctIndex: 1,
+    explanation: "'Necesita estos créditos para graduarse' clearly identifies graduation requirements, helping families support their student in meeting them on time.",
+  },
+  {
+    question: '"Solicitud de admisión universitaria" means:',
+    options: ['Financial aid application', 'College admission application', 'Scholarship application', 'Transfer application'],
+    correctIndex: 1,
+    explanation: "'Solicitud de admisión universitaria' = college admission application. Guiding families through this process increases access for first-generation college students.",
+  },
+  {
+    question: "How do you say 'Financial aid is available'?",
+    options: ['La universidad es muy cara', 'Hay ayuda financiera disponible', 'Debe solicitar becas pronto', 'Los préstamos estudiantiles tienen interés'],
+    correctIndex: 1,
+    explanation: "'Hay ayuda financiera disponible' = Financial aid is available. Many immigrant families are unaware of FAFSA and other aid options — this phrase opens that door.",
+  },
+  {
+    question: "Which phrase asks 'Do you need help with your college applications?'",
+    options: ['¿Ya eligió su universidad?', '¿Necesita ayuda con sus solicitudes universitarias?', '¿Sabe cuánto cuesta la universidad?', '¿Tiene cartas de recomendación?'],
+    correctIndex: 1,
+    explanation: "'¿Necesita ayuda con sus solicitudes universitarias?' proactively offers support, which is critical for students without family experience navigating college admissions.",
+  },
+  {
+    question: '"Consejero académico" means:',
+    options: ['Classroom teacher', 'School principal', 'Academic counselor', 'Special education coordinator'],
+    correctIndex: 2,
+    explanation: "'Consejero académico' = academic counselor. Families should know this person is a key resource for course planning, transcripts, and post-secondary guidance.",
+  },
+  {
+    question: "How do you say 'Your diploma will be mailed to your address'?",
+    options: ['Su diploma estará listo en una semana', 'Su diploma será enviado a su dirección', 'Su diploma debe ser recogido en la escuela', 'Su diploma está en la oficina principal'],
+    correctIndex: 1,
+    explanation: "'Su diploma será enviado a su dirección' = Your diploma will be mailed to your address. Clear logistics prevent families from missing this important document.",
+  },
+  {
+    question: "How do you ask 'Is there anything else I can help you with?'",
+    options: ['¿Tiene más preguntas sobre los requisitos?', '¿Hay algo más en lo que pueda ayudarle?', '¿Necesita información sobre otras escuelas?', '¿Quiere hablar con el director?'],
+    correctIndex: 1,
+    explanation: "'¿Hay algo más en lo que pueda ayudarle?' = Is there anything else I can help you with? Closing conversations this way signals openness and reinforces trust with families.",
+  },
+];
+
 const constructionQuestions: QuizQuestion[] = [
   {
     question: "How do you say 'Always wear your hard hat' in Spanish?",
@@ -845,7 +908,7 @@ export const CERT_TRACKS: CertTrack[] = [
       { id: 2, title: 'Parent-Teacher Conferences', questions: educationModule2Questions },
       { id: 3, title: 'Special Education & IEPs', questions: educationModule3Questions },
       { id: 4, title: 'Student Behavior & Discipline', questions: educationModule4Questions },
-      { id: 5, title: 'Graduation & Transitions', questions: educationQuestions.map(q => ({ ...q })) },
+      { id: 5, title: 'Graduation & Transitions', questions: educationModule5Questions },
     ],
   },
   {
