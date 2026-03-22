@@ -1134,6 +1134,69 @@ const socialServicesHousingQuestions: QuizQuestion[] = [
   },
 ];
 
+const socialServicesBenefitsQuestions: QuizQuestion[] = [
+  {
+    question: '"Elegibilidad" means:',
+    options: ['Application', 'Eligibility', 'Benefits', 'Documentation'],
+    correctIndex: 1,
+    explanation: "'Elegibilidad' = eligibility. Every benefits program starts with an eligibility determination. Workers must use this term accurately so clients understand why they may or may not qualify for a given program.",
+  },
+  {
+    question: "How do you ask 'Do you have a valid ID?'",
+    options: ['¿Tiene pasaporte vigente?', '¿Tiene una identificación válida?', '¿Tiene licencia de conducir?', '¿Tiene tarjeta de seguro social?'],
+    correctIndex: 1,
+    explanation: "'¿Tiene una identificación válida?' = Do you have a valid ID? Many benefits programs require government-issued ID. Asking broadly about 'valid ID' rather than a specific document type ensures clients aren't turned away unnecessarily.",
+  },
+  {
+    question: "Which phrase means 'You may qualify for food assistance'?",
+    options: ['No califica para asistencia de alimentos', 'Puede calificar para asistencia de alimentos', 'Ya recibe asistencia de alimentos', 'La asistencia de alimentos está agotada'],
+    correctIndex: 1,
+    explanation: "'Puede calificar para asistencia de alimentos' = You may qualify for food assistance. Using 'may qualify' (puede calificar) instead of definitive language sets accurate expectations before an official eligibility determination is made.",
+  },
+  {
+    question: '"Beneficios de desempleo" means:',
+    options: ['Disability benefits', 'Food stamps', 'Unemployment benefits', 'Housing assistance'],
+    correctIndex: 2,
+    explanation: "'Beneficios de desempleo' = unemployment benefits. These are state-administered benefits for workers who lost jobs through no fault of their own. Workers must use this specific term — not 'seguro de desempleo' alone — to avoid confusion with other programs.",
+  },
+  {
+    question: "How do you say 'This application takes 30 days to process'?",
+    options: ['Esta solicitud es aprobada inmediatamente', 'Esta solicitud tarda 30 días en procesarse', 'Esta solicitud puede tardar meses', 'Esta solicitud necesita ser renovada anualmente'],
+    correctIndex: 1,
+    explanation: "'Esta solicitud tarda 30 días en procesarse' = This application takes 30 days to process. Setting clear timelines prevents clients from calling repeatedly to check status, and reduces frustration when decisions are not immediate.",
+  },
+  {
+    question: "Which phrase asks 'Are you currently employed?'",
+    options: ['¿Está buscando trabajo?', '¿Está trabajando actualmente?', '¿Tiene experiencia laboral?', '¿Tiene habilidades especiales?'],
+    correctIndex: 1,
+    explanation: "'¿Está trabajando actualmente?' = Are you currently employed? Employment status is a core eligibility factor for SNAP, Medicaid, unemployment, and cash assistance programs. This question must be asked clearly and neutrally.",
+  },
+  {
+    question: '"Prueba de ingresos" means:',
+    options: ['Proof of address', 'Proof of identity', 'Proof of income', 'Proof of enrollment'],
+    correctIndex: 2,
+    explanation: "'Prueba de ingresos' = proof of income. Income documentation — pay stubs, tax returns, employer letters — is required for virtually every means-tested benefits program. Clients must understand what specific documents satisfy this requirement.",
+  },
+  {
+    question: "How do you say 'You need to recertify every six months'?",
+    options: ['Su beneficio es permanente', 'Necesita recertificarse cada seis meses', 'Necesita recertificarse cada año', 'Necesita recertificarse una sola vez'],
+    correctIndex: 1,
+    explanation: "'Necesita recertificarse cada seis meses' = You need to recertify every six months. Many benefits (SNAP, Medicaid) require periodic renewal. Failure to recertify is one of the top reasons clients lose benefits they still qualify for.",
+  },
+  {
+    question: "Which phrase means 'Bring all required documents to your appointment'?",
+    options: ['Puede traer los documentos después de la cita', 'Traiga todos los documentos requeridos a su cita', 'Los documentos pueden enviarse por correo', 'Los documentos son opcionales para la cita'],
+    correctIndex: 1,
+    explanation: "'Traiga todos los documentos requeridos a su cita' = Bring all required documents to your appointment. Incomplete document submissions are a leading cause of delayed or denied applications. Clear instructions before the appointment save time for both clients and workers.",
+  },
+  {
+    question: "How do you ask 'Have you applied for benefits before?'",
+    options: ['¿Sabe qué beneficios le corresponden?', '¿Ha solicitado beneficios antes?', '¿Cuándo necesita empezar a recibir beneficios?', '¿Prefiere recibir beneficios en efectivo?'],
+    correctIndex: 1,
+    explanation: "'¿Ha solicitado beneficios antes?' = Have you applied for benefits before? Prior application history helps workers identify denied claims that may be appealable, active benefits that could be modified, or prior documentation already on file.",
+  },
+];
+
 const mentalHealthQuestions: QuizQuestion[] = [
   {
     question: "'¿Cómo se ha sentido emocionalmente esta semana?' asks:",
@@ -1249,7 +1312,7 @@ export const CERT_TRACKS: CertTrack[] = [
     modules: [
       { id: 1, title: 'Client Intake & Rights', questions: socialServicesClientIntakeQuestions },
       { id: 2, title: 'Housing & Shelter Services', questions: socialServicesHousingQuestions },
-      { id: 3, title: 'Benefits & Eligibility', questions: [] },
+      { id: 3, title: 'Benefits & Eligibility', questions: socialServicesBenefitsQuestions },
       { id: 4, title: 'Domestic Violence Resources', questions: [] },
       { id: 5, title: 'Case Closure & Follow-Up', questions: [] },
     ],
