@@ -1323,6 +1323,69 @@ const mentalHealthQuestions: QuizQuestion[] = [
   },
 ];
 
+const socialServicesCaseClosureQuestions: QuizQuestion[] = [
+  {
+    question: "How do you say 'We are closing your case today'?",
+    options: ['Su caso fue transferido a otra agencia', 'Estamos cerrando su caso hoy', 'Su caso necesita más documentación', 'Su caso fue resuelto el mes pasado'],
+    correctIndex: 1,
+    explanation: "'Estamos cerrando su caso hoy' = We are closing your case today. Clear, direct language about case closure prevents confusion. Clients deserve to know exactly where they stand so they can seek services elsewhere if needed.",
+  },
+  {
+    question: '"Resumen del caso" means:',
+    options: ['Case number', 'Case summary', 'Case worker', 'Case file'],
+    correctIndex: 1,
+    explanation: "'Resumen del caso' = case summary. A case summary documents what services were provided, outcomes achieved, and referrals made. Workers should offer clients a copy in their language as part of an equitable closure process.",
+  },
+  {
+    question: "How do you ask 'Have your needs been met?'",
+    options: ['¿Está satisfecho con nuestros servicios?', '¿Han sido atendidas sus necesidades?', '¿Necesita servicios adicionales?', '¿Tiene comentarios sobre su experiencia?'],
+    correctIndex: 1,
+    explanation: "'¿Han sido atendidas sus necesidades?' = Have your needs been met? This question focuses on outcomes rather than satisfaction, which is more meaningful. It gives clients the language to identify unresolved needs before the case closes.",
+  },
+  {
+    question: "Which phrase means 'You can reopen your case if needed'?",
+    options: ['Este es el fin de nuestros servicios', 'Puede reabrir su caso si es necesario', 'Necesitará una nueva solicitud para volver', 'Su caso no puede reabrirse después de 6 meses'],
+    correctIndex: 1,
+    explanation: "'Puede reabrir su caso si es necesario' = You can reopen your case if needed. Informing clients of this option reduces anxiety about closure and ensures they know help is available if circumstances change — without requiring them to start the intake process from scratch.",
+  },
+  {
+    question: '"Recursos comunitarios" means:',
+    options: ['Community volunteers', 'Community resources', 'Community programs', 'Community centers'],
+    correctIndex: 1,
+    explanation: "'Recursos comunitarios' = community resources. Connecting clients to ongoing community resources at case closure is essential for sustainability. Workers must be able to name and explain local services in terms clients understand.",
+  },
+  {
+    question: "How do you say 'Here is a list of resources for your area'?",
+    options: ['Aquí está el número de nuestra oficina', 'Aquí está una lista de recursos para su área', 'Aquí están los formularios que necesita', 'Aquí está la información de su caso'],
+    correctIndex: 1,
+    explanation: "'Aquí está una lista de recursos para su área' = Here is a list of resources for your area. Providing a tangible resource list at closure ensures clients have actionable next steps and don't lose access to support when their case ends.",
+  },
+  {
+    question: "Which phrase asks 'Is there anything else we can help you with before we close?'",
+    options: ['¿Está listo para cerrar su caso?', '¿Hay algo más en lo que podamos ayudarle antes de cerrar?', '¿Tiene alguna queja sobre nuestros servicios?', '¿Conoce a alguien más que necesite ayuda?'],
+    correctIndex: 1,
+    explanation: "'¿Hay algo más en lo que podamos ayudarle antes de cerrar?' = Is there anything else we can help you with before we close? This open-ended question creates space for clients to raise concerns they may not have felt comfortable sharing earlier in the process.",
+  },
+  {
+    question: '"Encuesta de satisfacción" means:',
+    options: ['Service agreement', 'Progress report', 'Satisfaction survey', 'Needs assessment'],
+    correctIndex: 2,
+    explanation: "'Encuesta de satisfacción' = satisfaction survey. Offering clients a satisfaction survey in their language demonstrates respect and accountability. Feedback from LEP clients helps agencies identify language access gaps and improve services.",
+  },
+  {
+    question: "How do you say 'Thank you for trusting us with your situation'?",
+    options: ['Ha sido un placer trabajar con usted', 'Gracias por confiar en nosotros con su situación', 'Esperamos que todo vaya bien', 'Fue difícil, pero lo logramos juntos'],
+    correctIndex: 1,
+    explanation: "'Gracias por confiar en nosotros con su situación' = Thank you for trusting us with your situation. Acknowledging the courage it takes to seek help — especially for clients navigating systems in a second language — is a dignifying way to close a professional relationship.",
+  },
+  {
+    question: "How do you ask 'May we contact you for a follow-up in 30 days?'",
+    options: ['¿Podemos compartir su información con otras agencias?', '¿Podemos contactarle para un seguimiento en 30 días?', '¿Podemos cerrar su caso hoy?', '¿Podemos usar su caso como ejemplo?'],
+    correctIndex: 1,
+    explanation: "'¿Podemos contactarle para un seguimiento en 30 días?' = May we contact you for a follow-up in 30 days? Follow-up contact demonstrates ongoing accountability and helps agencies identify clients who needed more support than was provided during the active case period.",
+  },
+];
+
 export const CERT_TRACKS: CertTrack[] = [
   {
     id: 'healthcare',
@@ -1377,7 +1440,7 @@ export const CERT_TRACKS: CertTrack[] = [
       { id: 2, title: 'Housing & Shelter Services', questions: socialServicesHousingQuestions },
       { id: 3, title: 'Benefits & Eligibility', questions: socialServicesBenefitsQuestions },
       { id: 4, title: 'Domestic Violence Resources', questions: socialServicesDVQuestions },
-      { id: 5, title: 'Case Closure & Follow-Up', questions: [] },
+      { id: 5, title: 'Case Closure & Follow-Up', questions: socialServicesCaseClosureQuestions },
     ],
   },
   {
