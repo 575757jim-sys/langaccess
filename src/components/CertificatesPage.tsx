@@ -233,6 +233,29 @@ export default function CertificatesPage({ onBack }: Props) {
           </div>
         </div>
 
+        <div className="max-w-[680px] mx-auto px-0 py-10">
+          <p className="text-green-400 text-xs font-semibold tracking-widest uppercase mb-3">
+            Why Compliance Certification Matters
+          </p>
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-tight">
+            See what Title VI compliance looks like in practice.
+          </h2>
+          <div className="w-full rounded-xl overflow-hidden">
+            <iframe
+              width="100%"
+              style={{ aspectRatio: '16/9', borderRadius: '12px', display: 'block' }}
+              src="https://www.youtube.com/embed/K4IN9bEHw80"
+              title="LangAccess Compliance Certification"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+          <p className="mt-4 text-slate-500 text-xs leading-relaxed">
+            LangAccess generates audit-ready compliance records that demonstrate your organization meets Title VI language access obligations.
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-16">
           {CERT_TRACKS.map((track) => {
             const purchased = !!progress.purchased[track.id];
