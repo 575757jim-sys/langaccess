@@ -1008,6 +1008,69 @@ const toolboxTalksQuestions: QuizQuestion[] = [
   },
 ];
 
+const socialServicesClientIntakeQuestions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Everything you tell us is confidential'?",
+    options: ['Todo lo que nos diga será compartido con su familia', 'Todo lo que nos diga es confidencial', 'Todo lo que nos diga será documentado', 'Todo lo que nos diga ayudará a otros clientes'],
+    correctIndex: 1,
+    explanation: "'Todo lo que nos diga es confidencial' = Everything you tell us is confidential. Establishing confidentiality from the start builds trust and is a cornerstone of trauma-informed social services practice.",
+  },
+  {
+    question: '"Derechos del cliente" means:',
+    options: ['Client responsibilities', 'Client rights', 'Client services', 'Client information'],
+    correctIndex: 1,
+    explanation: "'Derechos del cliente' = client rights. Every client has the right to be informed of their rights — including confidentiality, interpreter access, and the right to file a grievance — before services begin.",
+  },
+  {
+    question: "How do you ask 'What brings you here today?'",
+    options: ['¿Cuándo fue su última visita?', '¿Qué lo trae aquí hoy?', '¿Conoce nuestros servicios?', '¿Cómo se enteró de nosotros?'],
+    correctIndex: 1,
+    explanation: "'¿Qué lo trae aquí hoy?' = What brings you here today? This open-ended question invites the client to share in their own words without making assumptions, setting a respectful tone for the intake.",
+  },
+  {
+    question: "Which phrase means 'You have the right to an interpreter'?",
+    options: ['Puede traer a alguien que traduzca', 'Tiene derecho a un intérprete', 'Necesita hablar inglés para recibir servicios', 'Podemos conseguirle un intérprete si es necesario'],
+    correctIndex: 1,
+    explanation: "'Tiene derecho a un intérprete' = You have the right to an interpreter. Under Title VI of the Civil Rights Act, agencies receiving federal funding must provide free language access to limited English proficient individuals.",
+  },
+  {
+    question: '"Formulario de consentimiento" means:',
+    options: ['Service application', 'Intake form', 'Consent form', 'Needs assessment'],
+    correctIndex: 2,
+    explanation: "'Formulario de consentimiento' = consent form. Informed consent requires clients to understand what they are agreeing to — in their language — before signing. Signing without understanding is not valid consent.",
+  },
+  {
+    question: "How do you say 'Your information will not be shared without your permission'?",
+    options: ['Su información estará disponible para todas las agencias', 'Su información no será compartida sin su permiso', 'Su información será guardada por 10 años', 'Su información puede ser revisada por el gobierno'],
+    correctIndex: 1,
+    explanation: "'Su información no será compartida sin su permiso' = Your information will not be shared without your permission. This directly addresses the fear many clients have about disclosure, especially those with immigration concerns.",
+  },
+  {
+    question: "Which phrase asks 'Have you received services here before?'",
+    options: ['¿Conoce a otros clientes aquí?', '¿Ha recibido servicios aquí antes?', '¿Cuándo empezó a necesitar servicios?', '¿Qué servicios necesita ahora?'],
+    correctIndex: 1,
+    explanation: "'¿Ha recibido servicios aquí antes?' = Have you received services here before? Knowing a client's history helps avoid duplication, locate existing case files, and build on previous service plans.",
+  },
+  {
+    question: '"Evaluación de necesidades" means:',
+    options: ['Service agreement', 'Case review', 'Needs assessment', 'Progress report'],
+    correctIndex: 2,
+    explanation: "'Evaluación de necesidades' = needs assessment. This structured process identifies what support a client requires — housing, food, mental health, legal aid — so the case worker can develop an appropriate service plan.",
+  },
+  {
+    question: "How do you say 'We are here to help, not to judge'?",
+    options: ['Estamos aquí para evaluar su situación', 'Estamos aquí para ayudar, no para juzgar', 'Estamos aquí para documentar su caso', 'Estamos aquí para conectarle con recursos'],
+    correctIndex: 1,
+    explanation: "'Estamos aquí para ayudar, no para juzgar' = We are here to help, not to judge. This phrase is especially important for clients who have faced stigma or shame. It signals psychological safety and encourages honesty.",
+  },
+  {
+    question: "How do you ask 'Is it safe for you to talk right now?'",
+    options: ['¿Tiene tiempo para hablar ahora?', '¿Es seguro para usted hablar ahora?', '¿Prefiere hablar en privado?', '¿Está cómodo hablando aquí?'],
+    correctIndex: 1,
+    explanation: "'¿Es seguro para usted hablar ahora?' = Is it safe for you to talk right now? This question is critical in domestic violence and crisis situations where a third party may be listening. Safety always comes first.",
+  },
+];
+
 const socialServicesQuestions: QuizQuestion[] = [
   {
     question: "'¿Cómo puedo ayudarle hoy?' means:",
@@ -1184,7 +1247,7 @@ export const CERT_TRACKS: CertTrack[] = [
     icon: '🤝',
     color: 'from-teal-600 to-teal-800',
     modules: [
-      { id: 1, title: 'Client Intake & Rights', questions: socialServicesQuestions },
+      { id: 1, title: 'Client Intake & Rights', questions: socialServicesClientIntakeQuestions },
       { id: 2, title: 'Housing & Shelter Services', questions: socialServicesQuestions.map(q => ({ ...q })) },
       { id: 3, title: 'Benefits & Eligibility', questions: socialServicesQuestions.map(q => ({ ...q })) },
       { id: 4, title: 'Domestic Violence Resources', questions: socialServicesQuestions.map(q => ({ ...q })) },
