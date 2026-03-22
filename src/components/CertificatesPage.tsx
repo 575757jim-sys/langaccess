@@ -317,6 +317,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                   <div className="text-4xl mb-3">{track.icon}</div>
                   <h2 className="text-xl font-bold text-white">{track.title}</h2>
                   <p className="text-white/70 text-sm mt-1 leading-relaxed">{track.description}</p>
+                  <p className="text-green-300 text-xs mt-2">50 unique questions across 5 workplace modules. Pass at 80% to earn your certificate.</p>
                   <div className="flex items-center gap-4 mt-4 text-sm">
                     <span className="text-white/80">5 modules</span>
                     <span className="text-white/80">${CERT_PRICE} full access</span>
@@ -420,12 +421,15 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                           Start Free Module
                         </button>
                         {!purchased && (
-                          <button
-                            onClick={() => handleEnroll(track.id)}
-                            className={`w-full py-2.5 rounded-xl bg-gradient-to-r ${track.color} text-white font-semibold text-sm transition-opacity hover:opacity-90`}
-                          >
-                            Enroll — ${CERT_PRICE}
-                          </button>
+                          <div>
+                            <button
+                              onClick={() => handleEnroll(track.id)}
+                              className={`w-full py-2.5 rounded-xl bg-gradient-to-r ${track.color} text-white font-semibold text-sm transition-opacity hover:opacity-90`}
+                            >
+                              Enroll — ${CERT_PRICE}
+                            </button>
+                            <p className="text-center text-slate-500 text-xs mt-1.5">Less than one hour of interpreter fees</p>
+                          </div>
                         )}
                       </>
                     )}
@@ -441,12 +445,19 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
           <h2 className="text-2xl font-bold text-white mb-3">What You Get</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             {[
-              { label: '5 Modules', desc: 'Each track includes 5 focused modules covering real workplace scenarios.' },
-              { label: 'Instant Certificate', desc: 'Pass all modules and download your PDF certificate immediately.' },
-              { label: 'Verifiable Records', desc: 'Every certificate is stored in our database and verifiable at langaccess.org/verify.' },
+              { label: '5 Modules', desc: 'Each track includes 5 focused modules covering real workplace scenarios.', highlight: false },
+              { label: 'Instant Certificate', desc: 'Pass all modules and download your PDF certificate immediately.', highlight: false },
+              { label: 'Verifiable Records', desc: 'Every certificate is stored in our database and verifiable at langaccess.org/verify.', highlight: true },
             ].map(item => (
-              <div key={item.label} className="text-left p-4 bg-white/3 rounded-xl border border-white/5">
-                <p className="text-green-400 font-bold mb-1">{item.label}</p>
+              <div key={item.label} className={`text-left p-4 rounded-xl border ${item.highlight ? 'bg-green-500/5 border-green-500/20' : 'bg-white/3 border-white/5'}`}>
+                {item.highlight ? (
+                  <div className="flex items-center gap-2 mb-1">
+                    <ShieldCheck className="w-5 h-5 text-green-400 flex-shrink-0" />
+                    <p className="text-green-400 font-bold text-base">{item.label}</p>
+                  </div>
+                ) : (
+                  <p className="text-green-400 font-bold mb-1">{item.label}</p>
+                )}
                 <p className="text-slate-400 text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
