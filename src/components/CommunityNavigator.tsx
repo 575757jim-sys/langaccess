@@ -143,10 +143,35 @@ function loadLang(): LangCode {
 }
 
 function loadCity(): CityKey {
-  const saved = localStorage.getItem(CITY_KEY_STORAGE);
+  const saved = localStorage.getItem(50);
   if (saved && CITY_KEYS.includes(saved as CityKey)) return saved as CityKey;
   return 'san-jose';
 }
+function detectRegion(setCity: (city: CityKey) => void) {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition((pos) => {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    const coords: Record<CityKey, [number, number]> = {
+      'san-jose': [37.3382, -121.8863],
+      'oakland': [37.8044, -122.2712],
+      'san-francisco': [37.7749, -122.4194],
+      'fresno': [36.7378, -119.7871],
+      'sacramento': [38.5816, -121.4944],
+      'los-angeles': [34.0522, -118.2437],
+      'san-diego': [32.7157, -117.1611],
+    };
+    let nearest = 'san-jose' as CityKey;
+    let minDist = Infinity;
+    (Object.entries(coords) as [CityKey, [number, number]][])
+      .forEach(([city, [clat, clng]]) => {
+        const d = Math.abs(lat - clat) + Math.abs(lng - clng);
+        if (d < minDist) { minDist = d; nearest = city; }
+      });
+    setCity(nearest);
+  });
+}
+
 
 let navPlayId = 0;
 let navCurrentAudio: HTMLAudioElement | null = null;
@@ -307,6 +332,12 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
           </div>
         </div>
 
+        <button
+          onClick={() => detectRegion(setSelectedCity)}
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-green-400 text-black font-bold rounded-lg mb-2 text-base active:scale-95"
+        >
+          📍 Detect My Region
+        </button>
         <div className="max-w-2xl mx-auto px-4 pb-4 flex items-center gap-3">
           <div className="relative flex-1">
             <select
