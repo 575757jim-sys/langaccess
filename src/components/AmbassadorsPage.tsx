@@ -469,164 +469,112 @@ export default function AmbassadorsPage({ onBack }: Props) {
           Every card connects someone to food, shelter, restrooms, power, and crisis aid in 6 languages. Your unique QR code is printed on every card you receive.
         </p>
 
-        <div className="flex flex-col md:flex-row gap-6 items-start justify-center">
+        <div className="flex flex-col md:flex-row gap-8 items-start justify-center">
+
+          {/* Card Front */}
           <div
-            className="w-full max-w-[480px] mx-auto rounded-2xl shadow-2xl overflow-hidden flex-shrink-0"
-            style={{ background: '#0b0d0c', border: '1px solid rgba(255,255,255,0.08)' }}
+            className="w-full max-w-[480px] mx-auto rounded-2xl shadow-2xl overflow-hidden flex-shrink-0 flex"
+            style={{ background: '#0b0d0c', border: '1px solid rgba(255,255,255,0.08)', minHeight: 200 }}
           >
-            <div className="p-5">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-green-400 text-xs font-bold uppercase tracking-widest">LangAccess</span>
-                <div className="flex gap-1.5">
-                  {['ES', 'TL', 'VI', 'ZH'].map(lang => (
-                    <span key={lang} className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/10 text-slate-300">{lang}</span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex gap-4">
+            <div className="w-1.5 flex-shrink-0 rounded-l-2xl" style={{ background: '#22c55e' }} />
+            <div className="flex-1 p-5">
+              <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-white font-bold text-base leading-tight mb-1">
-                    Need help? We speak your language.
-                  </h3>
-                  <p className="text-slate-400 text-xs mb-4">Free resources. No app needed. 5 languages.</p>
-
-                  <div className="space-y-2.5">
-                    {[
-                      {
-                        icon: (
-                          <svg className="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                          </svg>
-                        ),
-                        number: '211',
-                        desc: 'Food, Shelter, Health, Utilities',
-                        tag: 'CALL FREE',
-                        tagColor: 'bg-green-500/20 text-green-400',
-                      },
-                      {
-                        icon: (
-                          <svg className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                          </svg>
-                        ),
-                        number: 'Text HOME to 741741',
-                        desc: 'Crisis Text Line, 24/7',
-                        tag: 'TEXT',
-                        tagColor: 'bg-yellow-500/20 text-yellow-400',
-                      },
-                      {
-                        icon: (
-                          <svg className="w-3.5 h-3.5 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                          </svg>
-                        ),
-                        number: '988',
-                        desc: 'Suicide and Crisis Lifeline, 24/7',
-                        tag: 'CRISIS',
-                        tagColor: 'bg-red-500/20 text-red-400',
-                      },
-                      {
-                        icon: (
-                          <svg className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                          </svg>
-                        ),
-                        number: 'Scan QR for resources',
-                        desc: 'langaccess.org · your language · instant',
-                        tag: 'SCAN',
-                        tagColor: 'bg-blue-500/20 text-blue-400',
-                      },
-                    ].map((row, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-md bg-white/5 flex items-center justify-center flex-shrink-0">
-                          {row.icon}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white text-xs font-semibold leading-tight truncate">{row.number}</p>
-                          <p className="text-slate-500 text-[10px] leading-tight truncate">{row.desc}</p>
-                        </div>
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded flex-shrink-0 ${row.tagColor}`}>{row.tag}</span>
-                      </div>
-                    ))}
+                  <p className="text-white font-bold text-base leading-snug mb-1">One Card. One Lifeline.</p>
+                  <p className="text-slate-500 text-xs mb-4">Scan to find help near you</p>
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-2.5 py-1.5">
+                      <svg className="w-3.5 h-3.5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.4 6M17 13l1.4 6M9 19a1 1 0 100 2 1 1 0 000-2zm8 0a1 1 0 100 2 1 1 0 000-2z" />
+                      </svg>
+                      <span className="text-slate-300 text-[10px] font-medium">Food</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-2.5 py-1.5">
+                      <svg className="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
+                      <span className="text-slate-300 text-[10px] font-medium">Shelter</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-2.5 py-1.5">
+                      <svg className="w-3.5 h-3.5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      <span className="text-slate-300 text-[10px] font-medium">Medical</span>
+                    </div>
+                  </div>
+                  <div className="mt-auto">
+                    <p className="text-slate-600 text-[9px] mt-1">Your Name · Your City</p>
                   </div>
                 </div>
-
                 <div className="flex-shrink-0 flex flex-col items-center gap-2">
-                  <div
-                    className="w-16 h-16 rounded-lg flex flex-col items-center justify-center"
-                    style={{ background: 'white' }}
-                  >
-                    <svg viewBox="0 0 64 64" className="w-12 h-12">
-                      <rect x="4" y="4" width="24" height="24" rx="2" fill="none" stroke="#000" strokeWidth="3"/>
-                      <rect x="10" y="10" width="12" height="12" fill="#000"/>
-                      <rect x="36" y="4" width="24" height="24" rx="2" fill="none" stroke="#000" strokeWidth="3"/>
-                      <rect x="42" y="10" width="12" height="12" fill="#000"/>
-                      <rect x="4" y="36" width="24" height="24" rx="2" fill="none" stroke="#000" strokeWidth="3"/>
-                      <rect x="10" y="42" width="12" height="12" fill="#000"/>
-                      <rect x="36" y="36" width="6" height="6" fill="#000"/>
-                      <rect x="46" y="36" width="6" height="6" fill="#000"/>
-                      <rect x="36" y="46" width="6" height="6" fill="#000"/>
-                      <rect x="46" y="46" width="14" height="14" fill="#000"/>
+                  <div className="w-20 h-20 rounded-xl flex items-center justify-center bg-white p-1.5 shadow-lg">
+                    <svg viewBox="0 0 64 64" className="w-full h-full">
+                      <rect x="2" y="2" width="22" height="22" rx="2" fill="none" stroke="#000" strokeWidth="2.5"/>
+                      <rect x="7" y="7" width="12" height="12" fill="#000"/>
+                      <rect x="40" y="2" width="22" height="22" rx="2" fill="none" stroke="#000" strokeWidth="2.5"/>
+                      <rect x="45" y="7" width="12" height="12" fill="#000"/>
+                      <rect x="2" y="40" width="22" height="22" rx="2" fill="none" stroke="#000" strokeWidth="2.5"/>
+                      <rect x="7" y="45" width="12" height="12" fill="#000"/>
+                      <rect x="40" y="40" width="5" height="5" fill="#000"/>
+                      <rect x="49" y="40" width="5" height="5" fill="#000"/>
+                      <rect x="58" y="40" width="5" height="5" fill="#000"/>
+                      <rect x="40" y="49" width="5" height="5" fill="#000"/>
+                      <rect x="49" y="49" width="5" height="5" fill="#000"/>
+                      <rect x="40" y="58" width="5" height="5" fill="#000"/>
+                      <rect x="54" y="54" width="9" height="9" fill="#000"/>
                     </svg>
                   </div>
-                  <p className="text-[9px] text-slate-500 text-center leading-tight">Your personal<br/>QR</p>
+                  <p className="text-green-400 text-[10px] font-semibold">langaccess.org</p>
+                  <p className="text-slate-600 text-[9px] text-center leading-tight">Español disponible<br/>al escanear</p>
                 </div>
-              </div>
-
-              <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-end">
-                <p className="text-[10px] text-slate-600">Your Name · Your City · Verified</p>
               </div>
             </div>
           </div>
 
+          {/* Card Back */}
           <div
             className="w-full max-w-[480px] mx-auto rounded-2xl shadow-2xl overflow-hidden flex-shrink-0"
             style={{ background: '#0a2214', border: '1px solid rgba(255,255,255,0.08)' }}
           >
             <div className="p-5">
-              <div className="grid grid-cols-2 gap-4 mb-5">
+              <div className="grid grid-cols-2 gap-5 mb-4">
                 <div>
                   <p className="text-green-400 text-xs font-bold uppercase tracking-wide mb-2.5">English</p>
-                  <ul className="space-y-2">
+                  <p className="text-slate-300 text-[10px] leading-snug mb-2">Find help near you for:</p>
+                  <p className="text-slate-400 text-[10px] leading-snug mb-3">Food • Shelter • Medical • Mental Health</p>
+                  <ul className="space-y-1.5">
                     {[
-                      { bold: 'Call 211:', rest: 'Free 24/7. Food shelter health utilities.' },
-                      { bold: 'Text HOME to 741741:', rest: 'Crisis support, confidential.' },
-                      { bold: 'Call or Text 988:', rest: 'Crisis Lifeline, free, 24/7.' },
-                      { bold: 'Scan QR:', rest: 'Full resources at langaccess.org' },
+                      'Includes overdose support (Naloxone/Narcan)',
+                      'Call or Text 988 — Mental health crisis',
+                      'Call 211 — Local services',
+                      'Call 911 — Emergency',
                     ].map((item, i) => (
-                      <li key={i} className="text-[10px] leading-snug text-slate-300">
-                        <span className="font-semibold text-white">{item.bold}</span>{' '}
-                        <span className="text-slate-400">{item.rest}</span>
-                      </li>
+                      <li key={i} className="text-slate-400 text-[10px] leading-snug">{item}</li>
                     ))}
                   </ul>
                 </div>
                 <div>
-                  <p className="text-yellow-400 text-xs font-bold uppercase tracking-wide mb-2.5">Espanol</p>
-                  <ul className="space-y-2">
+                  <p className="text-yellow-400 text-xs font-bold uppercase tracking-wide mb-2.5">Español</p>
+                  <p className="text-slate-300 text-[10px] leading-snug mb-2">Encuentre ayuda cerca para:</p>
+                  <p className="text-slate-400 text-[10px] leading-snug mb-3">Comida • Refugio • Médico • Salud Mental</p>
+                  <ul className="space-y-1.5">
                     {[
-                      { bold: 'Llame al 211:', rest: 'Linea gratuita 24/7.' },
-                      { bold: 'Escriba HOME al 741741:', rest: 'Apoyo en crisis.' },
-                      { bold: 'Llame al 988:', rest: 'Linea de crisis, gratis.' },
-                      { bold: 'Escanee el QR:', rest: 'Recursos en su idioma.' },
+                      'Incluye apoyo de sobredosis (Naloxona/Narcan)',
+                      'Llame o texto 988 — Crisis de salud mental',
+                      'Llame al 211 — Servicios locales',
+                      'Llame al 911 — Emergencia',
                     ].map((item, i) => (
-                      <li key={i} className="text-[10px] leading-snug text-slate-300">
-                        <span className="font-semibold text-white">{item.bold}</span>{' '}
-                        <span className="text-slate-400">{item.rest}</span>
-                      </li>
+                      <li key={i} className="text-slate-400 text-[10px] leading-snug">{item}</li>
                     ))}
                   </ul>
                 </div>
               </div>
-
-              <div className="pt-3 border-t border-white/10 flex items-center justify-between">
-                <span className="text-green-400 text-[10px] font-bold uppercase tracking-widest">LangAccess</span>
-                <span className="text-slate-600 text-[10px]">langaccess.org</span>
-                <span className="text-slate-600 text-[10px]">Distributed by a verified Ambassador</span>
+              <div className="pt-3 border-t border-white/10 text-center">
+                <span className="text-green-400 text-[10px] font-semibold tracking-wide">LangAccess.org</span>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
