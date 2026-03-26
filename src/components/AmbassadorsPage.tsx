@@ -223,7 +223,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
     <div id="signup" className="max-w-2xl mx-auto px-4 pb-16">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-white mb-2">Join the Brigade</h2>
-        <p className="text-slate-400 text-sm">Fill out the form below and we'll ship your free card pack.</p>
+        <p className="text-slate-400 text-sm">Join the Brigade. Order your cards at cost.</p>
       </div>
 
       {submitted ? (
@@ -402,7 +402,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
               </>
             ) : (
               <>
-                Send Me My Free Cards
+                Join the Ambassador Brigade
                 <Send className="w-4 h-4" />
               </>
             )}
@@ -446,11 +446,11 @@ export default function AmbassadorsPage({ onBack }: Props) {
             Community-Powered
           </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Got 10 minutes<br />
-            <span className="text-green-400">and a pocket?</span>
+            One Card.<br />
+            <span className="text-green-400">One Lifeline.</span>
           </h1>
           <p className="text-slate-200 text-lg font-medium mb-3 max-w-2xl mx-auto leading-relaxed">
-            If someone needs food, shelter, or other services — this card will help.
+            Carry a card. Connect someone to help.
           </p>
           <p className="text-slate-400 text-base max-w-2xl mx-auto leading-relaxed">
             Ambassadors distribute LangAccess cards at clinics, schools, job sites, and community centers.
@@ -466,27 +466,6 @@ export default function AmbassadorsPage({ onBack }: Props) {
             <Send className="w-4 h-4" />
           </a>
         </div>
-      </div>
-
-      <div className="max-w-[680px] mx-auto px-4 py-16">
-        <p className="text-xs font-semibold text-green-400 uppercase tracking-widest text-center mb-3">
-          Hear How It Works
-        </p>
-        <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-8 leading-snug">
-          Two minutes. Then you will get it.
-        </h2>
-        <iframe
-          width="100%"
-          style={{ aspectRatio: '16/9', borderRadius: '12px' }}
-          src="https://www.youtube.com/embed/QjjaAvaHlZ0"
-          title="LangAccess Ambassador Program Explainer"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-        <p className="text-slate-500 text-sm text-center mt-5 leading-relaxed">
-          A plain-language overview of how LangAccess cards reach people who need them — and how you fit in.
-        </p>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-16">
@@ -673,7 +652,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16">
           {[
             { step: '01', title: 'Sign Up Below', desc: 'Tell us who you are and where you work. Takes 2 minutes.' },
-            { step: '02', title: 'Get Your Cards', desc: 'We ship a pack of 25 LangAccess reference cards to your location.' },
+            { step: '02', title: 'Get Your Cards', desc: 'Order your Ambassador cards at cost — printed and shipped directly to you. No markup. Just impact.' },
             { step: '03', title: 'Share Them', desc: 'Leave them in waiting rooms, break rooms, teacher lounges, or hand them directly to colleagues.' },
           ].map(item => (
             <div key={item.step} className="bg-[#111827] rounded-2xl p-6 border border-white/10">
