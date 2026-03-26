@@ -223,7 +223,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
     <div id="signup" className="max-w-2xl mx-auto px-4 pb-16">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-white mb-2">Join the Brigade</h2>
-        <p className="text-slate-400 text-sm">Join the Brigade. Order your cards at cost.</p>
+        <p className="text-slate-400 text-sm">Join the movement. Takes 2 minutes.</p>
       </div>
 
       {submitted ? (
@@ -233,7 +233,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
           </div>
           <h3 className="text-3xl font-bold text-green-400 mb-4">You are in the Brigade.</h3>
           <p className="text-green-200 text-base leading-relaxed max-w-md mx-auto">
-            Check your email for your QR code and shipping details. Your free 25-card pack ships within 5 days.
+            Check your email for your QR code and shipping details. Your 25-card pack ships within 5 days.
           </p>
         </div>
       ) : (
@@ -254,7 +254,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
 
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-              Mailing Address for Your Free Card Pack *
+              Mailing Address for Your Card Pack *
             </label>
             <div className="space-y-3">
               <div>
@@ -316,7 +316,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
               name="locations"
               value={form.locations}
               onChange={handleChange}
-              placeholder="Valley Medical Center waiting room, Lincoln Elementary break room..."
+              placeholder="Valley Medical waiting room, Lincoln Elementary break room, job site..."
               className={fieldClass(errors.locations)}
             />
             {errors.locations && <p className="text-red-400 text-xs mt-1.5">{errors.locations}</p>}
@@ -416,7 +416,7 @@ export default function AmbassadorsPage({ onBack }: Props) {
     <div className="min-h-screen bg-[#0a0f1e] text-white">
       <SEO
         title="Ambassador Brigade | LangAccess"
-        description="Join the LangAccess Ambassador Brigade. Distribute free language access cards in your community and help break down language barriers in healthcare, education, and more."
+        description="Join the LangAccess Ambassador Brigade. Distribute language access cards in your community and help break down language barriers in healthcare, education, and more."
         path="/ambassadors"
       />
 
@@ -623,6 +623,14 @@ export default function AmbassadorsPage({ onBack }: Props) {
               <p className="text-slate-500 text-xs mt-0.5">{a.profession}</p>
             </div>
           ))}
+        </div>
+        <div className="text-center mt-8">
+          <a
+            href="#signup"
+            className="text-slate-400 text-sm hover:text-green-400 transition-colors"
+          >
+            Want to see your name here? <span className="text-green-400 font-semibold">Become an Ambassador →</span>
+          </a>
         </div>
       </div>
     </div>
