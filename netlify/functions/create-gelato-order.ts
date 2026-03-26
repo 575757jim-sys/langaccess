@@ -1,0 +1,136 @@
+import { Handler } from "@netlify/functions";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.VITE_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY!
+);
+
+export const handler: Handler = async (event) => {
+  if (event.httpMethod !== "POST") {
+    return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
+  }
+
+  let body: {
+    ambassador_id: string;
+    full_name: string;
+    email: string;
+    phone: string;
+    shipping_address: string;
+    city: string;
+    state: string;
+    zip: string;
+    quantity: number;
+    frontFileUrl: string;
+    backFileUrl: string;
+  };
+
+  try {
+    body = JSON.parse(event.body || "{}");
+  } catch {
+    return { statusCode: 400, body: JSON.stringify({ error: "Invalid JSON" }) };
+  }
+
+  const {
+    ambassador_id,
+    full_name,
+    email,
+    phone,
+    shipping_address,
+    city,
+    state,
+    zip,
+    quantity,
+    frontFileUrl,
+    backFileUrl,
+  } = body;
+
+  const nameParts = full_name.trim().split(/\s+/);
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
+
+  const orderPayload = {
+    orderType: "order",
+    orderReferenceId: `${ambassador_id}-${Date.now()}`,
+    customerReferenceId: ambassador_id,
+    currency: "USD",
+    items: [
+      {
+        itemReferenceId: `cards-${ambassador_id}`,
+        productUid: "cards_pf_bx_pt_300-gsm-uncoated_cl_4-4_ver",
+        files: [
+          { type: "default", url: frontFileUrl },
+          { type: "back", url: backFileUrl },
+        ],
+        quantity,
+      },
+    ],
+    shipmentMethodUid: "normal",
+    shippingAddress: {
+      firstName,
+      lastName,
+      addressLine1: shipping_address,
+      city,
+      state,
+      postCode: zip,
+      country: "US",
+      email,
+      phone,
+    },
+  };
+
+  let gelatoOrderId: string | null = null;
+
+  try {
+    const gelatoRes = await fetch("https://order.gelatoapis.com/v4/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-KEY": process.env.GELATO_API_KEY!,
+      },
+      body: JSON.stringify(orderPayload),
+    });
+
+    if (!gelatoRes.ok) {
+      const errText = await gelatoRes.text();
+      return {
+        statusCode: gelatoRes.status,
+        body: JSON.stringify({ error: "Gelato API error", details: errText }),
+      };
+    }
+
+    const gelatoData = await gelatoRes.json();
+    gelatoOrderId = gelatoData.id || gelatoData.orderId || null;
+  } catch (err) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Failed to call Gelato API", details: String(err) }),
+    };
+  }
+
+  const shippingAddressJson = {
+    address: shipping_address,
+    city,
+    state,
+    zip,
+  };
+
+  const { error: dbError } = await supabase.from("card_orders").insert({
+    ambassador_id,
+    gelato_order_id: gelatoOrderId,
+    quantity,
+    shipping_name: full_name,
+    shipping_address_json: shippingAddressJson,
+    status: "submitted",
+  });
+
+  if (dbError) {
+    console.error("Supabase insert error:", dbError);
+  }
+
+  return {
+    statusCode: 200,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ success: true, gelatoOrderId }),
+  };
+};
