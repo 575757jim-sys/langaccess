@@ -651,9 +651,9 @@ export default function AmbassadorsPage({ onBack }: Props) {
       <div className="max-w-4xl mx-auto px-4 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16">
           {[
-            { step: '01', title: 'Sign Up Below', desc: 'Tell us who you are and where you work. Takes 2 minutes.' },
-            { step: '02', title: 'Get Your Cards', desc: 'Order your Ambassador cards at cost — printed and shipped directly to you. No markup. Just impact.' },
-            { step: '03', title: 'Share Them', desc: 'Leave them in waiting rooms, break rooms, teacher lounges, or hand them directly to colleagues.' },
+            { step: '01', title: 'Sign Up', desc: 'Tell us who you are and where you work. Takes 2 minutes.' },
+            { step: '02', title: 'Order Your Cards', desc: 'Order a pack of 25, 50, or 100 cards printed with your unique QR code. You pay printing and shipping cost only — no markup.' },
+            { step: '03', title: 'Share Them', desc: 'Leave them in waiting rooms, break rooms, or hand them directly to anyone who needs help finding food, shelter, or crisis support.' },
           ].map(item => (
             <div key={item.step} className="bg-[#111827] rounded-2xl p-6 border border-white/10">
               <p className="text-4xl font-bold text-green-500/30 mb-3">{item.step}</p>
