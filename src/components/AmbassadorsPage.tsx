@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Users, MapPin, Send, CheckCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, Send, CheckCircle } from 'lucide-react';
 import SEO from './SEO';
 import { supabase } from '../lib/supabase';
 
@@ -441,22 +441,12 @@ export default function AmbassadorsPage({ onBack }: Props) {
           }}
         />
         <div className="max-w-4xl mx-auto px-4 py-20 text-center relative">
-          <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-4 py-1.5 text-green-400 text-sm font-medium mb-8">
-            <Users className="w-4 h-4" />
-            Community-Powered
-          </div>
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
             One Card.<br />
             <span className="text-green-400">One Lifeline.</span>
           </h1>
-          <p className="text-slate-200 text-lg font-medium mb-3 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-slate-200 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
             Carry a card. Connect someone to help.
-          </p>
-          <p className="text-slate-400 text-base max-w-2xl mx-auto leading-relaxed">
-            Ambassadors distribute LangAccess cards at clinics, schools, job sites, and community centers.
-          </p>
-          <p className="text-slate-400 text-base max-w-xl mx-auto leading-relaxed">
-            No budget needed. No Spanish required. Just a willingness to hand someone a card that might change how they're treated at a doctor's office.
           </p>
           <a
             href="#signup"
