@@ -210,7 +210,7 @@ function App() {
     }
 
     if (view === 'ambassadors') {
-      return <AmbassadorsPage onBack={() => setView('home')} />;
+      return <AmbassadorsPage onBack={() => setView('home')} onOrderCards={() => setView('order-cards')} />;
     }
 
     if (view === 'order-cards') {

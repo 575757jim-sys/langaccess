@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 
 interface Props {
   onBack: () => void;
+  onOrderCards?: () => void;
 }
 
 interface FormState {
@@ -108,11 +109,13 @@ function StatCounter({ value, label, started }: { value: number; label: string; 
   );
 }
 
-export default function AmbassadorsPage({ onBack }: Props) {
+export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [agreementChecked, setAgreementChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [orderPromptDismissed, setOrderPromptDismissed] = useState(false);
+  const [selectedQty, setSelectedQty] = useState<25 | 50 | 100>(25);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [statsVisible, setStatsVisible] = useState(false);
@@ -229,14 +232,62 @@ export default function AmbassadorsPage({ onBack }: Props) {
       </div>
 
       {submitted ? (
-        <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-14 text-center">
-          <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-8 h-8 text-green-400" />
+        <div className="space-y-5">
+          <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-14 text-center">
+            <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="w-8 h-8 text-green-400" />
+            </div>
+            <h3 className="text-3xl font-bold text-green-400 mb-4">You are in the Brigade.</h3>
+            <p className="text-green-200 text-base leading-relaxed max-w-md mx-auto">
+              Check your email for your QR code and shipping details.
+            </p>
           </div>
-          <h3 className="text-3xl font-bold text-green-400 mb-4">You are in the Brigade.</h3>
-          <p className="text-green-200 text-base leading-relaxed max-w-md mx-auto">
-            Check your email for your QR code and shipping details. Your 25-card pack ships within 5 days.
-          </p>
+
+          {!orderPromptDismissed && (
+            <div className="bg-[#111827] border border-white/10 rounded-2xl p-8">
+              <h3 className="text-2xl font-bold text-white mb-2">Now Order Your Cards</h3>
+              <p className="text-slate-400 text-sm leading-relaxed mb-1">
+                Printed with your unique QR code. You pay printing and shipping only.
+              </p>
+              <p className="text-slate-400 text-sm leading-relaxed mb-1">
+                At cost. No markup. Just impact.
+              </p>
+              <p className="text-slate-500 text-sm mb-6">
+                Estimated cost: $8–15 depending on location.
+              </p>
+
+              <div className="flex gap-3 mb-6">
+                {([25, 50, 100] as const).map(qty => (
+                  <button
+                    key={qty}
+                    onClick={() => setSelectedQty(qty)}
+                    className={`flex-1 py-3 rounded-xl border text-sm font-semibold transition-colors ${
+                      selectedQty === qty
+                        ? 'bg-green-500 border-green-500 text-white'
+                        : 'bg-white/5 border-white/10 text-slate-300 hover:border-green-500/40 hover:text-white'
+                    }`}
+                  >
+                    {qty} cards
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => onOrderCards?.()}
+                className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 text-white font-bold text-base transition-colors flex items-center justify-center gap-2 mb-4"
+              >
+                Order My Cards
+                <Send className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => setOrderPromptDismissed(true)}
+                className="w-full text-center text-slate-500 hover:text-slate-400 text-sm transition-colors"
+              >
+                Skip for now — I'll order later
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         <form onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-8 border border-white/10 space-y-5">
