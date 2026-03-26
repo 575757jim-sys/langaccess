@@ -11,6 +11,7 @@ import JobSiteTalkScreen from './components/JobSiteTalkScreen';
 import CertificatesPage from './components/CertificatesPage';
 import CertVerifyPage from './components/CertVerifyPage';
 import AmbassadorsPage from './components/AmbassadorsPage';
+import OrderCardsPage from './components/OrderCardsPage';
 import QRScanPage from './components/QRScanPage';
 import UpdateToast from './components/UpdateToast';
 import DebugOverlay from './components/DebugOverlay';
@@ -39,7 +40,8 @@ type AppView =
   | 'job-site-talk'
   | 'certificates'
   | 'cert-verify'
-  | 'ambassadors';
+  | 'ambassadors'
+  | 'order-cards';
 
 function getQRSlug(): string | null {
   const match = window.location.pathname.match(/^\/r\/([^/]+)/);
@@ -50,10 +52,22 @@ function getVerifyPath(): boolean {
   return window.location.pathname === '/verify';
 }
 
+function getOrderCardsPath(): boolean {
+  return window.location.pathname === '/order-cards';
+}
+
+function getAmbassadorsPath(): boolean {
+  return window.location.pathname === '/ambassadors' || window.location.pathname === '/ambassador';
+}
+
 function App() {
   const qrSlug = getQRSlug();
   const isVerifyPath = getVerifyPath();
-  const [view, setView] = useState<AppView>(isVerifyPath ? 'cert-verify' : 'home');
+  const isOrderCardsPath = getOrderCardsPath();
+  const isAmbassadorsPath = getAmbassadorsPath();
+  const [view, setView] = useState<AppView>(
+    isOrderCardsPath ? 'order-cards' : isVerifyPath ? 'cert-verify' : isAmbassadorsPath ? 'ambassadors' : 'home'
+  );
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(null);
@@ -197,6 +211,10 @@ function App() {
 
     if (view === 'ambassadors') {
       return <AmbassadorsPage onBack={() => setView('home')} />;
+    }
+
+    if (view === 'order-cards') {
+      return <OrderCardsPage onBack={() => setView('home')} />;
     }
 
     if (view === 'policy') {
