@@ -188,20 +188,22 @@ export default function AmbassadorsPage({ onBack }: Props) {
       const email = form.email.trim();
       const cityState = form.city.trim() + ', ' + form.state;
 
-      fetch('/.netlify/functions/generate-qr-slug', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ambassador_id: data.id, full_name: fullName, city_state: cityState }),
-      })
-        .then(r => r.json())
-        .then(qrData => {
-          fetch('/.netlify/functions/send-ambassador-welcome', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ full_name: fullName, email, slug: qrData.slug, qrUrl: qrData.qrUrl }),
-          });
-        })
-        .catch(() => {});
+      try {
+        const qrRes = await fetch('/.netlify/functions/generate-qr-slug', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ambassador_id: data.id, full_name: fullName, city_state: cityState }),
+        });
+        const qrData = await qrRes.json();
+        console.log('QR slug generated — slug:', qrData.slug, 'qrUrl:', qrData.qrUrl);
+        await fetch('/.netlify/functions/send-ambassador-welcome', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ full_name: fullName, email, slug: qrData.slug, qrUrl: qrData.qrUrl }),
+        });
+      } catch (emailErr) {
+        console.error('Post-submit background step failed:', emailErr);
+      }
 
     } catch (err: unknown) {
       console.error('Submit error:', err);
