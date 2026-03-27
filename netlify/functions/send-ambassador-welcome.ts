@@ -28,7 +28,7 @@ export const handler: Handler = async (event) => {
     const email = (d.email || '') as string;
     const slug = (d.slug || '') as string;
     const qr = (d.qrUrl || '') as string;
-    const ambassadorId = (d.ambassador_id || '') as string;
+    const refCode = (d.ref_code || '') as string;
     const first = name.split(' ')[0];
     await post(
       'LangAccessInfo@gmail.com',
@@ -68,7 +68,7 @@ export const handler: Handler = async (event) => {
       '<p><strong>Next step:</strong> Order your cards at cost —' +
       ' printed with your QR code above and shipped directly to you.</p>' +
       '<div style="text-align:center;margin:20px 0;">' +
-      '<a href="https://langaccess.org/order-cards' + (slug ? '?ref=' + slug : (ambassadorId ? '?aid=' + ambassadorId : '')) + '"' +
+      '<a href="https://langaccess.org/order-cards' + (refCode ? '?ref=' + refCode : (slug ? '?ref=' + slug : '')) + '"' +
       ' style="background:#2dff72;color:#0b0d0c;font-weight:700;' +
       'padding:12px 24px;border-radius:100px;text-decoration:none;' +
       'font-size:14px;display:inline-block;">' +
