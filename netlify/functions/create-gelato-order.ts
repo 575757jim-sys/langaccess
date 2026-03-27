@@ -6,6 +6,9 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY!
 );
 
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL!;
+const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY!;
+
 export const handler: Handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
@@ -57,7 +60,7 @@ export const handler: Handler = async (event) => {
     items: [
       {
         itemReferenceId: `cards-${ambassador_id}`,
-        productUid: "cards_pf_bx_pt_300-gsm-uncoated_cl_4-4_ver",
+        productUid: process.env.GELATO_PRODUCT_UID || "cards_pf_bx_pt_300-gsm-uncoated_cl_4-4_hor",
         files: [
           { type: "default", url: frontFileUrl },
           { type: "back", url: backFileUrl },
@@ -122,10 +125,32 @@ export const handler: Handler = async (event) => {
     shipping_name: full_name,
     shipping_address_json: shippingAddressJson,
     status: "submitted",
+    created_at: new Date().toISOString(),
   });
 
   if (dbError) {
     console.error("Supabase insert error:", dbError);
+  }
+
+  const shippingAddressDisplay = [shipping_address, city, state, zip].filter(Boolean).join(", ");
+
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/send-order-confirmation`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({
+        full_name,
+        email,
+        quantity,
+        gelato_order_id: gelatoOrderId,
+        shipping_address: shippingAddressDisplay,
+      }),
+    });
+  } catch (emailErr) {
+    console.error("Confirmation email failed (non-fatal):", emailErr);
   }
 
   return {
