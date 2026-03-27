@@ -229,9 +229,14 @@ export default function PublicOrderPage() {
             <AlertCircle className="w-7 h-7 text-amber-400" />
           </div>
           <h1 className="text-2xl font-bold text-white mb-3">Link Not Recognized</h1>
-          <p className="text-slate-400 text-sm leading-relaxed mb-8">
+          <p className="text-slate-400 text-sm leading-relaxed mb-4">
             This order link doesn't match any ambassador account. Check your welcome email for the correct link, or sign up as an ambassador to get your own.
           </p>
+          {(refCode || aidCode) && (
+            <p className="text-slate-600 text-xs font-mono mb-8">
+              ref: {refCode || aidCode}
+            </p>
+          )}
           <a
             href="/ambassador"
             className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
