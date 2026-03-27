@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard } from 'lucide-react';
 import SEO from './SEO';
-import { supabase } from '../lib/supabase';
 
 interface Props {
   onBack: () => void;
@@ -90,37 +89,55 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         localStorage.setItem('ambassador_id', aidParam);
       }
 
-      let query;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
       if (refParam) {
-        query = supabase
-          .from('ambassadors')
-          .select('id, full_name, email, street_address, city_state, zip_code, slug, ref_code')
-          .eq('ref_code', refParam.toUpperCase());
-      } else {
-        const ambassadorId = aidParam || localStorage.getItem('ambassador_id');
-        if (!ambassadorId) {
+        const refUpper = refParam.toUpperCase();
+        console.log('[OrderCards] Looking up ref_code:', refUpper);
+
+        const res = await fetch(
+          `${supabaseUrl}/functions/v1/lookup-ambassador?ref_code=${encodeURIComponent(refUpper)}`,
+          { headers: { Authorization: `Bearer ${supabaseAnonKey}` } }
+        );
+        const json = await res.json();
+        console.log('[OrderCards] lookup-ambassador response:', json);
+
+        if (!res.ok || !json.data) {
           setStep('unauthorized');
           return;
         }
-        query = supabase
-          .from('ambassadors')
-          .select('id, full_name, email, street_address, city_state, zip_code, slug, ref_code')
-          .eq('id', ambassadorId);
+
+        const data: AmbassadorData = json.data;
+        if (data.id) localStorage.setItem('ambassador_id', data.id);
+        setAmbassador(data);
+        setStep('ready');
+        return;
       }
 
-      const { data, error } = await query.maybeSingle();
-
-      if (error || !data) {
+      const ambassadorId = aidParam || localStorage.getItem('ambassador_id');
+      if (!ambassadorId) {
         setStep('unauthorized');
         return;
       }
 
-      if (data.id) {
-        localStorage.setItem('ambassador_id', data.id);
+      console.log('[OrderCards] Looking up by ambassador_id:', ambassadorId);
+
+      const res = await fetch(
+        `${supabaseUrl}/functions/v1/lookup-ambassador?ambassador_id=${encodeURIComponent(ambassadorId)}`,
+        { headers: { Authorization: `Bearer ${supabaseAnonKey}` } }
+      );
+      const json = await res.json();
+      console.log('[OrderCards] lookup-ambassador response:', json);
+
+      if (!res.ok || !json.data) {
+        setStep('unauthorized');
+        return;
       }
 
-      setAmbassador(data as AmbassadorData);
+      const data: AmbassadorData = json.data;
+      if (data.id) localStorage.setItem('ambassador_id', data.id);
+      setAmbassador(data);
       setStep('ready');
     }
 
