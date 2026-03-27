@@ -8,12 +8,12 @@ const post = (to: string, subject: string, body: string) =>
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-  from: 'LangAccess <hello@langaccess.org>',
-  to: to,
-  reply_to: 'LangAccessInfo@gmail.com',
-  subject: subject,
-  html: body
-})
+      from: 'LangAccess <hello@langaccess.org>',
+      to: to,
+      reply_to: 'LangAccessInfo@gmail.com',
+      subject: subject,
+      html: body
+    })
   });
 export const handler: Handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -32,8 +32,8 @@ export const handler: Handler = async (event) => {
       '<p><strong>' + name + '</strong> just joined the Ambassador Brigade.</p>' +
       '<p>Email: ' + email + '</p>' +
       '<p>QR Slug: ' + slug + '</p>' +
-      '<p><strong>Action:</strong> Order their free 25-card pack via Printful,' +
-      ' then set free_pack_shipped = true in Supabase.</p>'
+      '<p>Next step: Ambassador will order their cards at cost via langaccess.org/order-cards</p>' +
+      '<p>No action needed from you unless they need support.</p>'
     );
     await post(
       email,
@@ -46,9 +46,10 @@ export const handler: Handler = async (event) => {
       'You are in the Brigade, ' + first + '.</h1>' +
       '</div>' +
       '<div style="background:#f9f9f7;padding:24px;border-radius:0 0 12px 12px;">' +
-      '<p>Your free 25-card pack ships within 5 business days. Each card connects' +
-      ' people to food, shelter, restrooms, power, and crisis aid in English,' +
-      ' Spanish, Tagalog, Vietnamese, Mandarin, and Cantonese.</p>' +
+      '<p>Your Ambassador cards are printed with your unique QR code and shipped' +
+      ' directly to you at cost. No markup. Each card connects people to food,' +
+      ' shelter, restrooms, power, and crisis aid in English, Spanish, Tagalog,' +
+      ' Vietnamese, Mandarin, and Cantonese.</p>' +
       '<div style="text-align:center;margin:20px 0;background:#0b0d0c;' +
       'padding:16px;border-radius:8px;">' +
       '<p style="color:#6b7a6e;font-size:11px;text-transform:uppercase;' +
@@ -57,6 +58,15 @@ export const handler: Handler = async (event) => {
       ' style="border-radius:8px;" alt="Your QR code"/>' +
       '<p style="color:#2dff72;font-family:monospace;font-size:12px;' +
       'margin:8px 0 0;">langaccess.org/r/' + slug + '</p>' +
+      '</div>' +
+      '<p><strong>Next step:</strong> Order your cards at cost —' +
+      ' printed with your QR code above and shipped directly to you.</p>' +
+      '<div style="text-align:center;margin:20px 0;">' +
+      '<a href="https://langaccess.org/order-cards"' +
+      ' style="background:#2dff72;color:#0b0d0c;font-weight:700;' +
+      'padding:12px 24px;border-radius:100px;text-decoration:none;' +
+      'font-size:14px;display:inline-block;">' +
+      'Order My Cards →</a>' +
       '</div>' +
       '<p>When your cards arrive, leave them in waiting rooms, break rooms,' +
       ' teacher lounges, or hand them directly to anyone who might need help.' +
