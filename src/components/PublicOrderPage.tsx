@@ -82,18 +82,23 @@ export default function PublicOrderPage() {
     }
     async function lookup() {
       try {
-        const url = refCode
-          ? `${supabaseUrl}/rest/v1/ambassadors?slug=eq.${encodeURIComponent(refCode)}&select=id,full_name,email,street_address,city_state,zip_code,slug&limit=1`
-          : `${supabaseUrl}/rest/v1/ambassadors?id=eq.${encodeURIComponent(aidCode)}&select=id,full_name,email,street_address,city_state,zip_code,slug&limit=1`;
-        const res = await fetch(url, {
-          headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` },
+        const body = refCode
+          ? { ref_code: refCode }
+          : { ambassador_id: aidCode };
+        const res = await fetch(`${supabaseUrl}/functions/v1/lookup-ambassador`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify(body),
         });
-        const rows: AmbassadorData[] = await res.json();
-        if (!rows || rows.length === 0) {
+        const json = await res.json();
+        if (!json.found || !json.data) {
           setLoadState('not_found');
           return;
         }
-        const amb = rows[0];
+        const amb: AmbassadorData = json.data;
         setAmbassador(amb);
 
         const cityParts = amb.city_state?.split(',') ?? [];
