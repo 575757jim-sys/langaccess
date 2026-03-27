@@ -57,6 +57,7 @@ function CardPreview({ slug, fullName, cityState }: { slug: string; fullName: st
 export default function PublicOrderPage() {
   const params = new URLSearchParams(window.location.search);
   const refCode = params.get('ref') || '';
+  const aidCode = params.get('aid') || '';
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
@@ -75,16 +76,18 @@ export default function PublicOrderPage() {
   const [stepLabel, setStepLabel] = useState('');
 
   useEffect(() => {
-    if (!refCode) {
+    if (!refCode && !aidCode) {
       setLoadState('not_found');
       return;
     }
     async function lookup() {
       try {
-        const res = await fetch(
-          `${supabaseUrl}/rest/v1/ambassadors?slug=eq.${encodeURIComponent(refCode)}&select=id,full_name,email,street_address,city_state,zip_code,slug&limit=1`,
-          { headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` } }
-        );
+        const url = refCode
+          ? `${supabaseUrl}/rest/v1/ambassadors?slug=eq.${encodeURIComponent(refCode)}&select=id,full_name,email,street_address,city_state,zip_code,slug&limit=1`
+          : `${supabaseUrl}/rest/v1/ambassadors?id=eq.${encodeURIComponent(aidCode)}&select=id,full_name,email,street_address,city_state,zip_code,slug&limit=1`;
+        const res = await fetch(url, {
+          headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` },
+        });
         const rows: AmbassadorData[] = await res.json();
         if (!rows || rows.length === 0) {
           setLoadState('not_found');
@@ -104,7 +107,7 @@ export default function PublicOrderPage() {
       }
     }
     lookup();
-  }, [refCode, supabaseUrl, supabaseAnonKey]);
+  }, [refCode, aidCode, supabaseUrl, supabaseAnonKey]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
