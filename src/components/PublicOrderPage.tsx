@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Package, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import SEO from './SEO';
+import { supabase } from '../lib/supabase';
 
 const QUANTITY_OPTIONS = [
   { value: 25, label: '25 cards', cost: '$8–10' },
@@ -82,25 +83,41 @@ export default function PublicOrderPage() {
     }
     async function lookup() {
       try {
-        const body = refCode
-          ? { ref_code: refCode }
-          : { ambassador_id: aidCode };
-        const res = await fetch(`${supabaseUrl}/functions/v1/lookup-ambassador`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${supabaseAnonKey}`,
-          },
-          body: JSON.stringify(body),
-        });
-        const json = await res.json();
-        if (!json.found || !json.data) {
+        let query = supabase
+          .from('ambassadors')
+          .select('id, full_name, email, street_address, city_state, zip_code, slug, ref_code');
+
+        if (refCode) {
+          query = query.eq('ref_code', refCode.toUpperCase());
+        } else {
+          query = query.eq('id', aidCode);
+        }
+
+        const { data: amb, error } = await query.maybeSingle();
+
+        if (error || !amb) {
+          if (refCode && !error) {
+            const { data: ambBySlug } = await supabase
+              .from('ambassadors')
+              .select('id, full_name, email, street_address, city_state, zip_code, slug, ref_code')
+              .eq('slug', refCode)
+              .maybeSingle();
+            if (ambBySlug) {
+              setAmbassador(ambBySlug);
+              const cityParts = ambBySlug.city_state?.split(',') ?? [];
+              setCity(cityParts[0]?.trim() ?? '');
+              setStateVal(cityParts[1]?.trim() ?? '');
+              setStreetAddress(ambBySlug.street_address ?? '');
+              setZip(ambBySlug.zip_code ?? '');
+              setLoadState('ready');
+              return;
+            }
+          }
           setLoadState('not_found');
           return;
         }
-        const amb: AmbassadorData = json.data;
-        setAmbassador(amb);
 
+        setAmbassador(amb);
         const cityParts = amb.city_state?.split(',') ?? [];
         setCity(cityParts[0]?.trim() ?? '');
         setStateVal(cityParts[1]?.trim() ?? '');
@@ -112,7 +129,7 @@ export default function PublicOrderPage() {
       }
     }
     lookup();
-  }, [refCode, aidCode, supabaseUrl, supabaseAnonKey]);
+  }, [refCode, aidCode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
