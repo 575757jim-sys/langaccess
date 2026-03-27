@@ -116,6 +116,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [orderPromptDismissed, setOrderPromptDismissed] = useState(false);
   const [selectedQty, setSelectedQty] = useState<25 | 50 | 100>(25);
+  const [ambassadorSlug, setAmbassadorSlug] = useState<string | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [statsVisible, setStatsVisible] = useState(false);
@@ -200,6 +201,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
         });
         const qrData = await qrRes.json();
         console.log('QR slug generated — slug:', qrData.slug, 'qrUrl:', qrData.qrUrl);
+        if (qrData.slug) setAmbassadorSlug(qrData.slug);
         await fetch('/.netlify/functions/send-ambassador-welcome', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -274,7 +276,12 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
               </div>
 
               <button
-                onClick={() => onOrderCards?.()}
+                onClick={() => {
+                  const url = ambassadorSlug
+                    ? `/order-cards?ref=${encodeURIComponent(ambassadorSlug)}`
+                    : '/order-cards';
+                  window.location.href = url;
+                }}
                 className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 text-white font-bold text-base transition-colors flex items-center justify-center gap-2 mb-4"
               >
                 Order My Cards

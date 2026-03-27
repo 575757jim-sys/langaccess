@@ -68,11 +68,10 @@ function getAmbassadorsPath(): boolean {
   return window.location.pathname === '/ambassadors' || window.location.pathname === '/ambassador';
 }
 
-function App() {
+function AppInner() {
   const qrSlug = getQRSlug();
   const isVerifyPath = getVerifyPath();
   const isOrderCardsPath = getOrderCardsPath();
-  const isPublicOrderPath = getPublicOrderPath();
   const isAmbassadorsPath = getAmbassadorsPath();
   const [view, setView] = useState<AppView>(
     isOrderCardsPath ? 'order-cards' : isVerifyPath ? 'cert-verify' : isAmbassadorsPath ? 'ambassadors' : 'home'
@@ -335,10 +334,6 @@ function App() {
     );
   };
 
-  if (isPublicOrderPath) {
-    return <PublicOrderPage />;
-  }
-
   if (qrSlug) {
     return (
       <QRScanPage
@@ -362,6 +357,13 @@ function App() {
       <InstallBanner />
     </>
   );
+}
+
+function App() {
+  if (getPublicOrderPath()) {
+    return <PublicOrderPage />;
+  }
+  return <AppInner />;
 }
 
 export default App;
