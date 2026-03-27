@@ -214,7 +214,7 @@ function App() {
     }
 
     if (view === 'order-cards') {
-      return <OrderCardsPage onBack={() => setView('home')} />;
+      return <OrderCardsPage onBack={() => setView('home')} onGateBack={() => setView('ambassadors')} />;
     }
 
     if (view === 'policy') {

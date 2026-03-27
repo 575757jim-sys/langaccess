@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 
 interface Props {
   onBack: () => void;
+  onGateBack?: () => void;
 }
 
 interface AmbassadorData {
@@ -72,7 +73,7 @@ function CardFrontPreview({ slug, fullName, cityState }: { slug: string; fullNam
   );
 }
 
-export default function OrderCardsPage({ onBack }: Props) {
+export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const [step, setStep] = useState<Step>('loading');
   const [ambassador, setAmbassador] = useState<AmbassadorData | null>(null);
   const [quantity, setQuantity] = useState(25);
@@ -186,7 +187,7 @@ export default function OrderCardsPage({ onBack }: Props) {
             This page is only accessible to verified LangAccess Ambassadors. Sign up on the Ambassador page to get your QR code and order cards.
           </p>
           <button
-            onClick={onBack}
+            onClick={onGateBack ?? onBack}
             className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
