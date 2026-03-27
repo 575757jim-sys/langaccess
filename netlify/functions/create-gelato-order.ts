@@ -24,8 +24,6 @@ export const handler: Handler = async (event) => {
     state: string;
     zip: string;
     quantity: number;
-    frontFileUrl: string;
-    backFileUrl: string;
   };
 
   try {
@@ -46,9 +44,6 @@ export const handler: Handler = async (event) => {
     quantity,
   } = body;
 
-  const frontFileUrl = "https://langaccess.org/card-front.pdf";
-  const backFileUrl = "https://langaccess.org/card-back.pdf";
-
   const nameParts = full_name.trim().split(/\s+/);
   const firstName = nameParts[0] || "";
   const lastName = nameParts.slice(1).join(" ") || "";
@@ -62,10 +57,7 @@ export const handler: Handler = async (event) => {
       {
         itemReferenceId: `cards-${ambassador_id}`,
         productUid: process.env.GELATO_PRODUCT_UID || "cards_pf_bx_pt_300-gsm-uncoated_cl_4-4_hor",
-        files: [
-          { type: "default", url: frontFileUrl },
-          { type: "back", url: backFileUrl },
-        ],
+        templateUid: process.env.GELATO_TEMPLATE_UID || "",
         quantity,
       },
     ],
