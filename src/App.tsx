@@ -12,6 +12,7 @@ import CertificatesPage from './components/CertificatesPage';
 import CertVerifyPage from './components/CertVerifyPage';
 import AmbassadorsPage from './components/AmbassadorsPage';
 import OrderCardsPage from './components/OrderCardsPage';
+import PublicOrderPage from './components/PublicOrderPage';
 import QRScanPage from './components/QRScanPage';
 import UpdateToast from './components/UpdateToast';
 import DebugOverlay from './components/DebugOverlay';
@@ -56,6 +57,13 @@ function getOrderCardsPath(): boolean {
   return window.location.pathname === '/order-cards';
 }
 
+function getPublicOrderPath(): boolean {
+  return (
+    window.location.pathname === '/order-cards' &&
+    new URLSearchParams(window.location.search).has('ref')
+  );
+}
+
 function getAmbassadorsPath(): boolean {
   return window.location.pathname === '/ambassadors' || window.location.pathname === '/ambassador';
 }
@@ -64,6 +72,7 @@ function App() {
   const qrSlug = getQRSlug();
   const isVerifyPath = getVerifyPath();
   const isOrderCardsPath = getOrderCardsPath();
+  const isPublicOrderPath = getPublicOrderPath();
   const isAmbassadorsPath = getAmbassadorsPath();
   const [view, setView] = useState<AppView>(
     isOrderCardsPath ? 'order-cards' : isVerifyPath ? 'cert-verify' : isAmbassadorsPath ? 'ambassadors' : 'home'
@@ -325,6 +334,10 @@ function App() {
       />
     );
   };
+
+  if (isPublicOrderPath) {
+    return <PublicOrderPage />;
+  }
 
   if (qrSlug) {
     return (
