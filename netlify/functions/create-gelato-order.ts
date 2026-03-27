@@ -50,18 +50,16 @@ export const handler: Handler = async (event) => {
 
   const orderPayload = {
     orderType: "order",
-    orderReferenceId: `${ambassador_id}-${Date.now()}`,
+    orderReferenceId: crypto.randomUUID(),
     customerReferenceId: ambassador_id,
     currency: "USD",
     items: [
       {
-        itemReferenceId: `cards-${ambassador_id}`,
+        itemReferenceId: "item-1",
         productUid: process.env.GELATO_PRODUCT_UID || "cards_pf_bx_pt_300-gsm-uncoated_cl_4-4_hor",
         files: [
-          {
-            type: "default",
-            url: "https://langaccess.org/card-front.pdf",
-          },
+          { type: "front", url: "https://langaccess.org/card-front.pdf" },
+          { type: "back", url: "https://langaccess.org/card-back.pdf" },
         ],
         quantity,
       },
