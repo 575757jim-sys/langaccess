@@ -21,10 +21,14 @@ export const handler: Handler = async (event) => {
   }
   try {
     const d = JSON.parse(event.body || '{}');
-    const name = d.full_name || '';
-    const email = d.email || '';
-    const slug = d.slug || '';
-    const qr = d.qrUrl || '';
+    const rawName = (d.full_name || '') as string;
+    const name = rawName.includes(',')
+      ? rawName.split(',').map((s: string) => s.trim()).reverse().join(' ')
+      : rawName;
+    const email = (d.email || '') as string;
+    const slug = (d.slug || '') as string;
+    const qr = (d.qrUrl || '') as string;
+    const ambassadorId = (d.ambassador_id || '') as string;
     const first = name.split(' ')[0];
     await post(
       'LangAccessInfo@gmail.com',
@@ -50,19 +54,21 @@ export const handler: Handler = async (event) => {
       ' directly to you at cost. No markup. Each card connects people to food,' +
       ' shelter, restrooms, power, and crisis aid in English, Spanish, Tagalog,' +
       ' Vietnamese, Mandarin, and Cantonese.</p>' +
-      '<div style="text-align:center;margin:20px 0;background:#0b0d0c;' +
-      'padding:16px;border-radius:8px;">' +
-      '<p style="color:#6b7a6e;font-size:11px;text-transform:uppercase;' +
-      'margin:0 0 10px;">Your Personal QR Code</p>' +
-      '<img src="' + qr + '" width="150" height="150"' +
-      ' style="border-radius:8px;" alt="Your QR code"/>' +
-      '<p style="color:#2dff72;font-family:monospace;font-size:12px;' +
-      'margin:8px 0 0;">langaccess.org/r/' + slug + '</p>' +
-      '</div>' +
+      (qr && slug
+        ? '<div style="text-align:center;margin:20px 0;background:#0b0d0c;' +
+          'padding:16px;border-radius:8px;">' +
+          '<p style="color:#6b7a6e;font-size:11px;text-transform:uppercase;' +
+          'margin:0 0 10px;">Your Personal QR Code</p>' +
+          '<img src="' + qr + '" width="150" height="150"' +
+          ' style="border-radius:8px;" alt="Your QR code"/>' +
+          '<p style="color:#2dff72;font-family:monospace;font-size:12px;' +
+          'margin:8px 0 0;">langaccess.org/r/' + slug + '</p>' +
+          '</div>'
+        : '') +
       '<p><strong>Next step:</strong> Order your cards at cost —' +
       ' printed with your QR code above and shipped directly to you.</p>' +
       '<div style="text-align:center;margin:20px 0;">' +
-      '<a href="https://langaccess.org/order-cards"' +
+      '<a href="https://langaccess.org/order-cards' + (ambassadorId ? '?aid=' + ambassadorId : '') + '"' +
       ' style="background:#2dff72;color:#0b0d0c;font-weight:700;' +
       'padding:12px 24px;border-radius:100px;text-decoration:none;' +
       'font-size:14px;display:inline-block;">' +

@@ -184,6 +184,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
 
       if (error) throw error;
 
+      localStorage.setItem('ambassador_id', data.id);
       setSubmitted(true);
       window.scrollTo(0, 0);
 
@@ -202,7 +203,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
         await fetch('/.netlify/functions/send-ambassador-welcome', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ full_name: fullName, email, slug: qrData.slug, qrUrl: qrData.qrUrl }),
+          body: JSON.stringify({ full_name: fullName, email, slug: qrData.slug, qrUrl: qrData.qrUrl, ambassador_id: data.id }),
         });
       } catch (emailErr) {
         console.error('Post-submit background step failed:', emailErr);

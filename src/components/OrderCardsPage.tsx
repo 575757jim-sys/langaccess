@@ -80,7 +80,11 @@ export default function OrderCardsPage({ onBack }: Props) {
 
   useEffect(() => {
     async function loadAmbassador() {
-      const ambassadorId = localStorage.getItem('ambassador_id');
+      const urlParam = new URLSearchParams(window.location.search).get('aid');
+      if (urlParam) {
+        localStorage.setItem('ambassador_id', urlParam);
+      }
+      const ambassadorId = urlParam || localStorage.getItem('ambassador_id');
 
       if (!ambassadorId) {
         setStep('unauthorized');
