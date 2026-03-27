@@ -83,26 +83,21 @@ export default function PublicOrderPage() {
     }
     async function lookup() {
       try {
-        const code = refCode ? refCode.toUpperCase() : aidCode;
-        const response = await fetch('/.netlify/functions/lookup-ambassador', {
+        const code = (refCode || aidCode).toUpperCase();
+        const res = await fetch('/.netlify/functions/lookup-ambassador', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ref_code: code })
         });
-        const result = await response.json();
-        if (!result.found || !result.ambassador) {
+        const result = await res.json();
+        if (!result.found) {
           setLoadState('not_found');
           return;
         }
         const amb = result.ambassador;
         setAmbassador(amb);
-        const cityParts = amb.city_state?.split(',') ?? [];
-        setCity(cityParts[0]?.trim() ?? '');
-        setStateVal(cityParts[1]?.trim() ?? '');
-        setStreetAddress(amb.street_address ?? '');
-        setZip(amb.zip_code ?? '');
         setLoadState('ready');
-      } catch {
+      } catch(e) {
         setLoadState('not_found');
       }
     }
