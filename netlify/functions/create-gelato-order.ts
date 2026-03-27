@@ -57,7 +57,10 @@ export const handler: Handler = async (event) => {
       {
         itemReferenceId: "item-1",
         productUid: process.env.GELATO_PRODUCT_UID || "cards_pf_bx_pt_300-gsm-uncoated_cl_4-4_hor",
-        designId: "11ed88be-e592-4a23-9711-5316cbfb99a7",
+        files: [
+          { type: "default", url: "https://langaccess.org/card-front.pdf" },
+          { type: "back", url: "https://langaccess.org/card-back.pdf" },
+        ],
         quantity,
       },
     ],
@@ -69,6 +72,8 @@ export const handler: Handler = async (event) => {
       state,
       postCode: zip,
       country: "US",
+      email,
+      phone: phone || "0000000000",
     },
   };
 
