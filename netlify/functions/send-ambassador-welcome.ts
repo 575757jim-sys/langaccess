@@ -47,7 +47,7 @@ export const handler: Handler = async (event) => {
       '<p style="color:#2dff72;font-size:11px;text-transform:uppercase;' +
       'letter-spacing:0.1em;margin:0 0 8px;">LangAccess Ambassador Brigade</p>' +
       '<h1 style="color:#f5f3ee;font-size:22px;margin:0;">' +
-      'You are in the Brigade, ' + first + '.</h1>' +
+      'Welcome, ' + first + '!</h1>' +
       '</div>' +
       '<div style="background:#f9f9f7;padding:24px;border-radius:0 0 12px 12px;">' +
       '<p>Your Ambassador cards are printed with your unique QR code and shipped' +
@@ -68,7 +68,7 @@ export const handler: Handler = async (event) => {
       '<p><strong>Next step:</strong> Order your cards at cost —' +
       ' printed with your QR code above and shipped directly to you.</p>' +
       '<div style="text-align:center;margin:20px 0;">' +
-      '<a href="https://langaccess.org/order-cards' + (ambassadorId ? '?aid=' + ambassadorId : '') + '"' +
+      '<a href="https://langaccess.org/order-cards' + (slug ? '?ref=' + slug : (ambassadorId ? '?aid=' + ambassadorId : '')) + '"' +
       ' style="background:#2dff72;color:#0b0d0c;font-weight:700;' +
       'padding:12px 24px;border-radius:100px;text-decoration:none;' +
       'font-size:14px;display:inline-block;">' +

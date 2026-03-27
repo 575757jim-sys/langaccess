@@ -240,9 +240,9 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
             <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-8 h-8 text-green-400" />
             </div>
-            <h3 className="text-3xl font-bold text-green-400 mb-4">You are in the Brigade.</h3>
+            <h3 className="text-3xl font-bold text-green-400 mb-4">You're in the Brigade!</h3>
             <p className="text-green-200 text-base leading-relaxed max-w-md mx-auto">
-              Check your email for your QR code and shipping details.
+              Check your email — we've sent your QR code and your link to order cards.
             </p>
           </div>
 
