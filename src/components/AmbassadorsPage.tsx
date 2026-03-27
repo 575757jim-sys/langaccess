@@ -162,13 +162,20 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
     setSubmitting(true);
 
     try {
+      const fullName = form.name.trim();
+      const email = form.email.trim();
+      const cityState = form.city.trim() + ', ' + form.state;
+
+      const tempId = crypto.randomUUID();
+      const refCode = tempId.replace(/-/g, '').substring(0, 8).toUpperCase();
+
       const { data, error } = await supabase
         .from('ambassadors')
         .insert({
-          full_name: form.name.trim(),
-          email: form.email.trim(),
+          full_name: fullName,
+          email,
           street_address: form.streetAddress.trim(),
-          city_state: form.city.trim() + ', ' + form.state,
+          city_state: cityState,
           zip_code: form.zipCode.trim(),
           profession: form.profession.trim(),
           distribution_location: form.locations.trim(),
@@ -176,6 +183,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
           additional_context: form.message.trim(),
           agreement_accepted: true,
           agreement_timestamp: new Date().toISOString(),
+          ref_code: refCode,
         })
         .select()
         .single();
@@ -185,10 +193,6 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
       localStorage.setItem('ambassador_id', data.id);
       setSubmitted(true);
       window.scrollTo(0, 0);
-
-      const fullName = form.name.trim();
-      const email = form.email.trim();
-      const cityState = form.city.trim() + ', ' + form.state;
 
       try {
         const qrRes = await fetch('/.netlify/functions/generate-qr-slug', {
@@ -200,7 +204,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
         await fetch('/.netlify/functions/send-ambassador-welcome', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ full_name: fullName, email, slug: qrData.slug, qrUrl: qrData.qrUrl, ambassador_id: data.id }),
+          body: JSON.stringify({ full_name: fullName, email, slug: qrData.slug, qrUrl: qrData.qrUrl, ambassador_id: data.id, ref_code: data.ref_code }),
         });
       } catch (emailErr) {
         console.error('Post-submit background step failed:', emailErr);

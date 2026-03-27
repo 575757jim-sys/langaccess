@@ -13,7 +13,7 @@ Deno.serve(async (req: Request) => {
 
   try {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
-    const { full_name, email, mailing_address, slug, qrUrl } = await req.json();
+    const { full_name, email, mailing_address, slug, qrUrl, ref_code } = await req.json();
     const firstName = full_name.split(" ")[0];
 
     await fetch("https://api.resend.com/emails", {
@@ -52,7 +52,7 @@ Deno.serve(async (req: Request) => {
             ? '<p>Your QR code:<br/><img src="' + qrUrl + '" width="160" height="160" alt="Your QR code"/></p>'
             : "") +
           (slug ? '<p>Your referral link: <a href="https://langaccess.org/r/' + slug + '">langaccess.org/r/' + slug + '</a></p>' : "") +
-          (slug ? '<p><a href="https://langaccess.org/order-cards?ref=' + slug + '" style="display:inline-block;background:#22c55e;color:#fff;font-weight:bold;padding:12px 24px;border-radius:8px;text-decoration:none;">Order My Cards</a></p>' : "") +
+          (ref_code ? '<p><a href="https://langaccess.org/order-cards?ref=' + ref_code + '" style="display:inline-block;background:#22c55e;color:#fff;font-weight:bold;padding:12px 24px;border-radius:8px;text-decoration:none;">Order My Cards</a></p>' : (slug ? '<p><a href="https://langaccess.org/order-cards?ref=' + slug + '" style="display:inline-block;background:#22c55e;color:#fff;font-weight:bold;padding:12px 24px;border-radius:8px;text-decoration:none;">Order My Cards</a></p>' : "")) +
           "<p>Questions? Reply to this email.</p><p>— The LangAccess Team</p>",
       }),
     });

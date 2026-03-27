@@ -16,6 +16,7 @@ interface AmbassadorData {
   city_state: string;
   zip_code: string | null;
   slug: string | null;
+  ref_code: string | null;
 }
 
 type Step = 'loading' | 'unauthorized' | 'ready' | 'submitting' | 'success' | 'error';
@@ -81,24 +82,42 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
   useEffect(() => {
     async function loadAmbassador() {
-      const urlParam = new URLSearchParams(window.location.search).get('aid');
-      if (urlParam) {
-        localStorage.setItem('ambassador_id', urlParam);
-      }
-      const ambassadorId = urlParam || localStorage.getItem('ambassador_id');
+      const params = new URLSearchParams(window.location.search);
+      const refParam = params.get('ref');
+      const aidParam = params.get('aid');
 
-      if (!ambassadorId) {
-        setStep('unauthorized');
-        return;
+      if (aidParam) {
+        localStorage.setItem('ambassador_id', aidParam);
       }
 
-      const query = supabase.from('ambassadors').select('id, full_name, email, street_address, city_state, zip_code, slug').eq('id', ambassadorId);
+      let query;
+
+      if (refParam) {
+        query = supabase
+          .from('ambassadors')
+          .select('id, full_name, email, street_address, city_state, zip_code, slug, ref_code')
+          .eq('ref_code', refParam.toUpperCase());
+      } else {
+        const ambassadorId = aidParam || localStorage.getItem('ambassador_id');
+        if (!ambassadorId) {
+          setStep('unauthorized');
+          return;
+        }
+        query = supabase
+          .from('ambassadors')
+          .select('id, full_name, email, street_address, city_state, zip_code, slug, ref_code')
+          .eq('id', ambassadorId);
+      }
 
       const { data, error } = await query.maybeSingle();
 
       if (error || !data) {
         setStep('unauthorized');
         return;
+      }
+
+      if (data.id) {
+        localStorage.setItem('ambassador_id', data.id);
       }
 
       setAmbassador(data as AmbassadorData);
