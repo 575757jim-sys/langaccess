@@ -61,7 +61,7 @@ export const handler: Handler = async (event) => {
           { type: "default", url: "https://langaccess.org/card-front.pdf" },
           { type: "back", url: "https://langaccess.org/card-back.pdf" },
         ],
-        quantity,
+        quantity: 1,
       },
     ],
     shippingAddress: {
@@ -92,11 +92,11 @@ export const handler: Handler = async (event) => {
     });
 
     if (!gelatoRes.ok) {
-      const errText = await gelatoRes.text();
-      console.error("Gelato API error response:", gelatoRes.status, errText);
+      const errorText = await gelatoRes.text();
+      console.log('Gelato full error:', errorText);
       return {
         statusCode: gelatoRes.status,
-        body: JSON.stringify({ error: "Gelato API error", details: errText }),
+        body: JSON.stringify({ error: "Gelato API error", details: errorText }),
       };
     }
 
