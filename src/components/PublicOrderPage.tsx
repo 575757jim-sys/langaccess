@@ -125,8 +125,6 @@ export default function PublicOrderPage() {
           state: stateVal.trim(),
           zip: zip.trim(),
           quantity,
-          frontFileUrl: '',
-          backFileUrl: '',
         }),
       });
 
