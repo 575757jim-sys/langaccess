@@ -89,26 +89,24 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         localStorage.setItem('ambassador_id', aidParam);
       }
 
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-
       if (refParam) {
         const refUpper = refParam.toUpperCase();
         console.log('[OrderCards] Looking up ref_code:', refUpper);
 
-        const res = await fetch(
-          `${supabaseUrl}/functions/v1/lookup-ambassador?ref_code=${encodeURIComponent(refUpper)}`,
-          { headers: { Authorization: `Bearer ${supabaseAnonKey}` } }
-        );
+        const res = await fetch('/.netlify/functions/lookup-ambassador', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ref_code: refUpper }),
+        });
         const json = await res.json();
         console.log('[OrderCards] lookup-ambassador response:', json);
 
-        if (!json.found || !json.data) {
+        if (!json.found || !json.ambassador) {
           setStep('unauthorized');
           return;
         }
 
-        const data: AmbassadorData = json.data;
+        const data: AmbassadorData = json.ambassador;
         if (data.id) localStorage.setItem('ambassador_id', data.id);
         setAmbassador(data);
         setStep('ready');
@@ -123,19 +121,20 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
       console.log('[OrderCards] Looking up by ambassador_id:', ambassadorId);
 
-      const res = await fetch(
-        `${supabaseUrl}/functions/v1/lookup-ambassador?ambassador_id=${encodeURIComponent(ambassadorId)}`,
-        { headers: { Authorization: `Bearer ${supabaseAnonKey}` } }
-      );
+      const res = await fetch('/.netlify/functions/lookup-ambassador', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ambassador_id: ambassadorId }),
+      });
       const json = await res.json();
       console.log('[OrderCards] lookup-ambassador response:', json);
 
-      if (!json.found || !json.data) {
+      if (!json.found || !json.ambassador) {
         setStep('unauthorized');
         return;
       }
 
-      const data: AmbassadorData = json.data;
+      const data: AmbassadorData = json.ambassador;
       if (data.id) localStorage.setItem('ambassador_id', data.id);
       setAmbassador(data);
       setStep('ready');
