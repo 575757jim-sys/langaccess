@@ -192,7 +192,9 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
 
       localStorage.setItem('ambassador_id', data.id);
       setSubmitted(true);
-      window.scrollTo(0, 0);
+      setTimeout(() => {
+        document.getElementById('signup')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
 
       try {
         const qrRes = await fetch('/.netlify/functions/generate-qr-slug', {
@@ -239,14 +241,11 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
             <CheckCircle className="w-8 h-8 text-green-400" />
           </div>
           <h3 className="text-2xl font-bold text-white mb-3">You're in the Brigade! 🎉</h3>
-          <p className="text-green-200 text-base leading-relaxed max-w-md mx-auto mb-4">
+          <p className="text-green-200 text-base leading-relaxed max-w-md mx-auto mb-2">
             Check your email — your QR code and order link are on their way.
           </p>
           <p className="text-slate-500 text-sm">
-            Didn't get it? Check your spam folder or reply to{' '}
-            <a href="mailto:hello@langaccess.org" className="text-slate-400 hover:text-white transition-colors">
-              hello@langaccess.org
-            </a>
+            (Check spam if you don't see it within 2 minutes)
           </p>
         </div>
       ) : (
