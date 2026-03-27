@@ -44,9 +44,10 @@ export const handler: Handler = async (event) => {
     state,
     zip,
     quantity,
-    frontFileUrl,
-    backFileUrl,
   } = body;
+
+  const frontFileUrl = "https://langaccess.org/card-front.pdf";
+  const backFileUrl = "https://langaccess.org/card-back.pdf";
 
   const nameParts = full_name.trim().split(/\s+/);
   const firstName = nameParts[0] || "";
@@ -82,6 +83,8 @@ export const handler: Handler = async (event) => {
     },
   };
 
+  console.log("Gelato order payload:", JSON.stringify(orderPayload));
+
   let gelatoOrderId: string | null = null;
 
   try {
@@ -96,6 +99,7 @@ export const handler: Handler = async (event) => {
 
     if (!gelatoRes.ok) {
       const errText = await gelatoRes.text();
+      console.error("Gelato API error response:", gelatoRes.status, errText);
       return {
         statusCode: gelatoRes.status,
         body: JSON.stringify({ error: "Gelato API error", details: errText }),
@@ -103,6 +107,7 @@ export const handler: Handler = async (event) => {
     }
 
     const gelatoData = await gelatoRes.json();
+    console.log("Gelato API success response:", JSON.stringify(gelatoData));
     gelatoOrderId = gelatoData.id || gelatoData.orderId || null;
   } catch (err) {
     return {
