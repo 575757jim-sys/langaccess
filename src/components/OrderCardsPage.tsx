@@ -103,7 +103,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         const json = await res.json();
         console.log('[OrderCards] lookup-ambassador response:', json);
 
-        if (!res.ok || !json.data) {
+        if (!json.found || !json.data) {
           setStep('unauthorized');
           return;
         }
@@ -130,7 +130,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       const json = await res.json();
       console.log('[OrderCards] lookup-ambassador response:', json);
 
-      if (!res.ok || !json.data) {
+      if (!json.found || !json.data) {
         setStep('unauthorized');
         return;
       }

@@ -14,18 +14,31 @@ Deno.serve(async (req: Request) => {
 
   try {
     const url = new URL(req.url);
-    const refCode = url.searchParams.get("ref_code");
-    const ambassadorId = url.searchParams.get("ambassador_id");
+
+    let refCode = url.searchParams.get("ref_code");
+    let ambassadorId = url.searchParams.get("ambassador_id");
+
+    if (req.method === "POST") {
+      try {
+        const body = await req.json();
+        if (!refCode && body.ref_code) refCode = body.ref_code;
+        if (!ambassadorId && body.ambassador_id) ambassadorId = body.ambassador_id;
+      } catch (_) {}
+    }
+
+    console.log("[lookup-ambassador] incoming ref_code:", refCode, "| ambassador_id:", ambassadorId, "| method:", req.method, "| url:", req.url);
 
     if (!refCode && !ambassadorId) {
-      return new Response(JSON.stringify({ error: "ref_code or ambassador_id is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ data: null, found: false, reason: "no ref_code or ambassador_id provided" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    console.log("[lookup-ambassador] SUPABASE_URL present:", !!supabaseUrl, "| SERVICE_ROLE_KEY present:", !!serviceRoleKey);
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
@@ -42,27 +55,27 @@ Deno.serve(async (req: Request) => {
     const { data, error } = await query.maybeSingle();
 
     console.log(
-      "[lookup-ambassador] ref_code:", refCode,
-      "| ambassador_id:", ambassadorId,
-      "| data:", JSON.stringify(data),
+      "[lookup-ambassador] result — data:", JSON.stringify(data),
       "| error:", JSON.stringify(error)
     );
 
     if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ data: null, found: false, error: error.message }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    return new Response(JSON.stringify({ data }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ data, found: data !== null }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "unknown error";
-    return new Response(JSON.stringify({ error: message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.log("[lookup-ambassador] caught exception:", message);
+    return new Response(
+      JSON.stringify({ data: null, found: false, error: message }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });
