@@ -530,108 +530,189 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
           Every card connects someone to food, shelter, restrooms, power, and crisis aid in 6 languages. Your unique QR code is printed on every card you receive.
         </p>
 
-        <div className="flex flex-col md:flex-row gap-8 items-start justify-center">
+        <div className="flex flex-col md:flex-row gap-10 items-start justify-center">
 
-          {/* Card Front */}
-          <div
-            className="w-full max-w-[480px] mx-auto rounded-2xl shadow-2xl overflow-hidden flex-shrink-0 flex"
-            style={{ background: '#0b0d0c', border: '1px solid rgba(255,255,255,0.08)', minHeight: 200 }}
-          >
-            <div className="w-1.5 flex-shrink-0 rounded-l-2xl" style={{ background: '#22c55e' }} />
-            <div className="flex-1 p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <p className="text-white font-bold text-base leading-snug mb-1">One Card. One Lifeline.</p>
-                  <p className="text-slate-500 text-xs mb-4">Scan to find help near you</p>
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-2.5 py-1.5">
-                      <svg className="w-3.5 h-3.5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.4 6M17 13l1.4 6M9 19a1 1 0 100 2 1 1 0 000-2zm8 0a1 1 0 100 2 1 1 0 000-2z" />
-                      </svg>
-                      <span className="text-slate-300 text-[10px] font-medium">Food</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-2.5 py-1.5">
-                      <svg className="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                      </svg>
-                      <span className="text-slate-300 text-[10px] font-medium">Shelter</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 bg-white/5 rounded-lg px-2.5 py-1.5">
-                      <svg className="w-3.5 h-3.5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                      <span className="text-slate-300 text-[10px] font-medium">Medical</span>
-                    </div>
+          {/* ── FRONT ── */}
+          <div className="w-full max-w-[480px] mx-auto flex-shrink-0">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2 text-center">Front</p>
+            {/* 3.5:2 aspect ratio = padding-top 57.14% */}
+            <div
+              className="relative w-full rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.55)]"
+              style={{ paddingTop: '57.14%', background: '#0B1F3A', border: '1px solid rgba(255,255,255,0.09)' }}
+            >
+              <div className="absolute inset-0 flex flex-col justify-between p-[5%]">
+
+                {/* Top section */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-black leading-none mb-[2%]" style={{ fontSize: 'clamp(18px,3.5vw,28px)' }}>One Card.</p>
+                    <p className="text-white font-black leading-none mb-[3%]" style={{ fontSize: 'clamp(18px,3.5vw,28px)' }}>One Lifeline.</p>
+                    <p className="font-semibold leading-none mb-[2%]" style={{ color: '#22c55e', fontSize: 'clamp(9px,1.5vw,13px)' }}>Scan for nearby help now</p>
+                    <p className="text-slate-400 leading-none" style={{ fontSize: 'clamp(8px,1.2vw,11px)' }}>Shows help near your location</p>
                   </div>
-                  <div className="mt-auto">
-                    <p className="text-slate-600 text-[9px] mt-1">Your Name · Your City</p>
+                  {/* QR placeholder */}
+                  <div className="flex-shrink-0 flex flex-col items-center gap-1" style={{ width: 'clamp(52px,11%,72px)' }}>
+                    <div className="w-full aspect-square bg-white rounded-md flex items-center justify-center p-[6%]">
+                      <svg viewBox="0 0 64 64" className="w-full h-full">
+                        <rect x="2" y="2" width="22" height="22" rx="2" fill="none" stroke="#000" strokeWidth="3"/>
+                        <rect x="8" y="8" width="10" height="10" fill="#000"/>
+                        <rect x="40" y="2" width="22" height="22" rx="2" fill="none" stroke="#000" strokeWidth="3"/>
+                        <rect x="46" y="8" width="10" height="10" fill="#000"/>
+                        <rect x="2" y="40" width="22" height="22" rx="2" fill="none" stroke="#000" strokeWidth="3"/>
+                        <rect x="8" y="46" width="10" height="10" fill="#000"/>
+                        <rect x="40" y="40" width="5" height="5" fill="#000"/>
+                        <rect x="49" y="40" width="5" height="5" fill="#000"/>
+                        <rect x="58" y="40" width="5" height="5" fill="#000"/>
+                        <rect x="40" y="49" width="5" height="5" fill="#000"/>
+                        <rect x="54" y="49" width="5" height="5" fill="#000"/>
+                        <rect x="40" y="58" width="5" height="5" fill="#000"/>
+                        <rect x="53" y="53" width="11" height="11" fill="#000"/>
+                      </svg>
+                    </div>
+                    <p className="font-semibold text-center leading-none" style={{ color: '#22c55e', fontSize: 'clamp(6px,1vw,9px)' }}>langaccess.org</p>
                   </div>
                 </div>
-                <div className="flex-shrink-0 flex flex-col items-center gap-2">
-                  <div className="w-20 h-20 rounded-xl flex items-center justify-center bg-white p-1.5 shadow-lg">
-                    <svg viewBox="0 0 64 64" className="w-full h-full">
-                      <rect x="2" y="2" width="22" height="22" rx="2" fill="none" stroke="#000" strokeWidth="2.5"/>
-                      <rect x="7" y="7" width="12" height="12" fill="#000"/>
-                      <rect x="40" y="2" width="22" height="22" rx="2" fill="none" stroke="#000" strokeWidth="2.5"/>
-                      <rect x="45" y="7" width="12" height="12" fill="#000"/>
-                      <rect x="2" y="40" width="22" height="22" rx="2" fill="none" stroke="#000" strokeWidth="2.5"/>
-                      <rect x="7" y="45" width="12" height="12" fill="#000"/>
-                      <rect x="40" y="40" width="5" height="5" fill="#000"/>
-                      <rect x="49" y="40" width="5" height="5" fill="#000"/>
-                      <rect x="58" y="40" width="5" height="5" fill="#000"/>
-                      <rect x="40" y="49" width="5" height="5" fill="#000"/>
-                      <rect x="49" y="49" width="5" height="5" fill="#000"/>
-                      <rect x="40" y="58" width="5" height="5" fill="#000"/>
-                      <rect x="54" y="54" width="9" height="9" fill="#000"/>
+
+                {/* Icon row */}
+                <div className="flex items-center gap-[2%] flex-wrap">
+                  {[
+                    { label: 'Food', color: '#22c55e', path: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.4 6M17 13l1.4 6M9 19a1 1 0 100 2 1 1 0 000-2zm8 0a1 1 0 100 2 1 1 0 000-2z' },
+                    { label: 'Shelter', color: '#60a5fa', path: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+                    { label: 'Medical', color: '#f87171', path: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
+                    { label: 'Restrooms', color: '#a78bfa', path: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+                    { label: 'Power', color: '#fbbf24', path: 'M13 10V3L4 14h7v7l9-11h-7z' },
+                  ].map(icon => (
+                    <div key={icon.label} className="flex items-center gap-1 bg-white/5 rounded-md px-[2%] py-[1%]">
+                      <svg style={{ width: 'clamp(8px,1.4vw,11px)', height: 'clamp(8px,1.4vw,11px)', color: icon.color, flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d={icon.path} />
+                      </svg>
+                      <span className="text-white font-medium leading-none" style={{ fontSize: 'clamp(6px,1vw,9px)' }}>{icon.label}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Free help line */}
+                <div>
+                  <p className="font-semibold leading-none mb-[1.5%]" style={{ color: '#22c55e', fontSize: 'clamp(7px,1.1vw,10px)' }}>Free help &bull; No sign-up required</p>
+                  <p className="text-slate-300 font-medium leading-none mb-[1%]" style={{ fontSize: 'clamp(7px,1vw,9px)' }}>English &bull; Espa&ntilde;ol &bull; Tagalog</p>
+                  <p className="text-slate-500 leading-none mb-[2%]" style={{ fontSize: 'clamp(6px,0.9vw,8px)' }}>Ti&#7871;ng Vi&#7879;t &bull; &#20013;&#25991;</p>
+                  {/* No smartphone pill */}
+                  <div className="inline-flex items-center bg-white/8 border border-white/10 rounded-full px-[2%] py-[0.8%]">
+                    <span className="text-slate-300 leading-none" style={{ fontSize: 'clamp(6px,0.9vw,8px)' }}>No smartphone? Call or text 211</span>
+                  </div>
+                </div>
+
+                {/* Bottom bar */}
+                <div
+                  className="flex items-center justify-between rounded-lg px-[3%] py-[1.5%] -mx-[5%] -mb-[5%]"
+                  style={{ background: 'rgba(0,0,0,0.35)', borderTop: '1px solid rgba(255,255,255,0.07)' }}
+                >
+                  <span className="font-bold text-white leading-none" style={{ fontSize: 'clamp(8px,1.3vw,11px)' }}>LangAccess.org</span>
+                  <div className="w-[5%] aspect-square bg-white rounded-sm flex items-center justify-center p-[4%]" style={{ minWidth: 18 }}>
+                    <svg viewBox="0 0 32 32" className="w-full h-full">
+                      <rect x="1" y="1" width="12" height="12" rx="1.5" fill="none" stroke="#000" strokeWidth="2"/>
+                      <rect x="4" y="4" width="6" height="6" fill="#000"/>
+                      <rect x="19" y="1" width="12" height="12" rx="1.5" fill="none" stroke="#000" strokeWidth="2"/>
+                      <rect x="22" y="4" width="6" height="6" fill="#000"/>
+                      <rect x="1" y="19" width="12" height="12" rx="1.5" fill="none" stroke="#000" strokeWidth="2"/>
+                      <rect x="4" y="22" width="6" height="6" fill="#000"/>
+                      <rect x="19" y="19" width="4" height="4" fill="#000"/>
+                      <rect x="25" y="19" width="4" height="4" fill="#000"/>
+                      <rect x="19" y="25" width="4" height="4" fill="#000"/>
+                      <rect x="25" y="25" width="7" height="7" fill="#000"/>
                     </svg>
                   </div>
-                  <p className="text-green-400 text-[10px] font-semibold">langaccess.org</p>
-                  <p className="text-slate-600 text-[9px] text-center leading-tight">Español disponible<br/>al escanear</p>
                 </div>
+
               </div>
             </div>
           </div>
 
-          {/* Card Back */}
-          <div
-            className="w-full max-w-[480px] mx-auto rounded-2xl shadow-2xl overflow-hidden flex-shrink-0"
-            style={{ background: '#0a2214', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            <div className="p-5">
-              <div className="grid grid-cols-2 gap-5 mb-4">
+          {/* ── BACK ── */}
+          <div className="w-full max-w-[480px] mx-auto flex-shrink-0">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2 text-center">Back</p>
+            <div
+              className="relative w-full rounded-2xl overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.55)]"
+              style={{ paddingTop: '57.14%', background: '#0B1F3A', border: '1px solid rgba(255,255,255,0.09)' }}
+            >
+              <div className="absolute inset-0 flex flex-col justify-between p-[5%]">
+
+                {/* Header */}
                 <div>
-                  <p className="text-green-400 text-xs font-bold uppercase tracking-wide mb-2.5">English</p>
-                  <p className="text-slate-300 text-[10px] leading-snug mb-2">Find help near you for:</p>
-                  <p className="text-slate-400 text-[10px] leading-snug mb-3">Food • Shelter • Medical • Mental Health</p>
-                  <ul className="space-y-1.5">
-                    {[
-                      'Includes overdose support (Naloxone/Narcan)',
-                      'Call or Text 988 — Mental health crisis',
-                      'Call 211 — Local services',
-                      'Call 911 — Emergency',
-                    ].map((item, i) => (
-                      <li key={i} className="text-slate-400 text-[10px] leading-snug">{item}</li>
-                    ))}
-                  </ul>
+                  <p className="text-white font-black leading-none" style={{ fontSize: 'clamp(11px,2vw,16px)' }}>Find help near you:</p>
+                  <p className="font-semibold leading-none mt-[1%]" style={{ color: '#22c55e', fontSize: 'clamp(7px,1.1vw,10px)' }}>Free &bull; No sign-up required</p>
                 </div>
-                <div>
-                  <p className="text-yellow-400 text-xs font-bold uppercase tracking-wide mb-2.5">Español</p>
-                  <p className="text-slate-300 text-[10px] leading-snug mb-2">Encuentre ayuda cerca para:</p>
-                  <p className="text-slate-400 text-[10px] leading-snug mb-3">Comida • Refugio • Médico • Salud Mental</p>
-                  <ul className="space-y-1.5">
+
+                {/* Middle: icon grid + QR */}
+                <div className="flex items-start gap-[4%]">
+                  {/* 2x3 icon grid */}
+                  <div className="grid grid-cols-2 gap-x-[4%] gap-y-[6%] flex-1">
                     {[
-                      'Incluye apoyo de sobredosis (Naloxona/Narcan)',
-                      'Llame o texto 988 — Crisis de salud mental',
-                      'Llame al 211 — Servicios locales',
-                      'Llame al 911 — Emergencia',
-                    ].map((item, i) => (
-                      <li key={i} className="text-slate-400 text-[10px] leading-snug">{item}</li>
+                      { label: 'Food', color: '#22c55e', path: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.4 6M17 13l1.4 6M9 19a1 1 0 100 2 1 1 0 000-2zm8 0a1 1 0 100 2 1 1 0 000-2z' },
+                      { label: 'Shelter', color: '#60a5fa', path: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+                      { label: 'Medical', color: '#f87171', path: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
+                      { label: 'Restrooms', color: '#a78bfa', path: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+                      { label: 'Power', color: '#fbbf24', path: 'M13 10V3L4 14h7v7l9-11h-7z' },
+                      { label: 'Narcan', color: '#f59e0b', isAmber: true, path: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' },
+                    ].map(icon => (
+                      <div key={icon.label} className="flex items-center gap-[6%]">
+                        <svg style={{ width: 'clamp(9px,1.5vw,12px)', height: 'clamp(9px,1.5vw,12px)', color: icon.color, flexShrink: 0 }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d={icon.path} />
+                        </svg>
+                        <span
+                          className="leading-none font-medium"
+                          style={{ fontSize: 'clamp(7px,1.1vw,9px)', color: icon.isAmber ? '#f59e0b' : 'white' }}
+                        >{icon.label}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
+
+                  {/* QR column */}
+                  <div className="flex flex-col items-center gap-1 flex-shrink-0" style={{ width: 'clamp(48px,10%,66px)' }}>
+                    <div className="w-full aspect-square bg-white rounded-md p-[5%] relative">
+                      {/* Corner markers */}
+                      <div className="absolute top-[8%] left-[8%] w-[25%] h-[25%] border-[2px] border-black rounded-sm" />
+                      <div className="absolute top-[8%] right-[8%] w-[25%] h-[25%] border-[2px] border-black rounded-sm" />
+                      <div className="absolute bottom-[8%] left-[8%] w-[25%] h-[25%] border-[2px] border-black rounded-sm" />
+                    </div>
+                    <p className="text-slate-400 text-center leading-none" style={{ fontSize: 'clamp(5px,0.9vw,8px)' }}>Shows help near you</p>
+                  </div>
                 </div>
-              </div>
-              <div className="pt-3 border-t border-white/10 text-center">
-                <span className="text-green-400 text-[10px] font-semibold tracking-wide">LangAccess.org</span>
+
+                {/* Crisis numbers */}
+                <div className="flex items-center gap-[2%] flex-wrap">
+                  {[
+                    { num: '911', label: 'Emergency', es: 'Emergencia', chip: '#ef4444' },
+                    { num: '988', label: 'Crisis / Mental Health', es: 'Crisis / Salud Mental', chip: '#f97316' },
+                    { num: '211', label: 'Local Resources', es: 'Recursos Locales', chip: '#3b82f6' },
+                  ].map(c => (
+                    <div key={c.num} className="flex items-start gap-[4%]">
+                      <span className="rounded-md text-white font-black leading-none px-[5%] py-[2%] flex-shrink-0" style={{ background: c.chip, fontSize: 'clamp(8px,1.4vw,11px)' }}>{c.num}</span>
+                      <div>
+                        <p className="text-white leading-none font-medium" style={{ fontSize: 'clamp(6px,1vw,9px)' }}>{c.label}</p>
+                        <p className="text-slate-400 leading-none" style={{ fontSize: 'clamp(5px,0.85vw,7.5px)' }}>{c.es}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Used by line */}
+                <p className="text-slate-500 italic leading-none" style={{ fontSize: 'clamp(6px,0.9vw,8px)' }}>Used by local outreach teams</p>
+
+                {/* No smartphone pill */}
+                <div className="inline-flex items-center self-start bg-white/8 border border-white/10 rounded-full px-[2%] py-[0.8%]">
+                  <span className="text-slate-300 leading-none" style={{ fontSize: 'clamp(6px,0.9vw,8px)' }}>No smartphone? Call or text 211</span>
+                </div>
+
+                {/* Bottom bar */}
+                <div
+                  className="flex items-center justify-between rounded-lg px-[3%] py-[1.5%] -mx-[5%] -mb-[5%]"
+                  style={{ background: 'rgba(0,0,0,0.35)', borderTop: '1px solid rgba(255,255,255,0.07)' }}
+                >
+                  <span className="font-bold text-white leading-none" style={{ fontSize: 'clamp(8px,1.3vw,11px)' }}>LangAccess.org</span>
+                  <span className="text-slate-400 leading-none" style={{ fontSize: 'clamp(5px,0.9vw,8px)' }}>EN &bull; ES &bull; TL &bull; VI &bull; &#20013;&#25991; &bull; &#24191;&#26481;&#35441;</span>
+                </div>
+
               </div>
             </div>
           </div>
