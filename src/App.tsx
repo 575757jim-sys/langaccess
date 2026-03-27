@@ -58,7 +58,9 @@ function getOrderCardsPath(): boolean {
 }
 
 function getPublicOrderPath(): boolean {
-  return window.location.pathname === '/order-cards';
+  if (window.location.pathname !== '/order-cards') return false;
+  const params = new URLSearchParams(window.location.search);
+  return params.has('ref') || params.has('aid');
 }
 
 function getAmbassadorsPath(): boolean {
