@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Package, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import SEO from './SEO';
-import { supabase } from '../lib/supabase';
 
 const QUANTITY_OPTIONS = [
   { value: 25, label: '25 cards', cost: '$8–10' },
@@ -60,9 +59,6 @@ export default function PublicOrderPage() {
   const refCode = params.get('ref') || '';
   const aidCode = params.get('aid') || '';
 
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-
   const [loadState, setLoadState] = useState<LoadState>('loading');
   const [ambassador, setAmbassador] = useState<AmbassadorData | null>(null);
 
@@ -111,32 +107,16 @@ export default function PublicOrderPage() {
 
     setSubmitState('submitting');
     setErrorMsg('');
+    setStepLabel('Placing your print order...');
 
     try {
-      setStepLabel('Generating your card artwork...');
-      const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          qr_slug: ambassador.slug || ambassador.id,
-          full_name: ambassador.full_name,
-          city_state: ambassador.city_state,
-        }),
-      });
-
-      if (!pdfRes.ok) {
-        const err = await pdfRes.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(err.error || 'Failed to generate card artwork');
-      }
-
-      const { frontFileUrl, backFileUrl } = await pdfRes.json();
-
-      setStepLabel('Placing your print order...');
+      const code = (refCode || aidCode).toUpperCase();
       const gelatoRes = await fetch('/.netlify/functions/create-gelato-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ambassador_id: ambassador.id,
+          ref_code: code,
           full_name: ambassador.full_name,
           email: ambassador.email,
           phone: '',
@@ -145,36 +125,14 @@ export default function PublicOrderPage() {
           state: stateVal.trim(),
           zip: zip.trim(),
           quantity,
-          frontFileUrl,
-          backFileUrl,
+          frontFileUrl: '',
+          backFileUrl: '',
         }),
       });
 
       if (!gelatoRes.ok) {
         const err = await gelatoRes.json().catch(() => ({ error: 'Unknown error' }));
         throw new Error(err.error || 'Failed to place order with printer');
-      }
-
-      const { gelatoOrderId } = await gelatoRes.json();
-
-      setStepLabel('Sending confirmation email...');
-      try {
-        await fetch(`${supabaseUrl}/functions/v1/send-order-confirmation`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${supabaseAnonKey}`,
-          },
-          body: JSON.stringify({
-            full_name: ambassador.full_name,
-            email: ambassador.email,
-            quantity,
-            gelato_order_id: gelatoOrderId,
-            shipping_address: `${streetAddress.trim()}, ${city.trim()}, ${stateVal.trim()} ${zip.trim()}`,
-          }),
-        });
-      } catch {
-        // non-fatal
       }
 
       setSubmitState('success');
@@ -230,12 +188,9 @@ export default function PublicOrderPage() {
           <div className="w-20 h-20 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-400" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-3">Your cards are printing.</h1>
-          <p className="text-slate-300 text-base leading-relaxed mb-2">
-            Allow 5–7 business days for delivery.
-          </p>
-          <p className="text-green-400 text-sm font-medium mb-10">
-            A confirmation email is on its way to {ambassador?.email}.
+          <h1 className="text-3xl font-bold text-white mb-3">Order placed!</h1>
+          <p className="text-slate-300 text-base leading-relaxed mb-10">
+            Your cards are being printed and will ship to you soon.
           </p>
           <a
             href="/"
