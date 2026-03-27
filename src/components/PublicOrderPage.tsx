@@ -83,40 +83,18 @@ export default function PublicOrderPage() {
     }
     async function lookup() {
       try {
-        let query = supabase
-          .from('ambassadors')
-          .select('id, full_name, email, street_address, city_state, zip_code, slug, ref_code');
-
-        if (refCode) {
-          query = query.eq('ref_code', refCode.toUpperCase());
-        } else {
-          query = query.eq('id', aidCode);
-        }
-
-        const { data: amb, error } = await query.maybeSingle();
-
-        if (error || !amb) {
-          if (refCode && !error) {
-            const { data: ambBySlug } = await supabase
-              .from('ambassadors')
-              .select('id, full_name, email, street_address, city_state, zip_code, slug, ref_code')
-              .eq('slug', refCode)
-              .maybeSingle();
-            if (ambBySlug) {
-              setAmbassador(ambBySlug);
-              const cityParts = ambBySlug.city_state?.split(',') ?? [];
-              setCity(cityParts[0]?.trim() ?? '');
-              setStateVal(cityParts[1]?.trim() ?? '');
-              setStreetAddress(ambBySlug.street_address ?? '');
-              setZip(ambBySlug.zip_code ?? '');
-              setLoadState('ready');
-              return;
-            }
-          }
+        const code = refCode ? refCode.toUpperCase() : aidCode;
+        const response = await fetch('/.netlify/functions/lookup-ambassador', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ref_code: code })
+        });
+        const result = await response.json();
+        if (!result.found || !result.ambassador) {
           setLoadState('not_found');
           return;
         }
-
+        const amb = result.ambassador;
         setAmbassador(amb);
         const cityParts = amb.city_state?.split(',') ?? [];
         setCity(cityParts[0]?.trim() ?? '');
