@@ -67,13 +67,18 @@ function getAmbassadorsPath(): boolean {
   return window.location.pathname === '/ambassadors' || window.location.pathname === '/ambassador';
 }
 
+function getCertificatesPath(): boolean {
+  return window.location.pathname === '/certificates';
+}
+
 function AppInner() {
   const qrSlug = getQRSlug();
   const isVerifyPath = getVerifyPath();
   const isOrderCardsPath = getOrderCardsPath();
   const isAmbassadorsPath = getAmbassadorsPath();
+  const isCertificatesPath = getCertificatesPath();
   const [view, setView] = useState<AppView>(
-    isOrderCardsPath ? 'order-cards' : isVerifyPath ? 'cert-verify' : isAmbassadorsPath ? 'ambassadors' : 'home'
+    isOrderCardsPath ? 'order-cards' : isVerifyPath ? 'cert-verify' : isAmbassadorsPath ? 'ambassadors' : isCertificatesPath ? 'certificates' : 'home'
   );
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
