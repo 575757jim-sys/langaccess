@@ -75,18 +75,22 @@ export default function PublicOrderPage() {
 
   useEffect(() => {
     if (!refCode) return;
-    (async () => {
+
+    const insertScan = async () => {
       console.log('Inserting QR scan:', refCode);
-      const { error } = await supabase.from('qr_scans').insert([{
-        ref_code: refCode,
-        scanned_at: new Date().toISOString()
-      }]);
+
+      const { error } = await supabase
+        .from('qr_scans')
+        .insert([{ ref_code: refCode }]);
+
       if (error) {
         console.error('QR insert error:', error);
       } else {
         console.log('QR scan inserted:', refCode);
       }
-    })();
+    };
+
+    insertScan();
   }, [refCode]);
 
   useEffect(() => {
