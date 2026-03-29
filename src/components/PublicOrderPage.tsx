@@ -73,6 +73,16 @@ export default function PublicOrderPage() {
   const [stepLabel, setStepLabel] = useState('');
 
   useEffect(() => {
+    if (refCode) {
+      fetch('/.netlify/functions/track-scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ref_code: refCode })
+      }).catch(console.error);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!refCode && !aidCode) {
       setLoadState('not_found');
       return;
