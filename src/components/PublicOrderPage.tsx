@@ -81,10 +81,16 @@ export default function PublicOrderPage() {
 
       const { error } = await supabase
         .from('qr_scans')
-        .insert([{ ref_code: refCode }]);
+        .insert([
+          {
+            ref_code: refCode,
+            qr_slug: refCode,
+            scanned_at: new Date().toISOString()
+          }
+        ]);
 
       if (error) {
-        console.error('QR insert error:', error);
+        console.error('QR insert error:', JSON.stringify(error, null, 2));
       } else {
         console.log('QR scan inserted:', refCode);
       }
