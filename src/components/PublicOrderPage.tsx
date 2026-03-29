@@ -74,19 +74,20 @@ export default function PublicOrderPage() {
   const [stepLabel, setStepLabel] = useState('');
 
   useEffect(() => {
-    if (refCode) {
-      (async () => {
-        try {
-          await supabase.from('qr_scans').insert([{
-            ref_code: refCode,
-            scanned_at: new Date().toISOString()
-          }]);
-          console.log('QR tracked:', refCode);
-        } catch {
-        }
-      })();
-    }
-  }, []);
+    if (!refCode) return;
+    (async () => {
+      console.log('Inserting QR scan:', refCode);
+      const { error } = await supabase.from('qr_scans').insert([{
+        ref_code: refCode,
+        scanned_at: new Date().toISOString()
+      }]);
+      if (error) {
+        console.error('QR insert error:', error);
+      } else {
+        console.log('QR scan inserted:', refCode);
+      }
+    })();
+  }, [refCode]);
 
   useEffect(() => {
     if (!refCode && !aidCode) {
