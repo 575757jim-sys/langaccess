@@ -235,6 +235,10 @@ export default function PublicOrderPage() {
       </div>
 
       <div className="max-w-xl mx-auto px-4 pt-10 pb-16">
+        {/* DEBUG: remove before production */}
+        <p className="text-xs text-yellow-400 mb-3 font-mono">
+          {refCode ? `Ref detected: ${refCode}` : 'No ref detected'}
+        </p>
         <h1 className="text-3xl font-bold text-white leading-tight mb-2">Order Your Cards</h1>
         <p className="text-slate-400 text-sm leading-relaxed mb-1">Printed with your unique QR code.</p>
         <p className="text-slate-400 text-sm leading-relaxed mb-1">You pay printing and shipping only — at cost, no markup.</p>
