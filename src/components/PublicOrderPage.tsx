@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Package, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import SEO from './SEO';
+import { supabase } from '../lib/supabase';
 
 const QUANTITY_OPTIONS = [
   { value: 25, label: '25 cards', cost: '$8–10' },
@@ -74,11 +75,16 @@ export default function PublicOrderPage() {
 
   useEffect(() => {
     if (refCode) {
-      fetch('/.netlify/functions/track-scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ref_code: refCode })
-      }).catch(console.error);
+      (async () => {
+        try {
+          await supabase.from('qr_scans').insert([{
+            ref_code: refCode,
+            scanned_at: new Date().toISOString()
+          }]);
+          console.log('QR tracked:', refCode);
+        } catch {
+        }
+      })();
     }
   }, []);
 
