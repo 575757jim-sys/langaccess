@@ -11,40 +11,26 @@ interface Props {
 interface FormState {
   name: string;
   email: string;
-  streetAddress: string;
   city: string;
   state: string;
-  zipCode: string;
   profession: string;
-  locations: string;
-  source: string;
-  message: string;
 }
 
 interface FormErrors {
   name?: string;
   email?: string;
-  streetAddress?: string;
   city?: string;
   state?: string;
-  zipCode?: string;
   profession?: string;
-  locations?: string;
-  source?: string;
   agreement?: string;
 }
 
 const EMPTY_FORM: FormState = {
   name: '',
   email: '',
-  streetAddress: '',
   city: '',
   state: '',
-  zipCode: '',
   profession: '',
-  locations: '',
-  source: '',
-  message: '',
 };
 
 const US_STATES = [
@@ -66,15 +52,6 @@ const PLACEHOLDER_AMBASSADORS = [
   { name: 'Priya K.', city: 'Oakland, CA', profession: 'Mental Health Counselor', initial: 'P' },
 ];
 
-const SOURCE_OPTIONS = [
-  'A colleague or friend',
-  'Social media',
-  'Google search',
-  'LangAccess newsletter',
-  'Community organization',
-  'Healthcare conference',
-  'Other',
-];
 
 function useCountUp(target: number, duration = 2000, started: boolean) {
   const [count, setCount] = useState(0);
@@ -140,14 +117,9 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
     const next: FormErrors = {};
     if (!form.name.trim()) next.name = 'Full name is required.';
     if (!form.email.trim()) next.email = 'Email is required.';
-    if (!form.streetAddress.trim()) next.streetAddress = 'Street address is required.';
     if (!form.city.trim()) next.city = 'City is required.';
     if (!form.state) next.state = 'State is required.';
-    if (!form.zipCode.trim()) next.zipCode = 'ZIP code is required.';
-    else if (!/^\d{5}$/.test(form.zipCode.trim())) next.zipCode = 'ZIP code must be 5 digits.';
     if (!form.profession.trim()) next.profession = 'Profession is required.';
-    if (!form.locations.trim()) next.locations = 'Distribution location is required.';
-    if (!form.source) next.source = 'Please let us know how you heard about us.';
     if (!agreementChecked) next.agreement = 'You must agree to the terms before submitting.';
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -174,13 +146,8 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
         .insert({
           full_name: fullName,
           email,
-          street_address: form.streetAddress.trim(),
           city_state: cityState,
-          zip_code: form.zipCode.trim(),
           profession: form.profession.trim(),
-          distribution_location: form.locations.trim(),
-          how_heard: form.source,
-          additional_context: form.message.trim(),
           agreement_accepted: true,
           agreement_timestamp: new Date().toISOString(),
           ref_code: refCode,
@@ -191,10 +158,6 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
       if (error) throw error;
 
       localStorage.setItem('ambassador_id', data.id);
-      setSubmitted(true);
-      setTimeout(() => {
-        document.getElementById('signup')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 50);
 
       try {
         const qrRes = await fetch('/.netlify/functions/generate-qr-slug', {
@@ -211,6 +174,8 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
       } catch (emailErr) {
         console.error('Post-submit background step failed:', emailErr);
       }
+
+      window.location.href = `/order-cards?ref=${refCode}`;
 
     } catch (err: unknown) {
       console.error('Submit error:', err);
@@ -232,195 +197,118 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
     <div id="signup" className="max-w-2xl mx-auto px-4 pb-16">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-white mb-2">Join the Brigade</h2>
-        <p className="text-slate-400 text-sm">Join the movement. Takes 2 minutes.</p>
+        <p className="text-slate-400 text-sm">Step 1 of 2: Join. Step 2: Order your cards.</p>
       </div>
 
-      {submitted ? (
-        <div className="bg-green-500/10 border border-green-500/30 rounded-2xl p-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-8 h-8 text-green-400" />
+      <form onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-8 border border-white/10 space-y-5">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Full Name *</label>
+            <input name="name" value={form.name} onChange={handleChange} placeholder="Maria Sanchez" className={fieldClass(errors.name)} />
+            {errors.name && <p className="text-red-400 text-xs mt-1.5">{errors.name}</p>}
           </div>
-          <h3 className="text-2xl font-bold text-white mb-3">You're in the Brigade! 🎉</h3>
-          <p className="text-green-200 text-base leading-relaxed max-w-md mx-auto mb-2">
-            Check your email — your QR code and order link are on their way.
-          </p>
-          <p className="text-slate-500 text-sm">
-            (Check spam if you don't see it within 2 minutes)
-          </p>
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Email *</label>
+            <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="maria@example.com" className={fieldClass(errors.email)} />
+            {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email}</p>}
+          </div>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-8 border border-white/10 space-y-5">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Full Name *</label>
-              <input name="name" value={form.name} onChange={handleChange} placeholder="Maria Sanchez" className={fieldClass(errors.name)} />
-              {errors.name && <p className="text-red-400 text-xs mt-1.5">{errors.name}</p>}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">City *</label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+              <input
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+                placeholder="San Jose"
+                className={`w-full bg-white/5 border rounded-xl pl-9 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.city ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
+              />
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Email *</label>
-              <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="maria@example.com" className={fieldClass(errors.email)} />
-              {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email}</p>}
-            </div>
+            {errors.city && <p className="text-red-400 text-xs mt-1.5">{errors.city}</p>}
           </div>
-
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-              Mailing Address for Your Card Pack *
-            </label>
-            <div className="space-y-3">
-              <div>
-                <input name="streetAddress" value={form.streetAddress} onChange={handleChange} placeholder="123 Main St" className={fieldClass(errors.streetAddress)} />
-                {errors.streetAddress && <p className="text-red-400 text-xs mt-1.5">{errors.streetAddress}</p>}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                    <input
-                      name="city"
-                      value={form.city}
-                      onChange={handleChange}
-                      placeholder="San Jose"
-                      className={`w-full bg-white/5 border rounded-xl pl-9 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${errors.city ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`}
-                    />
-                  </div>
-                  {errors.city && <p className="text-red-400 text-xs mt-1.5">{errors.city}</p>}
-                </div>
-                <div>
-                  <select
-                    name="state"
-                    value={form.state}
-                    onChange={handleChange}
-                    className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none text-sm transition-colors appearance-none ${errors.state ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'} ${!form.state ? 'text-slate-600' : 'text-white'}`}
-                  >
-                    <option value="" className="bg-[#111827] text-slate-400">State</option>
-                    {US_STATES.map(s => (
-                      <option key={s} value={s} className="bg-[#111827] text-white">{s}</option>
-                    ))}
-                  </select>
-                  {errors.state && <p className="text-red-400 text-xs mt-1.5">{errors.state}</p>}
-                </div>
-                <div>
-                  <input
-                    name="zipCode"
-                    value={form.zipCode}
-                    onChange={handleChange}
-                    placeholder="ZIP code"
-                    maxLength={5}
-                    className={fieldClass(errors.zipCode)}
-                  />
-                  {errors.zipCode && <p className="text-red-400 text-xs mt-1.5">{errors.zipCode}</p>}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Profession *</label>
-            <input name="profession" value={form.profession} onChange={handleChange} placeholder="Nurse, Teacher, Foreman..." className={fieldClass(errors.profession)} />
-            {errors.profession && <p className="text-red-400 text-xs mt-1.5">{errors.profession}</p>}
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Where Would You Hand Out Cards? *</label>
-            <input
-              name="locations"
-              value={form.locations}
-              onChange={handleChange}
-              placeholder="Valley Medical waiting room, Lincoln Elementary break room, job site..."
-              className={fieldClass(errors.locations)}
-            />
-            {errors.locations && <p className="text-red-400 text-xs mt-1.5">{errors.locations}</p>}
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">How Did You Hear About Us? *</label>
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">State *</label>
             <select
-              name="source"
-              value={form.source}
+              name="state"
+              value={form.state}
               onChange={handleChange}
-              className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none text-sm transition-colors appearance-none ${errors.source ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'} ${!form.source ? 'text-slate-600' : 'text-white'}`}
+              className={`w-full bg-white/5 border rounded-xl px-4 py-3 focus:outline-none text-sm transition-colors appearance-none ${errors.state ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'} ${!form.state ? 'text-slate-600' : 'text-white'}`}
             >
-              <option value="" className="bg-[#111827] text-slate-400">Select one...</option>
-              {SOURCE_OPTIONS.map(opt => (
-                <option key={opt} value={opt} className="bg-[#111827] text-white">{opt}</option>
+              <option value="" className="bg-[#111827] text-slate-400">State</option>
+              {US_STATES.map(s => (
+                <option key={s} value={s} className="bg-[#111827] text-white">{s}</option>
               ))}
             </select>
-            {errors.source && <p className="text-red-400 text-xs mt-1.5">{errors.source}</p>}
+            {errors.state && <p className="text-red-400 text-xs mt-1.5">{errors.state}</p>}
           </div>
+        </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">
-              Tell Us About a Language Barrier You Witnessed <span className="normal-case font-normal text-slate-500">(optional)</span>
-            </label>
-            <textarea
-              name="message"
-              value={form.message}
-              onChange={handleChange}
-              rows={3}
-              placeholder="Tell us about a time language barriers impacted someone you work with..."
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-green-500/50 text-sm transition-colors resize-none"
-            />
-          </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Profession *</label>
+          <input name="profession" value={form.profession} onChange={handleChange} placeholder="Nurse, Teacher, Foreman..." className={fieldClass(errors.profession)} />
+          {errors.profession && <p className="text-red-400 text-xs mt-1.5">{errors.profession}</p>}
+        </div>
 
-          <div>
-            <label className="flex items-start gap-3 cursor-pointer group">
-              <div className="relative mt-0.5 flex-shrink-0">
-                <input
-                  type="checkbox"
-                  checked={agreementChecked}
-                  onChange={e => {
-                    setAgreementChecked(e.target.checked);
-                    if (e.target.checked && errors.agreement) {
-                      setErrors(prev => ({ ...prev, agreement: undefined }));
-                    }
-                  }}
-                  className="sr-only"
-                />
-                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${errors.agreement ? 'border-red-500/60' : 'border-white/20 group-hover:border-green-500/50'} ${agreementChecked ? 'bg-green-500 border-green-500' : 'bg-white/5'}`}>
-                  {agreementChecked && (
-                    <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                </div>
+        <div>
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <div className="relative mt-0.5 flex-shrink-0">
+              <input
+                type="checkbox"
+                checked={agreementChecked}
+                onChange={e => {
+                  setAgreementChecked(e.target.checked);
+                  if (e.target.checked && errors.agreement) {
+                    setErrors(prev => ({ ...prev, agreement: undefined }));
+                  }
+                }}
+                className="sr-only"
+              />
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${errors.agreement ? 'border-red-500/60' : 'border-white/20 group-hover:border-green-500/50'} ${agreementChecked ? 'bg-green-500 border-green-500' : 'bg-white/5'}`}>
+                {agreementChecked && (
+                  <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
               </div>
-              <span className="text-sm text-slate-300 leading-snug">
-                I agree to distribute cards only in professional settings and not to misrepresent LangAccess services.
-              </span>
-            </label>
-            {errors.agreement && <p className="text-red-400 text-xs mt-1.5 ml-8">{errors.agreement}</p>}
-          </div>
-
-          {submitError && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
-              <p className="text-red-400 text-sm">{submitError}</p>
             </div>
-          )}
+            <span className="text-sm text-slate-300 leading-snug">
+              I agree to distribute cards only in professional settings and not to misrepresent LangAccess services.
+            </span>
+          </label>
+          {errors.agreement && <p className="text-red-400 text-xs mt-1.5 ml-8">{errors.agreement}</p>}
+        </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-2"
-          >
-            {submitting ? (
-              <>
-                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                </svg>
-                Submitting...
-              </>
-            ) : (
-              <>
-                Join the Ambassador Brigade
-                <Send className="w-4 h-4" />
-              </>
-            )}
-          </button>
-        </form>
-      )}
+        {submitError && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
+            <p className="text-red-400 text-sm">{submitError}</p>
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-2"
+        >
+          {submitting ? (
+            <>
+              <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+              </svg>
+              Submitting...
+            </>
+          ) : (
+            <>
+              Join & Continue
+              <Send className="w-4 h-4" />
+            </>
+          )}
+        </button>
+      </form>
     </div>
   );
 
@@ -452,23 +340,18 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
             background: 'radial-gradient(ellipse 80% 60% at 50% 20%, rgba(34,197,94,0.12) 0%, transparent 70%)',
           }}
         />
-        <div className="max-w-4xl mx-auto px-4 py-20 text-center relative">
+        <div className="max-w-4xl mx-auto px-4 py-16 text-center relative">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
             One Card.<br />
             <span className="text-green-400">One Lifeline.</span>
           </h1>
-          <p className="text-slate-200 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
+          <p className="text-slate-200 text-lg font-medium max-w-2xl mx-auto leading-relaxed mb-4">
             Carry a card. Connect someone to help.
           </p>
-          <a
-            href="#signup"
-            className="inline-flex items-center gap-2 mt-8 bg-green-500 hover:bg-green-400 text-white font-semibold px-8 py-4 rounded-2xl transition-colors text-base"
-          >
-            Become an Ambassador
-            <Send className="w-4 h-4" />
-          </a>
         </div>
       </div>
+
+      {signupSection}
 
       <div className="max-w-4xl mx-auto px-4 py-16">
         <p className="text-xs font-semibold text-green-400 uppercase tracking-widest text-center mb-3">
@@ -679,10 +562,10 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 pb-8">
+      <div className="max-w-4xl mx-auto px-4 pb-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16">
           {[
-            { step: '01', title: 'Sign Up', desc: 'Tell us who you are and where you work. Takes 2 minutes.' },
+            { step: '01', title: 'Sign Up', desc: 'Tell us who you are and where you work. Takes 30 seconds.' },
             { step: '02', title: 'Order Your Cards', desc: 'Order a pack of 25, 50, or 100 cards printed with your unique QR code. You pay printing and shipping cost only — no markup.' },
             { step: '03', title: 'Share Them', desc: 'Leave them in waiting rooms, break rooms, or hand them directly to anyone who needs help finding food, shelter, or crisis support.' },
           ].map(item => (
@@ -694,8 +577,6 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
           ))}
         </div>
       </div>
-
-      {signupSection}
 
       <div className="max-w-4xl mx-auto px-4 pb-20">
         <div className="text-center mb-8">
