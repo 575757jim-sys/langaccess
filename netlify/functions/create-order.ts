@@ -47,7 +47,7 @@ export const handler: Handler = async (event) => {
       postCode: zip,
       email,
     },
-    items: [
+    products: [
       {
         itemReferenceId: 'cards',
         productUid,
