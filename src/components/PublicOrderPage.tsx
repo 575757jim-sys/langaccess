@@ -152,32 +152,14 @@ export default function PublicOrderPage() {
 
       console.log('Order sent', payload);
 
-      await fetch('/.netlify/functions/create-order', {
+      const response = await fetch('/.netlify/functions/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      const gelatoRes = await fetch('/.netlify/functions/create-gelato-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ambassador_id: ambassador.id,
-          ref_code: code,
-          full_name: ambassador.full_name,
-          email: ambassador.email,
-          phone: '',
-          shipping_address: streetAddress.trim(),
-          city: city.trim(),
-          state: stateVal.trim(),
-          zip: zip.trim(),
-          quantity,
-        }),
-      });
-
-      if (!gelatoRes.ok) {
-        const err = await gelatoRes.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(err.error || 'Failed to place order with printer');
+      if (!response.ok) {
+        throw new Error('Failed to submit order');
       }
 
       setSubmitState('success');
@@ -382,7 +364,7 @@ export default function PublicOrderPage() {
           </button>
 
           <p className="text-slate-600 text-xs text-center">
-            Payment is collected by Gelato at fulfillment. No payment info is stored here.
+            Order received successfully
           </p>
         </form>
       </div>
