@@ -27,6 +27,12 @@ export const handler: Handler = async (event) => {
   const firstName = nameParts[0] || '';
   const lastName = nameParts.slice(1).join(' ') || '';
 
+  const productUid = process.env.GELATO_PRODUCT_UID || 'cards_pf_bx_pt_300-gsm-uncoated_cl_4-4_hor';
+  const fileUrl = 'https://langaccess.org/card-front.pdf';
+
+  console.log('productUid:', productUid);
+  console.log('fileUrl:', fileUrl);
+
   const quotePayload = {
     currency: 'USD',
     orderReferenceId: 'quote-' + Date.now(),
@@ -44,14 +50,14 @@ export const handler: Handler = async (event) => {
     items: [
       {
         itemReferenceId: 'cards',
-        productUid: process.env.GELATO_PRODUCT_UID || 'cards_pf_bx_pt_300-gsm-uncoated_cl_4-4_hor',
-        fileUrl: 'https://langaccess.org/card-front.pdf',
+        productUid,
+        fileUrl,
         quantity,
       },
     ],
   };
 
-  console.log('Gelato quote request:', JSON.stringify(quotePayload, null, 2));
+  console.log('Full Gelato request body:', JSON.stringify(quotePayload, null, 2));
 
   try {
     const gelatoRes = await fetch('https://order.gelatoapis.com/v3/orders:quote', {
@@ -64,11 +70,14 @@ export const handler: Handler = async (event) => {
     });
 
     if (!gelatoRes.ok) {
-      const errorText = await gelatoRes.text();
-      console.error('Gelato quote error:', errorText);
+      const responseText = await gelatoRes.text();
+      console.error('Gelato error:', responseText);
       return {
-        statusCode: gelatoRes.status,
-        body: JSON.stringify({ error: 'Gelato API error', details: errorText }),
+        statusCode: 200,
+        body: JSON.stringify({
+          success: false,
+          error: responseText
+        }),
       };
     }
 
@@ -82,8 +91,11 @@ export const handler: Handler = async (event) => {
   } catch (err) {
     console.error('Gelato quote exception:', err);
     return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to get quote', details: String(err) }),
+      statusCode: 200,
+      body: JSON.stringify({
+        success: false,
+        error: String(err)
+      }),
     };
   }
 };
