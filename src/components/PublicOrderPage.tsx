@@ -152,7 +152,7 @@ export default function PublicOrderPage() {
 
       console.log('Order sent', payload);
 
-      await fetch('/api/create-order', {
+      await fetch('/.netlify/functions/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
