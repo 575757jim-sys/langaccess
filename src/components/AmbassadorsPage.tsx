@@ -108,9 +108,9 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
 
   const handleCTAClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const signupSection = document.getElementById('signup');
-    if (signupSection) {
-      signupSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+      signupForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
       setTimeout(() => {
         nameInputRef.current?.focus();
       }, 500);
@@ -211,7 +211,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
         <p className="text-green-400 text-xs font-bold uppercase tracking-widest mb-3">Step 1 of 2 — Join</p>
       </div>
 
-      <form onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-6 md:p-8 border border-white/10 space-y-4">
+      <form id="signup-form" onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-6 md:p-8 border border-white/10 space-y-4">
 
         <div>
           <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Full Name *</label>
