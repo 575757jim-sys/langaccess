@@ -194,28 +194,26 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
     `w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none text-sm transition-colors ${err ? 'border-red-500/60 focus:border-red-500' : 'border-white/10 focus:border-green-500/50'}`;
 
   const signupSection = (
-    <div id="signup" className="max-w-2xl mx-auto px-4 pb-16">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-white mb-2">Join the Brigade</h2>
-        <p className="text-slate-400 text-sm">Step 1 of 2: Join. Step 2: Order your cards.</p>
+    <div id="signup" className="max-w-2xl mx-auto px-4 pb-8">
+      <div className="text-center mb-6">
+        <p className="text-green-400 text-xs font-bold uppercase tracking-widest mb-3">Step 1 of 2 — Join</p>
       </div>
 
-      <form onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-8 border border-white/10 space-y-5">
+      <form onSubmit={handleSubmit} noValidate className="bg-[#111827] rounded-2xl p-6 md:p-8 border border-white/10 space-y-4">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Full Name *</label>
-            <input name="name" value={form.name} onChange={handleChange} placeholder="Maria Sanchez" className={fieldClass(errors.name)} />
-            {errors.name && <p className="text-red-400 text-xs mt-1.5">{errors.name}</p>}
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Email *</label>
-            <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="maria@example.com" className={fieldClass(errors.email)} />
-            {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email}</p>}
-          </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Full Name *</label>
+          <input name="name" value={form.name} onChange={handleChange} placeholder="Maria Sanchez" className={fieldClass(errors.name)} />
+          {errors.name && <p className="text-red-400 text-xs mt-1.5">{errors.name}</p>}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Email *</label>
+          <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="maria@example.com" className={fieldClass(errors.email)} />
+          {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email}</p>}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">City *</label>
             <div className="relative">
@@ -288,26 +286,31 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-2"
-        >
-          {submitting ? (
-            <>
-              <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-              </svg>
-              Submitting...
-            </>
-          ) : (
-            <>
-              Join & Continue
-              <Send className="w-4 h-4" />
-            </>
-          )}
-        </button>
+        <div>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-2"
+          >
+            {submitting ? (
+              <>
+                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+                Submitting...
+              </>
+            ) : (
+              <>
+                Join & Get Your Cards
+                <Send className="w-4 h-4" />
+              </>
+            )}
+          </button>
+          <p className="text-slate-500 text-xs text-center mt-3">
+            Next: Enter shipping and pay securely
+          </p>
+        </div>
       </form>
     </div>
   );
@@ -340,14 +343,22 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
             background: 'radial-gradient(ellipse 80% 60% at 50% 20%, rgba(34,197,94,0.12) 0%, transparent 70%)',
           }}
         />
-        <div className="max-w-4xl mx-auto px-4 py-16 text-center relative">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+        <div className="max-w-4xl mx-auto px-4 pt-8 pb-6 text-center relative">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
             One Card.<br />
             <span className="text-green-400">One Lifeline.</span>
           </h1>
-          <p className="text-slate-200 text-lg font-medium max-w-2xl mx-auto leading-relaxed mb-4">
+          <p className="text-slate-200 text-base md:text-lg font-medium max-w-2xl mx-auto leading-relaxed mb-6">
             Carry a card. Connect someone to help.
           </p>
+          <p className="text-slate-400 text-sm mb-2">Takes 30 seconds • No cost to join</p>
+          <a
+            href="#signup"
+            className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-400 text-white font-semibold px-8 py-4 rounded-2xl transition-colors text-base shadow-lg"
+          >
+            Become an Ambassador
+            <Send className="w-4 h-4" />
+          </a>
         </div>
       </div>
 
