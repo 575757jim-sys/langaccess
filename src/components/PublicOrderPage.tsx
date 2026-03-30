@@ -244,7 +244,7 @@ export default function PublicOrderPage() {
           </p>
 
           {hasQuoteDetails ? (
-            <div className="bg-[#111827] border border-white/10 rounded-xl px-5 py-4 mb-10 text-left">
+            <div className="bg-[#111827] border border-white/10 rounded-xl px-5 py-4 mb-6 text-left">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Quote Summary</p>
               <div className="space-y-2">
                 {quoteData.product_price !== undefined && (
@@ -276,9 +276,18 @@ export default function PublicOrderPage() {
               </div>
             </div>
           ) : (
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-5 py-4 mb-10">
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-5 py-4 mb-6">
               <p className="text-amber-400 text-sm">Quote received, but final line items are unavailable.</p>
             </div>
+          )}
+
+          {quoteData && quoteData.total_price !== null && quoteData.total_price !== undefined && (
+            <button
+              onClick={() => console.log("Continue to payment", quoteData)}
+              className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 text-white font-bold text-base transition-colors mb-10"
+            >
+              Continue to Payment
+            </button>
           )}
 
           <a
