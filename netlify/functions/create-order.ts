@@ -84,9 +84,39 @@ export const handler: Handler = async (event) => {
     const gelatoData = await gelatoRes.json();
     console.log('Gelato quote response:', JSON.stringify(gelatoData, null, 2));
 
+    const quote = gelatoData?.quotes?.[0];
+    const productPrice = quote?.products?.[0]?.price ?? null;
+    const currency = quote?.products?.[0]?.currency ?? quote?.shipmentMethods?.[0]?.currency ?? null;
+    const shipmentMethods = quote?.shipmentMethods ?? [];
+
+    let cheapestShipment = null;
+    if (shipmentMethods.length > 0) {
+      cheapestShipment = shipmentMethods.reduce((cheapest: any, current: any) => {
+        if (!cheapest || (current.price != null && current.price < cheapest.price)) {
+          return current;
+        }
+        return cheapest;
+      }, null);
+    }
+
+    const normalized = {
+      success: true,
+      product_price: productPrice,
+      shipping_price: cheapestShipment?.price ?? null,
+      total_price:
+        productPrice != null && cheapestShipment?.price != null
+          ? Number((productPrice + cheapestShipment.price).toFixed(2))
+          : null,
+      currency,
+      shipment_method_name: cheapestShipment?.name ?? null,
+      raw: gelatoData
+    };
+
+    console.log('Normalized quote response:', JSON.stringify(normalized, null, 2));
+
     return {
       statusCode: 200,
-      body: JSON.stringify(gelatoData),
+      body: JSON.stringify(normalized),
     };
   } catch (err) {
     console.error('Gelato quote exception:', err);
