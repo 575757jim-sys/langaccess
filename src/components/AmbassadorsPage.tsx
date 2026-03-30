@@ -302,8 +302,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
               </>
             ) : (
               <>
-                Join & Get Your Cards
-                <Send className="w-4 h-4" />
+                Join & Continue →
               </>
             )}
           </button>
