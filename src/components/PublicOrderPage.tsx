@@ -215,9 +215,9 @@ export default function PublicOrderPage() {
           <div className="w-20 h-20 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-400" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-3">Order placed!</h1>
+          <h1 className="text-3xl font-bold text-white mb-3">Quote received</h1>
           <p className="text-slate-300 text-base leading-relaxed mb-10">
-            Your cards are being printed and will ship to you soon.
+            Your exact price has been calculated. No order has been placed yet.
           </p>
           <a
             href="/"
@@ -358,13 +358,13 @@ export default function PublicOrderPage() {
             ) : (
               <>
                 <Package className="w-5 h-5" />
-                Place My Order
+                Get Exact Price
               </>
             )}
           </button>
 
           <p className="text-slate-600 text-xs text-center">
-            Order received successfully
+            This will calculate your final price
           </p>
         </form>
       </div>
