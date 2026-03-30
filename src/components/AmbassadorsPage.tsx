@@ -95,6 +95,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [statsVisible, setStatsVisible] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -104,6 +105,17 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
     if (statsRef.current) observer.observe(statsRef.current);
     return () => observer.disconnect();
   }, []);
+
+  const handleCTAClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const signupSection = document.getElementById('signup');
+    if (signupSection) {
+      signupSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => {
+        nameInputRef.current?.focus();
+      }, 500);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -203,7 +215,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
 
         <div>
           <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Full Name *</label>
-          <input name="name" value={form.name} onChange={handleChange} placeholder="Maria Sanchez" className={fieldClass(errors.name)} />
+          <input ref={nameInputRef} name="name" value={form.name} onChange={handleChange} placeholder="Maria Sanchez" className={fieldClass(errors.name)} />
           {errors.name && <p className="text-red-400 text-xs mt-1.5">{errors.name}</p>}
         </div>
 
@@ -302,7 +314,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
               </>
             ) : (
               <>
-                Join & Continue →
+                Join & Get Your Cards
               </>
             )}
           </button>
@@ -353,6 +365,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
           <p className="text-slate-400 text-sm mb-2">Takes 30 seconds • No cost to join</p>
           <a
             href="#signup"
+            onClick={handleCTAClick}
             className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-400 text-white font-semibold px-8 py-4 rounded-2xl transition-colors text-base shadow-lg"
           >
             Become an Ambassador
@@ -611,6 +624,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
         <div className="text-center mt-8">
           <a
             href="#signup"
+            onClick={handleCTAClick}
             className="text-slate-400 text-sm hover:text-green-400 transition-colors"
           >
             Want to see your name here? <span className="text-green-400 font-semibold">Become an Ambassador →</span>
