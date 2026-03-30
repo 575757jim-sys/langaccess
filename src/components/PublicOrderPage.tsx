@@ -19,8 +19,22 @@ interface AmbassadorData {
   slug: string | null;
 }
 
+interface QuoteData {
+  product_price?: number;
+  shipping_price?: number;
+  total_price?: number;
+  currency?: string;
+  shipment_method_name?: string;
+}
+
 type LoadState = 'loading' | 'ready' | 'not_found';
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error';
+
+function formatPrice(amount: number | undefined, currency: string = 'USD'): string {
+  if (amount === undefined) return 'N/A';
+  const symbol = currency === 'USD' ? '$' : currency;
+  return `${symbol}${amount.toFixed(2)}`;
+}
 
 function CardPreview({ slug, fullName, cityState }: { slug: string; fullName: string; cityState: string }) {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('https://langaccess.org/r/' + slug)}&bgcolor=ffffff&color=000000&margin=2`;
@@ -72,6 +86,7 @@ export default function PublicOrderPage() {
   const [submitState, setSubmitState] = useState<SubmitState>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [stepLabel, setStepLabel] = useState('');
+  const [quoteData, setQuoteData] = useState<QuoteData | null>(null);
 
   useEffect(() => {
     if (!refCode) return;
@@ -162,6 +177,8 @@ export default function PublicOrderPage() {
         throw new Error('Failed to submit order');
       }
 
+      const result = await response.json();
+      setQuoteData(result);
       setSubmitState('success');
     } catch (err: unknown) {
       setErrorMsg((err as Error)?.message || 'Something went wrong. Please try again.');
@@ -208,6 +225,12 @@ export default function PublicOrderPage() {
   }
 
   if (submitState === 'success') {
+    const hasQuoteDetails = quoteData && (
+      quoteData.product_price !== undefined ||
+      quoteData.shipping_price !== undefined ||
+      quoteData.total_price !== undefined
+    );
+
     return (
       <div className="min-h-screen bg-[#0a0f1e] text-white flex flex-col items-center justify-center px-4">
         <SEO title="Order Confirmed | LangAccess" description="Your card order has been placed." path="/order-cards" />
@@ -216,9 +239,48 @@ export default function PublicOrderPage() {
             <CheckCircle className="w-10 h-10 text-green-400" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-3">Quote received</h1>
-          <p className="text-slate-300 text-base leading-relaxed mb-10">
+          <p className="text-slate-300 text-base leading-relaxed mb-6">
             Your exact price has been calculated. No order has been placed yet.
           </p>
+
+          {hasQuoteDetails ? (
+            <div className="bg-[#111827] border border-white/10 rounded-xl px-5 py-4 mb-10 text-left">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Quote Summary</p>
+              <div className="space-y-2">
+                {quoteData.product_price !== undefined && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-400">Product</span>
+                    <span className="text-white font-medium">{formatPrice(quoteData.product_price, quoteData.currency)}</span>
+                  </div>
+                )}
+                {quoteData.shipping_price !== undefined && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-400">
+                      Shipping
+                      {quoteData.shipment_method_name && (
+                        <span className="text-xs text-slate-500 ml-1">({quoteData.shipment_method_name})</span>
+                      )}
+                    </span>
+                    <span className="text-white font-medium">{formatPrice(quoteData.shipping_price, quoteData.currency)}</span>
+                  </div>
+                )}
+                {quoteData.total_price !== undefined && (
+                  <>
+                    <div className="border-t border-white/10 my-2" />
+                    <div className="flex justify-between text-base">
+                      <span className="text-white font-semibold">Total</span>
+                      <span className="text-green-400 font-bold">{formatPrice(quoteData.total_price, quoteData.currency)}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-5 py-4 mb-10">
+              <p className="text-amber-400 text-sm">Quote received, but final line items are unavailable.</p>
+            </div>
+          )}
+
           <a
             href="/"
             className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
