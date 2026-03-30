@@ -329,6 +329,10 @@ export default function PublicOrderPage() {
             </div>
           )}
 
+          <p className="text-slate-400 text-sm text-center mb-6">
+            Every card you distribute helps someone find essential resources.
+          </p>
+
           {quoteData && quoteData.total_price !== null && quoteData.total_price !== undefined && (
             <>
               {paymentError && (
