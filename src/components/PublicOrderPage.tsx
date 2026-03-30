@@ -138,6 +138,26 @@ export default function PublicOrderPage() {
 
     try {
       const code = (refCode || aidCode).toUpperCase();
+
+      const payload = {
+        full_name: ambassador.full_name,
+        email: ambassador.email,
+        street_address: streetAddress.trim(),
+        city: city.trim(),
+        state: stateVal.trim(),
+        zip: zip.trim(),
+        quantity,
+        ref_code: code,
+      };
+
+      console.log('Order sent', payload);
+
+      await fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
       const gelatoRes = await fetch('/.netlify/functions/create-gelato-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
