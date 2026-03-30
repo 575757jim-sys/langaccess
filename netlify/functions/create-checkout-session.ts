@@ -87,8 +87,8 @@ const handler: Handler = async (event: HandlerEvent) => {
         currency: currency || 'USD',
         shipment_method_name: shipment_method_name || '',
       },
-      success_url: `https://langaccess.org/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: 'https://langaccess.org/order-cards',
+      success_url: `${event.headers.origin || 'https://langaccess.org'}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${event.headers.origin || 'https://langaccess.org'}/cancel`,
     });
 
     console.log('Stripe Checkout session created:', session.id);

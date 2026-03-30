@@ -14,6 +14,8 @@ import AmbassadorsPage from './components/AmbassadorsPage';
 import OrderCardsPage from './components/OrderCardsPage';
 import PublicOrderPage from './components/PublicOrderPage';
 import QRScanPage from './components/QRScanPage';
+import PaymentSuccessPage from './components/PaymentSuccessPage';
+import PaymentCancelPage from './components/PaymentCancelPage';
 import UpdateToast from './components/UpdateToast';
 import DebugOverlay from './components/DebugOverlay';
 import InstallBanner from './components/InstallBanner';
@@ -69,6 +71,14 @@ function getAmbassadorsPath(): boolean {
 
 function getCertificatesPath(): boolean {
   return window.location.pathname === '/certificates';
+}
+
+function getPaymentSuccessPath(): boolean {
+  return window.location.pathname === '/success';
+}
+
+function getPaymentCancelPath(): boolean {
+  return window.location.pathname === '/cancel';
 }
 
 function AppInner() {
@@ -364,9 +374,18 @@ function AppInner() {
 }
 
 function App() {
+  if (getPaymentSuccessPath()) {
+    return <PaymentSuccessPage />;
+  }
+
+  if (getPaymentCancelPath()) {
+    return <PaymentCancelPage />;
+  }
+
   if (getPublicOrderPath()) {
     return <PublicOrderPage />;
   }
+
   return <AppInner />;
 }
 
