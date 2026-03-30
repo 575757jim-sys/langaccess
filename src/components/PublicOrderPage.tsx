@@ -4,9 +4,9 @@ import SEO from './SEO';
 import { supabase } from '../lib/supabase';
 
 const QUANTITY_OPTIONS = [
-  { value: 25, label: '25 cards', cost: '$8–10' },
-  { value: 50, label: '50 cards', cost: '$10–13' },
-  { value: 100, label: '100 cards', cost: '$13–15' },
+  { value: 25, label: '25 cards' },
+  { value: 50, label: '50 cards' },
+  { value: 100, label: '100 cards' },
 ];
 
 interface AmbassadorData {
