@@ -241,12 +241,12 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
           <div className="w-20 h-20 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-400" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-3">Your cards are on their way.</h1>
+          <h1 className="text-3xl font-bold text-white mb-3">Quote received</h1>
           <p className="text-slate-300 text-base leading-relaxed mb-2">
-            Allow 5–7 business days for delivery.
+            Your final price was calculated successfully.
           </p>
           <p className="text-green-400 text-sm font-medium">
-            Every card you hand out is tracked.
+            This is a price quote only. No order has been submitted yet.
           </p>
           <button
             onClick={onBack}
@@ -375,7 +375,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
           ) : (
             <>
               <Package className="w-5 h-5" />
-              Order My Cards
+              Get Exact Price
             </>
           )}
         </button>
