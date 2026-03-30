@@ -87,6 +87,7 @@ export default function PublicOrderPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [stepLabel, setStepLabel] = useState('');
   const [quoteData, setQuoteData] = useState<QuoteData | null>(null);
+  const [paymentError, setPaymentError] = useState('');
 
   useEffect(() => {
     if (!refCode) return;
@@ -187,6 +188,53 @@ export default function PublicOrderPage() {
     }
   };
 
+  const handleContinueToPayment = async () => {
+    if (!ambassador || !quoteData) return;
+
+    setPaymentError('');
+
+    try {
+      const code = (refCode || aidCode).toUpperCase();
+
+      const payload = {
+        full_name: ambassador.full_name,
+        email: ambassador.email,
+        quantity,
+        ref_code: code,
+        street_address: streetAddress.trim(),
+        city: city.trim(),
+        state: stateVal.trim(),
+        zip: zip.trim(),
+        product_price: quoteData.product_price,
+        shipping_price: quoteData.shipping_price,
+        total_price: quoteData.total_price,
+        currency: quoteData.currency,
+        shipment_method_name: quoteData.shipment_method_name,
+      };
+
+      const response = await fetch('/.netlify/functions/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create checkout session');
+      }
+
+      const result = await response.json();
+
+      if (result.url) {
+        window.location.href = result.url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (err: unknown) {
+      console.error('Payment error:', err);
+      setPaymentError('Unable to start payment right now.');
+    }
+  };
+
   if (loadState === 'loading') {
     return (
       <div className="min-h-screen bg-[#0a0f1e] flex items-center justify-center">
@@ -282,12 +330,19 @@ export default function PublicOrderPage() {
           )}
 
           {quoteData && quoteData.total_price !== null && quoteData.total_price !== undefined && (
-            <button
-              onClick={() => console.log("Continue to payment", quoteData)}
-              className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 text-white font-bold text-base transition-colors mb-10"
-            >
-              Continue to Payment
-            </button>
+            <>
+              {paymentError && (
+                <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 mb-4">
+                  <p className="text-red-400 text-sm">{paymentError}</p>
+                </div>
+              )}
+              <button
+                onClick={handleContinueToPayment}
+                className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 text-white font-bold text-base transition-colors mb-10"
+              >
+                Continue to Payment
+              </button>
+            </>
           )}
 
           <a
