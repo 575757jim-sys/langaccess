@@ -107,6 +107,7 @@ export default function LandingPage({
           {/* Desktop nav */}
           <nav className="hidden sm:flex items-center gap-1">
             {[
+              { label: 'Find Help Near You', action: onOpenCommunityNavigator },
               { label: 'How It Works', action: () => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }) },
               { label: 'For Institutions', action: () => document.getElementById('sectors')?.scrollIntoView({ behavior: 'smooth' }) },
               { label: 'Ambassador Brigade', action: onOpenAmbassadors },
@@ -146,6 +147,7 @@ export default function LandingPage({
         {mobileMenuOpen && (
           <div className="sm:hidden border-t border-slate-100 bg-white px-6 py-4 flex flex-col gap-1">
             {[
+              { label: 'Find Help Near You', action: () => { onOpenCommunityNavigator?.(); closeMobileMenu(); } },
               { label: 'How It Works', action: () => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
               { label: 'For Institutions', action: () => { document.getElementById('sectors')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
               { label: 'Ambassador Brigade', action: () => { onOpenAmbassadors?.(); closeMobileMenu(); } },

@@ -51,6 +51,10 @@ function getQRSlug(): string | null {
   return match ? match[1] : null;
 }
 
+function getHelpPath(): boolean {
+  return window.location.pathname === '/help';
+}
+
 function getVerifyPath(): boolean {
   return window.location.pathname === '/verify';
 }
@@ -83,12 +87,13 @@ function getPaymentCancelPath(): boolean {
 
 function AppInner() {
   const qrSlug = getQRSlug();
+  const isHelpPath = getHelpPath();
   const isVerifyPath = getVerifyPath();
   const isOrderCardsPath = getOrderCardsPath();
   const isAmbassadorsPath = getAmbassadorsPath();
   const isCertificatesPath = getCertificatesPath();
   const [view, setView] = useState<AppView>(
-    isOrderCardsPath ? 'order-cards' : isVerifyPath ? 'cert-verify' : isAmbassadorsPath ? 'ambassadors' : isCertificatesPath ? 'certificates' : 'home'
+    isHelpPath ? 'community' : isOrderCardsPath ? 'order-cards' : isVerifyPath ? 'cert-verify' : isAmbassadorsPath ? 'ambassadors' : isCertificatesPath ? 'certificates' : 'home'
   );
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
