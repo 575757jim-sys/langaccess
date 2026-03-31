@@ -202,6 +202,11 @@ function AppInner() {
   const showToast = updateAvailable && !toastDismissed;
 
   useEffect(() => {
+    // Skip validation for standalone pages
+    if (view === 'community' || view === 'policy' || view === 'certificates' || view === 'cert-verify' || view === 'ambassadors' || view === 'order-cards') {
+      return;
+    }
+
     if (view === 'conversation' && !selectedLanguage) {
       setView('language');
     } else if (view === 'talk-together' && !selectedLanguage) {
