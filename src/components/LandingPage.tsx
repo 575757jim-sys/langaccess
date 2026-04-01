@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Wifi, Briefcase, CheckCircle, Tablet, Menu, X } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Wifi, Briefcase, CheckCircle, Tablet, Menu, X, MapPin } from 'lucide-react';
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
 import ToolkitDownload from './ToolkitDownload';
@@ -249,6 +249,24 @@ export default function LandingPage({
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* ── GET HELP NEARBY CTA ── */}
+        <section className="w-full bg-gradient-to-b from-slate-900 to-slate-800 py-8">
+          <div className="max-w-6xl mx-auto px-6">
+            <button
+              onClick={onOpenCommunityNavigator}
+              className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white rounded-2xl py-6 px-8 shadow-2xl transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] group"
+            >
+              <div className="flex items-center justify-center gap-4">
+                <MapPin className="w-10 h-10 flex-shrink-0 group-hover:scale-110 transition-transform" />
+                <div className="text-center">
+                  <div className="text-2xl sm:text-3xl font-bold mb-1">Get Help Nearby</div>
+                  <div className="text-green-50 text-sm sm:text-base font-medium">Find food, shelter, and services near you</div>
+                </div>
+              </div>
+            </button>
           </div>
         </section>
 
