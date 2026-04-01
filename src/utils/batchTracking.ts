@@ -11,8 +11,7 @@ export async function trackBatchVisit(batchCode: string): Promise<void> {
   try {
     const payload = {
       language: '',
-      sector: '',
-      phrase_english: ''
+      sector: ''
     };
 
     console.log('Batch:', batchCode);
@@ -35,8 +34,7 @@ export async function trackLanguageSelection(batchCode: string, language: string
   try {
     const payload = {
       language: language,
-      sector: '',
-      phrase_english: ''
+      sector: ''
     };
 
     console.log('Batch:', batchCode);

@@ -23,11 +23,7 @@ export async function logInteraction(params: {
   try {
     await supabase.from('interaction_logs').insert({
       language: params.language,
-      sector: params.sector,
-      subcategory: params.subcategory,
-      phrase_english: params.phraseEnglish,
-      phrase_translation: params.phraseTranslation,
-      session_id: getSessionId(),
+      sector: params.sector
     });
   } catch {
     // Silently fail — logging must never interrupt the user
