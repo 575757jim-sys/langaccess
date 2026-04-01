@@ -11,12 +11,26 @@ export async function trackBatchVisit(batchCode: string): Promise<void> {
   try {
     const sessionId = getOrCreateSessionId();
 
-    await supabase.from('interaction_logs').insert({
+    const payload = {
       session_id: sessionId,
       event_type: 'batch_visit',
-      event_data: { batch_code: batchCode, page: '/help' },
-      created_at: new Date().toISOString()
-    });
+      event_data: { batch_code: batchCode, page: '/help', user_agent: navigator.userAgent },
+      created_at: new Date().toISOString(),
+      language: '',
+      sector: '',
+      subcategory: '',
+      phrase_english: '',
+      phrase_translation: ''
+    };
+
+    console.log('DB PAYLOAD:', payload);
+
+    const { data, error } = await supabase.from('interaction_logs').insert(payload);
+
+    if (error) {
+      console.error('DB ERROR:', error);
+      throw error;
+    }
 
     console.log(`Batch visit tracked: ${batchCode}`);
   } catch (error) {
@@ -28,12 +42,26 @@ export async function trackLanguageSelection(batchCode: string, language: string
   try {
     const sessionId = getOrCreateSessionId();
 
-    await supabase.from('interaction_logs').insert({
+    const payload = {
       session_id: sessionId,
       event_type: 'batch_language_select',
       event_data: { batch_code: batchCode, language },
-      created_at: new Date().toISOString()
-    });
+      created_at: new Date().toISOString(),
+      language: language,
+      sector: '',
+      subcategory: '',
+      phrase_english: '',
+      phrase_translation: ''
+    };
+
+    console.log('DB PAYLOAD:', payload);
+
+    const { data, error } = await supabase.from('interaction_logs').insert(payload);
+
+    if (error) {
+      console.error('DB ERROR:', error);
+      throw error;
+    }
 
     console.log(`Language selection tracked for batch ${batchCode}: ${language}`);
   } catch (error) {
