@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import {
   ArrowLeft, Phone, MessageSquare, Utensils, Stethoscope, Droplets,
   BatteryCharging, Home, Package, Wifi, WifiOff, ShieldCheck,
-  Upload, Trash2, Eye, X, Camera, ChevronDown, Building2, Volume2
+  Upload, Trash2, Eye, X, Camera, ChevronDown, Building2, Volume2,
+  AlertCircle, Heart, ChevronUp
 } from 'lucide-react';
 import CityResources from './CityResources';
 import { cityResources, CITY_KEYS, CityKey } from '../data/cityResources';
@@ -265,6 +266,7 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
   const [vaultDocs, setVaultDocs] = useState<StoredDoc[]>(loadVault);
   const [previewDoc, setPreviewDoc] = useState<StoredDoc | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [showMoreSupport, setShowMoreSupport] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isOnline = navigator.onLine;
@@ -429,29 +431,117 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
 
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 space-y-8">
 
-        <a
-          href="tel:211"
-          className="block w-full bg-amber-500 hover:bg-amber-400 text-gray-950 rounded-2xl py-5 px-6 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-3xl font-black tracking-tight">{t.call211}</div>
-              <div className="text-sm font-semibold text-gray-800 mt-0.5">Social services, food, shelter — 24/7 free helpline</div>
-            </div>
-            <div className="flex items-center gap-3">
-              {lang !== 'en' && (
-                <button
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); playNavText(t.call211, lang); }}
-                  className="p-2 text-gray-800 hover:text-gray-950 hover:bg-amber-300 rounded-lg transition-colors"
-                  title="Read aloud"
-                >
-                  <Volume2 className="w-5 h-5" />
-                </button>
-              )}
-              <Phone className="w-10 h-10 text-gray-900 flex-shrink-0" />
-            </div>
+        <section>
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-white mb-1">Get Help Now</h2>
+            <p className="text-gray-400 text-sm">Free, 24/7 support. No sign-up needed.</p>
           </div>
-        </a>
+
+          <div className="space-y-3">
+            <a
+              href="tel:911"
+              className="block w-full bg-red-600 hover:bg-red-500 text-white rounded-xl py-4 px-5 shadow-lg transition-all duration-150 active:scale-95"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <AlertCircle className="w-8 h-8 flex-shrink-0" />
+                  <div>
+                    <div className="text-xl font-bold">Call 911</div>
+                    <div className="text-sm text-red-100">Emergency</div>
+                  </div>
+                </div>
+                <Phone className="w-6 h-6 flex-shrink-0" />
+              </div>
+            </a>
+
+            <a
+              href="tel:211"
+              className="block w-full bg-amber-500 hover:bg-amber-400 text-gray-950 rounded-xl py-4 px-5 shadow-lg transition-all duration-150 active:scale-95"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Home className="w-8 h-8 flex-shrink-0" />
+                  <div>
+                    <div className="text-xl font-bold">Call 211</div>
+                    <div className="text-sm text-gray-800">Food, shelter, services</div>
+                  </div>
+                </div>
+                <Phone className="w-6 h-6 flex-shrink-0" />
+              </div>
+            </a>
+
+            <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
+              <a
+                href="tel:988"
+                className="block w-full hover:bg-gray-800 text-white py-4 px-5 transition-all duration-150 active:scale-95"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Heart className="w-8 h-8 flex-shrink-0 text-green-400" />
+                    <div>
+                      <div className="text-xl font-bold">Call or Text 988</div>
+                      <div className="text-sm text-gray-400">Mental health crisis</div>
+                    </div>
+                  </div>
+                  <Phone className="w-6 h-6 flex-shrink-0 text-gray-400" />
+                </div>
+              </a>
+              <a
+                href="sms:988"
+                className="block w-full hover:bg-gray-800 text-white py-3 px-5 border-t border-gray-800 transition-all duration-150 active:scale-95"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm font-semibold text-gray-300">Text 988</span>
+                </div>
+              </a>
+            </div>
+
+            <button
+              onClick={() => setShowMoreSupport(!showMoreSupport)}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-gray-900 hover:bg-gray-800 border border-gray-700 text-gray-300 font-semibold rounded-xl text-sm transition-all duration-150"
+            >
+              <span>More Support Options</span>
+              <ChevronUp className={`w-4 h-4 transition-transform duration-200 ${showMoreSupport ? '' : 'rotate-180'}`} />
+            </button>
+
+            {showMoreSupport && (
+              <div className="space-y-3 pt-2">
+                <a
+                  href="sms:741741"
+                  className="block w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white rounded-xl py-4 px-5 transition-all duration-150 active:scale-95"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <MessageSquare className="w-7 h-7 flex-shrink-0 text-blue-400" />
+                      <div>
+                        <div className="text-lg font-bold">Text 741741</div>
+                        <div className="text-sm text-gray-400">Crisis Text Line</div>
+                      </div>
+                    </div>
+                    <MessageSquare className="w-6 h-6 flex-shrink-0 text-gray-500" />
+                  </div>
+                </a>
+
+                <a
+                  href="sms:678678?body=START"
+                  className="block w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white rounded-xl py-4 px-5 transition-all duration-150 active:scale-95"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Heart className="w-7 h-7 flex-shrink-0 text-pink-400" />
+                      <div>
+                        <div className="text-lg font-bold">Trevor Project</div>
+                        <div className="text-sm text-gray-400">LGBTQ+ youth support</div>
+                      </div>
+                    </div>
+                    <MessageSquare className="w-6 h-6 flex-shrink-0 text-gray-500" />
+                  </div>
+                </a>
+              </div>
+            )}
+          </div>
+        </section>
 
         <section>
           <div className="flex items-center justify-between mb-4">
