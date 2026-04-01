@@ -14,7 +14,11 @@ export async function trackBatchVisit(batchCode: string): Promise<void> {
     const payload = {
       session_id: sessionId,
       language: '',
-      created_at: new Date().toISOString()
+      sector: '',
+      subcategory: '',
+      phrase_english: '',
+      phrase_translation: '',
+      batch_code: batchCode
     };
 
     console.log('Batch:', batchCode);
@@ -40,7 +44,11 @@ export async function trackLanguageSelection(batchCode: string, language: string
     const payload = {
       session_id: sessionId,
       language: language,
-      created_at: new Date().toISOString()
+      sector: '',
+      subcategory: '',
+      phrase_english: '',
+      phrase_translation: '',
+      batch_code: batchCode
     };
 
     console.log('Batch:', batchCode);
