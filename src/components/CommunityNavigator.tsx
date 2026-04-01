@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   ArrowLeft, Phone, MessageSquare, Utensils, Stethoscope, Droplets,
   BatteryCharging, Home, Package, Wifi, WifiOff, ShieldCheck,
@@ -7,6 +7,7 @@ import {
 import CityResources from './CityResources';
 import { cityResources, CITY_KEYS, CityKey } from '../data/cityResources';
 import { fetchTTSBlob } from '../utils/speech';
+import { getBatchCodeFromURL, trackBatchVisit, trackLanguageSelection, storeBatchCode, getStoredBatchCode } from '../utils/batchTracking';
 
 interface CommunityNavigatorProps {
   onBack: () => void;
@@ -225,7 +226,19 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
   const city = cityResources[selectedCity];
   const isRtl = lang === 'ar';
 
+  useEffect(() => {
+    const batchCode = getBatchCodeFromURL();
+    if (batchCode) {
+      storeBatchCode(batchCode);
+      trackBatchVisit(batchCode);
+    }
+  }, []);
+
   const handleLangChange = (code: LangCode) => {
+    const batchCode = getStoredBatchCode();
+    if (batchCode) {
+      trackLanguageSelection(batchCode, code);
+    }
     setLang(code);
     localStorage.setItem(LANG_KEY, code);
     if (typeof document !== 'undefined') {

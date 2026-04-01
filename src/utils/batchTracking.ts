@@ -1,0 +1,60 @@
+import { supabase } from '../lib/supabase';
+
+export function getBatchCodeFromURL(): string | null {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('batch');
+}
+
+export async function trackBatchVisit(batchCode: string): Promise<void> {
+  try {
+    const sessionId = getOrCreateSessionId();
+
+    await supabase.from('interaction_logs').insert({
+      session_id: sessionId,
+      event_type: 'batch_visit',
+      event_data: { batch_code: batchCode, page: '/help' },
+      created_at: new Date().toISOString()
+    });
+
+    console.log(`Batch visit tracked: ${batchCode}`);
+  } catch (error) {
+    console.error('Failed to track batch visit:', error);
+  }
+}
+
+export async function trackLanguageSelection(batchCode: string, language: string): Promise<void> {
+  try {
+    const sessionId = getOrCreateSessionId();
+
+    await supabase.from('interaction_logs').insert({
+      session_id: sessionId,
+      event_type: 'batch_language_select',
+      event_data: { batch_code: batchCode, language },
+      created_at: new Date().toISOString()
+    });
+
+    console.log(`Language selection tracked for batch ${batchCode}: ${language}`);
+  } catch (error) {
+    console.error('Failed to track language selection:', error);
+  }
+}
+
+function getOrCreateSessionId(): string {
+  const key = 'langaccess_session_id';
+  let sessionId = sessionStorage.getItem(key);
+
+  if (!sessionId) {
+    sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+    sessionStorage.setItem(key, sessionId);
+  }
+
+  return sessionId;
+}
+
+export function storeBatchCode(batchCode: string): void {
+  sessionStorage.setItem('langaccess_batch_code', batchCode);
+}
+
+export function getStoredBatchCode(): string | null {
+  return sessionStorage.getItem('langaccess_batch_code');
+}

@@ -1,7 +1,9 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
+import { generateBatchCode, generateBatchQRUrl, validateBatchData } from "./utils/batchGenerator";
+import { generateQRImage, overlayQROnTemplate, validateFinalAsset } from "./utils/qrGenerator";
+import { generateMasterTemplate } from "./utils/cardTemplate";
 import sharp from "sharp";
-import https from "https";
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL!,
@@ -10,48 +12,6 @@ const supabase = createClient(
 
 const WIDTH = 1050;
 const HEIGHT = 600;
-
-function fetchBuffer(url: string): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      const chunks: Buffer[] = [];
-      res.on("data", (chunk) => chunks.push(chunk));
-      res.on("end", () => resolve(Buffer.concat(chunks)));
-      res.on("error", reject);
-    }).on("error", reject);
-  });
-}
-
-function buildFrontSVG(qrSlug: string, fullName: string, cityState: string): string {
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://langaccess.org/r/${encodeURIComponent(qrSlug)}`;
-  return `
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${WIDTH}" height="${HEIGHT}">
-  <rect width="${WIDTH}" height="${HEIGHT}" fill="#0b0d0c"/>
-  <rect x="0" y="0" width="15" height="${HEIGHT}" fill="#2dff72"/>
-
-  <!-- Headline -->
-  <text x="55" y="90" font-family="Arial, sans-serif" font-weight="bold" font-size="32" fill="white">One Card. One Lifeline.</text>
-
-  <!-- Subheadline -->
-  <text x="55" y="130" font-family="Arial, sans-serif" font-size="22" fill="#9ca3af">Scan to find help near you</text>
-
-  <!-- Icons row -->
-  <text x="55" y="185" font-family="Arial, sans-serif" font-size="20" fill="white">&#127822;  &#128716;  &#127973;</text>
-
-  <!-- QR white box -->
-  <rect x="760" y="50" width="230" height="230" rx="8" fill="white"/>
-
-  <!-- QR image placeholder — replaced at runtime -->
-  <image id="qr" href="${qrUrl}" x="765" y="55" width="220" height="220" preserveAspectRatio="xMidYMid meet"/>
-
-  <!-- Below QR -->
-  <text x="875" y="305" font-family="Arial, sans-serif" font-size="18" fill="#2dff72" text-anchor="middle">langaccess.org</text>
-  <text x="875" y="328" font-family="Arial, sans-serif" font-size="14" fill="#9ca3af" text-anchor="middle">Español disponible al escanear</text>
-
-  <!-- Bottom right name + city -->
-  <text x="${WIDTH - 40}" y="${HEIGHT - 30}" font-family="Arial, sans-serif" font-size="16" fill="#2dff72" text-anchor="end">${escapeXml(fullName)}  •  ${escapeXml(cityState)}</text>
-</svg>`.trim();
-}
 
 function buildBackSVG(): string {
   return `
@@ -89,15 +49,6 @@ function buildBackSVG(): string {
 </svg>`.trim();
 }
 
-function escapeXml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
-
 async function svgToPng(svgString: string): Promise<Buffer> {
   return sharp(Buffer.from(svgString))
     .png()
@@ -129,56 +80,110 @@ export const handler: Handler = async (event) => {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
-  let body: { qr_slug: string; full_name: string; city_state: string };
+  let body: { order_id: string; full_name: string; city_state: string };
   try {
     body = JSON.parse(event.body || "{}");
   } catch {
     return { statusCode: 400, body: JSON.stringify({ error: "Invalid JSON" }) };
   }
 
-  const { qr_slug, full_name, city_state } = body;
+  const { order_id, full_name, city_state } = body;
 
-  if (!qr_slug || !full_name || !city_state) {
+  if (!order_id || !full_name || !city_state) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: "Missing required fields: qr_slug, full_name, city_state" }),
+      body: JSON.stringify({ error: "Missing required fields: order_id, full_name, city_state" }),
     };
   }
 
   try {
-    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https://langaccess.org/r/${encodeURIComponent(qr_slug)}`;
-    let qrBase64 = "";
+    const { data: existingOrder, error: fetchError } = await supabase
+      .from("card_orders")
+      .select("batch_code, qr_url, qr_image_path, card_asset_path")
+      .eq("id", order_id)
+      .maybeSingle();
 
-    try {
-      const qrBuffer = await fetchBuffer(qrImageUrl);
-      qrBase64 = `data:image/png;base64,${qrBuffer.toString("base64")}`;
-    } catch (e) {
-      console.warn("Could not fetch QR image, using placeholder URL", e);
-      qrBase64 = qrImageUrl;
+    if (fetchError) {
+      throw new Error(`Failed to fetch order: ${fetchError.message}`);
     }
 
-    const frontSvgWithQr = buildFrontSVG(qr_slug, full_name, city_state).replace(
-      `href="${qrImageUrl}"`,
-      `href="${qrBase64}"`
-    );
+    if (existingOrder?.batch_code && existingOrder?.card_asset_path) {
+      console.log("Reusing existing batch assets for retry");
+      const backPng = await svgToPng(buildBackSVG());
+      const timestamp = Date.now();
+      const backFileUrl = await uploadToStorage(backPng, `${order_id}-${timestamp}-back.png`);
 
-    const [frontPng, backPng] = await Promise.all([
-      svgToPng(frontSvgWithQr),
-      svgToPng(buildBackSVG()),
-    ]);
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          success: true,
+          frontFileUrl: existingOrder.card_asset_path,
+          backFileUrl,
+          batch_code: existingOrder.batch_code
+        }),
+      };
+    }
+
+    const city = city_state.split(',')[0].trim();
+    const batchCode = generateBatchCode(city);
+    const qrUrl = generateBatchQRUrl(batchCode);
+
+    console.log(`Generated batch: ${batchCode}, QR URL: ${qrUrl}`);
+
+    const qrBuffer = await generateQRImage(qrUrl);
+
+    const templateBuffer = await generateMasterTemplate(full_name, city_state);
+
+    const finalCardBuffer = await overlayQROnTemplate(templateBuffer, qrBuffer);
+
+    const validation = await validateFinalAsset(finalCardBuffer);
+    if (!validation.valid) {
+      throw new Error(`Asset validation failed: ${validation.errors.join(', ')}`);
+    }
 
     const timestamp = Date.now();
-    const safeSlug = qr_slug.replace(/[^a-zA-Z0-9-_]/g, "_");
+    const qrFilename = `qr/${order_id}-${timestamp}.png`;
+    const frontFilename = `cards/${order_id}-${timestamp}-front.png`;
+    const backFilename = `cards/${order_id}-${timestamp}-back.png`;
 
-    const [frontFileUrl, backFileUrl] = await Promise.all([
-      uploadToStorage(frontPng, `${safeSlug}-${timestamp}-front.png`),
-      uploadToStorage(backPng, `${safeSlug}-${timestamp}-back.png`),
-    ]);
+    await uploadToStorage(qrBuffer, qrFilename);
+    const frontFileUrl = await uploadToStorage(finalCardBuffer, frontFilename);
+
+    const backPng = await svgToPng(buildBackSVG());
+    const backFileUrl = await uploadToStorage(backPng, backFilename);
+
+    const batchData = {
+      batch_code: batchCode,
+      qr_url: qrUrl,
+      qr_image_path: qrFilename,
+      card_asset_path: frontFileUrl
+    };
+
+    const batchValidation = validateBatchData(batchData);
+    if (!batchValidation.valid) {
+      throw new Error(`Batch validation failed: ${batchValidation.errors.join(', ')}`);
+    }
+
+    const { error: updateError } = await supabase
+      .from("card_orders")
+      .update(batchData)
+      .eq("id", order_id);
+
+    if (updateError) {
+      console.error("Failed to update order with batch data:", updateError);
+    }
 
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ success: true, frontFileUrl, backFileUrl }),
+      body: JSON.stringify({
+        success: true,
+        frontFileUrl,
+        backFileUrl,
+        batch_code: batchCode,
+        qr_url: qrUrl
+      }),
     };
   } catch (err) {
     console.error("generate-card-pdf error:", err);
