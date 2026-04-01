@@ -2,7 +2,9 @@ import { supabase } from '../lib/supabase';
 
 export function getBatchCodeFromURL(): string | null {
   const params = new URLSearchParams(window.location.search);
-  return params.get('batch');
+  const batch = params.get('batch');
+  console.log('Batch:', batch);
+  return batch;
 }
 
 export async function trackBatchVisit(batchCode: string): Promise<void> {
@@ -53,6 +55,7 @@ function getOrCreateSessionId(): string {
 
 export function storeBatchCode(batchCode: string): void {
   sessionStorage.setItem('langaccess_batch_code', batchCode);
+  localStorage.setItem('langaccess_batch', batchCode);
 }
 
 export function getStoredBatchCode(): string | null {
