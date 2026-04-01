@@ -38,6 +38,7 @@ export async function trackLanguageSelection(batchCode: string, language: string
     };
 
     console.log('Batch:', batchCode);
+    console.log('Language selected:', language);
     console.log('FINAL DB PAYLOAD:', payload);
 
     const { data, error } = await supabase.from('interaction_logs').insert(payload);
