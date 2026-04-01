@@ -192,14 +192,13 @@ export default function LandingPage({
                   Frontline Language Access Platform
                 </div>
 
-                <h1 className="font-extrabold leading-[1.06] tracking-tight text-white mb-8" style={{ fontSize: 'clamp(2rem, 6vw, 4rem)' }}>
-                  Instant Communication<br className="hidden sm:block" />{' '}
-                  With Non-English<br className="hidden sm:block" />{' '}
-                  Speakers
+                <h1 className="font-extrabold leading-[1.06] tracking-tight text-white mb-6" style={{ fontSize: 'clamp(2rem, 6vw, 4rem)' }}>
+                  Communicate Clearly.<br className="hidden sm:block" />{' '}
+                  Find Help Fast.
                 </h1>
 
                 <p className="text-slate-300 text-base leading-relaxed mb-8 max-w-lg">
-                  Supports Spanish, Tagalog, Vietnamese, Mandarin, and Cantonese. Built for healthcare, education, construction, and community organizations.
+                  Tools for educators, healthcare workers, construction teams—and anyone helping others in real-world situations.
                 </p>
 
                 <div className="flex flex-wrap gap-x-5 gap-y-2 mb-10">
@@ -211,22 +210,43 @@ export default function LandingPage({
                   ))}
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4">
+                {/* Primary CTA */}
+                <div className="mb-6">
                   <button
-                    onClick={onGetStarted}
-                    className="group inline-flex items-center justify-center gap-2.5 bg-teal-500 hover:bg-teal-400 text-white font-bold px-8 py-4 rounded-xl transition-all duration-200 shadow-xl shadow-teal-600/30 hover:shadow-teal-500/40 hover:scale-[1.02] active:scale-[0.98] text-base min-h-[52px]"
+                    onClick={onOpenCommunityNavigator}
+                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-green-600 hover:bg-green-500 text-white font-bold px-10 py-5 rounded-xl transition-all duration-200 shadow-2xl shadow-green-600/30 hover:shadow-green-500/40 hover:scale-[1.02] active:scale-[0.98] text-lg min-h-[60px]"
                   >
-                    Get Started Free
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    <MapPin className="w-5 h-5 flex-shrink-0" />
+                    Find Help Near You Now
+                    <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                  </button>
+                  <p className="text-slate-400 text-xs mt-2 flex items-center gap-1.5 justify-center sm:justify-start">
+                    <span>📍</span>
+                    Uses your location to find nearby services
+                  </p>
+                </div>
+
+                {/* Secondary CTAs */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-3">
+                  <button
+                    onClick={() => document.getElementById('sector-education')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="inline-flex items-center justify-center gap-2 border-2 border-white/30 hover:border-white/60 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 text-sm hover:bg-white/8 min-h-[44px]"
+                  >
+                    For Educators
                   </button>
                   <button
-                    onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="inline-flex items-center justify-center gap-2 border-2 border-white/30 hover:border-white/60 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-200 text-base hover:bg-white/8 min-h-[52px]"
+                    onClick={() => document.getElementById('sector-healthcare')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="inline-flex items-center justify-center gap-2 border-2 border-white/30 hover:border-white/60 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 text-sm hover:bg-white/8 min-h-[44px]"
                   >
-                    See How It Works
+                    For Healthcare
+                  </button>
+                  <button
+                    onClick={() => document.getElementById('sector-construction')?.scrollIntoView({ behavior: 'smooth' })}
+                    className="inline-flex items-center justify-center gap-2 border-2 border-white/30 hover:border-white/60 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 text-sm hover:bg-white/8 min-h-[44px]"
+                  >
+                    For Construction
                   </button>
                 </div>
-                <p className="text-slate-500 text-xs mt-3">Free to try. No credit card required.</p>
               </div>
 
               {/* Right — example phrase cards */}
@@ -355,6 +375,7 @@ export default function LandingPage({
               {SECTOR_CARDS.map(({ emoji, title, description, border, accentBg, accentText }) => (
                 <div
                   key={title}
+                  id={`sector-${title.toLowerCase()}`}
                   className={`bg-white border-2 ${border} rounded-2xl p-7 flex items-start gap-5 shadow-sm hover:shadow-md transition-all duration-300`}
                 >
                   <span
