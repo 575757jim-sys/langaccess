@@ -4,7 +4,7 @@ import sharp from 'sharp';
 import QRCode from 'qrcode';
 
 export async function generateCardWithQR(batchId: string): Promise<string> {
-  const templatePath = path.join(process.cwd(), 'public', 'templates', 'langaccess_master_noqr_v1_fixed.png');
+  const templatePath = path.join(process.cwd(), 'public', 'templates', 'langaccess_master_noqr_v1..png');
   const outputDir = path.join(process.cwd(), 'public', 'output');
   const outputFileName = `card_${batchId}.png`;
   const outputPath = path.join(outputDir, outputFileName);
