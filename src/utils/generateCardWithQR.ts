@@ -9,7 +9,7 @@ export async function generateCardWithQR(batchId: string): Promise<string> {
   const outputFileName = `card_${batchId}.png`;
   const outputPath = path.join(outputDir, outputFileName);
 
-  const qrUrl = `https://langaccess.org/help?batch=${batchId}`;
+  const qrData = `https://langaccess.org/help?batch=${batchId}`;
 
   if (!fs.existsSync(templatePath)) {
     throw new Error(`Template not found at: ${templatePath}`);
@@ -20,10 +20,10 @@ export async function generateCardWithQR(batchId: string): Promise<string> {
   }
 
   console.log('🔍 DEBUG: Starting QR generation...');
-  console.log(`QR URL: ${qrUrl}`);
+  console.log('QR DATA:', qrData);
 
   // Generate QR code buffer
-  const qrBuffer = await QRCode.toBuffer(qrUrl, {
+  const qrBuffer = await QRCode.toBuffer(qrData, {
     errorCorrectionLevel: 'H',
     width: 150,
     height: 150,
