@@ -14,13 +14,11 @@ export async function trackBatchVisit(batchCode: string): Promise<void> {
     const payload = {
       session_id: sessionId,
       language: '',
-      sector: '',
-      subcategory: '',
-      phrase_english: '',
-      phrase_translation: ''
+      created_at: new Date().toISOString()
     };
 
     console.log('Batch:', batchCode);
+    console.log('FINAL DB PAYLOAD:', payload);
 
     const { data, error } = await supabase.from('interaction_logs').insert(payload);
 
@@ -42,13 +40,11 @@ export async function trackLanguageSelection(batchCode: string, language: string
     const payload = {
       session_id: sessionId,
       language: language,
-      sector: '',
-      subcategory: '',
-      phrase_english: '',
-      phrase_translation: ''
+      created_at: new Date().toISOString()
     };
 
     console.log('Batch:', batchCode);
+    console.log('FINAL DB PAYLOAD:', payload);
 
     const { data, error } = await supabase.from('interaction_logs').insert(payload);
 
