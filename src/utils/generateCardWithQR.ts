@@ -40,10 +40,6 @@ export async function generateCardWithQR(batchId: string): Promise<string> {
         top: 300
       }
     ])
-    .resize(1125, 675, {
-      fit: 'cover',
-      position: 'center'
-    })
     .png()
     .toFile(outputPath);
 
