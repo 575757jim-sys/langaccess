@@ -144,33 +144,79 @@ function loadLang(): LangCode {
 }
 
 function loadCity(): CityKey {
-  const saved = localStorage.getItem(50);
+  const saved = localStorage.getItem(CITY_KEY_STORAGE);
   if (saved && CITY_KEYS.includes(saved as CityKey)) return saved as CityKey;
   return 'san-jose';
 }
+
+// Haversine distance calculation in kilometers
+function getDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 function detectRegion(setCity: (city: CityKey) => void) {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition((pos) => {
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-    const coords: Record<CityKey, [number, number]> = {
-      'san-jose': [37.3382, -121.8863],
-      'oakland': [37.8044, -122.2712],
-      'san-francisco': [37.7749, -122.4194],
-      'fresno': [36.7378, -119.7871],
-      'sacramento': [38.5816, -121.4944],
-      'los-angeles': [34.0522, -118.2437],
-      'san-diego': [32.7157, -117.1611],
-    };
-    let nearest = 'san-jose' as CityKey;
-    let minDist = Infinity;
-    (Object.entries(coords) as [CityKey, [number, number]][])
-      .forEach(([city, [clat, clng]]) => {
-        const d = Math.abs(lat - clat) + Math.abs(lng - clng);
-        if (d < minDist) { minDist = d; nearest = city; }
+  if (!navigator.geolocation) {
+    console.log('Geolocation not supported');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      console.log('User coords:', lat, lng);
+
+      // Coordinates for all supported cities
+      const coords: Record<CityKey, [number, number]> = {
+        'san-jose': [37.3382, -121.8863],
+        'san-francisco': [37.7749, -122.4194],
+        'oakland': [37.8044, -122.2712],
+        'sacramento': [38.5816, -121.4944],
+        'fresno': [36.7378, -119.7871],
+        'long-beach': [33.7701, -118.1937],
+        'bakersfield': [35.3733, -119.0187],
+        'anaheim': [33.8366, -117.9143],
+        'santa-ana': [33.7455, -117.8677],
+        'riverside': [33.9806, -117.3755],
+        'stockton': [37.9577, -121.2908],
+        'chula-vista': [32.6401, -117.0842],
+        'concord': [37.9780, -122.0311],
+        'modesto': [37.6391, -120.9969],
+        'santa-rosa': [38.4404, -122.7141],
+      };
+
+      let nearest = 'san-jose' as CityKey;
+      let minDist = Infinity;
+
+      (Object.entries(coords) as [CityKey, [number, number]][]).forEach(([city, [clat, clng]]) => {
+        const distance = getDistance(lat, lng, clat, clng);
+        if (distance < minDist) {
+          minDist = distance;
+          nearest = city;
+        }
       });
-    setCity(nearest);
-  });
+
+      console.log('Nearest city:', nearest);
+
+      setCity(nearest);
+      localStorage.setItem(CITY_KEY_STORAGE, nearest);
+    },
+    (error) => {
+      console.error('Geolocation error:', error);
+      // Fallback to Oakland on error
+      setCity('oakland');
+      localStorage.setItem(CITY_KEY_STORAGE, 'oakland');
+    }
+  );
 }
 
 
@@ -345,12 +391,14 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
           </div>
         </div>
 
-        <button
-          onClick={() => detectRegion(setSelectedCity)}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-green-400 text-black font-bold rounded-lg mb-2 text-base active:scale-95"
-        >
-          📍 Detect My Region
-        </button>
+        <div className="max-w-2xl mx-auto px-4 pb-2">
+          <button
+            onClick={() => detectRegion(setSelectedCity)}
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-green-500 hover:bg-green-400 text-white font-bold rounded-xl mb-2 text-base transition-all duration-150 active:scale-95"
+          >
+            📍 Detect My Region
+          </button>
+        </div>
         <div className="max-w-2xl mx-auto px-4 pb-4 flex items-center gap-3">
           <div className="relative flex-1">
             <select
