@@ -267,6 +267,7 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
   const [previewDoc, setPreviewDoc] = useState<StoredDoc | null>(null);
   const [uploading, setUploading] = useState(false);
   const [showMoreSupport, setShowMoreSupport] = useState(false);
+  const [confirmCall, setConfirmCall] = useState<'211' | '988-call' | '988-text' | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isOnline = navigator.onLine;
@@ -437,64 +438,127 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
             <p className="text-gray-400 text-sm">Free, 24/7 support. No sign-up needed.</p>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
+            {/* 911 - No confirmation, most prominent, clear emergency labeling */}
             <a
               href="tel:911"
-              className="block w-full bg-red-600 hover:bg-red-500 text-white rounded-xl py-4 px-5 shadow-lg transition-all duration-150 active:scale-95"
+              className="block w-full bg-red-600 hover:bg-red-500 text-white rounded-xl py-5 px-6 shadow-lg transition-all duration-150 active:scale-95 border-2 border-red-500"
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <AlertCircle className="w-8 h-8 flex-shrink-0" />
+                <div className="flex items-center gap-4">
+                  <AlertCircle className="w-9 h-9 flex-shrink-0" />
                   <div>
                     <div className="text-xl font-bold">Call 911</div>
-                    <div className="text-sm text-red-100">Emergency</div>
+                    <div className="text-sm text-red-100 font-semibold">Emergency — Immediate Danger</div>
                   </div>
                 </div>
                 <Phone className="w-6 h-6 flex-shrink-0" />
               </div>
             </a>
 
-            <a
-              href="tel:211"
-              className="block w-full bg-amber-500 hover:bg-amber-400 text-gray-950 rounded-xl py-4 px-5 shadow-lg transition-all duration-150 active:scale-95"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Home className="w-8 h-8 flex-shrink-0" />
-                  <div>
-                    <div className="text-xl font-bold">Call 211</div>
-                    <div className="text-sm text-gray-800">Food, shelter, services</div>
-                  </div>
+            {/* 211 - With confirmation prompt */}
+            {confirmCall === '211' ? (
+              <div className="bg-amber-500 rounded-xl p-5 shadow-lg space-y-3">
+                <p className="text-gray-950 font-semibold text-center">Do you want to call 211?</p>
+                <div className="flex gap-3">
+                  <a
+                    href="tel:211"
+                    className="flex-1 bg-gray-950 hover:bg-gray-900 text-white font-bold py-3 rounded-lg transition-all duration-150 active:scale-95 text-center"
+                  >
+                    Yes, Call
+                  </a>
+                  <button
+                    onClick={() => setConfirmCall(null)}
+                    className="flex-1 bg-white hover:bg-gray-100 text-gray-950 font-bold py-3 rounded-lg transition-all duration-150 active:scale-95"
+                  >
+                    Cancel
+                  </button>
                 </div>
-                <Phone className="w-6 h-6 flex-shrink-0" />
               </div>
-            </a>
-
-            <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
-              <a
-                href="tel:988"
-                className="block w-full hover:bg-gray-800 text-white py-4 px-5 transition-all duration-150 active:scale-95"
+            ) : (
+              <button
+                onClick={() => setConfirmCall('211')}
+                className="block w-full bg-amber-500 hover:bg-amber-400 text-gray-950 rounded-xl py-4 px-5 shadow-lg transition-all duration-150 active:scale-95"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Heart className="w-8 h-8 flex-shrink-0 text-green-400" />
-                    <div>
-                      <div className="text-xl font-bold">Call or Text 988</div>
-                      <div className="text-sm text-gray-400">Mental health crisis</div>
+                    <Home className="w-8 h-8 flex-shrink-0" />
+                    <div className="text-left">
+                      <div className="text-xl font-bold">Call 211</div>
+                      <div className="text-sm text-gray-800">Food, shelter, services</div>
                     </div>
                   </div>
-                  <Phone className="w-6 h-6 flex-shrink-0 text-gray-400" />
+                  <Phone className="w-6 h-6 flex-shrink-0" />
                 </div>
-              </a>
-              <a
-                href="sms:988"
-                className="block w-full hover:bg-gray-800 text-white py-3 px-5 border-t border-gray-800 transition-all duration-150 active:scale-95"
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm font-semibold text-gray-300">Text 988</span>
+              </button>
+            )}
+
+            {/* 988 - With confirmation prompts */}
+            <div className="bg-gray-900 border border-gray-700 rounded-xl overflow-hidden">
+              {confirmCall === '988-call' ? (
+                <div className="p-5 space-y-3">
+                  <p className="text-white font-semibold text-center">Do you want to call 988?</p>
+                  <div className="flex gap-3">
+                    <a
+                      href="tel:988"
+                      className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg transition-all duration-150 active:scale-95 text-center"
+                    >
+                      Yes, Call
+                    </a>
+                    <button
+                      onClick={() => setConfirmCall(null)}
+                      className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded-lg transition-all duration-150 active:scale-95"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
-              </a>
+              ) : confirmCall === '988-text' ? (
+                <div className="p-5 space-y-3">
+                  <p className="text-white font-semibold text-center">Do you want to text 988?</p>
+                  <div className="flex gap-3">
+                    <a
+                      href="sms:988"
+                      className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg transition-all duration-150 active:scale-95 text-center"
+                    >
+                      Yes, Text
+                    </a>
+                    <button
+                      onClick={() => setConfirmCall(null)}
+                      className="flex-1 bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 rounded-lg transition-all duration-150 active:scale-95"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setConfirmCall('988-call')}
+                    className="block w-full hover:bg-gray-800 text-white py-4 px-5 transition-all duration-150 active:scale-95"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Heart className="w-8 h-8 flex-shrink-0 text-green-400" />
+                        <div className="text-left">
+                          <div className="text-xl font-bold">Call or Text 988</div>
+                          <div className="text-sm text-gray-400">Mental health crisis</div>
+                        </div>
+                      </div>
+                      <Phone className="w-6 h-6 flex-shrink-0 text-gray-400" />
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setConfirmCall('988-text')}
+                    className="block w-full hover:bg-gray-800 text-white py-3 px-5 border-t border-gray-800 transition-all duration-150 active:scale-95"
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <MessageSquare className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm font-semibold text-gray-300">Text 988</span>
+                    </div>
+                  </button>
+                </>
+              )}
             </div>
 
             <button
