@@ -12,15 +12,15 @@ export async function trackBatchVisit(batchCode: string): Promise<void> {
     const sessionId = getOrCreateSessionId();
 
     const payload = {
-      session_id: sessionId,
       event_type: 'batch_visit',
-      event_data: { batch_code: batchCode, page: '/help', user_agent: navigator.userAgent },
-      created_at: new Date().toISOString(),
+      session_id: sessionId,
       language: '',
+      batch_code: batchCode,
       sector: '',
       subcategory: '',
       phrase_english: '',
-      phrase_translation: ''
+      phrase_translation: '',
+      created_at: new Date().toISOString()
     };
 
     console.log('DB PAYLOAD:', payload);
@@ -43,15 +43,15 @@ export async function trackLanguageSelection(batchCode: string, language: string
     const sessionId = getOrCreateSessionId();
 
     const payload = {
-      session_id: sessionId,
       event_type: 'batch_language_select',
-      event_data: { batch_code: batchCode, language },
-      created_at: new Date().toISOString(),
+      session_id: sessionId,
       language: language,
+      batch_code: batchCode,
       sector: '',
       subcategory: '',
       phrase_english: '',
-      phrase_translation: ''
+      phrase_translation: '',
+      created_at: new Date().toISOString()
     };
 
     console.log('DB PAYLOAD:', payload);
