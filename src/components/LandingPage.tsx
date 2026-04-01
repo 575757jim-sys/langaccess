@@ -124,7 +124,19 @@ export default function LandingPage({
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* Language selector */}
+            <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500">
+              <button className="font-semibold text-slate-900 hover:text-teal-600 transition-colors">English</button>
+              <span className="text-slate-300">|</span>
+              <button className="hover:text-slate-700 transition-colors">Español</button>
+              <span className="text-slate-300">|</span>
+              <button className="hover:text-slate-700 transition-colors">中文</button>
+              <span className="text-slate-300">|</span>
+              <button className="hover:text-slate-700 transition-colors">Tagalog</button>
+              <span className="text-slate-300">|</span>
+              <button className="hover:text-slate-700 transition-colors">Tiếng Việt</button>
+            </div>
             <button
               onClick={onGetStarted}
               className="flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
@@ -197,28 +209,15 @@ export default function LandingPage({
                   Find Help Fast.
                 </h1>
 
-                <p className="text-slate-300 text-base leading-relaxed mb-8 max-w-lg">
-                  Tools for educators, healthcare workers, construction teams—and anyone helping others in real-world situations.
-                </p>
-
-                <div className="flex flex-wrap gap-x-5 gap-y-2 mb-10">
-                  {HERO_VALUE_STRIP.map(({ Icon, label }) => (
-                    <div key={label} className="flex items-center gap-1.5 text-slate-400 text-xs font-medium">
-                      <Icon className="w-3.5 h-3.5 text-teal-400 flex-shrink-0" />
-                      <span>{label}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Primary CTA */}
-                <div className="mb-6">
+                {/* Primary CTA - Most Prominent */}
+                <div className="mb-4">
                   <button
                     onClick={onOpenCommunityNavigator}
-                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-green-600 hover:bg-green-500 text-white font-bold px-10 py-5 rounded-xl transition-all duration-200 shadow-2xl shadow-green-600/30 hover:shadow-green-500/40 hover:scale-[1.02] active:scale-[0.98] text-lg min-h-[60px]"
+                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-green-600 hover:bg-green-500 text-white font-bold px-12 py-6 rounded-xl transition-all duration-200 shadow-2xl shadow-green-600/40 hover:shadow-green-500/50 hover:scale-[1.02] active:scale-[0.98] text-xl min-h-[72px]"
                   >
-                    <MapPin className="w-5 h-5 flex-shrink-0" />
+                    <span className="text-2xl">🚨</span>
                     Find Help Near You Now
-                    <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight className="w-6 h-6 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                   <p className="text-slate-400 text-xs mt-2 flex items-center gap-1.5 justify-center sm:justify-start">
                     <span>📍</span>
@@ -226,26 +225,11 @@ export default function LandingPage({
                   </p>
                 </div>
 
-                {/* Secondary CTAs */}
-                <div className="flex flex-col sm:flex-row gap-3 mb-3">
-                  <button
-                    onClick={() => document.getElementById('sector-education')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="inline-flex items-center justify-center gap-2 border-2 border-white/30 hover:border-white/60 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 text-sm hover:bg-white/8 min-h-[44px]"
-                  >
-                    For Educators
-                  </button>
-                  <button
-                    onClick={() => document.getElementById('sector-healthcare')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="inline-flex items-center justify-center gap-2 border-2 border-white/30 hover:border-white/60 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 text-sm hover:bg-white/8 min-h-[44px]"
-                  >
-                    For Healthcare
-                  </button>
-                  <button
-                    onClick={() => document.getElementById('sector-construction')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="inline-flex items-center justify-center gap-2 border-2 border-white/30 hover:border-white/60 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 text-sm hover:bg-white/8 min-h-[44px]"
-                  >
-                    For Construction
-                  </button>
+                {/* Crisis Support - Subtle */}
+                <div className="mb-8">
+                  <p className="text-slate-400 text-xs text-center sm:text-left">
+                    Need urgent mental health support? Call or text <span className="font-semibold text-slate-300">988</span>
+                  </p>
                 </div>
               </div>
 
@@ -272,21 +256,36 @@ export default function LandingPage({
           </div>
         </section>
 
-        {/* ── GET HELP NEARBY CTA ── */}
-        <section className="w-full bg-gradient-to-b from-slate-900 to-slate-800 py-8">
-          <div className="max-w-6xl mx-auto px-6">
-            <button
-              onClick={onOpenCommunityNavigator}
-              className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white rounded-2xl py-6 px-8 shadow-2xl transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] group"
-            >
-              <div className="flex items-center justify-center gap-4">
-                <MapPin className="w-10 h-10 flex-shrink-0 group-hover:scale-110 transition-transform" />
-                <div className="text-center">
-                  <div className="text-2xl sm:text-3xl font-bold mb-1">Get Help Nearby</div>
-                  <div className="text-green-50 text-sm sm:text-base font-medium">Find food, shelter, and services near you</div>
-                </div>
-              </div>
-            </button>
+        {/* ── CHOOSE YOUR ROLE ── */}
+        <section className="w-full bg-gradient-to-b from-slate-900 to-slate-800 py-12">
+          <div className="max-w-5xl mx-auto px-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">Choose Your Role</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <button
+                onClick={() => document.getElementById('sector-education')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm border-2 border-white/20 hover:border-white/40 rounded-xl p-6 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center"
+              >
+                <div className="text-5xl mb-3">🏫</div>
+                <div className="text-white font-bold text-lg mb-2">Educator</div>
+                <div className="text-slate-300 text-sm">Connect with students and families</div>
+              </button>
+              <button
+                onClick={() => document.getElementById('sector-healthcare')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm border-2 border-white/20 hover:border-white/40 rounded-xl p-6 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center"
+              >
+                <div className="text-5xl mb-3">🏥</div>
+                <div className="text-white font-bold text-lg mb-2">Healthcare</div>
+                <div className="text-slate-300 text-sm">Deliver care instructions clearly</div>
+              </button>
+              <button
+                onClick={() => document.getElementById('sector-construction')?.scrollIntoView({ behavior: 'smooth' })}
+                className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm border-2 border-white/20 hover:border-white/40 rounded-xl p-6 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center"
+              >
+                <div className="text-5xl mb-3">🚧</div>
+                <div className="text-white font-bold text-lg mb-2">Construction</div>
+                <div className="text-slate-300 text-sm">Keep crews safe on-site</div>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -364,7 +363,7 @@ export default function LandingPage({
         </section>
 
         {/* ── BUILT FOR FRONTLINE ── */}
-        <section className="py-24 sm:py-28 bg-slate-50">
+        <section id="sectors" className="py-24 sm:py-28 bg-slate-50">
           <div className="max-w-5xl mx-auto px-6">
             <div className="text-center mb-16">
               <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-3">Who it's for</p>
@@ -372,26 +371,46 @@ export default function LandingPage({
               <p className="text-slate-500 max-w-xl mx-auto text-lg leading-relaxed">Every sector has unique communication needs. LangAccess is designed around real situations you face every day.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {SECTOR_CARDS.map(({ emoji, title, description, border, accentBg, accentText }) => (
-                <div
-                  key={title}
-                  id={`sector-${title.toLowerCase()}`}
-                  className={`bg-white border-2 ${border} rounded-2xl p-7 flex items-start gap-5 shadow-sm hover:shadow-md transition-all duration-300`}
-                >
-                  <span
-                    className="flex-shrink-0 select-none leading-none mt-0.5"
-                    style={{ fontSize: '2rem', lineHeight: 1 }}
-                    aria-hidden="true"
+              {SECTOR_CARDS.map(({ emoji, title, description, border, accentBg, accentText }) => {
+                const sectorId = title.toLowerCase() as Sector;
+                const isMainSector = ['education', 'healthcare', 'construction'].includes(sectorId);
+                return (
+                  <div
+                    key={title}
+                    id={`sector-${title.toLowerCase()}`}
+                    className={`bg-white border-2 ${border} rounded-2xl p-7 flex flex-col gap-4 shadow-sm hover:shadow-md transition-all duration-300`}
                   >
-                    {emoji}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-slate-900 text-lg leading-snug mb-2">{title}</h3>
-                    <p className="text-slate-500 text-sm leading-relaxed mb-4">{description}</p>
-                    <span className={`text-xs font-medium ${accentText} opacity-70`}>View phrases →</span>
+                    <div className="flex items-start gap-5">
+                      <span
+                        className="flex-shrink-0 select-none leading-none mt-0.5"
+                        style={{ fontSize: '2rem', lineHeight: 1 }}
+                        aria-hidden="true"
+                      >
+                        {emoji}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-slate-900 text-lg leading-snug mb-2">{title}</h3>
+                        <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
+                      </div>
+                    </div>
+                    {isMainSector ? (
+                      <button
+                        onClick={() => onSelectSector(sectorId)}
+                        className={`w-full ${accentBg} ${accentText} hover:opacity-80 font-semibold px-4 py-2.5 rounded-lg transition-all duration-200 text-sm`}
+                      >
+                        Start {title} →
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => onOpenCommunityNavigator?.()}
+                        className={`w-full ${accentBg} ${accentText} hover:opacity-80 font-semibold px-4 py-2.5 rounded-lg transition-all duration-200 text-sm`}
+                      >
+                        Explore Resources →
+                      </button>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="mt-16">
