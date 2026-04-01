@@ -19,31 +19,54 @@ export async function generateCardWithQR(batchId: string): Promise<string> {
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
+  console.log('🔍 DEBUG: Starting QR generation...');
+  console.log(`QR URL: ${qrUrl}`);
+
+  // Generate QR code buffer
   const qrBuffer = await QRCode.toBuffer(qrUrl, {
     errorCorrectionLevel: 'H',
-    width: 260,
-    height: 260,
+    width: 150,
+    height: 150,
     margin: 0,
     type: 'png'
   });
 
+  console.log(`✅ QR buffer generated: ${qrBuffer.length} bytes`);
+
+  // Resize QR code
   const qrImage = await sharp(qrBuffer)
-    .resize(260, 260)
+    .resize(150, 150)
     .png()
     .toBuffer();
 
+  const qrMetadata = await sharp(qrImage).metadata();
+  console.log(`✅ QR image resized: ${qrMetadata.width}x${qrMetadata.height} pixels`);
+
+  // Get template dimensions
+  const templateMetadata = await sharp(templatePath).metadata();
+  console.log(`📐 Template dimensions: ${templateMetadata.width}x${templateMetadata.height}`);
+
+  // Calculate bottom-right position (20px from edges)
+  const qrLeft = templateMetadata.width! - 150 - 20;
+  const qrTop = templateMetadata.height! - 150 - 20;
+
+  console.log(`📍 Composite coordinates: left=${qrLeft}, top=${qrTop}, width=150, height=150`);
+
+  // Composite QR onto template
+  console.log('🎨 Calling sharp().composite()...');
   await sharp(templatePath)
     .composite([
       {
         input: qrImage,
-        left: 820,
-        top: 300
+        left: qrLeft,
+        top: qrTop
       }
     ])
     .png()
     .toFile(outputPath);
 
-  console.log(`Saved to: ${outputPath}`);
+  console.log(`✅ QR code composited successfully!`);
+  console.log(`💾 Saved to: ${outputPath}`);
 
   return `/output/${outputFileName}`;
 }
