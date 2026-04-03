@@ -224,10 +224,10 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
             </span>
           </h1>
           <p className="text-slate-300 text-lg max-w-2xl mx-auto leading-relaxed">
-            Help bridge language barriers in your community by distributing cards, verifying resources, and improving local accuracy.
+            Find nearby help fast—while bridging language barriers in your community.
           </p>
 
-          <div className="pt-2">
+          <div className="pt-2 space-y-3">
             <button
               onClick={() => {
                 console.log('Join the Brigade clicked');
@@ -238,113 +238,102 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
               <Star className="w-5 h-5" />
               Join the Brigade
             </button>
+            <p className="text-slate-400 text-sm">
+              No experience needed • 2 minutes to join • Make an immediate impact
+            </p>
           </div>
         </div>
 
-        {/* What Ambassadors Do */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 md:p-8 space-y-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-cyan-500/20 rounded-xl flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 text-cyan-400" />
+        {/* What You'll Do - 3 Cards */}
+        <div className="grid md:grid-cols-3 gap-4">
+          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 space-y-3">
+            <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+              <CheckCircle className="w-6 h-6 text-green-400" />
             </div>
-            <h2 className="text-2xl font-bold">What Ambassadors Do</h2>
+            <h3 className="font-bold text-lg">Verify Local Resources</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Make sure food, shelter, and services are accurate and open
+            </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-5 space-y-2">
-              <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-2">
-                <Package className="w-5 h-5 text-blue-400" />
-              </div>
-              <h3 className="font-bold text-lg">Distribute Cards</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Order and distribute QR code cards in your workplace, clinic, school, or job site to help people access multilingual services instantly.
-              </p>
+          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 space-y-3">
+            <div className="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center">
+              <MapPin className="w-6 h-6 text-cyan-400" />
             </div>
+            <h3 className="font-bold text-lg">Help People Find Help Fast</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Use LangAccess to guide others to nearby support
+            </p>
+          </div>
 
-            <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-5 space-y-2">
-              <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center mb-2">
-                <CheckCircle className="w-5 h-5 text-green-400" />
-              </div>
-              <h3 className="font-bold text-lg">Verify Resources</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Visit local community resources and verify they're open, accurate, and accessible. Your updates help everyone find real help.
-              </p>
+          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 space-y-3">
+            <div className="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center">
+              <Package className="w-6 h-6 text-amber-400" />
             </div>
-
-            <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-5 space-y-2">
-              <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center mb-2">
-                <MapPin className="w-5 h-5 text-amber-400" />
-              </div>
-              <h3 className="font-bold text-lg">Add New Resources</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Know of a food bank, shelter, or clinic that's not on our map? Add it so others in need can find help near them.
-              </p>
-            </div>
-
-            <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-5 space-y-2">
-              <div className="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-2">
-                <Award className="w-5 h-5 text-yellow-400" />
-              </div>
-              <h3 className="font-bold text-lg">Improve Accuracy</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                Help maintain up-to-date information about hours, services, and languages spoken at community resources.
-              </p>
-            </div>
+            <h3 className="font-bold text-lg">Distribute Access Cards</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Share QR cards that connect people instantly to resources
+            </p>
           </div>
         </div>
 
-        {/* CTA Section */}
-        <div className="bg-gradient-to-br from-cyan-600 to-cyan-700 rounded-2xl p-6 md:p-8 text-center space-y-6 border border-cyan-500/30 shadow-xl">
-          <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-2 mb-2">
-            <Users className="w-4 h-4 text-white" />
-            <span className="text-white text-sm font-semibold">Ambassador Access</span>
-          </div>
-          <h2 className="text-3xl font-bold">Ready to Make an Impact?</h2>
-          <p className="text-cyan-50 text-lg max-w-xl mx-auto">
-            {ambassadorData
-              ? 'Access your dashboard to start verifying resources, adding new locations, and tracking your contributions.'
-              : 'Sign up to access the Ambassador Dashboard and start making a difference in your community.'}
+        {/* Why This Matters */}
+        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 md:p-8 text-center">
+          <h2 className="text-2xl font-bold mb-4">Why This Matters</h2>
+          <p className="text-slate-300 text-lg leading-relaxed max-w-2xl mx-auto">
+            People in crisis often can't find help because of language barriers or outdated information. You make access faster, clearer, and real.
           </p>
+        </div>
+
+        {/* How It Works */}
+        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 md:p-8 space-y-6">
+          <h2 className="text-2xl font-bold text-center">How It Works</h2>
+
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-amber-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-amber-400 font-bold text-lg">1</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-1">Join</h3>
+                <p className="text-slate-400 text-sm">Takes less than 2 minutes</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-cyan-400 font-bold text-lg">2</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-1">Use the Navigator</h3>
+                <p className="text-slate-400 text-sm">Find and verify resources</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-green-400 font-bold text-lg">3</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-lg mb-1">Make an Impact</h3>
+                <p className="text-slate-400 text-sm">Help people access support</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Final CTA Section */}
+        <div className="bg-gradient-to-br from-amber-500 to-yellow-500 rounded-2xl p-8 md:p-10 text-center space-y-6 shadow-xl">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Ready to make a real impact?</h2>
           <button
-            onClick={handleDashboardAccess}
-            className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-cyan-700 font-bold text-lg px-8 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-lg"
+            onClick={() => {
+              console.log('Final CTA clicked');
+              setViewMode('signup');
+            }}
+            className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white font-bold text-lg px-8 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-lg"
           >
             <Star className="w-5 h-5" />
-            {ambassadorData ? 'Open Ambassador Dashboard' : 'Sign Up & Access Dashboard'}
-          </button>
-        </div>
-
-        {/* Benefits Section */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 md:p-8 space-y-4">
-          <h2 className="text-2xl font-bold mb-4">Ambassador Benefits</h2>
-          <ul className="space-y-3">
-            {[
-              'Free access to Ambassador Dashboard with resource verification tools',
-              'Track your impact with submission statistics and verification count',
-              'Help improve language access for your entire community',
-              'Certificate of participation for verified contributions',
-              'Direct connection to people who need language support',
-            ].map((benefit, idx) => (
-              <li key={idx} className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                <span className="text-slate-300">{benefit}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Get Cards CTA */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 text-center space-y-4">
-          <h3 className="text-xl font-bold">Get Your Ambassador Cards</h3>
-          <p className="text-slate-400">
-            Download your QR code or order physical cards to distribute in your community.
-          </p>
-          <button
-            onClick={handleGetCardsClick}
-            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
-          >
-            <Package className="w-5 h-5" />
-            {ambassadorData ? 'Get Cards' : 'Sign Up to Get Cards'}
+            Join the Brigade
           </button>
         </div>
 
