@@ -1,20 +1,189 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Star, CheckCircle, MapPin, Users, Award, Package } from 'lucide-react';
 import SEO from './SEO';
 import AmbassadorDashboard from './AmbassadorDashboard';
+import AmbassadorSignup from './AmbassadorSignup';
+import AmbassadorSuccess from './AmbassadorSuccess';
 
 interface Props {
   onBack: () => void;
   onOrderCards?: () => void;
 }
 
-type ViewMode = 'overview' | 'dashboard';
+type ViewMode = 'overview' | 'signup' | 'success' | 'dashboard' | 'get-cards';
+
+interface AmbassadorData {
+  name: string;
+  email: string;
+  city: string;
+  code: string;
+}
+
+function generateAmbassadorCode(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
 
 export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('overview');
+  const [ambassadorData, setAmbassadorData] = useState<AmbassadorData | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('ambassador_data');
+    if (stored) {
+      try {
+        setAmbassadorData(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to parse ambassador data:', e);
+      }
+    }
+  }, []);
+
+  const handleSignupComplete = (data: { name: string; email: string; city: string }) => {
+    const code = generateAmbassadorCode();
+    const ambassadorInfo: AmbassadorData = {
+      ...data,
+      code,
+    };
+    setAmbassadorData(ambassadorInfo);
+    localStorage.setItem('ambassador_data', JSON.stringify(ambassadorInfo));
+    setViewMode('success');
+  };
+
+  const handleDashboardAccess = () => {
+    if (!ambassadorData) {
+      setViewMode('signup');
+    } else {
+      setViewMode('dashboard');
+    }
+  };
+
+  const handleGetCardsClick = () => {
+    if (!ambassadorData) {
+      setViewMode('signup');
+    } else {
+      setViewMode('get-cards');
+    }
+  };
+
+  if (viewMode === 'signup') {
+    return (
+      <AmbassadorSignup
+        onClose={() => setViewMode('overview')}
+        onComplete={handleSignupComplete}
+      />
+    );
+  }
+
+  if (viewMode === 'success' && ambassadorData) {
+    return (
+      <AmbassadorSuccess
+        name={ambassadorData.name}
+        ambassadorCode={ambassadorData.code}
+        onGoToDashboard={() => setViewMode('dashboard')}
+        onGetCards={() => setViewMode('get-cards')}
+      />
+    );
+  }
 
   if (viewMode === 'dashboard') {
     return <AmbassadorDashboard onBack={() => setViewMode('overview')} />;
+  }
+
+  if (viewMode === 'get-cards' && ambassadorData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+        <SEO
+          title="Get Cards — Ambassador Program"
+          description="Download your Ambassador QR code or order physical cards."
+          path="/ambassadors"
+        />
+
+        <header className="sticky top-0 bg-slate-900/90 backdrop-blur-sm border-b border-white/10 z-30" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+          <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+            <button
+              onClick={() => setViewMode('overview')}
+              className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">Back</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <Package className="w-5 h-5 text-cyan-400" />
+              <span className="font-bold text-base">Get Cards</span>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold">Your Ambassador Materials</h1>
+            <p className="text-slate-400">Download your QR code or order physical cards</p>
+          </div>
+
+          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 space-y-6">
+            <div className="text-center space-y-3">
+              <p className="text-slate-400 text-sm font-semibold uppercase tracking-wide">Your Ambassador Code</p>
+              <div className="bg-slate-900 border-2 border-cyan-500/50 rounded-xl px-6 py-4 inline-block">
+                <p className="text-3xl font-mono font-bold text-cyan-400 tracking-wider">{ambassadorData.code}</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 flex items-center justify-center">
+              <div className="text-center space-y-2">
+                <div className="w-48 h-48 bg-slate-200 rounded-lg flex items-center justify-center mx-auto">
+                  <svg className="w-36 h-36" viewBox="0 0 100 100">
+                    <rect x="10" y="10" width="15" height="15" fill="#000" />
+                    <rect x="35" y="10" width="15" height="15" fill="#000" />
+                    <rect x="60" y="10" width="15" height="15" fill="#000" />
+                    <rect x="10" y="35" width="15" height="15" fill="#000" />
+                    <rect x="35" y="35" width="15" height="15" fill="#fff" />
+                    <rect x="60" y="35" width="15" height="15" fill="#000" />
+                    <rect x="10" y="60" width="15" height="15" fill="#000" />
+                    <rect x="35" y="60" width="15" height="15" fill="#000" />
+                    <rect x="60" y="60" width="15" height="15" fill="#000" />
+                  </svg>
+                </div>
+                <p className="text-slate-600 text-sm font-semibold">Your Ambassador QR Code</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => alert('QR code download feature coming soon!')}
+              className="w-full inline-flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-6 py-4 rounded-xl transition-all"
+            >
+              <Package className="w-5 h-5" />
+              Download QR Code
+            </button>
+          </div>
+
+          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 space-y-4">
+            <h3 className="text-xl font-bold">Order Physical Cards</h3>
+            <p className="text-slate-400 text-sm">
+              Get professionally printed cards with your QR code to distribute in your community.
+            </p>
+            <button
+              onClick={onOrderCards || (() => alert('Card ordering feature coming soon!'))}
+              className="w-full inline-flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+            >
+              <Package className="w-5 h-5" />
+              Order Physical Cards
+            </button>
+          </div>
+
+          <button
+            onClick={() => setViewMode('dashboard')}
+            className="w-full inline-flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+          >
+            Go to Dashboard
+          </button>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -59,6 +228,14 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
           <p className="text-slate-300 text-lg max-w-2xl mx-auto">
             Help bridge language barriers in your community by distributing cards, verifying resources, and improving local accuracy.
           </p>
+
+          <button
+            onClick={() => setViewMode('signup')}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-gray-900 font-bold text-lg px-8 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-lg mt-4"
+          >
+            <Star className="w-5 h-5" />
+            Join the Brigade
+          </button>
         </div>
 
         {/* What Ambassadors Do */}
@@ -121,14 +298,16 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
           </div>
           <h2 className="text-3xl font-bold">Ready to Make an Impact?</h2>
           <p className="text-cyan-50 text-lg max-w-xl mx-auto">
-            Open the Ambassador Dashboard to start verifying resources, adding new locations, and tracking your contributions.
+            {ambassadorData
+              ? 'Access your dashboard to start verifying resources, adding new locations, and tracking your contributions.'
+              : 'Sign up to access the Ambassador Dashboard and start making a difference in your community.'}
           </p>
           <button
-            onClick={() => setViewMode('dashboard')}
+            onClick={handleDashboardAccess}
             className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-cyan-700 font-bold text-lg px-8 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-lg"
           >
             <Star className="w-5 h-5" />
-            Open Ambassador Dashboard
+            {ambassadorData ? 'Open Ambassador Dashboard' : 'Sign Up & Access Dashboard'}
           </button>
         </div>
 
@@ -151,22 +330,20 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
           </ul>
         </div>
 
-        {/* Order Cards CTA */}
-        {onOrderCards && (
-          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 text-center space-y-4">
-            <h3 className="text-xl font-bold">Need Physical Cards?</h3>
-            <p className="text-slate-400">
-              Order QR code cards to distribute in your workplace or community.
-            </p>
-            <button
-              onClick={onOrderCards}
-              className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
-            >
-              <Package className="w-5 h-5" />
-              Order Cards
-            </button>
-          </div>
-        )}
+        {/* Get Cards CTA */}
+        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 text-center space-y-4">
+          <h3 className="text-xl font-bold">Get Your Ambassador Cards</h3>
+          <p className="text-slate-400">
+            Download your QR code or order physical cards to distribute in your community.
+          </p>
+          <button
+            onClick={handleGetCardsClick}
+            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+          >
+            <Package className="w-5 h-5" />
+            {ambassadorData ? 'Get Cards' : 'Sign Up to Get Cards'}
+          </button>
+        </div>
 
       </main>
     </div>
