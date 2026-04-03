@@ -393,45 +393,11 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
             ))}
           </div>
         </div>
-
-        <div className="max-w-2xl mx-auto px-4 pb-2">
-          <button
-            onClick={() => detectRegion(setSelectedCity)}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-green-500 hover:bg-green-400 text-white font-bold rounded-xl mb-2 text-base transition-all duration-150 active:scale-95"
-          >
-            📍 Detect My Region
-          </button>
-        </div>
-        <div className="max-w-2xl mx-auto px-4 pb-4 flex items-center gap-3">
-          <div className="relative flex-1">
-            <select
-              value={selectedCity}
-              onChange={handleCityChange}
-              className="w-full appearance-none bg-gray-900 border border-gray-700 text-white text-sm font-semibold rounded-xl px-4 py-2.5 pr-9 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 cursor-pointer"
-            >
-              {CITY_KEYS.map(key => (
-                <option key={key} value={key}>{cityResources[key].label}</option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          </div>
-          <button
-            onClick={() => setHospitalMode(m => !m)}
-            title="Hospital Staff View"
-            className={`flex items-center gap-2 text-xs font-bold px-3 py-2.5 rounded-xl border transition-all duration-150 flex-shrink-0 ${
-              hospitalMode
-                ? 'bg-blue-600 border-blue-500 text-white'
-                : 'bg-gray-900 border-gray-700 text-gray-400 hover:text-white hover:border-gray-500'
-            }`}
-          >
-            <Building2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Hospital View</span>
-          </button>
-        </div>
       </div>
 
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-6 space-y-8">
 
+        {/* GET HELP NOW - Priority Section */}
         <section>
           <div className="mb-4">
             <h2 className="text-2xl font-bold text-white mb-1">Get Help Now</h2>
@@ -572,15 +538,15 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
             {showMoreSupport && (
               <div className="space-y-3 pt-2">
                 <a
-                  href="sms:741741"
+                  href="sms:741741?body=HOME"
                   className="block w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white rounded-xl py-4 px-5 transition-all duration-150 active:scale-95"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <MessageSquare className="w-7 h-7 flex-shrink-0 text-blue-400" />
                       <div>
-                        <div className="text-lg font-bold">Text 741741</div>
-                        <div className="text-sm text-gray-400">Crisis Text Line</div>
+                        <div className="text-lg font-bold">Crisis Text Line</div>
+                        <div className="text-sm text-gray-400">Text HOME to 741741</div>
                       </div>
                     </div>
                     <MessageSquare className="w-6 h-6 flex-shrink-0 text-gray-500" />
@@ -596,7 +562,7 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
                       <Heart className="w-7 h-7 flex-shrink-0 text-pink-400" />
                       <div>
                         <div className="text-lg font-bold">Trevor Project</div>
-                        <div className="text-sm text-gray-400">LGBTQ+ youth support</div>
+                        <div className="text-sm text-gray-400">Text START to 678-678</div>
                       </div>
                     </div>
                     <MessageSquare className="w-6 h-6 flex-shrink-0 text-gray-500" />
@@ -607,18 +573,61 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
           </div>
         </section>
 
+        {/* DETECT MY REGION - De-emphasized */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xs font-bold text-amber-400 uppercase tracking-widest">
-              {city.label} Resources
-            </h2>
-            <a
-              href={`tel:${city.outreachPhone}`}
-              className="flex items-center gap-1.5 text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors"
+          <div className="space-y-3">
+            <button
+              onClick={() => detectRegion(setSelectedCity)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-transparent hover:bg-gray-900 text-gray-300 hover:text-white border border-gray-700 hover:border-gray-500 font-semibold rounded-xl text-sm transition-all duration-150 active:scale-95"
             >
-              <Phone className="w-3.5 h-3.5" />
-              {city.outreachLabel}
-            </a>
+              📍 Detect My Region
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1">
+                <select
+                  value={selectedCity}
+                  onChange={handleCityChange}
+                  className="w-full appearance-none bg-gray-900 border border-gray-700 text-white text-sm font-semibold rounded-xl px-4 py-2.5 pr-9 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 cursor-pointer"
+                >
+                  {CITY_KEYS.map(key => (
+                    <option key={key} value={key}>{cityResources[key].label}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              </div>
+              <button
+                onClick={() => setHospitalMode(m => !m)}
+                title="Hospital Staff View"
+                className={`flex items-center gap-2 text-xs font-bold px-3 py-2.5 rounded-xl border transition-all duration-150 flex-shrink-0 ${
+                  hospitalMode
+                    ? 'bg-blue-600 border-blue-500 text-white'
+                    : 'bg-gray-900 border-gray-700 text-gray-400 hover:text-white hover:border-gray-500'
+                }`}
+              >
+                <Building2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Hospital View</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* CITY RESOURCES - Main content */}
+        <section>
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-1">
+              <h2 className="text-xs font-bold text-amber-400 uppercase tracking-widest">
+                {city.label} Resources
+              </h2>
+              <a
+                href={`tel:${city.outreachPhone}`}
+                className="flex items-center gap-1.5 text-xs font-semibold text-orange-400 hover:text-orange-300 transition-colors"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                {city.outreachLabel}
+              </a>
+            </div>
+            <p className="text-gray-500 text-xs">Nearby and commonly used services</p>
           </div>
           <CityResources
             city={city}
@@ -630,20 +639,23 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
         </section>
 
         <section>
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-xs font-bold text-amber-400 uppercase tracking-widest">Quick Category Dial</h2>
-            {lang !== 'en' && (
-              <button
-                onClick={() => playNavText(
-                  `${t.food}. ${t.medical}. ${t.bathrooms}. ${t.power}. ${t.shelter}. ${t.lockers}.`,
-                  lang
-                )}
-                className="p-1 text-amber-400/60 hover:text-amber-400 hover:bg-amber-400/10 rounded transition-colors"
-                title="Read categories aloud"
-              >
-                <Volume2 className="w-3.5 h-3.5" />
-              </button>
-            )}
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-xs font-bold text-amber-400 uppercase tracking-widest">Quick Category Access</h2>
+              {lang !== 'en' && (
+                <button
+                  onClick={() => playNavText(
+                    `${t.food}. ${t.medical}. ${t.bathrooms}. ${t.power}. ${t.shelter}. ${t.lockers}.`,
+                    lang
+                  )}
+                  className="p-1 text-amber-400/60 hover:text-amber-400 hover:bg-amber-400/10 rounded transition-colors"
+                  title="Read categories aloud"
+                >
+                  <Volume2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            <p className="text-gray-500 text-xs">Tap a category to filter resources below</p>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {RESOURCE_CATEGORIES.map(({ id, Icon, color }) => (
@@ -660,19 +672,37 @@ export default function CommunityNavigator({ onBack }: CommunityNavigatorProps) 
         </section>
 
         <section>
-          <h2 className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-4">Crisis Text Line</h2>
-          <div className="flex items-center justify-between bg-gray-900 border border-gray-700 rounded-xl px-5 py-4">
-            <div>
-              <div className="font-bold text-white text-base">General Crisis Text Line</div>
-              <div className="text-xs text-gray-500 mt-0.5">Text HOPE to 20121</div>
+          <div className="mb-4">
+            <h2 className="text-xs font-bold text-orange-400 uppercase tracking-widest mb-1">Text Support</h2>
+            <p className="text-gray-500 text-xs">Crisis text support services</p>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between bg-gray-900 border border-gray-700 rounded-xl px-5 py-4">
+              <div>
+                <div className="font-bold text-white text-base">Text HOPE to 20121</div>
+                <div className="text-xs text-gray-500 mt-0.5">Crisis Text Line</div>
+              </div>
+              <a
+                href="sms:20121?body=HOPE"
+                className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors"
+              >
+                <MessageSquare className="w-4 h-4" />
+                Text
+              </a>
             </div>
-            <a
-              href="sms:20121?body=HOPE"
-              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors"
-            >
-              <MessageSquare className="w-4 h-4" />
-              Text HOPE
-            </a>
+            <div className="flex items-center justify-between bg-gray-900 border border-gray-700 rounded-xl px-5 py-4">
+              <div>
+                <div className="font-bold text-white text-base">Text HOME to 741741</div>
+                <div className="text-xs text-gray-500 mt-0.5">Crisis Text Line (Alternative)</div>
+              </div>
+              <a
+                href="sms:741741?body=HOME"
+                className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold px-4 py-2 rounded-lg text-sm transition-colors"
+              >
+                <MessageSquare className="w-4 h-4" />
+                Text
+              </a>
+            </div>
           </div>
         </section>
 

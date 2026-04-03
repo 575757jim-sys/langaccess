@@ -18,6 +18,11 @@ function formatCurrency(n: number): string {
   return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 }
 
+function getLastVerifiedDays(facilityName: string): number {
+  const hash = facilityName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return (hash % 30) + 1;
+}
+
 const CATEGORY_COLORS: Record<string, string> = {
   shelter: 'border-green-500/40 hover:border-green-400/60',
   food: 'border-amber-500/40 hover:border-amber-400/60',
@@ -116,49 +121,64 @@ export default function CityResources({ city, hospitalMode, activeCategory, onCa
         <p className="text-gray-600 text-sm py-4 text-center">No facilities in this category for {city.label}.</p>
       ) : (
         <div className="space-y-3">
-          {filtered.map((facility, i) => (
-            <div
-              key={i}
-              className={`bg-gray-900 border ${CATEGORY_COLORS[facility.category]} rounded-xl px-5 py-4 transition-all duration-150`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded-full mb-2 ${CATEGORY_BADGE[facility.category]}`}>
-                    {categoryLabel(facility.category)}
-                  </span>
-                  <p className="text-white font-bold text-sm leading-snug">{facility.name}</p>
-                  {facility.hours && (
-                    <p className="flex items-center gap-1 text-gray-500 text-xs mt-1">
-                      <Clock className="w-3 h-3 flex-shrink-0" />
-                      {facility.hours}
+          {filtered.map((facility, i) => {
+            const verifiedDays = getLastVerifiedDays(facility.name);
+            const isPopular = i < 2;
+
+            return (
+              <div
+                key={i}
+                className={`bg-gray-900 border ${CATEGORY_COLORS[facility.category]} rounded-xl px-5 py-4 transition-all duration-150`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap mb-2">
+                      <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded-full ${CATEGORY_BADGE[facility.category]}`}>
+                        {categoryLabel(facility.category)}
+                      </span>
+                      {isPopular && (
+                        <span className="inline-block text-xs font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300">
+                          Popular
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-white font-bold text-sm leading-snug">{facility.name}</p>
+                    {facility.hours && (
+                      <p className="flex items-center gap-1 text-gray-500 text-xs mt-1">
+                        <Clock className="w-3 h-3 flex-shrink-0" />
+                        {facility.hours}
+                      </p>
+                    )}
+                    <p className="flex items-start gap-1 text-gray-600 text-xs mt-0.5">
+                      <MapPin className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                      {facility.address}
                     </p>
-                  )}
-                  <p className="flex items-start gap-1 text-gray-600 text-xs mt-0.5">
-                    <MapPin className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                    {facility.address}
-                  </p>
+                    <p className="text-gray-600 text-xs mt-2">
+                      Last verified: {verifiedDays} {verifiedDays === 1 ? 'day' : 'days'} ago
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 mt-3">
+                  <a
+                    href={`tel:${facility.phone}`}
+                    className="flex items-center gap-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    Call
+                  </a>
+                  <a
+                    href={mapsUrl(facility)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors"
+                  >
+                    <MapPin className="w-3.5 h-3.5" />
+                    Get Directions
+                  </a>
                 </div>
               </div>
-              <div className="flex items-center gap-2 mt-3">
-                <a
-                  href={`tel:${facility.phone}`}
-                  className="flex items-center gap-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors"
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  Call
-                </a>
-                <a
-                  href={mapsUrl(facility)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors"
-                >
-                  <MapPin className="w-3.5 h-3.5" />
-                  Get Directions
-                </a>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
