@@ -212,14 +212,10 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8 pb-24">
+      <main className="max-w-4xl mx-auto px-4 py-8 space-y-8 pb-32 md:pb-24">
 
         {/* Hero Section */}
-        <div className="text-center space-y-4 py-8">
-          <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-full px-4 py-2 mb-2">
-            <Star className="w-4 h-4 text-amber-400" />
-            <span className="text-amber-300 text-sm font-semibold">Join the Brigade</span>
-          </div>
+        <div className="text-center space-y-6 py-4 md:py-8">
           <h1 className="text-4xl md:text-5xl font-bold leading-tight">
             Become a LangAccess
             <br />
@@ -227,20 +223,22 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
               Ambassador
             </span>
           </h1>
-          <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+          <p className="text-slate-300 text-lg max-w-2xl mx-auto leading-relaxed">
             Help bridge language barriers in your community by distributing cards, verifying resources, and improving local accuracy.
           </p>
 
-          <button
-            onClick={() => {
-              console.log('Join the Brigade clicked');
-              setViewMode('signup');
-            }}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-gray-900 font-bold text-lg px-8 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-lg mt-4"
-          >
-            <Star className="w-5 h-5" />
-            Join the Brigade
-          </button>
+          <div className="pt-2">
+            <button
+              onClick={() => {
+                console.log('Join the Brigade clicked');
+                setViewMode('signup');
+              }}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-gray-900 font-bold text-lg px-8 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-lg"
+            >
+              <Star className="w-5 h-5" />
+              Join the Brigade
+            </button>
+          </div>
         </div>
 
         {/* What Ambassadors Do */}
