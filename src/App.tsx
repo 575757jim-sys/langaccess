@@ -11,6 +11,7 @@ import JobSiteTalkScreen from './components/JobSiteTalkScreen';
 import CertificatesPage from './components/CertificatesPage';
 import CertVerifyPage from './components/CertVerifyPage';
 import AmbassadorsPage from './components/AmbassadorsPage';
+import AmbassadorDashboard from './components/AmbassadorDashboard';
 import OrderCardsPage from './components/OrderCardsPage';
 import PublicOrderPage from './components/PublicOrderPage';
 import QRScanPage from './components/QRScanPage';
@@ -44,6 +45,7 @@ type AppView =
   | 'certificates'
   | 'cert-verify'
   | 'ambassadors'
+  | 'ambassador-dashboard'
   | 'order-cards';
 
 function getQRSlug(): string | null {
@@ -73,6 +75,10 @@ function getAmbassadorsPath(): boolean {
   return window.location.pathname === '/ambassadors' || window.location.pathname === '/ambassador';
 }
 
+function getAmbassadorDashboardPath(): boolean {
+  return window.location.pathname === '/ambassador-dashboard' || window.location.pathname === '/dashboard';
+}
+
 function getCertificatesPath(): boolean {
   return window.location.pathname === '/certificates';
 }
@@ -91,9 +97,10 @@ function AppInner() {
   const isVerifyPath = getVerifyPath();
   const isOrderCardsPath = getOrderCardsPath();
   const isAmbassadorsPath = getAmbassadorsPath();
+  const isAmbassadorDashboardPath = getAmbassadorDashboardPath();
   const isCertificatesPath = getCertificatesPath();
   const [view, setView] = useState<AppView>(
-    isHelpPath ? 'community' : isOrderCardsPath ? 'order-cards' : isVerifyPath ? 'cert-verify' : isAmbassadorsPath ? 'ambassadors' : isCertificatesPath ? 'certificates' : 'home'
+    isHelpPath ? 'community' : isOrderCardsPath ? 'order-cards' : isVerifyPath ? 'cert-verify' : isAmbassadorsPath ? 'ambassadors' : isAmbassadorDashboardPath ? 'ambassador-dashboard' : isCertificatesPath ? 'certificates' : 'home'
   );
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
@@ -203,7 +210,7 @@ function AppInner() {
 
   useEffect(() => {
     // Skip validation for standalone pages
-    if (view === 'community' || view === 'policy' || view === 'certificates' || view === 'cert-verify' || view === 'ambassadors' || view === 'order-cards') {
+    if (view === 'community' || view === 'policy' || view === 'certificates' || view === 'cert-verify' || view === 'ambassadors' || view === 'ambassador-dashboard' || view === 'order-cards') {
       return;
     }
 
@@ -243,6 +250,10 @@ function AppInner() {
 
     if (view === 'ambassadors') {
       return <AmbassadorsPage onBack={() => setView('home')} onOrderCards={() => setView('order-cards')} />;
+    }
+
+    if (view === 'ambassador-dashboard') {
+      return <AmbassadorDashboard onBack={() => setView('home')} />;
     }
 
     if (view === 'order-cards') {
