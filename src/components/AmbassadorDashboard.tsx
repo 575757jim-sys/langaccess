@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, MapPin, Clock, CheckCircle, Edit, Plus, ChevronDown, X } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, CheckCircle, CreditCard as Edit, Plus, ChevronDown, X } from 'lucide-react';
 import { cityResources, CITY_KEYS, CityFacility } from '../data/cityResources';
 import { supabase } from '../lib/supabase';
 
