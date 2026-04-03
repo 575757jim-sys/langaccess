@@ -28,8 +28,8 @@ export default function AmbassadorSignup({ onClose, onComplete }: AmbassadorSign
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto">
+        <div className="sticky top-0 bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
           <h2 className="text-xl font-bold text-white">Join the Ambassador Brigade</h2>
           <button
             onClick={onClose}
@@ -39,7 +39,7 @@ export default function AmbassadorSignup({ onClose, onComplete }: AmbassadorSign
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5" style={{ paddingBottom: 'calc(120px + env(safe-area-inset-bottom))' }}>
           <p className="text-slate-300 text-sm leading-relaxed">
             Become a LangAccess Ambassador and help bridge language barriers in your community.
           </p>
