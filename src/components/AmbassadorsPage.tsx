@@ -32,6 +32,8 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('overview');
   const [ambassadorData, setAmbassadorData] = useState<AmbassadorData | null>(null);
 
+  console.log('AmbassadorsPage render - viewMode:', viewMode);
+
   useEffect(() => {
     const stored = localStorage.getItem('ambassador_data');
     if (stored) {
@@ -230,7 +232,10 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
           </p>
 
           <button
-            onClick={() => setViewMode('signup')}
+            onClick={() => {
+              console.log('Join the Brigade clicked');
+              setViewMode('signup');
+            }}
             className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-gray-900 font-bold text-lg px-8 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:scale-95 shadow-lg mt-4"
           >
             <Star className="w-5 h-5" />

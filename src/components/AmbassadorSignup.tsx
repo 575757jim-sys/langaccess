@@ -11,6 +11,8 @@ export default function AmbassadorSignup({ onClose, onComplete }: AmbassadorSign
   const [email, setEmail] = useState('');
   const [city, setCity] = useState('');
 
+  console.log('AmbassadorSignup rendered');
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim() && city.trim()) {
