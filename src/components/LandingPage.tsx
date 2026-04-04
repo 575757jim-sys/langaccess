@@ -236,20 +236,36 @@ export default function LandingPage({
               {/* Right — example phrase cards */}
               <div className="flex justify-center lg:justify-end">
                 <div className="w-full max-w-sm space-y-3">
-                  {MOCK_PHRASES.map((item) => (
-                    <div
-                      key={item.phrase}
-                      className="bg-white/5 hover:bg-white/8 border border-white/10 rounded-2xl px-5 py-4 flex items-center gap-4 transition-colors"
-                    >
-                      <div className={`w-12 h-12 ${item.sectorColor} rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg`}>
-                        <Volume2 className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">{item.sector}</div>
-                        <div className="text-white text-base font-semibold leading-snug">{item.phrase}</div>
-                      </div>
-                    </div>
-                  ))}
+                  <p className="text-slate-400 text-sm mb-4 text-center">Tap a phrase to start instantly</p>
+                  {MOCK_PHRASES.map((item) => {
+                    const handleClick = () => {
+                      if (item.sector === 'Teacher') {
+                        onSelectSector('education');
+                      } else if (item.sector === 'Healthcare') {
+                        onSelectSector('healthcare');
+                      } else if (item.sector === 'Construction') {
+                        onSelectSector('construction');
+                      } else if (item.sector === 'Outreach') {
+                        onOpenCommunityNavigator?.();
+                      }
+                    };
+
+                    return (
+                      <button
+                        key={item.phrase}
+                        onClick={handleClick}
+                        className="w-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl px-5 py-4 flex items-center gap-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                      >
+                        <div className={`w-12 h-12 ${item.sectorColor} rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                          <Volume2 className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0 text-left">
+                          <div className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">{item.sector}</div>
+                          <div className="text-white text-base font-semibold leading-snug">{item.phrase}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
