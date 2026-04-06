@@ -10,7 +10,7 @@ import TalkTogetherScreen from './components/TalkTogetherScreen';
 import JobSiteTalkScreen from './components/JobSiteTalkScreen';
 import CertificatesPage from './components/CertificatesPage';
 import CertVerifyPage from './components/CertVerifyPage';
-import CertificateEnrollEducation from './components/CertificateEnrollEducation';
+import CertificateEnrollmentPage from './components/CertificateEnrollmentPage';
 import AmbassadorsPage from './components/AmbassadorsPage';
 import AmbassadorDashboard from './components/AmbassadorDashboard';
 import OrderCardsPage from './components/OrderCardsPage';
@@ -247,7 +247,7 @@ function AppInner() {
 
     if (view === 'cert-enroll-education') {
       return (
-        <CertificateEnrollEducation
+        <CertificateEnrollmentPage
           onBack={() => {
             const referrer = document.referrer;
             if (referrer.includes('/') && referrer !== window.location.href) {
@@ -256,7 +256,7 @@ function AppInner() {
               setView('certificates');
             }
           }}
-          onStartCertificate={() => setView('certificates')}
+          onContinue={() => setView('certificates')}
         />
       );
     }
