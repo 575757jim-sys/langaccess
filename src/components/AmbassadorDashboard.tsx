@@ -66,7 +66,7 @@ function VerifyModal({ resource, onClose, onSubmit, mode }: VerifyModalProps) {
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 safe-bottom-padding">
           <div>
             <h3 className="text-white font-bold text-lg mb-1">{resource.name}</h3>
             <p className="text-gray-400 text-sm flex items-start gap-1">
@@ -166,7 +166,7 @@ function AddResourceModal({ onClose, onSubmit }: { onClose: () => void; onSubmit
           </button>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-6 space-y-5 safe-bottom-padding">
           <div>
             <label className="block text-white font-semibold text-sm mb-2">
               Name <span className="text-red-400">*</span>
