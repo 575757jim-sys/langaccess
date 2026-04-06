@@ -23,7 +23,7 @@ export default function UpdateToast({ visible, onRefresh, onDismiss }: UpdateToa
 
   return (
     <div
-      className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ease-out ${
+      className={`safe-bottom-fixed left-1/2 -translate-x-1/2 transition-all duration-300 ease-out ${
         show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}
       style={{ maxWidth: 'calc(100vw - 2rem)' }}

@@ -5,6 +5,18 @@
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Safe bottom positioning for fixed UI elements */
+  .safe-bottom-fixed {
+    position: fixed;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    z-index: 50;
+  }
+
+  /* Safe bottom padding for scrollable content */
+  .safe-bottom-padding {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+  }
 }
 
 @keyframes fade-up {
