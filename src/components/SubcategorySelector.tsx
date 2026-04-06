@@ -310,6 +310,34 @@ export default function SubcategorySelector({
             </button>
           </div>
         )}
+
+        {/* Certificate Track Card - Education Only */}
+        {sectorLabel === 'Education' && (
+          <div className="mt-8 mb-6">
+            <button
+              onClick={() => window.location.href = '/certificate/enroll/education'}
+              className="w-full bg-white border border-slate-200 hover:border-slate-300 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-200 text-left group"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-blue-50 transition-colors">
+                  <Award className="w-6 h-6 text-slate-600 group-hover:text-blue-600 transition-colors" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">
+                    Keep Building Your Education Spanish
+                  </h3>
+                  <p className="text-sm text-slate-600 leading-relaxed mb-3">
+                    Explore phrases for free, track your progress, and unlock your certificate when you're ready.
+                  </p>
+                  <div className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 group-hover:text-blue-700 transition-colors">
+                    <span>Explore Certificate Track</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
+        )}
       </main>
     </div>
   );
