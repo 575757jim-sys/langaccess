@@ -12,7 +12,6 @@ interface SubcategorySelectorProps {
   onBack: () => void;
   onOpenTalkTogether?: () => void;
   onOpenJobSiteTalk?: () => void;
-  onOpenCertificates?: () => void;
   selectedLanguage?: Language | null;
 }
 
@@ -100,7 +99,6 @@ export default function SubcategorySelector({
   onBack,
   onOpenTalkTogether,
   onOpenJobSiteTalk,
-  onOpenCertificates,
   selectedLanguage,
 }: SubcategorySelectorProps) {
   const accent = SECTOR_ACCENT[sectorLabel] || DEFAULT_ACCENT;
@@ -134,9 +132,7 @@ export default function SubcategorySelector({
       dismissMilestone(activeMilestone);
       setActiveMilestone(null);
     }
-    if (onOpenCertificates) {
-      onOpenCertificates();
-    }
+    window.location.href = '/certificate/enroll/education';
   };
 
   return (

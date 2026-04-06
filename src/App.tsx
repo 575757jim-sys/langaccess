@@ -10,6 +10,7 @@ import TalkTogetherScreen from './components/TalkTogetherScreen';
 import JobSiteTalkScreen from './components/JobSiteTalkScreen';
 import CertificatesPage from './components/CertificatesPage';
 import CertVerifyPage from './components/CertVerifyPage';
+import CertificateEnrollEducation from './components/CertificateEnrollEducation';
 import AmbassadorsPage from './components/AmbassadorsPage';
 import AmbassadorDashboard from './components/AmbassadorDashboard';
 import OrderCardsPage from './components/OrderCardsPage';
@@ -44,6 +45,7 @@ type AppView =
   | 'job-site-talk'
   | 'certificates'
   | 'cert-verify'
+  | 'cert-enroll-education'
   | 'ambassadors'
   | 'order-cards';
 
@@ -78,6 +80,10 @@ function getCertificatesPath(): boolean {
   return window.location.pathname === '/certificates';
 }
 
+function getCertEnrollEducationPath(): boolean {
+  return window.location.pathname === '/certificate/enroll/education';
+}
+
 function getPaymentSuccessPath(): boolean {
   return window.location.pathname === '/success';
 }
@@ -93,8 +99,9 @@ function AppInner() {
   const isOrderCardsPath = getOrderCardsPath();
   const isAmbassadorsPath = getAmbassadorsPath();
   const isCertificatesPath = getCertificatesPath();
+  const isCertEnrollEducationPath = getCertEnrollEducationPath();
   const [view, setView] = useState<AppView>(
-    isHelpPath ? 'community' : isOrderCardsPath ? 'order-cards' : isVerifyPath ? 'cert-verify' : isAmbassadorsPath ? 'ambassadors' : isCertificatesPath ? 'certificates' : 'home'
+    isHelpPath ? 'community' : isOrderCardsPath ? 'order-cards' : isVerifyPath ? 'cert-verify' : isAmbassadorsPath ? 'ambassadors' : isCertificatesPath ? 'certificates' : isCertEnrollEducationPath ? 'cert-enroll-education' : 'home'
   );
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<Subcategory | null>(null);
@@ -204,7 +211,7 @@ function AppInner() {
 
   useEffect(() => {
     // Skip validation for standalone pages
-    if (view === 'community' || view === 'policy' || view === 'certificates' || view === 'cert-verify' || view === 'ambassadors' || view === 'order-cards') {
+    if (view === 'community' || view === 'policy' || view === 'certificates' || view === 'cert-verify' || view === 'cert-enroll-education' || view === 'ambassadors' || view === 'order-cards') {
       return;
     }
 
@@ -236,6 +243,22 @@ function AppInner() {
   const renderView = () => {
     if (view === 'cert-verify') {
       return <CertVerifyPage onBack={() => setView('certificates')} />;
+    }
+
+    if (view === 'cert-enroll-education') {
+      return (
+        <CertificateEnrollEducation
+          onBack={() => {
+            const referrer = document.referrer;
+            if (referrer.includes('/') && referrer !== window.location.href) {
+              window.history.back();
+            } else {
+              setView('certificates');
+            }
+          }}
+          onStartCertificate={() => setView('certificates')}
+        />
+      );
     }
 
     if (view === 'certificates') {
@@ -325,7 +348,6 @@ function AppInner() {
           onBack={handleBackToHome}
           onOpenTalkTogether={selectedSector === 'education' ? handleOpenTalkTogether : undefined}
           onOpenJobSiteTalk={selectedSector === 'construction' ? handleOpenJobSiteTalk : undefined}
-          onOpenCertificates={selectedSector === 'education' ? () => setView('certificates') : undefined}
           selectedLanguage={selectedLanguage}
         />
       );
