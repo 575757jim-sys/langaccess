@@ -8,6 +8,7 @@ import { exportPhrasesToCSV } from '../utils/exportToCSV';
 import { supabase } from '../lib/supabase';
 import { logInteraction } from '../utils/interactionLog';
 import { loadFavorites, addFavorite, removeFavorite, linkFavoritesToEmail, FavoritePhrase } from '../utils/favorites';
+import { addExploredPhrase } from '../utils/educationMastery';
 import PointAndSpeak from './PointAndSpeak';
 import FavoritesPanel from './FavoritesPanel';
 import ResponseModePanel from './ResponseModePanel';
@@ -204,6 +205,10 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
       phraseTranslation: text,
     });
     setResponsePanelKey(key);
+
+    if (sector === 'education' && english) {
+      addExploredPhrase(english);
+    }
   }, [language, sector, subcategory]);
 
   const handleWorkerResponse = (english: string) => {
