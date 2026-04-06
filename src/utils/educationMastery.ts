@@ -1,3 +1,6 @@
+import { subcategoryPhrases } from '../data/subcategories';
+import { Language } from '../data/phrases';
+
 const STORAGE_KEY = 'langaccess_education_mastery';
 
 export interface EducationMasteryData {
@@ -31,6 +34,22 @@ export function addExploredPhrase(phraseId: string): void {
 
 export function getExploredCount(): number {
   return getExploredPhrases().length;
+}
+
+export function getTotalEducationPhrases(language: Language): number {
+  const educationCategories = ['student-discipline', 'parent-outreach', 'teacher-support', 'special-needs'];
+  let total = 0;
+
+  for (const category of educationCategories) {
+    const categoryData = subcategoryPhrases[category]?.[language];
+    if (categoryData) {
+      for (const group of categoryData) {
+        total += group.phrases.length;
+      }
+    }
+  }
+
+  return total;
 }
 
 export function clearEducationMastery(): void {

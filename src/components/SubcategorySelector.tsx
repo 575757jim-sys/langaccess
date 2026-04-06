@@ -1,6 +1,8 @@
-import { ArrowLeft, MessageSquare, HardHat, ChevronRight, GraduationCap, Heart, Layers, Zap, Shield, Stethoscope, BookOpen, MapPin, HelpCircle, AlertTriangle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, MessageSquare, HardHat, ChevronRight, GraduationCap, Heart, Layers, Zap, Shield, Stethoscope, BookOpen, MapPin, HelpCircle, AlertTriangle, Award } from 'lucide-react';
 import { SubcategoryInfo } from '../data/subcategories';
 import { Language } from '../data/phrases';
+import { getExploredCount, getTotalEducationPhrases } from '../utils/educationMastery';
 
 interface SubcategorySelectorProps {
   subcategories: SubcategoryInfo[];
@@ -96,10 +98,23 @@ export default function SubcategorySelector({
   onBack,
   onOpenTalkTogether,
   onOpenJobSiteTalk,
+  selectedLanguage,
 }: SubcategorySelectorProps) {
   const accent = SECTOR_ACCENT[sectorLabel] || DEFAULT_ACCENT;
   const SectorIcon = accent.Icon;
   const quickSituations = QUICK_SITUATIONS[sectorLabel] || [];
+
+  const [exploredCount, setExploredCount] = useState(0);
+  const [totalPhrases, setTotalPhrases] = useState(0);
+
+  useEffect(() => {
+    if (sectorLabel === 'Education' && selectedLanguage) {
+      setExploredCount(getExploredCount());
+      setTotalPhrases(getTotalEducationPhrases(selectedLanguage));
+    }
+  }, [sectorLabel, selectedLanguage]);
+
+  const progressPercentage = totalPhrases > 0 ? Math.round((exploredCount / totalPhrases) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -121,6 +136,59 @@ export default function SubcategorySelector({
       </header>
 
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
+
+        {/* Mastery Progress - Education Only */}
+        {sectorLabel === 'Education' && selectedLanguage && totalPhrases > 0 && (
+          <div className="mb-8">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-5 border-2 border-blue-200 shadow-sm">
+              <div className="flex items-start gap-4">
+                {/* Circular Progress Indicator */}
+                <div className="relative flex-shrink-0">
+                  <svg className="w-20 h-20 transform -rotate-90">
+                    <circle
+                      cx="40"
+                      cy="40"
+                      r="34"
+                      stroke="white"
+                      strokeWidth="6"
+                      fill="none"
+                      opacity="0.5"
+                    />
+                    <circle
+                      cx="40"
+                      cy="40"
+                      r="34"
+                      stroke="#2563eb"
+                      strokeWidth="6"
+                      fill="none"
+                      strokeDasharray={`${2 * Math.PI * 34}`}
+                      strokeDashoffset={`${2 * Math.PI * 34 * (1 - progressPercentage / 100)}`}
+                      strokeLinecap="round"
+                      className="transition-all duration-500"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-lg font-bold text-blue-600">{progressPercentage}%</span>
+                  </div>
+                </div>
+
+                {/* Progress Info */}
+                <div className="flex-1 pt-2">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Award className="w-5 h-5 text-blue-600" />
+                    <h2 className="text-lg font-bold text-blue-900">Mastery Progress</h2>
+                  </div>
+                  <p className="text-blue-700 font-medium mb-2">
+                    {exploredCount} of {totalPhrases} phrases explored
+                  </p>
+                  <p className="text-sm text-blue-600">
+                    Keep exploring phrases to build your language skills
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Quick Situations */}
         {quickSituations.length > 0 && (
