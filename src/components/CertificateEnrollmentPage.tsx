@@ -1,5 +1,8 @@
-import { ArrowLeft, Award, CheckCircle, Shield, Linkedin } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Award, CheckCircle, Shield, BookOpen, TrendingUp } from 'lucide-react';
 import SEO from './SEO';
+import { getExploredCount, getTotalEducationPhrases } from '../utils/educationMastery';
+import { Language } from '../data/phrases';
 
 interface Props {
   onBack: () => void;
@@ -7,6 +10,135 @@ interface Props {
 }
 
 export default function CertificateEnrollmentPage({ onBack, onContinue }: Props) {
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [progress, setProgress] = useState({ explored: 0, total: 0, percentage: 0 });
+
+  useEffect(() => {
+    if (showSuccess) {
+      const explored = getExploredCount();
+      const total = getTotalEducationPhrases('spanish' as Language);
+      const percentage = total > 0 ? Math.round((explored / total) * 50) : 0;
+      setProgress({ explored, total, percentage });
+    }
+  }, [showSuccess]);
+
+  const handleSocialLogin = () => {
+    setShowSuccess(true);
+  };
+
+  if (showSuccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+        <SEO
+          title="Welcome to Education Certificate - LangAccess"
+          description="Your Education Spanish Certificate track is now active."
+          canonicalPath="/certificate/enroll/education"
+        />
+
+        <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
+          <div className="max-w-2xl mx-auto px-4 h-16 flex items-center gap-4">
+            <button
+              onClick={onBack}
+              className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-slate-100 active:scale-95 transition-all"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="w-5 h-5 text-slate-700" />
+            </button>
+            <div className="flex items-center gap-2">
+              <Award className="w-5 h-5 text-green-600" />
+              <span className="text-lg font-semibold text-slate-900">Certificate Active</span>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-2xl mx-auto px-4 py-8 pb-24">
+          {/* Success Animation */}
+          <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg">
+                <CheckCircle className="w-10 h-10 text-white" />
+              </div>
+            </div>
+
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">Welcome, Maria</h1>
+              <p className="text-slate-600 text-lg">
+                Your Education Certificate track is now active.
+              </p>
+            </div>
+          </div>
+
+          {/* Progress Card */}
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-blue-600" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900">Certificate Progress</h2>
+            </div>
+
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-slate-700">Progress to Certification</span>
+                <span className="text-sm font-bold text-blue-600">{progress.percentage}%</span>
+              </div>
+
+              <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-1000 ease-out"
+                  style={{ width: `${progress.percentage}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="bg-slate-50 rounded-xl p-4">
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-slate-900">{progress.explored}</div>
+                  <div className="text-slate-600 text-sm">Phrases Explored</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-slate-900">{progress.total}</div>
+                  <div className="text-slate-600 text-sm">Total Required</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-start gap-2 bg-blue-50 rounded-lg p-3 border border-blue-100">
+              <Award className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-blue-900">
+                <span className="font-semibold">Progress = 50% Mastery:</span> Explore all phrases to reach 50% progress, then pass the final quiz to complete your certificate.
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="space-y-3 mb-6 animate-in fade-in slide-in-from-bottom-4 duration-900">
+            <button
+              onClick={onContinue}
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 transition-all duration-150 active:scale-[0.98] shadow-lg flex items-center justify-center gap-3"
+            >
+              <BookOpen className="w-5 h-5" />
+              Begin Final Quiz
+            </button>
+
+            <button
+              onClick={onContinue}
+              className="w-full bg-white text-slate-700 px-6 py-4 rounded-xl font-semibold hover:bg-slate-50 transition-all duration-150 active:scale-[0.98] border-2 border-slate-200 flex items-center justify-center gap-2"
+            >
+              Return to Education
+            </button>
+          </div>
+
+          {/* Encouragement Note */}
+          <div className="text-center text-slate-500 text-sm animate-in fade-in duration-1000">
+            Continue exploring phrases to increase your progress
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
       <SEO
@@ -144,7 +276,7 @@ export default function CertificateEnrollmentPage({ onBack, onContinue }: Props)
         {/* CTA Buttons */}
         <div className="space-y-3 mb-6">
           <button
-            onClick={onContinue}
+            onClick={handleSocialLogin}
             className="w-full bg-blue-600 text-white px-6 py-4 rounded-xl font-bold hover:bg-blue-700 transition-all duration-150 active:scale-[0.98] shadow-lg flex items-center justify-center gap-3"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -154,7 +286,7 @@ export default function CertificateEnrollmentPage({ onBack, onContinue }: Props)
           </button>
 
           <button
-            onClick={onContinue}
+            onClick={handleSocialLogin}
             className="w-full bg-white text-slate-700 px-6 py-4 rounded-xl font-bold hover:bg-slate-50 transition-all duration-150 active:scale-[0.98] shadow-lg border-2 border-slate-200 flex items-center justify-center gap-3"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
