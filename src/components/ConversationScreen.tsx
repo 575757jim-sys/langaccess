@@ -319,7 +319,7 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
         </div>
 
         {/* Patient mic + input row */}
-        <div className="flex-shrink-0 border-t border-gray-100 px-5 py-4">
+        <div className="flex-shrink-0 border-t border-gray-100 px-5 py-4 safe-bottom-padding">
           {patientInput.recording && (
             <p
               className="text-center font-semibold text-green-600 mb-3"
@@ -464,7 +464,7 @@ export default function ConversationScreen({ language, onBack }: ConversationScr
         </div>
 
         {/* Staff mic + input row */}
-        <div className="flex-shrink-0 border-t border-gray-100 px-5 py-4">
+        <div className="flex-shrink-0 border-t border-gray-100 px-5 py-4 safe-bottom-padding">
           {staffInput.recording && (
             <p className="text-center font-semibold text-green-600 mb-3" style={{ fontSize: '18px' }}>
               Listening in English…

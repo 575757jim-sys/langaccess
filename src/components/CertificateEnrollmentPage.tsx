@@ -51,7 +51,7 @@ export default function CertificateEnrollmentPage({ onBack, onContinue }: Props)
           </div>
         </header>
 
-        <main className="max-w-2xl mx-auto px-4 py-8 pb-24">
+        <main className="max-w-2xl mx-auto px-4 py-8 pb-24 safe-bottom-padding">
           {/* Success Animation */}
           <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex justify-center mb-6">

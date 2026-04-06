@@ -178,7 +178,7 @@ export default function FavoritesPanel({ onClose }: FavoritesPanelProps) {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-slate-200 px-5 py-3 space-y-2">
+        <div className="border-t border-slate-200 px-5 py-3 space-y-2 safe-bottom-padding">
           <button
             onClick={handleExportLogs}
             disabled={exportingLogs}

@@ -71,7 +71,7 @@ export default function EmailCaptureModal({ sector, phrase, onSave, onDismiss }:
           </p>
         </div>
 
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-6 py-5 space-y-4 safe-bottom-padding">
           <div className="space-y-1.5">
             <label htmlFor="email-capture-input" className="text-xs font-medium text-slate-500 uppercase tracking-wide">
               Email address

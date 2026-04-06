@@ -830,7 +830,7 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
       )}
 
       {workerResponseToast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-700 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 flex flex-col items-center gap-1 min-w-[200px] text-center">
+        <div className="safe-bottom-fixed left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-700 text-white px-6 py-4 rounded-2xl shadow-2xl flex flex-col items-center gap-1 min-w-[200px] text-center">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">They responded</span>
           <span className="text-2xl font-black text-white">{workerResponseToast}</span>
         </div>

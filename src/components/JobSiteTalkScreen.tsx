@@ -317,7 +317,7 @@ export default function JobSiteTalkScreen({ language, onBack }: JobSiteTalkScree
           )}
         </div>
 
-        <div className="flex-shrink-0 border-t border-gray-100 px-5 py-4">
+        <div className="flex-shrink-0 border-t border-gray-100 px-5 py-4 safe-bottom-padding">
           {workerInput.recording && (
             <p
               className="text-center font-semibold text-green-600 mb-3"
@@ -458,7 +458,7 @@ export default function JobSiteTalkScreen({ language, onBack }: JobSiteTalkScree
           )}
         </div>
 
-        <div className="flex-shrink-0 border-t border-gray-100 px-5 py-4">
+        <div className="flex-shrink-0 border-t border-gray-100 px-5 py-4 safe-bottom-padding">
           {supervisorInput.recording && (
             <p className="text-center font-semibold text-orange-600 mb-3" style={{ fontSize: '18px' }}>
               Listening in English…

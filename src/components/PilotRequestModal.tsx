@@ -110,7 +110,7 @@ export default function PilotRequestModal({ onClose }: Props) {
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 safe-bottom-padding">
           {submitted ? (
             <div className="flex flex-col items-center text-center py-8 gap-4">
               <div className="w-14 h-14 rounded-full bg-teal-50 flex items-center justify-center">

@@ -40,7 +40,7 @@ export default function ShowScreenOverlay({ english, translation, language, onCl
       </div>
 
       <div
-        className="w-full max-w-sm flex gap-3 mt-6"
+        className="w-full max-w-sm flex gap-3 mt-6 safe-bottom-padding"
         onClick={e => e.stopPropagation()}
       >
         <button
