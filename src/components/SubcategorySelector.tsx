@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, MessageSquare, HardHat, ChevronRight, GraduationCap, Heart, Layers, Zap, Shield, Stethoscope, BookOpen, MapPin, HelpCircle, AlertTriangle, Award } from 'lucide-react';
 import { SubcategoryInfo } from '../data/subcategories';
 import { Language } from '../data/phrases';
-import { getExploredCount, getTotalEducationPhrases } from '../utils/educationMastery';
+import { getExploredCount, getTotalEducationPhrases, shouldShowMilestone, dismissMilestone } from '../utils/educationMastery';
+import MilestoneNudge from './MilestoneNudge';
 
 interface SubcategorySelectorProps {
   subcategories: SubcategoryInfo[];
@@ -11,6 +12,7 @@ interface SubcategorySelectorProps {
   onBack: () => void;
   onOpenTalkTogether?: () => void;
   onOpenJobSiteTalk?: () => void;
+  onOpenCertificates?: () => void;
   selectedLanguage?: Language | null;
 }
 
@@ -98,6 +100,7 @@ export default function SubcategorySelector({
   onBack,
   onOpenTalkTogether,
   onOpenJobSiteTalk,
+  onOpenCertificates,
   selectedLanguage,
 }: SubcategorySelectorProps) {
   const accent = SECTOR_ACCENT[sectorLabel] || DEFAULT_ACCENT;
@@ -106,15 +109,35 @@ export default function SubcategorySelector({
 
   const [exploredCount, setExploredCount] = useState(0);
   const [totalPhrases, setTotalPhrases] = useState(0);
+  const [activeMilestone, setActiveMilestone] = useState<'milestone10' | 'milestone25' | null>(null);
 
   useEffect(() => {
     if (sectorLabel === 'Education' && selectedLanguage) {
-      setExploredCount(getExploredCount());
+      const count = getExploredCount();
+      setExploredCount(count);
       setTotalPhrases(getTotalEducationPhrases(selectedLanguage));
+      setActiveMilestone(shouldShowMilestone(count));
     }
   }, [sectorLabel, selectedLanguage]);
 
   const progressPercentage = totalPhrases > 0 ? Math.round((exploredCount / totalPhrases) * 100) : 0;
+
+  const handleDismissMilestone = () => {
+    if (activeMilestone) {
+      dismissMilestone(activeMilestone);
+      setActiveMilestone(null);
+    }
+  };
+
+  const handleViewCertificates = () => {
+    if (activeMilestone) {
+      dismissMilestone(activeMilestone);
+      setActiveMilestone(null);
+    }
+    if (onOpenCertificates) {
+      onOpenCertificates();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -136,6 +159,15 @@ export default function SubcategorySelector({
       </header>
 
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
+
+        {/* Milestone Nudge - Education Only */}
+        {sectorLabel === 'Education' && activeMilestone && (
+          <MilestoneNudge
+            type={activeMilestone}
+            onDismiss={handleDismissMilestone}
+            onViewCertificates={handleViewCertificates}
+          />
+        )}
 
         {/* Mastery Progress - Education Only */}
         {sectorLabel === 'Education' && selectedLanguage && totalPhrases > 0 && (

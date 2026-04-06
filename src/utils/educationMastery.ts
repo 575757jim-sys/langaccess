@@ -2,9 +2,15 @@ import { subcategoryPhrases } from '../data/subcategories';
 import { Language } from '../data/phrases';
 
 const STORAGE_KEY = 'langaccess_education_mastery';
+const MILESTONES_KEY = 'langaccess_education_milestones';
 
 export interface EducationMasteryData {
   exploredPhrases: string[];
+}
+
+export interface MilestoneDismissals {
+  milestone10: boolean;
+  milestone25: boolean;
 }
 
 export function getExploredPhrases(): string[] {
@@ -58,4 +64,39 @@ export function clearEducationMastery(): void {
   } catch (error) {
     console.error('Error clearing education mastery data:', error);
   }
+}
+
+export function getMilestoneDismissals(): MilestoneDismissals {
+  try {
+    const stored = localStorage.getItem(MILESTONES_KEY);
+    if (!stored) return { milestone10: false, milestone25: false };
+    return JSON.parse(stored);
+  } catch (error) {
+    console.error('Error reading milestone dismissals:', error);
+    return { milestone10: false, milestone25: false };
+  }
+}
+
+export function dismissMilestone(milestone: 'milestone10' | 'milestone25'): void {
+  try {
+    const dismissals = getMilestoneDismissals();
+    dismissals[milestone] = true;
+    localStorage.setItem(MILESTONES_KEY, JSON.stringify(dismissals));
+  } catch (error) {
+    console.error('Error saving milestone dismissal:', error);
+  }
+}
+
+export function shouldShowMilestone(count: number): 'milestone10' | 'milestone25' | null {
+  const dismissals = getMilestoneDismissals();
+
+  if (count >= 25 && !dismissals.milestone25) {
+    return 'milestone25';
+  }
+
+  if (count >= 10 && !dismissals.milestone10) {
+    return 'milestone10';
+  }
+
+  return null;
 }
