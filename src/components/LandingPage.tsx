@@ -237,26 +237,26 @@ export default function LandingPage({
               <button
                 onClick={handleDemoPlay}
                 disabled={demoPlaying}
-                className={`group w-full flex items-center justify-center gap-3 font-bold text-lg py-4 px-6 rounded-xl transition-all duration-200 active:scale-[0.97] shadow-lg ${
+                className={`group w-full flex items-center justify-center gap-3 font-bold text-xl py-5 px-6 rounded-xl transition-all duration-200 active:scale-[0.97] shadow-xl ${
                   demoPlayed
-                    ? 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/40'
-                    : 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/50 hover:scale-[1.02]'
+                    ? 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/50'
+                    : 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/60 hover:scale-[1.02]'
                 } disabled:opacity-70 disabled:cursor-not-allowed`}
-                style={!demoPlayed && !demoPlaying ? { animation: 'pulse-glow 2s ease-in-out infinite' } : {}}
+                style={!demoPlayed && !demoPlaying ? { animation: 'pulse-glow 2s ease-in-out infinite', boxShadow: '0 0 24px 4px rgba(20,184,166,0.45)' } : { boxShadow: '0 0 18px 2px rgba(20,184,166,0.30)' }}
               >
                 {demoPlaying ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-6 h-6 animate-spin" />
                     Playing…
                   </>
                 ) : demoPlayed ? (
                   <>
-                    <Volume2 className="w-5 h-5" />
+                    <Volume2 className="w-7 h-7" />
                     Play Again
                   </>
                 ) : (
                   <>
-                    <Volume2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <Volume2 className="w-7 h-7 group-hover:scale-110 transition-transform" />
                     Hear it in Spanish
                   </>
                 )}
@@ -280,11 +280,11 @@ export default function LandingPage({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
               {[
-                { icon: <Building2 className="w-6 h-6" />, label: 'Property Manager', desc: 'Maintenance requests, lease terms, inspections', sector: 'property-management' as Sector, accent: 'border-sky-500/40 hover:border-sky-400/60', iconBg: 'bg-sky-500/20 text-sky-300' },
-                { icon: <HardHat className="w-6 h-6" />, label: 'Construction', desc: 'Safety instructions for multilingual crews', sector: 'construction' as Sector, accent: 'border-orange-500/40 hover:border-orange-400/60', iconBg: 'bg-orange-500/20 text-orange-300' },
-                { icon: <Warehouse className="w-6 h-6" />, label: 'Warehouse', desc: 'Shift briefings, safety protocols, task direction', sector: 'warehouse' as Sector, accent: 'border-amber-500/40 hover:border-amber-400/60', iconBg: 'bg-amber-500/20 text-amber-300' },
-                { icon: <Hotel className="w-6 h-6" />, label: 'Hospitality', desc: 'Guest services, housekeeping, front desk', sector: 'hospitality' as Sector, accent: 'border-rose-500/40 hover:border-rose-400/60', iconBg: 'bg-rose-500/20 text-rose-300' },
-                { icon: <Leaf className="w-6 h-6" />, label: 'Agriculture', desc: 'Field operations, crop handling, safety rules', sector: 'agriculture' as Sector, accent: 'border-green-500/40 hover:border-green-400/60', iconBg: 'bg-green-500/20 text-green-300' },
+                { icon: <Building2 className="w-6 h-6" />, label: 'Property Manager', desc: 'Fix issues, explain rules, and manage tenants.', sector: 'property-management' as Sector, accent: 'border-sky-500/40 hover:border-sky-400/60', iconBg: 'bg-sky-500/20 text-sky-300' },
+                { icon: <HardHat className="w-6 h-6" />, label: 'Construction', desc: 'Give safety instructions and guide your crew.', sector: 'construction' as Sector, accent: 'border-orange-500/40 hover:border-orange-400/60', iconBg: 'bg-orange-500/20 text-orange-300' },
+                { icon: <Warehouse className="w-6 h-6" />, label: 'Warehouse', desc: 'Direct tasks, move items, and avoid mistakes.', sector: 'warehouse' as Sector, accent: 'border-amber-500/40 hover:border-amber-400/60', iconBg: 'bg-amber-500/20 text-amber-300' },
+                { icon: <Hotel className="w-6 h-6" />, label: 'Hospitality', desc: 'Help guests, solve problems, and provide service.', sector: 'hospitality' as Sector, accent: 'border-rose-500/40 hover:border-rose-400/60', iconBg: 'bg-rose-500/20 text-rose-300' },
+                { icon: <Leaf className="w-6 h-6" />, label: 'Agriculture', desc: 'Guide work, ensure safety, and manage crews.', sector: 'agriculture' as Sector, accent: 'border-green-500/40 hover:border-green-400/60', iconBg: 'bg-green-500/20 text-green-300' },
               ].map(({ icon, label, desc, sector, accent, iconBg }) => (
                 <button
                   key={label}
@@ -419,8 +419,13 @@ export default function LandingPage({
         <section id="sector-select" className="py-24 bg-gradient-to-br from-teal-700 to-teal-800 relative overflow-hidden">
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
           <div className="relative max-w-2xl mx-auto px-6 text-center">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Ready for your organization?</h2>
-            <p className="text-teal-100/80 text-base mb-10">Serving multi-team organizations and compliance departments.</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Certified for your organization</h2>
+            <p className="text-teal-100/80 text-base mb-4">Serving multi-team organizations and compliance departments.</p>
+            <p className="text-teal-100/70 text-sm mb-6">Includes Language Access Certification for staff compliance.</p>
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-10 tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-300 inline-block"></span>
+              Certified Workforce Ready
+            </div>
             <button
               onClick={() => setShowPilotModal(true)}
               className="inline-flex items-center gap-2 bg-white hover:bg-teal-50 text-teal-700 font-bold px-8 py-4 rounded-xl transition-all duration-200 shadow-xl hover:scale-[1.02] active:scale-[0.98] text-base"
