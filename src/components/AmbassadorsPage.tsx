@@ -87,15 +87,18 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
   }
 
   if (viewMode === 'get-cards' && (ambassadorData || localStorage.getItem('ambassador_id'))) {
+    const code = ambassadorData?.code || '';
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(`https://langaccess.org/help?ref=${code}`)}&bgcolor=ffffff&color=000000&margin=4`;
+
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex flex-col">
         <SEO
           title="Get Cards — Ambassador Program"
           description="Download your Ambassador QR code or order physical cards."
           path="/ambassadors"
         />
 
-        <header className="sticky top-0 bg-slate-900/90 backdrop-blur-sm border-b border-white/10 z-30" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <header className="sticky top-0 bg-slate-900/90 backdrop-blur-sm border-b border-white/10 z-30 flex-shrink-0" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
             <button
               onClick={() => setViewMode('overview')}
@@ -106,68 +109,74 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
             </button>
             <div className="flex items-center gap-2">
               <Package className="w-5 h-5 text-cyan-400" />
-              <span className="font-bold text-base">Get Cards</span>
+              <span className="font-bold text-base">Ambassador Materials</span>
             </div>
           </div>
         </header>
 
-        <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-          <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold">Your Ambassador Materials</h1>
-            <p className="text-slate-400">Download your QR code or order physical cards</p>
-          </div>
+        <main className="flex-1 overflow-y-auto" style={{ paddingBottom: 'calc(2rem + env(safe-area-inset-bottom))' }}>
+          <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+            <div className="text-center space-y-2">
+              <h1 className="text-3xl font-bold">Your Ambassador Materials</h1>
+              <p className="text-slate-400">Download your QR code or order physical cards</p>
+            </div>
 
-          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 space-y-6">
-            <div className="text-center space-y-3">
-              <p className="text-slate-400 text-sm font-semibold uppercase tracking-wide">Your Ambassador Code</p>
-              <div className="bg-slate-900 border-2 border-cyan-500/50 rounded-xl px-6 py-4 inline-block">
-                <p className="text-3xl font-mono font-bold text-cyan-400 tracking-wider">{ambassadorData.code}</p>
+            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 space-y-6">
+              <div className="text-center space-y-3">
+                <p className="text-slate-400 text-sm font-semibold uppercase tracking-wide">Your Ambassador Code</p>
+                <div className="bg-slate-900 border-2 border-cyan-500/50 rounded-xl px-6 py-4 inline-block">
+                  <p className="text-3xl font-mono font-bold text-cyan-400 tracking-wider">{code}</p>
+                </div>
               </div>
+
+              <div className="bg-white rounded-xl p-6 flex flex-col items-center gap-3">
+                <img
+                  src={qrUrl}
+                  alt="Your Ambassador QR Code"
+                  width={200}
+                  height={200}
+                  className="block rounded"
+                  style={{ imageRendering: 'crisp-edges' }}
+                />
+                <p className="text-slate-600 text-xs font-medium text-center">Scan to access LangAccess instantly</p>
+              </div>
+
+              <button
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = qrUrl;
+                  link.download = `langaccess-qr-${code}.png`;
+                  link.target = '_blank';
+                  link.click();
+                }}
+                className="w-full inline-flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-6 py-4 rounded-xl transition-all"
+              >
+                <Package className="w-5 h-5" />
+                Download QR Code
+              </button>
             </div>
 
-            <div className="bg-white rounded-xl p-6 flex flex-col items-center gap-3">
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://langaccess.org/help&bgcolor=ffffff&color=000000&margin=2`}
-                alt="Your Ambassador QR Code"
-                width={192}
-                height={192}
-                className="block rounded-lg"
-              />
-              <p className="text-slate-500 text-xs text-center">Scan to access LangAccess instantly</p>
+            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 space-y-4">
+              <h3 className="text-xl font-bold">Order Physical Cards</h3>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Get printed cards with your QR code to share in your community.
+              </p>
+              <button
+                onClick={onOrderCards || (() => alert('Card ordering feature coming soon!'))}
+                className="w-full inline-flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+              >
+                <Package className="w-5 h-5" />
+                Order Physical Cards
+              </button>
             </div>
 
             <button
-              onClick={() => alert('QR code download feature coming soon!')}
-              className="w-full inline-flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-6 py-4 rounded-xl transition-all"
-            >
-              <Package className="w-5 h-5" />
-              Download QR Code
-            </button>
-            <p className="text-slate-400 text-xs text-center">Use this QR to share LangAccess in the real world.</p>
-            <p className="text-slate-500 text-xs text-center">Print it, text it, or show it to someone in need.</p>
-          </div>
-
-          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 space-y-4">
-            <h3 className="text-xl font-bold">Order Physical Cards</h3>
-            <p className="text-slate-400 text-sm">
-              Get professionally printed cards with your QR code to distribute in your community.
-            </p>
-            <p className="text-slate-500 text-xs">Order physical cards with your QR code</p>
-            <button
-              onClick={onOrderCards || (() => alert('Card ordering feature coming soon!'))}
+              onClick={() => setViewMode('dashboard')}
               className="w-full inline-flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
             >
-              <Package className="w-5 h-5" />
-              Order Physical Cards
+              Go to Dashboard
             </button>
           </div>
-
-          <button
-            onClick={() => setViewMode('dashboard')}
-            className="w-full inline-flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
-          >
-            Go to Dashboard
-          </button>
         </main>
       </div>
     );
