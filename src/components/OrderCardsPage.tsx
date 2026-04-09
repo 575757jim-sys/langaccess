@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, Image as ImageIcon } from 'lucide-react';
 import SEO from './SEO';
 
 interface Props {
@@ -18,7 +18,7 @@ interface AmbassadorData {
   ref_code: string | null;
 }
 
-type Step = 'loading' | 'unauthorized' | 'ready' | 'submitting' | 'success' | 'error';
+type Step = 'loading' | 'unauthorized' | 'ready' | 'previewing' | 'submitting' | 'success' | 'error';
 
 const QUANTITY_OPTIONS = [
   { value: 25, label: '25 cards', cost: '$8–10' },
@@ -73,11 +73,29 @@ function CardFrontPreview({ slug, fullName, cityState }: { slug: string; fullNam
   );
 }
 
+function normalizeCityState(raw: string): string {
+  const parts = raw.split(',').map((p) => p.trim()).filter(Boolean);
+  if (parts.length >= 2) return `${parts[0]}, ${parts[1]}`;
+  if (parts.length === 1) return parts[0];
+  return raw;
+}
+
 export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const [step, setStep] = useState<Step>('loading');
   const [ambassador, setAmbassador] = useState<AmbassadorData | null>(null);
   const [quantity, setQuantity] = useState(25);
   const [errorMsg, setErrorMsg] = useState('');
+  const [previewQrUrl, setPreviewQrUrl] = useState('');
+  const [previewCityState, setPreviewCityState] = useState('');
+  const [pendingOrderData, setPendingOrderData] = useState<{
+    fullName: string;
+    formattedCityState: string;
+    city: string;
+    state: string;
+    slug: string;
+    frontFileUrl: string;
+    backFileUrl: string;
+  } | null>(null);
 
   useEffect(() => {
     async function loadAmbassador() {
@@ -168,76 +186,81 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     loadAmbassador();
   }, []);
 
-  const handleOrder = async () => {
+  function resolveAmbassadorFields(): { fullName: string; cityState: string } | null {
+    let fullName = (ambassador?.full_name || '').trim();
+    let cityState = (ambassador?.city_state || '').trim();
+
+    if (!fullName || !cityState) {
+      const localData = localStorage.getItem('ambassador_data');
+      const parsed = localData ? JSON.parse(localData) : null;
+      if (!fullName && parsed?.name) fullName = (parsed.name as string).trim();
+      if (!cityState && parsed?.city) {
+        const rawCity = (parsed.city as string).trim();
+        const parts = rawCity.split(',');
+        cityState = parts.length > 1
+          ? `${parts[0].trim()}, ${parts[1].trim()}`
+          : `${rawCity}, CA`;
+      }
+    }
+
+    if (!fullName || !cityState) return null;
+    return { fullName, cityState };
+  }
+
+  const handlePreview = async () => {
     if (!ambassador) return;
+    setStep('previewing');
+    setErrorMsg('');
+
+    const fields = resolveAmbassadorFields();
+    if (!fields) {
+      setErrorMsg('Missing required fields. Please go back and complete your ambassador profile.');
+      setStep('error');
+      return;
+    }
+
+    const { fullName } = fields;
+    const formattedCityState = normalizeCityState(fields.cityState);
+    const city = formattedCityState.split(',')[0]?.trim() || '';
+    const state = formattedCityState.split(',')[1]?.trim() || '';
+    const slug = ambassador.slug || ambassador.ref_code || ambassador.id || 'langaccess';
+    const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
+    const fallbackQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&ecc=H&data=${encodeURIComponent(`https://langaccess.org/r/${encodeURIComponent(slug)}`)}`;
+    let frontFileUrl = fallbackQrUrl;
+    let backFileUrl = 'https://langaccess.org/card-back.pdf';
+
+    try {
+      const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: orderId, full_name: fullName, city_state: formattedCityState, slug }),
+      });
+      if (pdfRes.ok) {
+        const pdfData = await pdfRes.json();
+        if (pdfData.frontFileUrl) frontFileUrl = pdfData.frontFileUrl;
+        if (pdfData.backFileUrl) backFileUrl = pdfData.backFileUrl;
+      } else {
+        console.warn('[OrderCards] generate-card-pdf failed — using fallback QR');
+      }
+    } catch (imgErr) {
+      console.warn('[OrderCards] generate-card-pdf error — using fallback QR:', imgErr);
+    }
+
+    setPreviewQrUrl(frontFileUrl);
+    setPreviewCityState(formattedCityState);
+    setPendingOrderData({ fullName, formattedCityState, city, state, slug, frontFileUrl, backFileUrl });
+    setStep('ready');
+  };
+
+  const handleConfirmOrder = async () => {
+    if (!ambassador || !pendingOrderData) return;
     setStep('submitting');
     setErrorMsg('');
 
+    const { fullName, formattedCityState, city, state, frontFileUrl, backFileUrl } = pendingOrderData;
+
     try {
-      let fullName = (ambassador.full_name || '').trim();
-      let cityState = (ambassador.city_state || '').trim();
-
-      if (!fullName || !cityState) {
-        const localData = localStorage.getItem('ambassador_data');
-        const parsed = localData ? JSON.parse(localData) : null;
-        if (!fullName && parsed?.name) {
-          fullName = (parsed.name as string).trim();
-        }
-        if (!cityState && parsed?.city) {
-          const rawCity = (parsed.city as string).trim();
-          const parts = rawCity.split(',');
-          cityState = parts.length > 1
-            ? `${parts[0].trim()}, ${parts[1].trim()}`
-            : `${rawCity}, CA`;
-        }
-      }
-
-      if (!fullName || !cityState) {
-        setErrorMsg('Missing required fields. Please go back and complete your ambassador profile.');
-        setStep('error');
-        return;
-      }
-
-      const cityParts = cityState.split(',');
-      const formattedCityState = cityParts.length > 1
-        ? `${cityParts[0].trim()}, ${cityParts[1].trim()}`
-        : cityState;
-
-      const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-
-      const slug = ambassador.slug || ambassador.ref_code || ambassador.id || 'langaccess';
-      const qrDataUrl = `https://langaccess.org/r/${encodeURIComponent(slug)}`;
-      const fallbackQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&ecc=H&data=${encodeURIComponent(qrDataUrl)}`;
-
-      let frontFileUrl: string = fallbackQrUrl;
-      let backFileUrl: string = '';
-
-      try {
-        const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            order_id: orderId,
-            full_name: fullName,
-            city_state: formattedCityState,
-            slug,
-          }),
-        });
-
-        if (pdfRes.ok) {
-          const pdfData = await pdfRes.json();
-          if (pdfData.frontFileUrl) frontFileUrl = pdfData.frontFileUrl;
-          if (pdfData.backFileUrl) backFileUrl = pdfData.backFileUrl;
-        } else {
-          console.warn('[OrderCards] Card image generation failed — continuing with QR fallback');
-        }
-      } catch (imgErr) {
-        console.warn('[OrderCards] Card image generation error — continuing with QR fallback:', imgErr);
-      }
-
-      const city = formattedCityState.split(',')[0]?.trim() || '';
-      const state = formattedCityState.split(',')[1]?.trim() || '';
-
       const gelatoRes = await fetch('/.netlify/functions/create-gelato-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -258,7 +281,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
       if (!gelatoRes.ok) {
         const err = await gelatoRes.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(err.error || 'Failed to place order');
+        throw new Error(err.error || 'Could not prepare print file. Please try again.');
       }
 
       setStep('success');
@@ -267,6 +290,8 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       setStep('error');
     }
   };
+
+  const handleOrder = handlePreview;
 
   if (step === 'loading') {
     return (
@@ -433,29 +458,77 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
         </div>
 
+        {previewQrUrl && pendingOrderData && (
+          <div className="bg-[#111827] rounded-2xl p-5 border border-white/10">
+            <div className="flex items-center gap-2 mb-3">
+              <ImageIcon className="w-4 h-4 text-green-400" />
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Print Asset Verified</h2>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 rounded-lg overflow-hidden bg-white p-1" style={{ width: 80, height: 80 }}>
+                <img
+                  src={previewQrUrl}
+                  alt="QR for print"
+                  width={72}
+                  height={72}
+                  className="block"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0.3'; }}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-sm font-medium mb-0.5">QR code ready</p>
+                <p className="text-slate-400 text-xs leading-relaxed">
+                  Your unique QR code is confirmed. Shipping to <span className="text-white font-medium">{previewCityState}</span>.
+                </p>
+                <p className="text-slate-500 text-xs mt-1.5 break-all">{previewQrUrl.slice(0, 80)}{previewQrUrl.length > 80 ? '…' : ''}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {step === 'error' && errorMsg && (
           <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
             <p className="text-red-400 text-sm">{errorMsg}</p>
           </div>
         )}
 
-        <button
-          onClick={handleOrder}
-          disabled={step === 'submitting'}
-          className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3"
-        >
-          {step === 'submitting' ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Generating your card...
-            </>
-          ) : (
-            <>
-              <Package className="w-5 h-5" />
-              Get Exact Price
-            </>
-          )}
-        </button>
+        {pendingOrderData ? (
+          <button
+            onClick={handleConfirmOrder}
+            disabled={step === 'submitting'}
+            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3"
+          >
+            {step === 'submitting' ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Submitting order...
+              </>
+            ) : (
+              <>
+                <Package className="w-5 h-5" />
+                Confirm &amp; Get Exact Price
+              </>
+            )}
+          </button>
+        ) : (
+          <button
+            onClick={handleOrder}
+            disabled={step === 'previewing'}
+            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3"
+          >
+            {step === 'previewing' ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Preparing your card...
+              </>
+            ) : (
+              <>
+                <Package className="w-5 h-5" />
+                Get Exact Price
+              </>
+            )}
+          </button>
+        )}
 
         <p className="text-slate-600 text-xs text-center pb-4">
           Payment is handled securely by Gelato at checkout. No payment info is stored here.

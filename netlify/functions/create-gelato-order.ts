@@ -9,6 +9,19 @@ const supabase = createClient(
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY!;
 
+const STATIC_FRONT_PDF = "https://langaccess.org/card-front.pdf";
+const STATIC_BACK_PDF = "https://langaccess.org/card-back.pdf";
+
+function isPublicUrl(url: string | undefined): boolean {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" && !url.startsWith("data:");
+  } catch {
+    return false;
+  }
+}
+
 export const handler: Handler = async (event) => {
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
@@ -24,6 +37,8 @@ export const handler: Handler = async (event) => {
     state: string;
     zip: string;
     quantity: number;
+    frontFileUrl?: string;
+    backFileUrl?: string;
   };
 
   try {
@@ -42,11 +57,24 @@ export const handler: Handler = async (event) => {
     state,
     zip,
     quantity,
+    frontFileUrl,
+    backFileUrl,
   } = body;
+
+  const cityClean = (city || "").trim().replace(/,\s*$/, "");
+  const stateClean = (state || "").trim().replace(/,/g, "").trim();
+  const cityStateDisplay = stateClean ? `${cityClean}, ${stateClean}` : cityClean;
 
   const nameParts = full_name.trim().split(/\s+/);
   const firstName = nameParts[0] || "";
   const lastName = nameParts.slice(1).join(" ") || "";
+
+  const resolvedFrontUrl = isPublicUrl(frontFileUrl) ? frontFileUrl! : STATIC_FRONT_PDF;
+  const resolvedBackUrl = isPublicUrl(backFileUrl) ? backFileUrl! : STATIC_BACK_PDF;
+
+  console.log("[Gelato] Front file URL:", resolvedFrontUrl);
+  console.log("[Gelato] Back file URL:", resolvedBackUrl);
+  console.log("[Gelato] Shipping to:", cityStateDisplay, zip);
 
   const orderPayload = {
     orderType: "order",
@@ -58,26 +86,26 @@ export const handler: Handler = async (event) => {
         itemReferenceId: "item-1",
         productUid: process.env.GELATO_PRODUCT_UID || "cards_pf_bx_pt_300-gsm-uncoated_cl_4-4_hor",
         files: [
-          { type: "default", url: "https://langaccess.org/card-front.pdf" },
-          { type: "back", url: "https://langaccess.org/card-back.pdf" },
+          { type: "default", url: resolvedFrontUrl },
+          { type: "back", url: resolvedBackUrl },
         ],
-        quantity: 1,
+        quantity: quantity || 1,
       },
     ],
     shippingAddress: {
       firstName,
       lastName,
-      addressLine1: shipping_address,
-      city,
-      stateCode: state,
-      postCode: zip,
+      addressLine1: shipping_address || "",
+      city: cityClean,
+      stateCode: stateClean,
+      postCode: zip || "",
       countryIsoCode: "US",
       email,
       phone: phone || "0000000000",
     },
   };
 
-  console.log("Gelato order payload:", JSON.stringify(orderPayload));
+  console.log("[Gelato] Order payload:", JSON.stringify(orderPayload));
 
   let gelatoOrderId: string | null = null;
 
@@ -93,27 +121,34 @@ export const handler: Handler = async (event) => {
 
     if (!gelatoRes.ok) {
       const errorText = await gelatoRes.text();
-      console.log('Gelato full error:', errorText);
+      console.error("[Gelato] API error:", errorText);
       return {
         statusCode: gelatoRes.status,
-        body: JSON.stringify({ error: "Gelato API error", details: errorText }),
+        body: JSON.stringify({
+          error: "Could not prepare print file. Please try again.",
+          _debug: errorText,
+        }),
       };
     }
 
     const gelatoData = await gelatoRes.json();
-    console.log("Gelato API success response:", JSON.stringify(gelatoData));
+    console.log("[Gelato] Success:", JSON.stringify(gelatoData));
     gelatoOrderId = gelatoData.id || gelatoData.orderId || null;
   } catch (err) {
+    console.error("[Gelato] Network error:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to call Gelato API", details: String(err) }),
+      body: JSON.stringify({
+        error: "Could not reach the print service. Please try again.",
+        _debug: String(err),
+      }),
     };
   }
 
   const shippingAddressJson = {
     address: shipping_address,
-    city,
-    state,
+    city: cityClean,
+    state: stateClean,
     zip,
   };
 
@@ -128,10 +163,10 @@ export const handler: Handler = async (event) => {
   });
 
   if (dbError) {
-    console.error("Supabase insert error:", dbError);
+    console.error("[Gelato] Supabase insert error:", dbError);
   }
 
-  const shippingAddressDisplay = [shipping_address, city, state, zip].filter(Boolean).join(", ");
+  const shippingAddressDisplay = [shipping_address, cityStateDisplay, zip].filter(Boolean).join(", ");
 
   try {
     await fetch(`${SUPABASE_URL}/functions/v1/send-order-confirmation`, {
@@ -149,7 +184,7 @@ export const handler: Handler = async (event) => {
       }),
     });
   } catch (emailErr) {
-    console.error("Confirmation email failed (non-fatal):", emailErr);
+    console.error("[Gelato] Confirmation email failed (non-fatal):", emailErr);
   }
 
   return {
