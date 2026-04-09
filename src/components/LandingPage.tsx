@@ -263,9 +263,13 @@ export default function LandingPage({
               </button>
 
               <p className="mt-2.5 text-xs text-slate-500">Real TTS audio — no sign-up needed</p>
+
+              <p className="mt-3 text-xs text-slate-500 italic">See possible responses</p>
             </div>
 
-            <p className="mt-4 text-xs text-slate-500">
+            <p className="mt-5 text-sm font-medium text-teal-400/80 tracking-wide">Then choose your role below</p>
+
+            <p className="mt-2 text-xs text-slate-500">
               Works in Spanish, Tagalog, Vietnamese, Mandarin &amp; Cantonese
             </p>
           </div>
@@ -280,25 +284,25 @@ export default function LandingPage({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
               {[
-                { icon: <Building2 className="w-6 h-6" />, label: 'Property Manager', desc: 'Fix issues, explain rules, and manage tenants.', sector: 'property-management' as Sector, accent: 'border-sky-500/40 hover:border-sky-400/60', iconBg: 'bg-sky-500/20 text-sky-300' },
-                { icon: <HardHat className="w-6 h-6" />, label: 'Construction', desc: 'Give safety instructions and guide your crew.', sector: 'construction' as Sector, accent: 'border-orange-500/40 hover:border-orange-400/60', iconBg: 'bg-orange-500/20 text-orange-300' },
-                { icon: <Warehouse className="w-6 h-6" />, label: 'Warehouse', desc: 'Direct tasks, move items, and avoid mistakes.', sector: 'warehouse' as Sector, accent: 'border-amber-500/40 hover:border-amber-400/60', iconBg: 'bg-amber-500/20 text-amber-300' },
-                { icon: <Hotel className="w-6 h-6" />, label: 'Hospitality', desc: 'Help guests, solve problems, and provide service.', sector: 'hospitality' as Sector, accent: 'border-rose-500/40 hover:border-rose-400/60', iconBg: 'bg-rose-500/20 text-rose-300' },
-                { icon: <Leaf className="w-6 h-6" />, label: 'Agriculture', desc: 'Guide work, ensure safety, and manage crews.', sector: 'agriculture' as Sector, accent: 'border-green-500/40 hover:border-green-400/60', iconBg: 'bg-green-500/20 text-green-300' },
+                { icon: <Building2 className="w-6 h-6" />, label: 'Property Manager', desc: 'Fix issues, explain rules, and manage tenants.', sector: 'property-management' as Sector, accent: 'border-sky-500/60 hover:border-sky-400/90', iconBg: 'bg-sky-500/20 text-sky-300' },
+                { icon: <HardHat className="w-6 h-6" />, label: 'Construction', desc: 'Give safety instructions and guide your crew.', sector: 'construction' as Sector, accent: 'border-orange-500/60 hover:border-orange-400/90', iconBg: 'bg-orange-500/20 text-orange-300' },
+                { icon: <Warehouse className="w-6 h-6" />, label: 'Warehouse', desc: 'Direct tasks, move items, and avoid mistakes.', sector: 'warehouse' as Sector, accent: 'border-amber-500/60 hover:border-amber-400/90', iconBg: 'bg-amber-500/20 text-amber-300' },
+                { icon: <Hotel className="w-6 h-6" />, label: 'Hospitality', desc: 'Help guests, solve problems, and provide service.', sector: 'hospitality' as Sector, accent: 'border-rose-500/60 hover:border-rose-400/90', iconBg: 'bg-rose-500/20 text-rose-300' },
+                { icon: <Leaf className="w-6 h-6" />, label: 'Agriculture', desc: 'Guide work, ensure safety, and manage crews.', sector: 'agriculture' as Sector, accent: 'border-green-500/60 hover:border-green-400/90', iconBg: 'bg-green-500/20 text-green-300' },
               ].map(({ icon, label, desc, sector, accent, iconBg }) => (
                 <button
                   key={label}
                   onClick={() => onSelectSector(sector)}
-                  className={`group flex items-center gap-4 bg-white/[0.06] hover:bg-white/[0.11] border-2 ${accent} rounded-2xl px-5 py-5 text-left transition-all duration-200 hover:scale-[1.02] active:scale-[0.97]`}
+                  className={`group flex items-center gap-4 bg-white/[0.08] hover:bg-white/[0.14] border-2 ${accent} rounded-2xl px-6 py-6 text-left transition-all duration-200 hover:scale-[1.02] active:scale-[0.97] shadow-md hover:shadow-lg`}
                 >
-                  <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${iconBg} transition-transform group-hover:scale-110`}>
+                  <div className={`flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center ${iconBg} transition-transform group-hover:scale-110`}>
                     {icon}
                   </div>
                   <div className="min-w-0">
                     <div className="text-white font-bold text-base leading-tight mb-1">{label}</div>
-                    <div className="text-slate-400 text-xs leading-snug">{desc}</div>
+                    <div className="text-slate-300 text-xs leading-snug">{desc}</div>
                   </div>
-                  <ChevronRight className="ml-auto flex-shrink-0 w-5 h-5 text-slate-500 group-hover:text-slate-300 transition-colors" />
+                  <ChevronRight className="ml-auto flex-shrink-0 w-5 h-5 text-slate-400 group-hover:text-white transition-colors group-hover:translate-x-0.5 duration-200" />
                 </button>
               ))}
             </div>
