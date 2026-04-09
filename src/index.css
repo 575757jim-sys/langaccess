@@ -28,6 +28,11 @@
   animation: fade-up 0.22s ease-out both;
 }
 
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.5), 0 20px 40px -8px rgba(20, 184, 166, 0.4); transform: scale(1); }
+  50% { box-shadow: 0 0 0 8px rgba(20, 184, 166, 0), 0 20px 40px -8px rgba(20, 184, 166, 0.6); transform: scale(1.015); }
+}
+
 @media all and (display-mode: standalone) {
   body {
     padding-top: env(safe-area-inset-top);

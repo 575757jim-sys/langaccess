@@ -293,7 +293,7 @@ export default function LandingPage({
             <div className="bg-white/5 border border-white/10 rounded-3xl px-8 py-10 backdrop-blur-sm shadow-2xl">
               <div className="mb-2">
                 <span className="inline-block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">English</span>
-                <p className="text-3xl sm:text-4xl font-extrabold text-white leading-tight tracking-tight mb-2">
+                <p className="text-4xl sm:text-5xl font-black text-white leading-tight tracking-tight mb-2">
                   "What is the problem?"
                 </p>
               </div>
@@ -305,42 +305,47 @@ export default function LandingPage({
               </div>
 
               <p
-                className={`text-2xl sm:text-3xl font-bold leading-snug transition-all duration-500 mb-8 ${
+                className={`text-2xl sm:text-3xl font-bold leading-snug transition-all duration-500 mb-6 ${
                   demoPlayed ? 'text-teal-300 opacity-100' : 'text-slate-500 opacity-60'
                 }`}
               >
                 ¿Cuál es el problema?
               </p>
 
+              <p className="text-sm font-semibold text-teal-400 mb-3 tracking-wide">
+                Tap to hear instantly
+              </p>
+
               <button
                 onClick={handleDemoPlay}
                 disabled={demoPlaying}
-                className={`group w-full flex items-center justify-center gap-3 font-bold text-lg py-5 px-8 rounded-2xl transition-all duration-200 active:scale-[0.97] shadow-xl ${
+                className={`group w-full flex items-center justify-center gap-3 font-bold text-xl py-6 px-8 rounded-2xl transition-all duration-200 active:scale-[0.97] shadow-2xl ${
                   demoPlayed
-                    ? 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/30'
-                    : 'bg-teal-600 hover:bg-teal-500 text-white shadow-teal-600/40 hover:scale-[1.02]'
+                    ? 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/40'
+                    : 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/50 hover:scale-[1.03] animate-pulse-subtle'
                 } disabled:opacity-70 disabled:cursor-not-allowed`}
+                style={!demoPlayed && !demoPlaying ? { animation: 'pulse-glow 2s ease-in-out infinite' } : {}}
               >
                 {demoPlaying ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-6 h-6 animate-spin" />
                     Playing…
                   </>
                 ) : demoPlayed ? (
                   <>
-                    <Volume2 className="w-5 h-5" />
+                    <Volume2 className="w-6 h-6" />
                     Play Again
                   </>
                 ) : (
                   <>
-                    <Volume2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <Volume2 className="w-6 h-6 group-hover:scale-110 transition-transform" />
                     Hear it in Spanish
                   </>
                 )}
               </button>
 
               <p className="mt-3 text-xs text-slate-500">
-                Tap to hear instant translation
+                Real TTS audio — no sign-up needed
               </p>
             </div>
 
