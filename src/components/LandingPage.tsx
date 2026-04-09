@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Wifi, Briefcase, CheckCircle, Tablet, Menu, X, MapPin, Loader2, Building2, Warehouse, Hotel, Leaf } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, Compass, Award, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Wifi, Menu, X, MapPin, Loader2, Building2, Warehouse, Hotel, Leaf } from 'lucide-react';
 import { playAudioFromGesture } from '../utils/speech';
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
@@ -17,27 +17,6 @@ const JSON_LD_WEB_APP = {
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
   inLanguage: ['en', 'es', 'tl', 'vi', 'zh'],
 };
-
-const MOCK_PHRASES = [
-  { sector: 'Teacher', phrase: 'Please sit down', sectorColor: 'bg-blue-500' },
-  { sector: 'Healthcare', phrase: 'Where does it hurt?', sectorColor: 'bg-green-500' },
-  { sector: 'Construction', phrase: 'Wear your safety harness', sectorColor: 'bg-orange-500' },
-  { sector: 'Outreach', phrase: 'The shelter opens at 6 PM', sectorColor: 'bg-teal-500' },
-];
-
-const VALUE_POINTS = [
-  { Icon: Zap, label: 'Instant multilingual communication', desc: 'Phrases play in seconds' },
-  { Icon: Shield, label: 'Built for frontline teams', desc: 'Sector-specific content' },
-  { Icon: Smartphone, label: 'Mobile friendly', desc: 'Works on any device' },
-  { Icon: BookOpen, label: 'Real-world service phrases', desc: 'Field-tested content' },
-];
-
-const HERO_VALUE_STRIP = [
-  { Icon: Wifi, label: 'Instant communication' },
-  { Icon: Briefcase, label: 'Field-ready workflow' },
-  { Icon: CheckCircle, label: 'Compliance-supportive' },
-  { Icon: Tablet, label: 'Mobile-friendly' },
-];
 
 const SECTOR_CARDS = [
   { emoji: '🎓', title: 'Education', description: 'Teachers communicate clearly with students and families across languages.', border: 'border-blue-100', accentBg: 'bg-blue-50', accentText: 'text-blue-500' },
@@ -117,11 +96,9 @@ export default function LandingPage({
             <span className="text-base font-bold text-slate-900 tracking-tight">LangAccess</span>
           </div>
 
-          {/* Desktop nav */}
           <nav className="hidden sm:flex items-center gap-1">
             {[
               { label: 'Get Help Near You', action: onOpenCommunityNavigator },
-              { label: 'Help by Category', action: onOpenCommunityNavigator },
               { label: 'How It Works', action: () => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }) },
               { label: 'Ambassador Brigade', action: onOpenAmbassadors },
               { label: 'Certificates', action: () => onOpenCertificates?.() },
@@ -138,7 +115,6 @@ export default function LandingPage({
           </nav>
 
           <div className="flex items-center gap-3">
-            {/* Language selector */}
             <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500">
               <button className="font-semibold text-slate-900 hover:text-teal-600 transition-colors">English</button>
               <span className="text-slate-300">|</span>
@@ -158,7 +134,6 @@ export default function LandingPage({
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
 
-            {/* Hamburger — mobile only */}
             <button
               onClick={() => setMobileMenuOpen(o => !o)}
               className="sm:hidden flex items-center justify-center w-9 h-9 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
@@ -169,12 +144,10 @@ export default function LandingPage({
           </div>
         </div>
 
-        {/* Mobile menu */}
         {mobileMenuOpen && (
           <div className="sm:hidden border-t border-slate-100 bg-white px-6 py-4 flex flex-col gap-1">
             {[
               { label: 'Get Help Near You', action: () => { onOpenCommunityNavigator?.(); closeMobileMenu(); } },
-              { label: 'Help by Category', action: () => { onOpenCommunityNavigator?.(); closeMobileMenu(); } },
               { label: 'How It Works', action: () => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
               { label: 'Ambassador Brigade', action: () => { onOpenAmbassadors?.(); closeMobileMenu(); } },
               { label: 'Certificates', action: () => { onOpenCertificates?.(); closeMobileMenu(); } },
@@ -207,113 +180,66 @@ export default function LandingPage({
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="relative max-w-6xl mx-auto px-6 py-28 lg:py-36">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-
-              {/* Left — copy */}
-              <div className="flex flex-col">
-                <div className="inline-flex items-center self-start gap-2 bg-teal-500/15 border border-teal-400/25 text-teal-300 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-10">
-                  <Languages className="w-3 h-3" />
-                  Frontline Language Access Platform
-                </div>
-
-                <h1 className="font-extrabold leading-[1.06] tracking-tight text-white mb-6" style={{ fontSize: 'clamp(2rem, 6vw, 4rem)' }}>
-                  Communicate Clearly.<br className="hidden sm:block" />{' '}
-                  Find Help Fast.
-                </h1>
-
-                {/* Primary CTA - Most Prominent */}
-                <div className="mb-4">
-                  <button
-                    onClick={onOpenCommunityNavigator}
-                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-green-600 hover:bg-green-500 text-white font-bold px-12 py-6 rounded-xl transition-all duration-200 shadow-2xl shadow-green-600/40 hover:shadow-green-500/50 hover:scale-[1.02] active:scale-[0.98] text-xl min-h-[72px]"
-                  >
-                    <span className="text-2xl">🚨</span>
-                    Find Help Near You Now
-                    <ChevronRight className="w-6 h-6 group-hover:translate-x-0.5 transition-transform" />
-                  </button>
-                  <p className="text-slate-400 text-xs mt-2 flex items-center gap-1.5 justify-center sm:justify-start">
-                    <span>📍</span>
-                    Uses your location to find nearby services
-                  </p>
-                </div>
-
-                {/* Crisis Support - Subtle */}
-                <div className="mb-8">
-                  <p className="text-slate-400 text-xs text-center sm:text-left">
-                    Need urgent mental health support? Call or text <span className="font-semibold text-slate-300">988</span>
-                  </p>
-                </div>
-              </div>
-
-              {/* Right — example phrase cards */}
-              <div className="flex justify-center lg:justify-end">
-                <div className="w-full max-w-sm space-y-3">
-                  <p className="text-slate-400 text-sm mb-4 text-center">Tap a phrase to start instantly</p>
-                  {MOCK_PHRASES.map((item) => {
-                    const handleClick = () => {
-                      if (item.sector === 'Teacher') {
-                        onSelectSector('education');
-                      } else if (item.sector === 'Healthcare') {
-                        onSelectSector('healthcare');
-                      } else if (item.sector === 'Construction') {
-                        onSelectSector('construction');
-                      } else if (item.sector === 'Outreach') {
-                        onOpenCommunityNavigator?.();
-                      }
-                    };
-
-                    return (
-                      <button
-                        key={item.phrase}
-                        onClick={handleClick}
-                        className="w-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-2xl px-5 py-4 flex items-center gap-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-                      >
-                        <div className={`w-12 h-12 ${item.sectorColor} rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg`}>
-                          <Volume2 className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0 text-left">
-                          <div className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">{item.sector}</div>
-                          <div className="text-white text-base font-semibold leading-snug">{item.phrase}</div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+          <div className="relative max-w-3xl mx-auto px-6 py-24 lg:py-32 text-center">
+            <div className="inline-flex items-center gap-2 bg-teal-500/15 border border-teal-400/25 text-teal-300 text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-8">
+              <Languages className="w-3 h-3" />
+              Frontline Language Access Platform
             </div>
+
+            <h1 className="font-extrabold leading-[1.06] tracking-tight text-white mb-5" style={{ fontSize: 'clamp(2rem, 6vw, 3.75rem)' }}>
+              Communicate Clearly.<br />Find Help Fast.
+            </h1>
+
+            <p className="text-slate-400 text-lg leading-relaxed mb-8 max-w-xl mx-auto">
+              Instant multilingual phrases for teachers, healthcare workers, and frontline teams. No sign-up needed.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                onClick={onOpenCommunityNavigator}
+                className="group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-green-600 hover:bg-green-500 text-white font-bold px-8 py-4 rounded-xl transition-all duration-200 shadow-xl shadow-green-600/30 hover:scale-[1.02] active:scale-[0.98] text-base"
+              >
+                <MapPin className="w-5 h-5" />
+                Find Help Near You
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+              <button
+                onClick={onGetStarted}
+                className="group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white/10 hover:bg-white/15 border border-white/20 text-white font-semibold px-8 py-4 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-base"
+              >
+                <Volume2 className="w-5 h-5" />
+                Start Translating
+              </button>
+            </div>
+
+            <p className="text-slate-500 text-xs mt-4">
+              Need urgent mental health support? Call or text <span className="font-semibold text-slate-400">988</span>
+            </p>
           </div>
         </section>
 
         {/* ── INSTANT DEMO ── */}
-        <section className="bg-gradient-to-b from-slate-900 to-slate-950 py-14 px-6">
+        <section className="bg-gradient-to-b from-slate-900 to-slate-950 py-16 px-6">
           <div className="max-w-md mx-auto text-center">
-            <p className="text-xs font-bold uppercase tracking-widest text-teal-400 mb-4">Try it now</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-teal-400 mb-3">Hear it yourself</p>
+            <h2 className="text-xl font-extrabold text-white mb-8">Tap to play a real translation</h2>
 
             <div className="bg-white/5 border border-white/10 rounded-3xl px-8 py-10 backdrop-blur-sm shadow-2xl">
-              <div className="mb-2">
-                <span className="inline-block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">English</span>
-                <p className="text-4xl sm:text-5xl font-black text-white leading-tight tracking-tight mb-2">
-                  "What is the problem?"
-                </p>
-              </div>
+              <span className="inline-block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">English</span>
+              <p className="text-3xl sm:text-4xl font-black text-white leading-tight tracking-tight mb-4">
+                "What is the problem?"
+              </p>
 
-              <div className="flex items-center justify-center gap-2 mb-8 mt-4">
+              <div className="flex items-center justify-center gap-2 mb-6">
                 <div className="h-px flex-1 bg-white/10" />
                 <span className="text-slate-500 text-xs font-medium px-2">Spanish</span>
                 <div className="h-px flex-1 bg-white/10" />
               </div>
 
-              <p
-                className={`text-2xl sm:text-3xl font-bold leading-snug transition-all duration-500 mb-6 ${
-                  demoPlayed ? 'text-teal-300 opacity-100' : 'text-slate-500 opacity-60'
-                }`}
-              >
+              <p className={`text-2xl sm:text-3xl font-bold leading-snug transition-all duration-500 mb-8 ${
+                demoPlayed ? 'text-teal-300 opacity-100' : 'text-slate-500 opacity-50'
+              }`}>
                 ¿Cuál es el problema?
-              </p>
-
-              <p className="text-sm font-semibold text-teal-400 mb-3 tracking-wide">
-                Tap to hear instantly
               </p>
 
               <button
@@ -322,7 +248,7 @@ export default function LandingPage({
                 className={`group w-full flex items-center justify-center gap-3 font-bold text-xl py-6 px-8 rounded-2xl transition-all duration-200 active:scale-[0.97] shadow-2xl ${
                   demoPlayed
                     ? 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/40'
-                    : 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/50 hover:scale-[1.03] animate-pulse-subtle'
+                    : 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/50 hover:scale-[1.03]'
                 } disabled:opacity-70 disabled:cursor-not-allowed`}
                 style={!demoPlayed && !demoPlaying ? { animation: 'pulse-glow 2s ease-in-out infinite' } : {}}
               >
@@ -344,24 +270,21 @@ export default function LandingPage({
                 )}
               </button>
 
-              <p className="mt-3 text-xs text-slate-500">
-                Real TTS audio — no sign-up needed
-              </p>
+              <p className="mt-3 text-xs text-slate-500">Real TTS audio — no sign-up needed</p>
             </div>
 
-            <p className="mt-6 text-sm text-slate-400">
+            <p className="mt-5 text-sm text-slate-400">
               Works in Spanish, Tagalog, Vietnamese, Mandarin &amp; Cantonese
             </p>
           </div>
         </section>
 
-        {/* ── WHAT DO YOU DO ── */}
+        {/* ── ROLE SELECTION ── */}
         <section className="bg-slate-950 py-16 px-6">
           <div className="max-w-2xl mx-auto">
             <p className="text-xs font-bold uppercase tracking-widest text-teal-400 text-center mb-2">Zero-click onboarding</p>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white text-center tracking-tight mb-10">What do you do?</h2>
 
-            {/* Primary role cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
               {[
                 { icon: <Building2 className="w-6 h-6" />, label: 'Property Manager', desc: 'Maintenance requests, lease terms, inspections', sector: 'construction' as Sector, accent: 'border-sky-500/40 hover:border-sky-400/60', iconBg: 'bg-sky-500/20 text-sky-300' },
@@ -387,14 +310,12 @@ export default function LandingPage({
               ))}
             </div>
 
-            {/* Divider */}
             <div className="flex items-center gap-4 mb-8">
               <div className="h-px flex-1 bg-white/8" />
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">Also supports critical communication in</span>
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">Also supports</span>
               <div className="h-px flex-1 bg-white/8" />
             </div>
 
-            {/* Secondary roles */}
             <div className="grid grid-cols-3 gap-3">
               {[
                 { icon: <GraduationCap className="w-5 h-5" />, label: 'Education', desc: 'Students & families', sector: 'education' as Sector, iconBg: 'bg-blue-500/20 text-blue-300' },
@@ -463,8 +384,8 @@ export default function LandingPage({
         </section>
 
         {/* ── TRUST BAR ── */}
-        <section className="w-full border-y border-slate-200" style={{ backgroundColor: '#F5F5F5' }}>
-          <div className="max-w-6xl mx-auto px-6" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
+        <section className="w-full border-y border-slate-200 bg-slate-50">
+          <div className="max-w-6xl mx-auto px-6 py-5">
             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
               <span className="text-slate-400 text-xs font-semibold uppercase tracking-widest mr-1 flex-shrink-0">Trusted by:</span>
               {[
@@ -513,25 +434,6 @@ export default function LandingPage({
             <p className="text-center text-slate-500 text-base mt-12">
               Includes pre-built phrase packs for Healthcare, Construction, Education, and Community settings.
             </p>
-          </div>
-        </section>
-
-        {/* ── VALUE BAND ── */}
-        <section className="bg-slate-50 border-y border-slate-100">
-          <div className="max-w-6xl mx-auto px-6 py-14">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-10">
-              {VALUE_POINTS.map(({ Icon, label, desc }) => (
-                <div key={label} className="flex items-start gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Icon className="w-5 h-5 text-teal-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-800 leading-snug">{label}</p>
-                    <p className="text-sm text-slate-400 mt-1">{desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </section>
 
@@ -585,27 +487,6 @@ export default function LandingPage({
                 );
               })}
             </div>
-
-            <div className="mt-16">
-              <p style={{ textAlign: 'center', fontSize: '0.75rem', fontWeight: 700, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>
-                LangAccess in the Classroom
-              </p>
-              <img
-                src="/education-demo.png"
-                alt="LangAccess in the Classroom"
-                style={{
-                  width: '100%',
-                  maxWidth: '640px',
-                  borderRadius: '16px',
-                  display: 'block',
-                  margin: '2rem auto',
-                  boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-                }}
-              />
-              <p style={{ textAlign: 'center', fontSize: '0.875rem', color: '#64748b', maxWidth: '560px', margin: '0 auto', lineHeight: 1.7 }}>
-                Teachers use LangAccess to communicate instantly with Spanish, Tagalog, Vietnamese, Mandarin, and Cantonese speaking students and families. No interpreter needed. No app to download.
-              </p>
-            </div>
           </div>
         </section>
 
@@ -621,51 +502,24 @@ export default function LandingPage({
         {/* ── INSTITUTIONAL PILOT CTA ── */}
         <section id="sector-select" className="py-24 bg-gradient-to-br from-teal-700 to-teal-800 relative overflow-hidden">
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
-          <div className="relative max-w-3xl mx-auto px-6 text-center">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Ready to communicate clearly?</h2>
-            <p className="text-teal-100 mb-4 text-base">Select your sector to get started. No account needed, works instantly.</p>
-
-            <a
-              href={PHRASE_REQUEST_HREF}
-              className="inline-flex items-center gap-1.5 text-teal-200 hover:text-white text-sm font-medium underline underline-offset-2 mb-10 transition-colors"
+          <div className="relative max-w-2xl mx-auto px-6 text-center">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Ready for your organization?</h2>
+            <p className="text-teal-100/80 text-base mb-10">Serving multi-team organizations and compliance departments.</p>
+            <button
+              onClick={() => setShowPilotModal(true)}
+              className="inline-flex items-center gap-2 bg-white hover:bg-teal-50 text-teal-700 font-bold px-8 py-4 rounded-xl transition-all duration-200 shadow-xl hover:scale-[1.02] active:scale-[0.98] text-base"
             >
-              Missing a phrase? Tell us here
-            </a>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center">
-              <button
-                onClick={() => onOpenCommunityNavigator?.()}
-                className="flex items-center justify-center gap-2.5 border-2 border-white/35 hover:border-white/65 hover:bg-white/10 text-white font-bold px-6 py-3.5 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-sm min-h-[50px]"
+              <Compass className="w-5 h-5" />
+              Request Institutional Pilot
+            </button>
+            <p className="text-teal-300/60 text-xs mt-4">For multi-team deployments, staff training, or compliance integration</p>
+            <div className="mt-6">
+              <a
+                href={PHRASE_REQUEST_HREF}
+                className="inline-flex items-center gap-1.5 text-teal-200 hover:text-white text-sm font-medium underline underline-offset-2 transition-colors"
               >
-                <Users className="w-5 h-5" />
-                Community Outreach
-              </button>
-              {[
-                { id: 'education' as Sector, label: 'Education', Icon: GraduationCap },
-                { id: 'healthcare' as Sector, label: 'Healthcare', Icon: Heart },
-                { id: 'construction' as Sector, label: 'Construction', Icon: HardHat },
-              ].map(({ id, label, Icon }) => (
-                <button
-                  key={id}
-                  onClick={() => onSelectSector(id)}
-                  className="flex items-center justify-center gap-2.5 border-2 border-white/35 hover:border-white/65 hover:bg-white/10 text-white font-bold px-6 py-3.5 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-sm min-h-[50px]"
-                >
-                  <Icon className="w-5 h-5" />
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-10 pt-8 border-t border-white/15">
-              <p className="text-teal-200 text-xs font-semibold uppercase tracking-widest mb-4">For Institutions &amp; Organizations</p>
-              <p className="text-teal-100/70 text-sm mb-5">Serving multi-team organizations and compliance departments.</p>
-              <button
-                onClick={() => setShowPilotModal(true)}
-                className="inline-flex items-center gap-2 bg-white hover:bg-teal-50 text-teal-700 font-bold px-7 py-3.5 rounded-xl transition-all duration-200 shadow-xl hover:scale-[1.02] active:scale-[0.98] text-sm"
-              >
-                <Compass className="w-4 h-4" />
-                Request Institutional Pilot
-              </button>
-              <p className="text-teal-300/60 text-xs mt-3">For multi-team deployments, staff training, or compliance integration</p>
+                Missing a phrase? Tell us here
+              </a>
             </div>
           </div>
         </section>
@@ -673,12 +527,12 @@ export default function LandingPage({
         <ToolkitDownload />
 
         {/* ── LANGUAGES ── */}
-        <section className="bg-slate-900" style={{ paddingTop: '7rem', paddingBottom: '7rem' }}>
+        <section className="bg-slate-900 py-24 sm:py-28">
           <div className="max-w-4xl mx-auto px-6 text-center">
             <p className="text-xs font-bold text-teal-400 uppercase tracking-widest mb-4">Coverage</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Languages Supported</h2>
             <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed mb-12">Available in five languages spoken by over 2 million Bay Area residents.</p>
-            <div className="flex flex-wrap justify-center gap-4" style={{ paddingTop: '4px', paddingBottom: '4px' }}>
+            <div className="flex flex-wrap justify-center gap-4">
               {LANGUAGES.map(({ label, flag, bg, border, text }) => (
                 <div
                   key={label}
