@@ -20,9 +20,9 @@ const JSON_LD_WEB_APP = {
 
 
 const HOW_STEPS = [
-  { step: '1', label: 'Choose your sector', desc: 'Pick Education, Healthcare, Construction, or Outreach.' },
-  { step: '2', label: 'Select a situation', desc: 'Choose the scenario that matches your need.' },
-  { step: '3', label: 'Tap a phrase to play', desc: 'Hear the translation instantly in any language.' },
+  { step: '1', label: 'Choose your role', desc: 'Pick the role that matches your job.' },
+  { step: '2', label: 'Select a situation', desc: 'Choose the scenario that fits your need.' },
+  { step: '3', label: 'Tap to speak', desc: 'Hear the translation instantly in any language.' },
 ];
 
 
@@ -213,7 +213,8 @@ export default function LandingPage({
         <section className="bg-gradient-to-b from-slate-900 to-slate-950 py-8 px-6">
           <div className="max-w-sm mx-auto text-center">
             <p className="text-xs font-bold uppercase tracking-widest text-teal-400 mb-2">Hear it yourself</p>
-            <h2 className="text-lg font-extrabold text-white mb-5">Tap to play a real translation</h2>
+            <h2 className="text-lg font-extrabold text-white mb-5">One tap. Instant understanding.</h2>
+            <p className="text-slate-400 text-xs mb-5">No typing. No guessing. Just tap.</p>
 
             <div className="bg-white/5 border border-white/10 rounded-2xl px-6 py-7 backdrop-blur-sm shadow-xl">
               <span className="inline-block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">English</span>
@@ -259,12 +260,13 @@ export default function LandingPage({
                 ) : (
                   <>
                     <Volume2 className="w-8 h-8 group-hover:scale-110 transition-transform" />
-                    Hear it in Spanish
+                    Hear it instantly in another language
                   </>
                 )}
               </button>
 
-              <p className="mt-2.5 text-xs text-slate-500">Real TTS audio — no sign-up needed</p>
+              <p className="mt-2.5 text-xs text-slate-500">Example: A patient explains symptoms. A worker reports a safety issue.</p>
+              <p className="mt-1.5 text-xs text-slate-600">Real TTS audio — no sign-up needed</p>
             </div>
 
             <p className="mt-5 text-sm font-medium text-teal-400/80 tracking-wide">Now choose your role</p>
@@ -284,11 +286,11 @@ export default function LandingPage({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
               {[
-                { icon: <Building2 className="w-6 h-6" />, label: 'Property Manager', desc: 'Fix issues, explain rules, and manage tenants.', sector: 'property-management' as Sector, accent: 'border-sky-500/60 hover:border-sky-400/90', iconBg: 'bg-sky-500/20 text-sky-300' },
-                { icon: <HardHat className="w-6 h-6" />, label: 'Construction', desc: 'Give safety instructions and guide your crew.', sector: 'construction' as Sector, accent: 'border-orange-500/60 hover:border-orange-400/90', iconBg: 'bg-orange-500/20 text-orange-300' },
-                { icon: <Warehouse className="w-6 h-6" />, label: 'Warehouse', desc: 'Direct tasks and avoid costly mistakes.', sector: 'warehouse' as Sector, accent: 'border-amber-500/60 hover:border-amber-400/90', iconBg: 'bg-amber-500/20 text-amber-300' },
-                { icon: <Hotel className="w-6 h-6" />, label: 'Hospitality', desc: 'Help guests and resolve problems fast.', sector: 'hospitality' as Sector, accent: 'border-rose-500/60 hover:border-rose-400/90', iconBg: 'bg-rose-500/20 text-rose-300' },
-                { icon: <Leaf className="w-6 h-6" />, label: 'Agriculture', desc: 'Guide work and keep crews safe.', sector: 'agriculture' as Sector, accent: 'border-green-500/60 hover:border-green-400/90', iconBg: 'bg-green-500/20 text-green-300' },
+                { icon: <Building2 className="w-6 h-6" />, label: 'Property Manager (Tenant Issues + Maintenance Requests)', desc: 'Fix issues, explain rules, and manage tenants.', sector: 'property-management' as Sector, accent: 'border-sky-500/60 hover:border-sky-400/90', iconBg: 'bg-sky-500/20 text-sky-300' },
+                { icon: <HardHat className="w-6 h-6" />, label: 'Construction (Safety + Job Site Communication)', desc: 'Give safety instructions and guide your crew.', sector: 'construction' as Sector, accent: 'border-orange-500/60 hover:border-orange-400/90', iconBg: 'bg-orange-500/20 text-orange-300' },
+                { icon: <Warehouse className="w-6 h-6" />, label: 'Warehouse (Operations + Safety Coordination)', desc: 'Direct tasks and avoid costly mistakes.', sector: 'warehouse' as Sector, accent: 'border-amber-500/60 hover:border-amber-400/90', iconBg: 'bg-amber-500/20 text-amber-300' },
+                { icon: <Hotel className="w-6 h-6" />, label: 'Hospitality (Guest Issues + Service Requests)', desc: 'Help guests and resolve problems fast.', sector: 'hospitality' as Sector, accent: 'border-rose-500/60 hover:border-rose-400/90', iconBg: 'bg-rose-500/20 text-rose-300' },
+                { icon: <Leaf className="w-6 h-6" />, label: 'Agriculture (Field Work + Crew Communication)', desc: 'Guide work and keep crews safe.', sector: 'agriculture' as Sector, accent: 'border-green-500/60 hover:border-green-400/90', iconBg: 'bg-green-500/20 text-green-300' },
               ].map(({ icon, label, desc, sector, accent, iconBg }) => (
                 <button
                   key={label}
@@ -315,9 +317,9 @@ export default function LandingPage({
 
             <div className="grid grid-cols-3 gap-4">
               {[
-                { icon: <GraduationCap className="w-5 h-5" />, label: 'Education', desc: 'Students & families', sector: 'education' as Sector, iconBg: 'bg-blue-500/20 text-blue-300' },
-                { icon: <Heart className="w-5 h-5" />, label: 'Healthcare', desc: 'Patients & care teams', sector: 'healthcare' as Sector, iconBg: 'bg-emerald-500/20 text-emerald-300' },
-                { icon: <Compass className="w-5 h-5" />, label: 'Community Outreach', desc: 'Shelter, food & services', sector: 'outreach' as Sector, iconBg: 'bg-teal-500/20 text-teal-300' },
+                { icon: <GraduationCap className="w-5 h-5" />, label: 'Education (Student Support + Family Communication)', desc: 'Students & families', sector: 'education' as Sector, iconBg: 'bg-blue-500/20 text-blue-300' },
+                { icon: <Heart className="w-5 h-5" />, label: 'Healthcare (Patient Care + Symptom Communication)', desc: 'Patients & care teams', sector: 'healthcare' as Sector, iconBg: 'bg-emerald-500/20 text-emerald-300' },
+                { icon: <Compass className="w-5 h-5" />, label: 'Community Outreach (Connecting People to Local Resources)', desc: 'Shelter, food & services', sector: 'outreach' as Sector, iconBg: 'bg-teal-500/20 text-teal-300' },
               ].map(({ icon, label, desc, sector, iconBg }) => (
                 <button
                   key={label}
@@ -344,10 +346,10 @@ export default function LandingPage({
                 <span className="text-xs font-bold uppercase tracking-widest text-teal-400">Community Resources</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-extrabold text-white leading-tight mb-2">
-                Need help beyond communication?
+                Need help right now?
               </h2>
               <p className="text-slate-400 text-sm leading-relaxed mb-3">
-                Find local resources for housing, food, healthcare, and transportation.
+                Find nearby food, shelter, medical care, and essential services.
               </p>
               <p className="text-slate-500 text-xs mb-5">No apps. No logins. Works instantly.</p>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-6">
@@ -416,6 +418,9 @@ export default function LandingPage({
           <div className="max-w-6xl mx-auto px-6 text-center">
             <p className="text-teal-500/80 text-xs font-medium leading-relaxed tracking-wide">
               Designed for compliance teams &nbsp;&middot;&nbsp; Supports Title VI and California LEP requirements &nbsp;&middot;&nbsp; Used in the Bay Area
+            </p>
+            <p className="text-slate-500 text-xs font-medium mt-2 tracking-wide">
+              Used by educators, healthcare staff, and community workers.
             </p>
           </div>
         </section>
