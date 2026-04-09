@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Wifi, Briefcase, CheckCircle, Tablet, Menu, X, MapPin, Loader2 } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Wifi, Briefcase, CheckCircle, Tablet, Menu, X, MapPin, Loader2, Building2, Warehouse, Hotel, Leaf } from 'lucide-react';
 import { playAudioFromGesture } from '../utils/speech';
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
@@ -350,35 +350,64 @@ export default function LandingPage({
           </div>
         </section>
 
-        {/* ── CHOOSE YOUR ROLE ── */}
-        <section className="w-full bg-gradient-to-b from-slate-900 to-slate-800 py-12">
-          <div className="max-w-5xl mx-auto px-6">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">Choose Your Role</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <button
-                onClick={() => document.getElementById('sector-education')?.scrollIntoView({ behavior: 'smooth' })}
-                className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm border-2 border-white/20 hover:border-white/40 rounded-xl p-6 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center"
-              >
-                <div className="text-5xl mb-3">🏫</div>
-                <div className="text-white font-bold text-lg mb-2">Educator</div>
-                <div className="text-slate-300 text-sm">Connect with students and families</div>
-              </button>
-              <button
-                onClick={() => document.getElementById('sector-healthcare')?.scrollIntoView({ behavior: 'smooth' })}
-                className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm border-2 border-white/20 hover:border-white/40 rounded-xl p-6 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center"
-              >
-                <div className="text-5xl mb-3">🏥</div>
-                <div className="text-white font-bold text-lg mb-2">Healthcare</div>
-                <div className="text-slate-300 text-sm">Deliver care instructions clearly</div>
-              </button>
-              <button
-                onClick={() => document.getElementById('sector-construction')?.scrollIntoView({ behavior: 'smooth' })}
-                className="group bg-white/10 hover:bg-white/15 backdrop-blur-sm border-2 border-white/20 hover:border-white/40 rounded-xl p-6 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] text-center"
-              >
-                <div className="text-5xl mb-3">🚧</div>
-                <div className="text-white font-bold text-lg mb-2">Construction</div>
-                <div className="text-slate-300 text-sm">Keep crews safe on-site</div>
-              </button>
+        {/* ── WHAT DO YOU DO ── */}
+        <section className="bg-slate-950 py-16 px-6">
+          <div className="max-w-2xl mx-auto">
+            <p className="text-xs font-bold uppercase tracking-widest text-teal-400 text-center mb-2">Zero-click onboarding</p>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white text-center tracking-tight mb-10">What do you do?</h2>
+
+            {/* Primary role cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
+              {[
+                { icon: <Building2 className="w-6 h-6" />, label: 'Property Manager', desc: 'Maintenance requests, lease terms, inspections', sector: 'construction' as Sector, accent: 'border-sky-500/40 hover:border-sky-400/60', iconBg: 'bg-sky-500/20 text-sky-300' },
+                { icon: <HardHat className="w-6 h-6" />, label: 'Construction', desc: 'Safety instructions for multilingual crews', sector: 'construction' as Sector, accent: 'border-orange-500/40 hover:border-orange-400/60', iconBg: 'bg-orange-500/20 text-orange-300' },
+                { icon: <Warehouse className="w-6 h-6" />, label: 'Warehouse', desc: 'Shift briefings, safety protocols, task direction', sector: 'construction' as Sector, accent: 'border-amber-500/40 hover:border-amber-400/60', iconBg: 'bg-amber-500/20 text-amber-300' },
+                { icon: <Hotel className="w-6 h-6" />, label: 'Hospitality', desc: 'Guest services, housekeeping, front desk', sector: 'outreach' as Sector, accent: 'border-rose-500/40 hover:border-rose-400/60', iconBg: 'bg-rose-500/20 text-rose-300' },
+                { icon: <Leaf className="w-6 h-6" />, label: 'Agriculture', desc: 'Field operations, crop handling, safety rules', sector: 'construction' as Sector, accent: 'border-green-500/40 hover:border-green-400/60', iconBg: 'bg-green-500/20 text-green-300' },
+              ].map(({ icon, label, desc, sector, accent, iconBg }) => (
+                <button
+                  key={label}
+                  onClick={() => onSelectSector(sector)}
+                  className={`group flex items-center gap-4 bg-white/5 hover:bg-white/10 border ${accent} rounded-2xl px-5 py-5 text-left transition-all duration-200 hover:scale-[1.02] active:scale-[0.97]`}
+                >
+                  <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${iconBg} transition-transform group-hover:scale-110`}>
+                    {icon}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-white font-bold text-base leading-tight mb-0.5">{label}</div>
+                    <div className="text-slate-400 text-xs leading-snug">{desc}</div>
+                  </div>
+                  <ChevronRight className="ml-auto flex-shrink-0 w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
+                </button>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-px flex-1 bg-white/8" />
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">Also supports critical communication in</span>
+              <div className="h-px flex-1 bg-white/8" />
+            </div>
+
+            {/* Secondary roles */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { icon: <GraduationCap className="w-5 h-5" />, label: 'Education', desc: 'Students & families', sector: 'education' as Sector, iconBg: 'bg-blue-500/20 text-blue-300' },
+                { icon: <Heart className="w-5 h-5" />, label: 'Healthcare', desc: 'Patients & care teams', sector: 'healthcare' as Sector, iconBg: 'bg-emerald-500/20 text-emerald-300' },
+                { icon: <Compass className="w-5 h-5" />, label: 'Community Outreach', desc: 'Shelter, food & services', sector: 'outreach' as Sector, iconBg: 'bg-teal-500/20 text-teal-300' },
+              ].map(({ icon, label, desc, sector, iconBg }) => (
+                <button
+                  key={label}
+                  onClick={() => onSelectSector(sector)}
+                  className="group flex flex-col items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl px-3 py-4 text-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.97]"
+                >
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconBg} transition-transform group-hover:scale-110`}>
+                    {icon}
+                  </div>
+                  <div className="text-white font-semibold text-sm leading-tight">{label}</div>
+                  <div className="text-slate-500 text-xs leading-snug">{desc}</div>
+                </button>
+              ))}
             </div>
           </div>
         </section>
