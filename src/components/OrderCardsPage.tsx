@@ -174,29 +174,36 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     setErrorMsg('');
 
     try {
-      const fullName = (ambassador.full_name || '').trim();
-      const cityState = (ambassador.city_state || '').trim();
+      let fullName = (ambassador.full_name || '').trim();
+      let cityState = (ambassador.city_state || '').trim();
 
       if (!fullName || !cityState) {
         const localData = localStorage.getItem('ambassador_data');
         const parsed = localData ? JSON.parse(localData) : null;
         if (!fullName && parsed?.name) {
-          setAmbassador(prev => prev ? { ...prev, full_name: parsed.name } : prev);
+          fullName = (parsed.name as string).trim();
         }
         if (!cityState && parsed?.city) {
-          const rawCity = (parsed.city || '').trim();
+          const rawCity = (parsed.city as string).trim();
           const parts = rawCity.split(',');
-          const fixed = parts.length > 1 ? `${parts[0].trim()}, ${parts[1].trim()}` : `${rawCity}, CA`;
-          setAmbassador(prev => prev ? { ...prev, city_state: fixed } : prev);
-        }
-        if (!fullName || !cityState) {
-          setErrorMsg('Missing required fields. Please go back and complete your ambassador profile.');
-          setStep('error');
-          return;
+          cityState = parts.length > 1
+            ? `${parts[0].trim()}, ${parts[1].trim()}`
+            : `${rawCity}, CA`;
         }
       }
 
-      const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}`;
+      if (!fullName || !cityState) {
+        setErrorMsg('Missing required fields. Please go back and complete your ambassador profile.');
+        setStep('error');
+        return;
+      }
+
+      const cityParts = cityState.split(',');
+      const formattedCityState = cityParts.length > 1
+        ? `${cityParts[0].trim()}, ${cityParts[1].trim()}`
+        : cityState;
+
+      const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
       const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
         method: 'POST',
@@ -204,7 +211,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         body: JSON.stringify({
           order_id: orderId,
           full_name: fullName,
-          city_state: cityState,
+          city_state: formattedCityState,
         }),
       });
 
@@ -215,9 +222,8 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
       const { frontFileUrl, backFileUrl } = await pdfRes.json();
 
-      const cityParts = cityState.split(',');
-      const city = cityParts[0]?.trim() || '';
-      const state = cityParts[1]?.trim() || '';
+      const city = formattedCityState.split(',')[0]?.trim() || '';
+      const state = formattedCityState.split(',')[1]?.trim() || '';
 
       const gelatoRes = await fetch('/.netlify/functions/create-gelato-order', {
         method: 'POST',
