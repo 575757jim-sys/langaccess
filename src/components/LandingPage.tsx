@@ -211,24 +211,24 @@ export default function LandingPage({
         </section>
 
         {/* ── INSTANT DEMO ── */}
-        <section className="bg-gradient-to-b from-slate-900 to-slate-950 py-16 px-6">
-          <div className="max-w-md mx-auto text-center">
-            <p className="text-xs font-bold uppercase tracking-widest text-teal-400 mb-3">Hear it yourself</p>
-            <h2 className="text-xl font-extrabold text-white mb-8">Tap to play a real translation</h2>
+        <section className="bg-gradient-to-b from-slate-900 to-slate-950 py-10 px-6">
+          <div className="max-w-sm mx-auto text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-teal-400 mb-2">Hear it yourself</p>
+            <h2 className="text-lg font-extrabold text-white mb-5">Tap to play a real translation</h2>
 
-            <div className="bg-white/5 border border-white/10 rounded-3xl px-8 py-10 backdrop-blur-sm shadow-2xl">
-              <span className="inline-block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">English</span>
-              <p className="text-3xl sm:text-4xl font-black text-white leading-tight tracking-tight mb-4">
+            <div className="bg-white/5 border border-white/10 rounded-2xl px-6 py-7 backdrop-blur-sm shadow-xl">
+              <span className="inline-block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">English</span>
+              <p className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight mb-3">
                 "What is the problem?"
               </p>
 
-              <div className="flex items-center justify-center gap-2 mb-6">
+              <div className="flex items-center justify-center gap-2 mb-4">
                 <div className="h-px flex-1 bg-white/10" />
                 <span className="text-slate-500 text-xs font-medium px-2">Spanish</span>
                 <div className="h-px flex-1 bg-white/10" />
               </div>
 
-              <p className={`text-2xl sm:text-3xl font-bold leading-snug transition-all duration-500 mb-8 ${
+              <p className={`text-xl sm:text-2xl font-bold leading-snug transition-all duration-500 mb-5 ${
                 demoPlayed ? 'text-teal-300 opacity-100' : 'text-slate-500 opacity-50'
               }`}>
                 ¿Cuál es el problema?
@@ -237,47 +237,48 @@ export default function LandingPage({
               <button
                 onClick={handleDemoPlay}
                 disabled={demoPlaying}
-                className={`group w-full flex items-center justify-center gap-3 font-bold text-xl py-6 px-8 rounded-2xl transition-all duration-200 active:scale-[0.97] shadow-2xl ${
+                className={`group w-full flex items-center justify-center gap-3 font-bold text-lg py-4 px-6 rounded-xl transition-all duration-200 active:scale-[0.97] shadow-lg ${
                   demoPlayed
                     ? 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/40'
-                    : 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/50 hover:scale-[1.03]'
+                    : 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/50 hover:scale-[1.02]'
                 } disabled:opacity-70 disabled:cursor-not-allowed`}
                 style={!demoPlayed && !demoPlaying ? { animation: 'pulse-glow 2s ease-in-out infinite' } : {}}
               >
                 {demoPlaying ? (
                   <>
-                    <Loader2 className="w-6 h-6 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin" />
                     Playing…
                   </>
                 ) : demoPlayed ? (
                   <>
-                    <Volume2 className="w-6 h-6" />
+                    <Volume2 className="w-5 h-5" />
                     Play Again
                   </>
                 ) : (
                   <>
-                    <Volume2 className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                    <Volume2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
                     Hear it in Spanish
                   </>
                 )}
               </button>
 
-              <p className="mt-3 text-xs text-slate-500">Real TTS audio — no sign-up needed</p>
+              <p className="mt-2.5 text-xs text-slate-500">Real TTS audio — no sign-up needed</p>
             </div>
 
-            <p className="mt-5 text-sm text-slate-400">
+            <p className="mt-4 text-xs text-slate-500">
               Works in Spanish, Tagalog, Vietnamese, Mandarin &amp; Cantonese
             </p>
           </div>
         </section>
 
         {/* ── ROLE SELECTION ── */}
-        <section className="bg-slate-950 py-16 px-6">
+        <section className="bg-slate-950 py-20 px-6">
           <div className="max-w-2xl mx-auto">
-            <p className="text-xs font-bold uppercase tracking-widest text-teal-400 text-center mb-2">Zero-click onboarding</p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white text-center tracking-tight mb-10">What do you do?</h2>
+            <p className="text-xs font-bold uppercase tracking-widest text-teal-400 text-center mb-2">Get started instantly</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white text-center tracking-tight mb-3">What do you do?</h2>
+            <p className="text-slate-400 text-center text-base mb-12">Choose your role and start communicating in seconds.</p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
               {[
                 { icon: <Building2 className="w-6 h-6" />, label: 'Property Manager', desc: 'Maintenance requests, lease terms, inspections', sector: 'construction' as Sector, accent: 'border-sky-500/40 hover:border-sky-400/60', iconBg: 'bg-sky-500/20 text-sky-300' },
                 { icon: <HardHat className="w-6 h-6" />, label: 'Construction', desc: 'Safety instructions for multilingual crews', sector: 'construction' as Sector, accent: 'border-orange-500/40 hover:border-orange-400/60', iconBg: 'bg-orange-500/20 text-orange-300' },
@@ -288,27 +289,27 @@ export default function LandingPage({
                 <button
                   key={label}
                   onClick={() => onSelectSector(sector)}
-                  className={`group flex items-center gap-4 bg-white/5 hover:bg-white/10 border ${accent} rounded-2xl px-5 py-5 text-left transition-all duration-200 hover:scale-[1.02] active:scale-[0.97]`}
+                  className={`group flex items-center gap-4 bg-white/[0.06] hover:bg-white/[0.11] border-2 ${accent} rounded-2xl px-5 py-5 text-left transition-all duration-200 hover:scale-[1.02] active:scale-[0.97]`}
                 >
                   <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${iconBg} transition-transform group-hover:scale-110`}>
                     {icon}
                   </div>
                   <div className="min-w-0">
-                    <div className="text-white font-bold text-base leading-tight mb-0.5">{label}</div>
+                    <div className="text-white font-bold text-base leading-tight mb-1">{label}</div>
                     <div className="text-slate-400 text-xs leading-snug">{desc}</div>
                   </div>
-                  <ChevronRight className="ml-auto flex-shrink-0 w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
+                  <ChevronRight className="ml-auto flex-shrink-0 w-5 h-5 text-slate-500 group-hover:text-slate-300 transition-colors" />
                 </button>
               ))}
             </div>
 
-            <div className="flex items-center gap-4 mb-8">
-              <div className="h-px flex-1 bg-white/8" />
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-px flex-1 bg-white/10" />
               <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap">Also supports</span>
-              <div className="h-px flex-1 bg-white/8" />
+              <div className="h-px flex-1 bg-white/10" />
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-4">
               {[
                 { icon: <GraduationCap className="w-5 h-5" />, label: 'Education', desc: 'Students & families', sector: 'education' as Sector, iconBg: 'bg-blue-500/20 text-blue-300' },
                 { icon: <Heart className="w-5 h-5" />, label: 'Healthcare', desc: 'Patients & care teams', sector: 'healthcare' as Sector, iconBg: 'bg-emerald-500/20 text-emerald-300' },
@@ -317,9 +318,9 @@ export default function LandingPage({
                 <button
                   key={label}
                   onClick={() => onSelectSector(sector)}
-                  className="group flex flex-col items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl px-3 py-4 text-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.97]"
+                  className="group flex flex-col items-center gap-2.5 bg-white/[0.06] hover:bg-white/[0.11] border border-white/10 hover:border-white/25 rounded-xl px-3 py-5 text-center transition-all duration-200 hover:scale-[1.02] active:scale-[0.97]"
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconBg} transition-transform group-hover:scale-110`}>
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${iconBg} transition-transform group-hover:scale-110`}>
                     {icon}
                   </div>
                   <div className="text-white font-semibold text-sm leading-tight">{label}</div>
