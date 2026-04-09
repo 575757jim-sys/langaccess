@@ -1,5 +1,5 @@
 export type Language = 'spanish' | 'tagalog' | 'vietnamese' | 'mandarin' | 'cantonese' | 'hmong' | 'korean' | 'arabic';
-export type Sector = 'healthcare' | 'education' | 'construction' | 'outreach' | 'hospitality' | 'warehouse';
+export type Sector = 'healthcare' | 'education' | 'construction' | 'outreach' | 'hospitality' | 'warehouse' | 'property-management' | 'agriculture';
 
 export interface Response {
   translation: string;

@@ -6,13 +6,15 @@ export type ConstructionSubcategory = 'safety-osha' | 'injury-emergency' | 'gene
 export type OutreachSubcategory = 'shelter-intake' | 'food-assistance' | 'medical-help' | 'safety-crisis';
 export type HospitalitySubcategory = 'guest-services';
 export type WarehouseSubcategory = 'warehouse-general';
+export type PropertyManagementSubcategory = 'tenant-communication';
+export type AgricultureSubcategory = 'field-operations';
 
-export type Subcategory = HealthcareSubcategory | EducationSubcategory | ConstructionSubcategory | OutreachSubcategory | HospitalitySubcategory | WarehouseSubcategory;
+export type Subcategory = HealthcareSubcategory | EducationSubcategory | ConstructionSubcategory | OutreachSubcategory | HospitalitySubcategory | WarehouseSubcategory | PropertyManagementSubcategory | AgricultureSubcategory;
 
 export interface SubcategoryInfo {
   id: Subcategory;
   label: string;
-  sector: 'healthcare' | 'education' | 'construction' | 'outreach' | 'hospitality' | 'warehouse';
+  sector: 'healthcare' | 'education' | 'construction' | 'outreach' | 'hospitality' | 'warehouse' | 'property-management' | 'agriculture';
 }
 
 export interface PhraseGroup {
@@ -55,6 +57,14 @@ export const warehouseSubcategories: SubcategoryInfo[] = [
   { id: 'warehouse-general', label: 'Warehouse Operations', sector: 'warehouse' },
 ];
 
+export const propertyManagementSubcategories: SubcategoryInfo[] = [
+  { id: 'tenant-communication', label: 'Tenant Communication', sector: 'property-management' },
+];
+
+export const agricultureSubcategories: SubcategoryInfo[] = [
+  { id: 'field-operations', label: 'Field Operations', sector: 'agriculture' },
+];
+
 export const allSubcategories: SubcategoryInfo[] = [
   ...healthcareSubcategories,
   ...educationSubcategories,
@@ -62,6 +72,8 @@ export const allSubcategories: SubcategoryInfo[] = [
   ...outreachSubcategories,
   ...hospitalitySubcategories,
   ...warehouseSubcategories,
+  ...propertyManagementSubcategories,
+  ...agricultureSubcategories,
 ];
 
 export interface SubcategoryPhraseData {
@@ -4616,6 +4628,256 @@ export const warehousePhrases: SubcategoryPhraseData = {
           { english: 'Report any problem right away.', translation: 'أبلغ عن أي مشكلة فوراً.', responses: YES_NO('نعم', 'na-am', 'لا', 'laa') },
           { english: 'This is the correct item.', translation: 'هذا هو العنصر الصحيح.', responses: YES_NO('صحيح', 'sa-heeh', 'غير صحيح', 'ghair sa-heeh') },
           { english: 'Do you understand?', translation: 'هل تفهم؟', responses: YES_NO('نعم', 'na-am', 'لا', 'laa') },
+        ],
+      },
+    ],
+  },
+};
+
+export const propertyManagementPhrases: SubcategoryPhraseData = {
+  'tenant-communication': {
+    spanish: [
+      {
+        groupLabel: 'Communicate with tenants instantly',
+        phrases: [
+          { english: 'What is the problem?', translation: '¿Cuál es el problema?', responses: [{ translation: 'Hay un problema', pronunciation: 'ah-ee oon pro-BLEH-mah', english: 'There is a problem' }] },
+          { english: 'We will send maintenance today.', translation: 'Enviaremos mantenimiento hoy.', responses: [{ translation: 'Gracias', pronunciation: 'GRAH-syahs', english: 'Thank you' }] },
+          { english: 'Please allow entry.', translation: 'Por favor permita la entrada.', responses: YES_NO('Está bien', 'es-TAH BYEHN', 'No', 'noh') },
+          { english: 'Your request has been received.', translation: 'Su solicitud ha sido recibida.', responses: [{ translation: 'Gracias', pronunciation: 'GRAH-syahs', english: 'Thank you' }] },
+          { english: 'When did this start?', translation: '¿Cuándo comenzó esto?', responses: [{ translation: 'Hoy', pronunciation: 'oy', english: 'Today' }, { translation: 'Ayer', pronunciation: 'ah-YEHR', english: 'Yesterday' }] },
+          { english: 'Is anything damaged?', translation: '¿Hay algo dañado?', responses: YES_NO('Sí', 'see', 'No', 'noh') },
+          { english: 'Thank you for reporting this.', translation: 'Gracias por informarnos.', responses: [{ translation: 'De nada', pronunciation: 'deh NAH-dah', english: "You're welcome" }] },
+          { english: 'We will follow up soon.', translation: 'Le daremos seguimiento pronto.', responses: [{ translation: 'Gracias', pronunciation: 'GRAH-syahs', english: 'Thank you' }] },
+        ],
+      },
+    ],
+    tagalog: [
+      {
+        groupLabel: 'Communicate with tenants instantly',
+        phrases: [
+          { english: 'What is the problem?', translation: 'Ano ang problema?', responses: [{ translation: 'May problema', pronunciation: 'may pro-BLE-ma', english: 'There is a problem' }] },
+          { english: 'We will send maintenance today.', translation: 'Magpapadala kami ng maintenance ngayon.', responses: [{ translation: 'Salamat', pronunciation: 'sa-LA-mat', english: 'Thank you' }] },
+          { english: 'Please allow entry.', translation: 'Mangyaring payagan ang pagpasok.', responses: YES_NO('Sige', 'si-GE', 'Hindi', 'HIN-di') },
+          { english: 'Your request has been received.', translation: 'Natanggap na ang iyong kahilingan.', responses: [{ translation: 'Salamat', pronunciation: 'sa-LA-mat', english: 'Thank you' }] },
+          { english: 'When did this start?', translation: 'Kailan ito nagsimula?', responses: [{ translation: 'Ngayon', pronunciation: 'nga-YON', english: 'Today' }, { translation: 'Kahapon', pronunciation: 'ka-HA-pon', english: 'Yesterday' }] },
+          { english: 'Is anything damaged?', translation: 'May nasira ba?', responses: YES_NO('Oo', 'OH-oh', 'Hindi', 'HIN-di') },
+          { english: 'Thank you for reporting this.', translation: 'Salamat sa pag-uulat nito.', responses: [{ translation: 'Walang anuman', pronunciation: 'wa-LANG a-noo-MAN', english: "You're welcome" }] },
+          { english: 'We will follow up soon.', translation: 'Makikipag-ugnayan kami sa inyo sa lalong madaling panahon.', responses: [{ translation: 'Salamat', pronunciation: 'sa-LA-mat', english: 'Thank you' }] },
+        ],
+      },
+    ],
+    vietnamese: [
+      {
+        groupLabel: 'Communicate with tenants instantly',
+        phrases: [
+          { english: 'What is the problem?', translation: 'Vấn đề là gì?', responses: [{ translation: 'Có vấn đề', pronunciation: 'co van de', english: 'There is a problem' }] },
+          { english: 'We will send maintenance today.', translation: 'Chúng tôi sẽ gửi nhân viên bảo trì hôm nay.', responses: [{ translation: 'Cảm ơn', pronunciation: 'kam un', english: 'Thank you' }] },
+          { english: 'Please allow entry.', translation: 'Vui lòng cho phép vào.', responses: YES_NO('Được', 'duoc', 'Không', 'khong') },
+          { english: 'Your request has been received.', translation: 'Yêu cầu của bạn đã được nhận.', responses: [{ translation: 'Cảm ơn', pronunciation: 'kam un', english: 'Thank you' }] },
+          { english: 'When did this start?', translation: 'Khi nào điều này bắt đầu?', responses: [{ translation: 'Hôm nay', pronunciation: 'hom nay', english: 'Today' }, { translation: 'Hôm qua', pronunciation: 'hom qua', english: 'Yesterday' }] },
+          { english: 'Is anything damaged?', translation: 'Có gì bị hư hỏng không?', responses: YES_NO('Có', 'co', 'Không', 'khong') },
+          { english: 'Thank you for reporting this.', translation: 'Cảm ơn bạn đã báo cáo điều này.', responses: [{ translation: 'Không có gì', pronunciation: 'khong co gi', english: "You're welcome" }] },
+          { english: 'We will follow up soon.', translation: 'Chúng tôi sẽ liên lạc lại sớm.', responses: [{ translation: 'Cảm ơn', pronunciation: 'kam un', english: 'Thank you' }] },
+        ],
+      },
+    ],
+    mandarin: [
+      {
+        groupLabel: 'Communicate with tenants instantly',
+        phrases: [
+          { english: 'What is the problem?', translation: '有什么问题？', responses: [{ translation: '有问题', pronunciation: 'yǒu wèn tí', english: 'There is a problem' }] },
+          { english: 'We will send maintenance today.', translation: '我们今天会派维修人员来。', responses: [{ translation: '谢谢', pronunciation: 'xiè xiè', english: 'Thank you' }] },
+          { english: 'Please allow entry.', translation: '请允许进入。', responses: YES_NO('好的', 'hǎo de', '不', 'bù') },
+          { english: 'Your request has been received.', translation: '您的请求已收到。', responses: [{ translation: '谢谢', pronunciation: 'xiè xiè', english: 'Thank you' }] },
+          { english: 'When did this start?', translation: '这是什么时候开始的？', responses: [{ translation: '今天', pronunciation: 'jīn tiān', english: 'Today' }, { translation: '昨天', pronunciation: 'zuó tiān', english: 'Yesterday' }] },
+          { english: 'Is anything damaged?', translation: '有东西损坏了吗？', responses: YES_NO('是', 'shì', '没有', 'méi yǒu') },
+          { english: 'Thank you for reporting this.', translation: '感谢您的报告。', responses: [{ translation: '不客气', pronunciation: 'bú kè qì', english: "You're welcome" }] },
+          { english: 'We will follow up soon.', translation: '我们很快会跟进。', responses: [{ translation: '谢谢', pronunciation: 'xiè xiè', english: 'Thank you' }] },
+        ],
+      },
+    ],
+    cantonese: [
+      {
+        groupLabel: 'Communicate with tenants instantly',
+        phrases: [
+          { english: 'What is the problem?', translation: '有咩問題？', responses: [{ translation: '有問題', pronunciation: 'jau man-tai', english: 'There is a problem' }] },
+          { english: 'We will send maintenance today.', translation: '我哋今日會派維修人員嚟。', responses: [{ translation: '唔該', pronunciation: 'm-goi', english: 'Thank you' }] },
+          { english: 'Please allow entry.', translation: '請允許入嚟。', responses: YES_NO('好', 'hou', '唔好', 'm-hou') },
+          { english: 'Your request has been received.', translation: '您嘅請求已收到。', responses: [{ translation: '唔該', pronunciation: 'm-goi', english: 'Thank you' }] },
+          { english: 'When did this start?', translation: '呢個幾時開始嘅？', responses: [{ translation: '今日', pronunciation: 'gam-jat', english: 'Today' }, { translation: '琴日', pronunciation: 'kam-jat', english: 'Yesterday' }] },
+          { english: 'Is anything damaged?', translation: '有咩嘢損壞咗？', responses: YES_NO('有', 'jau', '冇', 'mou') },
+          { english: 'Thank you for reporting this.', translation: '多謝您報告呢件事。', responses: [{ translation: '唔客氣', pronunciation: 'm-haak-hei', english: "You're welcome" }] },
+          { english: 'We will follow up soon.', translation: '我哋好快會跟進。', responses: [{ translation: '唔該', pronunciation: 'm-goi', english: 'Thank you' }] },
+        ],
+      },
+    ],
+    hmong: [
+      {
+        groupLabel: 'Communicate with tenants instantly',
+        phrases: [
+          { english: 'What is the problem?', translation: 'Muaj teeb meem dabtsi?', responses: [{ translation: 'Muaj teeb meem', pronunciation: 'muaj teeb meem', english: 'There is a problem' }] },
+          { english: 'We will send maintenance today.', translation: 'Peb yuav xa tus neeg kho mob hnub no.', responses: [{ translation: 'Ua tsaug', pronunciation: 'ua tsaug', english: 'Thank you' }] },
+          { english: 'Please allow entry.', translation: 'Thov tso cai rau nkag los.', responses: YES_NO('Zoo', 'zoo', 'Tsis zoo', 'tsis zoo') },
+          { english: 'Your request has been received.', translation: 'Koj qhov kev thov tau txais lawm.', responses: [{ translation: 'Ua tsaug', pronunciation: 'ua tsaug', english: 'Thank you' }] },
+          { english: 'When did this start?', translation: 'Thaum twg pib muaj li no?', responses: [{ translation: 'Hnub no', pronunciation: 'hnub no', english: 'Today' }, { translation: 'Nag hmo', pronunciation: 'nag hmo', english: 'Yesterday' }] },
+          { english: 'Is anything damaged?', translation: 'Puas muaj ib yam tawg los yog puas?', responses: YES_NO('Muaj', 'muaj', 'Tsis muaj', 'tsis muaj') },
+          { english: 'Thank you for reporting this.', translation: 'Ua tsaug rau koj qhia peb paub.', responses: [{ translation: 'Tsis ua li cas', pronunciation: 'tsis ua li cas', english: "You're welcome" }] },
+          { english: 'We will follow up soon.', translation: 'Peb yuav rov qab nug sai sai.', responses: [{ translation: 'Ua tsaug', pronunciation: 'ua tsaug', english: 'Thank you' }] },
+        ],
+      },
+    ],
+    korean: [
+      {
+        groupLabel: 'Communicate with tenants instantly',
+        phrases: [
+          { english: 'What is the problem?', translation: '문제가 무엇인가요?', responses: [{ translation: '문제가 있습니다', pronunciation: 'mun-je-ga it-seum-ni-da', english: 'There is a problem' }] },
+          { english: 'We will send maintenance today.', translation: '오늘 유지보수 직원을 보내겠습니다.', responses: [{ translation: '감사합니다', pronunciation: 'gam-sa-ham-ni-da', english: 'Thank you' }] },
+          { english: 'Please allow entry.', translation: '입실을 허용해 주세요.', responses: YES_NO('알겠습니다', 'al-get-seum-ni-da', '아니요', 'a-ni-yo') },
+          { english: 'Your request has been received.', translation: '요청이 접수되었습니다.', responses: [{ translation: '감사합니다', pronunciation: 'gam-sa-ham-ni-da', english: 'Thank you' }] },
+          { english: 'When did this start?', translation: '언제부터 시작되었나요?', responses: [{ translation: '오늘', pronunciation: 'o-neul', english: 'Today' }, { translation: '어제', pronunciation: 'eo-je', english: 'Yesterday' }] },
+          { english: 'Is anything damaged?', translation: '손상된 것이 있나요?', responses: YES_NO('예', 'ye', '아니요', 'a-ni-yo') },
+          { english: 'Thank you for reporting this.', translation: '신고해 주셔서 감사합니다.', responses: [{ translation: '천만에요', pronunciation: 'cheon-man-e-yo', english: "You're welcome" }] },
+          { english: 'We will follow up soon.', translation: '곧 후속 조치를 취하겠습니다.', responses: [{ translation: '감사합니다', pronunciation: 'gam-sa-ham-ni-da', english: 'Thank you' }] },
+        ],
+      },
+    ],
+    arabic: [
+      {
+        groupLabel: 'Communicate with tenants instantly',
+        phrases: [
+          { english: 'What is the problem?', translation: 'ما هي المشكلة؟', responses: [{ translation: 'هناك مشكلة', pronunciation: 'hoo-na-ka mush-ki-la', english: 'There is a problem' }] },
+          { english: 'We will send maintenance today.', translation: 'سنرسل فريق الصيانة اليوم.', responses: [{ translation: 'شكراً', pronunciation: 'shuk-ran', english: 'Thank you' }] },
+          { english: 'Please allow entry.', translation: 'من فضلك اسمح بالدخول.', responses: YES_NO('حسناً', 'has-nan', 'لا', 'laa') },
+          { english: 'Your request has been received.', translation: 'تم استلام طلبك.', responses: [{ translation: 'شكراً', pronunciation: 'shuk-ran', english: 'Thank you' }] },
+          { english: 'When did this start?', translation: 'متى بدأ هذا؟', responses: [{ translation: 'اليوم', pronunciation: 'al-yawm', english: 'Today' }, { translation: 'أمس', pronunciation: 'ams', english: 'Yesterday' }] },
+          { english: 'Is anything damaged?', translation: 'هل هناك شيء تالف؟', responses: YES_NO('نعم', 'na-am', 'لا', 'laa') },
+          { english: 'Thank you for reporting this.', translation: 'شكراً على إبلاغك.', responses: [{ translation: 'عفواً', pronunciation: 'af-wan', english: "You're welcome" }] },
+          { english: 'We will follow up soon.', translation: 'سنتابع معك قريباً.', responses: [{ translation: 'شكراً', pronunciation: 'shuk-ran', english: 'Thank you' }] },
+        ],
+      },
+    ],
+  },
+};
+
+export const agriculturePhrases: SubcategoryPhraseData = {
+  'field-operations': {
+    spanish: [
+      {
+        groupLabel: 'Communicate clearly in the field',
+        phrases: [
+          { english: 'Follow this safety step.', translation: 'Sigue este paso de seguridad.', responses: YES_NO('Entendido', 'en-ten-DEE-doh', 'No entiendo', 'noh en-TYEN-doh') },
+          { english: 'Use this equipment.', translation: 'Usa este equipo.', responses: YES_NO('Entendido', 'en-ten-DEE-doh', 'No entiendo', 'noh en-TYEN-doh') },
+          { english: 'Take a break if needed.', translation: 'Toma un descanso si es necesario.', responses: YES_NO('Sí', 'see', 'No', 'noh') },
+          { english: 'Report any issue immediately.', translation: 'Reporta cualquier problema de inmediato.', responses: YES_NO('Sí', 'see', 'No', 'noh') },
+          { english: 'Stay with your team.', translation: 'Quédate con tu equipo.', responses: YES_NO('Entendido', 'en-ten-DEE-doh', 'No', 'noh') },
+          { english: 'Be careful in this area.', translation: 'Ten cuidado en esta área.', responses: YES_NO('Entendido', 'en-ten-DEE-doh', 'No entiendo', 'noh en-TYEN-doh') },
+          { english: 'We will start work now.', translation: 'Empezaremos a trabajar ahora.', responses: YES_NO('Listo', 'LEES-toh', 'No estoy listo', 'noh es-TOY LEES-toh') },
+          { english: 'Do you understand the task?', translation: '¿Entiendes la tarea?', responses: YES_NO('Sí', 'see', 'No', 'noh') },
+        ],
+      },
+    ],
+    tagalog: [
+      {
+        groupLabel: 'Communicate clearly in the field',
+        phrases: [
+          { english: 'Follow this safety step.', translation: 'Sundin ang hakbang na ito para sa kaligtasan.', responses: YES_NO('Naiintindihan', 'na-in-tin-di-HAN', 'Hindi', 'HIN-di') },
+          { english: 'Use this equipment.', translation: 'Gamitin ang kagamitang ito.', responses: YES_NO('Oo', 'OH-oh', 'Hindi', 'HIN-di') },
+          { english: 'Take a break if needed.', translation: 'Magpahinga kung kinakailangan.', responses: YES_NO('Oo', 'OH-oh', 'Hindi', 'HIN-di') },
+          { english: 'Report any issue immediately.', translation: 'Iulat ang anumang isyu agad.', responses: YES_NO('Oo', 'OH-oh', 'Hindi', 'HIN-di') },
+          { english: 'Stay with your team.', translation: 'Manatili sa iyong koponan.', responses: YES_NO('Naiintindihan', 'na-in-tin-di-HAN', 'Hindi', 'HIN-di') },
+          { english: 'Be careful in this area.', translation: 'Mag-ingat sa lugar na ito.', responses: YES_NO('Naiintindihan', 'na-in-tin-di-HAN', 'Hindi', 'HIN-di') },
+          { english: 'We will start work now.', translation: 'Magsisimula na kaming magtrabaho.', responses: YES_NO('Handa na', 'HAN-da na', 'Hindi pa', 'HIN-di pa') },
+          { english: 'Do you understand the task?', translation: 'Naiintindihan mo ba ang gawain?', responses: YES_NO('Oo', 'OH-oh', 'Hindi', 'HIN-di') },
+        ],
+      },
+    ],
+    vietnamese: [
+      {
+        groupLabel: 'Communicate clearly in the field',
+        phrases: [
+          { english: 'Follow this safety step.', translation: 'Làm theo bước an toàn này.', responses: YES_NO('Hiểu rồi', 'hieu roi', 'Không hiểu', 'khong hieu') },
+          { english: 'Use this equipment.', translation: 'Sử dụng thiết bị này.', responses: YES_NO('Được', 'duoc', 'Không', 'khong') },
+          { english: 'Take a break if needed.', translation: 'Nghỉ ngơi nếu cần.', responses: YES_NO('Được', 'duoc', 'Không', 'khong') },
+          { english: 'Report any issue immediately.', translation: 'Báo cáo bất kỳ vấn đề nào ngay lập tức.', responses: YES_NO('Được', 'duoc', 'Không', 'khong') },
+          { english: 'Stay with your team.', translation: 'Ở lại với nhóm của bạn.', responses: YES_NO('Hiểu rồi', 'hieu roi', 'Không', 'khong') },
+          { english: 'Be careful in this area.', translation: 'Cẩn thận ở khu vực này.', responses: YES_NO('Hiểu rồi', 'hieu roi', 'Không hiểu', 'khong hieu') },
+          { english: 'We will start work now.', translation: 'Chúng ta sẽ bắt đầu làm việc bây giờ.', responses: YES_NO('Sẵn sàng', 'san sang', 'Chưa sẵn sàng', 'chua san sang') },
+          { english: 'Do you understand the task?', translation: 'Bạn có hiểu nhiệm vụ không?', responses: YES_NO('Hiểu', 'hieu', 'Không hiểu', 'khong hieu') },
+        ],
+      },
+    ],
+    mandarin: [
+      {
+        groupLabel: 'Communicate clearly in the field',
+        phrases: [
+          { english: 'Follow this safety step.', translation: '遵循这个安全步骤。', responses: YES_NO('明白了', 'míng bai le', '不明白', 'bù míng bai') },
+          { english: 'Use this equipment.', translation: '使用这个设备。', responses: YES_NO('好的', 'hǎo de', '不', 'bù') },
+          { english: 'Take a break if needed.', translation: '如果需要，请休息一下。', responses: YES_NO('好的', 'hǎo de', '不用', 'bù yòng') },
+          { english: 'Report any issue immediately.', translation: '立即报告任何问题。', responses: YES_NO('好的', 'hǎo de', '不', 'bù') },
+          { english: 'Stay with your team.', translation: '待在你的团队里。', responses: YES_NO('明白了', 'míng bai le', '不明白', 'bù míng bai') },
+          { english: 'Be careful in this area.', translation: '在这个区域要小心。', responses: YES_NO('明白了', 'míng bai le', '不明白', 'bù míng bai') },
+          { english: 'We will start work now.', translation: '我们现在开始工作。', responses: YES_NO('准备好了', 'zhǔn bèi hǎo le', '还没准备好', 'hái méi zhǔn bèi hǎo') },
+          { english: 'Do you understand the task?', translation: '你明白这个任务吗？', responses: YES_NO('明白', 'míng bai', '不明白', 'bù míng bai') },
+        ],
+      },
+    ],
+    cantonese: [
+      {
+        groupLabel: 'Communicate clearly in the field',
+        phrases: [
+          { english: 'Follow this safety step.', translation: '跟住呢個安全步驟做。', responses: YES_NO('明白', 'ming-baak', '唔明白', 'm-ming-baak') },
+          { english: 'Use this equipment.', translation: '使用呢個設備。', responses: YES_NO('好', 'hou', '唔好', 'm-hou') },
+          { english: 'Take a break if needed.', translation: '如果需要就休息一下。', responses: YES_NO('好', 'hou', '唔需要', 'm-seui-jiu') },
+          { english: 'Report any issue immediately.', translation: '即刻報告任何問題。', responses: YES_NO('好', 'hou', '唔好', 'm-hou') },
+          { english: 'Stay with your team.', translation: '留喺你嘅隊伍入面。', responses: YES_NO('明白', 'ming-baak', '唔明白', 'm-ming-baak') },
+          { english: 'Be careful in this area.', translation: '喺呢個地方要小心。', responses: YES_NO('明白', 'ming-baak', '唔明白', 'm-ming-baak') },
+          { english: 'We will start work now.', translation: '我哋而家開始工作。', responses: YES_NO('準備好', 'jeon-bei-hou', '未準備好', 'mei-jeon-bei-hou') },
+          { english: 'Do you understand the task?', translation: '你明唔明白呢個任務？', responses: YES_NO('明白', 'ming-baak', '唔明白', 'm-ming-baak') },
+        ],
+      },
+    ],
+    hmong: [
+      {
+        groupLabel: 'Communicate clearly in the field',
+        phrases: [
+          { english: 'Follow this safety step.', translation: 'Ua raws li cov kauj ruam kev nyab xeeb no.', responses: YES_NO('Nkag siab lawm', 'nkag siab lawm', 'Tsis nkag siab', 'tsis nkag siab') },
+          { english: 'Use this equipment.', translation: 'Siv tej cuab yeej no.', responses: YES_NO('Zoo', 'zoo', 'Tsis zoo', 'tsis zoo') },
+          { english: 'Take a break if needed.', translation: 'Nyob so yog tias xav tau.', responses: YES_NO('Zoo', 'zoo', 'Tsis xav tau', 'tsis xav tau') },
+          { english: 'Report any issue immediately.', translation: 'Tshaj txhua yam teeb meem tam sim no.', responses: YES_NO('Zoo', 'zoo', 'Tsis zoo', 'tsis zoo') },
+          { english: 'Stay with your team.', translation: 'Nyob nrog koj pab neeg.', responses: YES_NO('Nkag siab lawm', 'nkag siab lawm', 'Tsis nkag siab', 'tsis nkag siab') },
+          { english: 'Be careful in this area.', translation: 'Ceev faj hauv cheeb tsam no.', responses: YES_NO('Nkag siab lawm', 'nkag siab lawm', 'Tsis nkag siab', 'tsis nkag siab') },
+          { english: 'We will start work now.', translation: 'Peb yuav pib ua hauj lwm tam sim no.', responses: YES_NO('Npaj txhij', 'npaj txhij', 'Tsis tau npaj txhij', 'tsis tau npaj txhij') },
+          { english: 'Do you understand the task?', translation: 'Koj puas nkag siab txog qhov hauj lwm?', responses: YES_NO('Nkag siab', 'nkag siab', 'Tsis nkag siab', 'tsis nkag siab') },
+        ],
+      },
+    ],
+    korean: [
+      {
+        groupLabel: 'Communicate clearly in the field',
+        phrases: [
+          { english: 'Follow this safety step.', translation: '이 안전 단계를 따르세요.', responses: YES_NO('알겠습니다', 'al-get-seum-ni-da', '모르겠습니다', 'mo-reu-get-seum-ni-da') },
+          { english: 'Use this equipment.', translation: '이 장비를 사용하세요.', responses: YES_NO('알겠습니다', 'al-get-seum-ni-da', '아니요', 'a-ni-yo') },
+          { english: 'Take a break if needed.', translation: '필요하면 휴식을 취하세요.', responses: YES_NO('예', 'ye', '괜찮습니다', 'gwaen-chan-seum-ni-da') },
+          { english: 'Report any issue immediately.', translation: '즉시 모든 문제를 보고하세요.', responses: YES_NO('예', 'ye', '아니요', 'a-ni-yo') },
+          { english: 'Stay with your team.', translation: '팀과 함께 있으세요.', responses: YES_NO('알겠습니다', 'al-get-seum-ni-da', '모르겠습니다', 'mo-reu-get-seum-ni-da') },
+          { english: 'Be careful in this area.', translation: '이 구역에서 조심하세요.', responses: YES_NO('알겠습니다', 'al-get-seum-ni-da', '모르겠습니다', 'mo-reu-get-seum-ni-da') },
+          { english: 'We will start work now.', translation: '지금 작업을 시작하겠습니다.', responses: YES_NO('준비됐습니다', 'jun-bi-dwet-seum-ni-da', '아직 준비 안 됐습니다', 'a-jik jun-bi an dwet-seum-ni-da') },
+          { english: 'Do you understand the task?', translation: '업무를 이해하셨나요?', responses: YES_NO('예', 'ye', '아니요', 'a-ni-yo') },
+        ],
+      },
+    ],
+    arabic: [
+      {
+        groupLabel: 'Communicate clearly in the field',
+        phrases: [
+          { english: 'Follow this safety step.', translation: 'اتبع خطوة السلامة هذه.', responses: YES_NO('فهمت', 'fa-him-tu', 'لم أفهم', 'lam af-ham') },
+          { english: 'Use this equipment.', translation: 'استخدم هذه المعدات.', responses: YES_NO('حسناً', 'has-nan', 'لا', 'laa') },
+          { english: 'Take a break if needed.', translation: 'خذ استراحة إذا لزم الأمر.', responses: YES_NO('نعم', 'na-am', 'لا', 'laa') },
+          { english: 'Report any issue immediately.', translation: 'أبلغ عن أي مشكلة فوراً.', responses: YES_NO('نعم', 'na-am', 'لا', 'laa') },
+          { english: 'Stay with your team.', translation: 'ابق مع فريقك.', responses: YES_NO('فهمت', 'fa-him-tu', 'لم أفهم', 'lam af-ham') },
+          { english: 'Be careful in this area.', translation: 'كن حذراً في هذه المنطقة.', responses: YES_NO('فهمت', 'fa-him-tu', 'لم أفهم', 'lam af-ham') },
+          { english: 'We will start work now.', translation: 'سنبدأ العمل الآن.', responses: YES_NO('جاهز', 'ja-hiz', 'لست جاهزاً', 'las-tu ja-hi-zan') },
+          { english: 'Do you understand the task?', translation: 'هل تفهم المهمة؟', responses: YES_NO('نعم', 'na-am', 'لا', 'laa') },
         ],
       },
     ],

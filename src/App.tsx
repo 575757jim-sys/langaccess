@@ -30,6 +30,8 @@ import {
   outreachSubcategories,
   hospitalitySubcategories,
   warehouseSubcategories,
+  propertyManagementSubcategories,
+  agricultureSubcategories,
 } from './data/subcategories';
 import { initAudioUnlock } from './utils/speech';
 import { useUpdateManager } from './hooks/useUpdateManager';
@@ -200,6 +202,8 @@ function AppInner() {
     if (selectedSector === 'outreach') return outreachSubcategories;
     if (selectedSector === 'hospitality') return hospitalitySubcategories;
     if (selectedSector === 'warehouse') return warehouseSubcategories;
+    if (selectedSector === 'property-management') return propertyManagementSubcategories;
+    if (selectedSector === 'agriculture') return agricultureSubcategories;
     return [];
   };
 
@@ -210,6 +214,8 @@ function AppInner() {
     if (selectedSector === 'outreach') return 'Community Outreach';
     if (selectedSector === 'hospitality') return 'Hospitality';
     if (selectedSector === 'warehouse') return 'Warehouse';
+    if (selectedSector === 'property-management') return 'Property Management';
+    if (selectedSector === 'agriculture') return 'Agriculture';
     return '';
   };
 

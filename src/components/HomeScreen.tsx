@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users, ChevronRight, Handshake, Star, HandHeart, Bell, Barcode } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users, ChevronRight, Handshake, Star, HandHeart, Bell, Barcode, Building2, Wheat } from 'lucide-react';
 import FavoritesPanel from './FavoritesPanel';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
@@ -132,6 +132,38 @@ const SECTOR_CARDS = [
     accentText: 'text-slate-700',
     accentBorder: 'border-slate-200',
     gradientFrom: 'from-slate-50',
+  },
+  {
+    id: 'property-management' as Sector,
+    label: 'Property Management',
+    description: 'Property managers communicate with tenants clearly about requests and repairs.',
+    Icon: Building2,
+    iconBg: 'bg-sky-600',
+    iconColor: 'text-white',
+    border: 'border-slate-200',
+    hoverBorder: 'hover:border-sky-300',
+    hoverShadow: 'hover:shadow-sky-100',
+    tagBg: 'bg-sky-600',
+    accentBg: 'bg-sky-50',
+    accentText: 'text-sky-700',
+    accentBorder: 'border-sky-100',
+    gradientFrom: 'from-sky-50',
+  },
+  {
+    id: 'agriculture' as Sector,
+    label: 'Agriculture',
+    description: 'Farm supervisors give clear field instructions to multilingual crews.',
+    Icon: Wheat,
+    iconBg: 'bg-lime-600',
+    iconColor: 'text-white',
+    border: 'border-slate-200',
+    hoverBorder: 'hover:border-lime-300',
+    hoverShadow: 'hover:shadow-lime-100',
+    tagBg: 'bg-lime-600',
+    accentBg: 'bg-lime-50',
+    accentText: 'text-lime-700',
+    accentBorder: 'border-lime-100',
+    gradientFrom: 'from-lime-50',
   },
 ];
 
