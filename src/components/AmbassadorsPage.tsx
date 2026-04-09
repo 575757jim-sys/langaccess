@@ -3,14 +3,13 @@ import { ArrowLeft, Star, CheckCircle, MapPin, Users, Award, Package } from 'luc
 import SEO from './SEO';
 import AmbassadorDashboard from './AmbassadorDashboard';
 import AmbassadorSignup from './AmbassadorSignup';
-import AmbassadorSuccess from './AmbassadorSuccess';
 
 interface Props {
   onBack: () => void;
   onOrderCards?: () => void;
 }
 
-type ViewMode = 'overview' | 'signup' | 'success' | 'dashboard' | 'get-cards';
+type ViewMode = 'overview' | 'signup' | 'dashboard' | 'get-cards';
 
 interface AmbassadorData {
   name: string;
@@ -53,7 +52,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
     };
     setAmbassadorData(ambassadorInfo);
     localStorage.setItem('ambassador_data', JSON.stringify(ambassadorInfo));
-    setViewMode('success');
+    setViewMode('get-cards');
   };
 
   const handleDashboardAccess = () => {
@@ -79,17 +78,6 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
       <AmbassadorSignup
         onClose={() => setViewMode('overview')}
         onComplete={handleSignupComplete}
-      />
-    );
-  }
-
-  if (viewMode === 'success' && ambassadorData) {
-    return (
-      <AmbassadorSuccess
-        name={ambassadorData.name}
-        ambassadorCode={ambassadorData.code}
-        onGoToDashboard={() => setViewMode('dashboard')}
-        onGetCards={() => setViewMode('get-cards')}
       />
     );
   }

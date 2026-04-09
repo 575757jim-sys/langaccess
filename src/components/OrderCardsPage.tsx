@@ -115,7 +115,29 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
       const ambassadorId = aidParam || localStorage.getItem('ambassador_id');
       if (!ambassadorId) {
-        setStep('unauthorized');
+        const localData = localStorage.getItem('ambassador_data');
+        if (localData) {
+          try {
+            const parsed = JSON.parse(localData);
+            const cityParts = (parsed.city || '').split(',');
+            const cityState = cityParts.length > 1 ? parsed.city : `${parsed.city}, `;
+            setAmbassador({
+              id: parsed.code || '',
+              full_name: parsed.name || '',
+              email: parsed.email || '',
+              street_address: null,
+              city_state: cityState,
+              zip_code: null,
+              slug: null,
+              ref_code: parsed.code || null,
+            });
+            setStep('ready');
+          } catch {
+            setStep('unauthorized');
+          }
+        } else {
+          setStep('unauthorized');
+        }
         return;
       }
 
