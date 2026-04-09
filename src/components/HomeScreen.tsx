@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users, ChevronRight, Handshake, Star, HandHeart } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users, ChevronRight, Handshake, Star, HandHeart, Bell, Barcode } from 'lucide-react';
 import FavoritesPanel from './FavoritesPanel';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
@@ -100,6 +100,38 @@ const SECTOR_CARDS = [
     accentText: 'text-cyan-600',
     accentBorder: 'border-cyan-100',
     gradientFrom: 'from-cyan-50',
+  },
+  {
+    id: 'hospitality' as Sector,
+    label: 'Hospitality',
+    description: 'Hotel and restaurant staff talk to guests clearly and confidently.',
+    Icon: Bell,
+    iconBg: 'bg-rose-500',
+    iconColor: 'text-white',
+    border: 'border-slate-200',
+    hoverBorder: 'hover:border-rose-300',
+    hoverShadow: 'hover:shadow-rose-100',
+    tagBg: 'bg-rose-500',
+    accentBg: 'bg-rose-50',
+    accentText: 'text-rose-600',
+    accentBorder: 'border-rose-100',
+    gradientFrom: 'from-rose-50',
+  },
+  {
+    id: 'warehouse' as Sector,
+    label: 'Warehouse',
+    description: 'Team leads direct workers on tasks, safety, and equipment on the floor.',
+    Icon: Barcode,
+    iconBg: 'bg-slate-700',
+    iconColor: 'text-white',
+    border: 'border-slate-200',
+    hoverBorder: 'hover:border-slate-400',
+    hoverShadow: 'hover:shadow-slate-100',
+    tagBg: 'bg-slate-700',
+    accentBg: 'bg-slate-100',
+    accentText: 'text-slate-700',
+    accentBorder: 'border-slate-200',
+    gradientFrom: 'from-slate-50',
   },
 ];
 

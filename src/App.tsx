@@ -28,6 +28,8 @@ import {
   educationSubcategories,
   constructionSubcategories,
   outreachSubcategories,
+  hospitalitySubcategories,
+  warehouseSubcategories,
 } from './data/subcategories';
 import { initAudioUnlock } from './utils/speech';
 import { useUpdateManager } from './hooks/useUpdateManager';
@@ -196,6 +198,8 @@ function AppInner() {
     if (selectedSector === 'education') return educationSubcategories;
     if (selectedSector === 'construction') return constructionSubcategories;
     if (selectedSector === 'outreach') return outreachSubcategories;
+    if (selectedSector === 'hospitality') return hospitalitySubcategories;
+    if (selectedSector === 'warehouse') return warehouseSubcategories;
     return [];
   };
 
@@ -204,6 +208,8 @@ function AppInner() {
     if (selectedSector === 'education') return 'Education';
     if (selectedSector === 'construction') return 'Construction';
     if (selectedSector === 'outreach') return 'Community Outreach';
+    if (selectedSector === 'hospitality') return 'Hospitality';
+    if (selectedSector === 'warehouse') return 'Warehouse';
     return '';
   };
 
