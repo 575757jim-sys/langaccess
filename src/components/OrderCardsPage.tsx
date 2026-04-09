@@ -75,9 +75,21 @@ function CardFrontPreview({ slug, fullName, cityState }: { slug: string; fullNam
 
 function normalizeCityState(raw: string): string {
   const parts = raw.split(',').map((p) => p.trim()).filter(Boolean);
-  if (parts.length >= 2) return `${parts[0]}, ${parts[1]}`;
-  if (parts.length === 1) return parts[0];
-  return raw;
+  if (parts.length >= 2) {
+    const city = parts[0];
+    const state = parts[1].toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2);
+    if (city.length >= 2 && state.length === 2) return `${city}, ${state}`;
+    if (city.length >= 2) return city;
+  }
+  if (parts.length === 1 && parts[0].length >= 2) return parts[0];
+  return '';
+}
+
+function splitCityState(cityState: string): { city: string; state: string } {
+  const parts = cityState.split(',').map((p) => p.trim()).filter(Boolean);
+  const city = parts[0] || '';
+  const state = parts.length > 1 ? parts[1].toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2) : '';
+  return { city, state };
 }
 
 export default function OrderCardsPage({ onBack, onGateBack }: Props) {
@@ -216,11 +228,12 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
     const fields = resolveAmbassadorFields();
     const { fullName } = fields;
-    const formattedCityState = normalizeCityState(fields.cityState);
-    const city = formattedCityState.split(',')[0]?.trim() || '';
-    const state = formattedCityState.split(',')[1]?.trim() || '';
+    const formattedCityState = normalizeCityState(fields.cityState) || fields.cityState;
+    const { city, state } = splitCityState(formattedCityState);
     const slug = ambassador.slug || ambassador.ref_code || ambassador.id || 'langaccess';
     const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
+    console.log('[OrderCards] handlePreview — fields resolved:', { fullName, formattedCityState, city, state, slug });
 
     const fallbackFront = 'https://langaccess.org/card-front.pdf';
     const fallbackBack = 'https://langaccess.org/card-back.pdf';
@@ -260,45 +273,59 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
   const handleConfirmOrder = async () => {
     if (!ambassador || !pendingOrderData) return;
+
+    console.log('[OrderCards] Confirm button tapped');
     setStep('submitting');
     setErrorMsg('');
 
     const fields = resolveAmbassadorFields();
-    const fullName = pendingOrderData.fullName || fields.fullName;
-    const { formattedCityState, city, state } = pendingOrderData;
-    const resolvedCity = city || formattedCityState.split(',')[0]?.trim() || '';
-    const resolvedState = state || formattedCityState.split(',')[1]?.trim() || '';
+    const fullName = (ambassador.full_name || '').trim() || pendingOrderData.fullName || fields.fullName;
+
+    const { formattedCityState } = pendingOrderData;
+    const { city: resolvedCity, state: resolvedState } = splitCityState(formattedCityState);
 
     const frontFileUrl = pendingOrderData.frontFileUrl || 'https://langaccess.org/card-front.pdf';
     const backFileUrl = pendingOrderData.backFileUrl || 'https://langaccess.org/card-back.pdf';
+
+    const payload = {
+      ambassador_id: ambassador.id,
+      full_name: fullName,
+      email: ambassador.email,
+      phone: '',
+      shipping_address: ambassador.street_address || '',
+      city: resolvedCity,
+      state: resolvedState,
+      zip: ambassador.zip_code || '',
+      quantity,
+      frontFileUrl,
+      backFileUrl,
+    };
+
+    console.log('[OrderCards] Payload built:', JSON.stringify(payload));
+    console.log('[OrderCards] Gelato request starting...');
 
     try {
       const gelatoRes = await fetch('/.netlify/functions/create-gelato-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ambassador_id: ambassador.id,
-          full_name: fullName,
-          email: ambassador.email,
-          phone: '',
-          shipping_address: ambassador.street_address || '',
-          city: resolvedCity,
-          state: resolvedState,
-          zip: ambassador.zip_code || '',
-          quantity,
-          frontFileUrl,
-          backFileUrl,
-        }),
+        body: JSON.stringify(payload),
       });
 
+      console.log('[OrderCards] Gelato response received — status:', gelatoRes.status);
+
       if (!gelatoRes.ok) {
-        const err = await gelatoRes.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(err.error || 'Could not submit order. Please try again.');
+        const errBody = await gelatoRes.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('[OrderCards] Gelato error response:', errBody);
+        throw new Error(errBody.error || `Order service returned ${gelatoRes.status}. Please try again.`);
       }
 
+      const data = await gelatoRes.json();
+      console.log('[OrderCards] Gelato success — advancing to success step:', data);
       setStep('success');
     } catch (err: unknown) {
-      setErrorMsg((err as Error)?.message || 'Something went wrong. Please try again.');
+      const msg = (err as Error)?.message || 'Something went wrong. Please try again.';
+      console.error('[OrderCards] handleConfirmOrder error:', msg);
+      setErrorMsg(msg);
       setStep('ready');
     }
   };
@@ -517,9 +544,9 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
                     Your unique QR code is confirmed. Shipping to{' '}
                     <span className="text-white font-medium">{previewCityState}</span>.
                   </p>
-                  {composeStep && composeStep !== 'success' && (
-                    <p className="text-amber-500/70 text-[10px]">
-                      Card preview unavailable ({composeStep}). Print file is ready.
+                  {composeStep && composeStep !== 'success' && composeStep !== 'not_started' && (
+                    <p className="text-slate-500 text-[10px]">
+                      Preview unavailable. Your print file is ready.
                     </p>
                   )}
                 </div>
