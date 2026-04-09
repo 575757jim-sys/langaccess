@@ -57,7 +57,8 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
   };
 
   const handleDashboardAccess = () => {
-    if (!ambassadorData) {
+    const hasAmbassadorId = !!localStorage.getItem('ambassador_id');
+    if (!ambassadorData && !hasAmbassadorId) {
       setViewMode('signup');
     } else {
       setViewMode('dashboard');
@@ -65,7 +66,8 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
   };
 
   const handleGetCardsClick = () => {
-    if (!ambassadorData) {
+    const hasAmbassadorId = !!localStorage.getItem('ambassador_id');
+    if (!ambassadorData && !hasAmbassadorId) {
       setViewMode('signup');
     } else {
       setViewMode('get-cards');
@@ -96,7 +98,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
     return <AmbassadorDashboard onBack={() => setViewMode('overview')} />;
   }
 
-  if (viewMode === 'get-cards' && ambassadorData) {
+  if (viewMode === 'get-cards' && (ambassadorData || localStorage.getItem('ambassador_id'))) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
         <SEO
@@ -135,23 +137,15 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-6 flex items-center justify-center">
-              <div className="text-center space-y-2">
-                <div className="w-48 h-48 bg-slate-200 rounded-lg flex items-center justify-center mx-auto">
-                  <svg className="w-36 h-36" viewBox="0 0 100 100">
-                    <rect x="10" y="10" width="15" height="15" fill="#000" />
-                    <rect x="35" y="10" width="15" height="15" fill="#000" />
-                    <rect x="60" y="10" width="15" height="15" fill="#000" />
-                    <rect x="10" y="35" width="15" height="15" fill="#000" />
-                    <rect x="35" y="35" width="15" height="15" fill="#fff" />
-                    <rect x="60" y="35" width="15" height="15" fill="#000" />
-                    <rect x="10" y="60" width="15" height="15" fill="#000" />
-                    <rect x="35" y="60" width="15" height="15" fill="#000" />
-                    <rect x="60" y="60" width="15" height="15" fill="#000" />
-                  </svg>
-                </div>
-                <p className="text-slate-600 text-sm font-semibold">Your Ambassador QR Code</p>
-              </div>
+            <div className="bg-white rounded-xl p-6 flex flex-col items-center gap-3">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://langaccess.org/help&bgcolor=ffffff&color=000000&margin=2`}
+                alt="Your Ambassador QR Code"
+                width={192}
+                height={192}
+                className="block rounded-lg"
+              />
+              <p className="text-slate-500 text-xs text-center">Scan to access LangAccess instantly</p>
             </div>
 
             <button
@@ -161,6 +155,8 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
               <Package className="w-5 h-5" />
               Download QR Code
             </button>
+            <p className="text-slate-400 text-xs text-center">Use this QR to share LangAccess in the real world.</p>
+            <p className="text-slate-500 text-xs text-center">Print it, text it, or show it to someone in need.</p>
           </div>
 
           <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 space-y-4">
@@ -168,6 +164,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
             <p className="text-slate-400 text-sm">
               Get professionally printed cards with your QR code to distribute in your community.
             </p>
+            <p className="text-slate-500 text-xs">Order physical cards with your QR code</p>
             <button
               onClick={onOrderCards || (() => alert('Card ordering feature coming soon!'))}
               className="w-full inline-flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors"
