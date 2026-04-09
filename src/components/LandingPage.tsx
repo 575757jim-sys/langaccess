@@ -265,7 +265,8 @@ export default function LandingPage({
                 )}
               </button>
 
-              <p className="mt-2.5 text-xs text-slate-500">Example: A patient explains symptoms. A worker reports a safety issue.</p>
+              <p className="mt-2.5 text-xs text-teal-400/70 font-medium tracking-wide">1 tap. Instant translation.</p>
+              <p className="mt-1.5 text-xs text-slate-500">Example: A patient explains symptoms. A worker reports a safety issue.</p>
               <p className="mt-1.5 text-xs text-slate-600">Real TTS audio — no sign-up needed</p>
             </div>
 
