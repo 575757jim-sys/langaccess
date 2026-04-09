@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Wifi, Briefcase, CheckCircle, Tablet, Menu, X, MapPin } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, Compass, Award, Users, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Smartphone, BookOpen, Wifi, Briefcase, CheckCircle, Tablet, Menu, X, MapPin, Loader2 } from 'lucide-react';
+import { playAudioFromGesture } from '../utils/speech';
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
 import ToolkitDownload from './ToolkitDownload';
@@ -82,6 +83,18 @@ export default function LandingPage({
 }: LandingPageProps) {
   const [showPilotModal, setShowPilotModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [demoPlaying, setDemoPlaying] = useState(false);
+  const [demoPlayed, setDemoPlayed] = useState(false);
+
+  const handleDemoPlay = () => {
+    if (demoPlaying) return;
+    setDemoPlaying(true);
+    playAudioFromGesture('¿Cuál es el problema?', 'spanish');
+    setTimeout(() => {
+      setDemoPlaying(false);
+      setDemoPlayed(true);
+    }, 3500);
+  };
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
@@ -269,6 +282,71 @@ export default function LandingPage({
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* ── INSTANT DEMO ── */}
+        <section className="bg-gradient-to-b from-slate-900 to-slate-950 py-14 px-6">
+          <div className="max-w-md mx-auto text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-teal-400 mb-4">Try it now</p>
+
+            <div className="bg-white/5 border border-white/10 rounded-3xl px-8 py-10 backdrop-blur-sm shadow-2xl">
+              <div className="mb-2">
+                <span className="inline-block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">English</span>
+                <p className="text-3xl sm:text-4xl font-extrabold text-white leading-tight tracking-tight mb-2">
+                  "What is the problem?"
+                </p>
+              </div>
+
+              <div className="flex items-center justify-center gap-2 mb-8 mt-4">
+                <div className="h-px flex-1 bg-white/10" />
+                <span className="text-slate-500 text-xs font-medium px-2">Spanish</span>
+                <div className="h-px flex-1 bg-white/10" />
+              </div>
+
+              <p
+                className={`text-2xl sm:text-3xl font-bold leading-snug transition-all duration-500 mb-8 ${
+                  demoPlayed ? 'text-teal-300 opacity-100' : 'text-slate-500 opacity-60'
+                }`}
+              >
+                ¿Cuál es el problema?
+              </p>
+
+              <button
+                onClick={handleDemoPlay}
+                disabled={demoPlaying}
+                className={`group w-full flex items-center justify-center gap-3 font-bold text-lg py-5 px-8 rounded-2xl transition-all duration-200 active:scale-[0.97] shadow-xl ${
+                  demoPlayed
+                    ? 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/30'
+                    : 'bg-teal-600 hover:bg-teal-500 text-white shadow-teal-600/40 hover:scale-[1.02]'
+                } disabled:opacity-70 disabled:cursor-not-allowed`}
+              >
+                {demoPlaying ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Playing…
+                  </>
+                ) : demoPlayed ? (
+                  <>
+                    <Volume2 className="w-5 h-5" />
+                    Play Again
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    Hear it in Spanish
+                  </>
+                )}
+              </button>
+
+              <p className="mt-3 text-xs text-slate-500">
+                Tap to hear instant translation
+              </p>
+            </div>
+
+            <p className="mt-6 text-sm text-slate-400">
+              Works in Spanish, Tagalog, Vietnamese, Mandarin &amp; Cantonese
+            </p>
           </div>
         </section>
 
