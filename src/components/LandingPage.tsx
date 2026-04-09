@@ -267,7 +267,7 @@ export default function LandingPage({
               <p className="mt-3 text-xs text-slate-500 italic">See possible responses</p>
             </div>
 
-            <p className="mt-5 text-sm font-medium text-teal-400/80 tracking-wide">Then choose your role below</p>
+            <p className="mt-5 text-sm font-medium text-teal-400/80 tracking-wide">Now choose your role</p>
 
             <p className="mt-2 text-xs text-slate-500">
               Works in Spanish, Tagalog, Vietnamese, Mandarin &amp; Cantonese
@@ -280,7 +280,7 @@ export default function LandingPage({
           <div className="max-w-2xl mx-auto">
             <p className="text-xs font-bold uppercase tracking-widest text-teal-400 text-center mb-2">Get started instantly</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white text-center tracking-tight mb-3">What do you do?</h2>
-            <p className="text-slate-400 text-center text-base mb-12">Choose your role and start communicating in seconds.</p>
+            <p className="text-slate-400 text-center text-sm mb-12">Choose your job to start communicating in seconds.</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
               {[
@@ -346,9 +346,10 @@ export default function LandingPage({
               <h2 className="text-xl sm:text-2xl font-extrabold text-white leading-tight mb-2">
                 Need help beyond communication?
               </h2>
-              <p className="text-slate-400 text-sm leading-relaxed mb-5">
+              <p className="text-slate-400 text-sm leading-relaxed mb-3">
                 Find local resources for housing, food, healthcare, and transportation.
               </p>
+              <p className="text-slate-500 text-xs mb-5">No apps. No logins. Works instantly.</p>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-6">
                 {[
                   { icon: <Wifi className="w-3 h-3" />, label: 'Offline Ready' },
@@ -424,7 +425,8 @@ export default function LandingPage({
           <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
           <div className="relative max-w-2xl mx-auto px-6 text-center">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Certified for your organization</h2>
-            <p className="text-teal-100/80 text-base mb-4">Serving multi-team organizations and compliance departments.</p>
+            <p className="text-teal-100/80 text-base mb-2">Serving multi-team organizations and compliance departments.</p>
+            <p className="text-teal-100/60 text-sm mb-4">Reduce interpreter costs and improve compliance instantly.</p>
             <p className="text-teal-100/70 text-sm mb-6">Includes Language Access Certification for staff compliance.</p>
             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-10 tracking-wide">
               <span className="w-1.5 h-1.5 rounded-full bg-teal-300 inline-block"></span>
