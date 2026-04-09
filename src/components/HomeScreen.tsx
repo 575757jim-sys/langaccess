@@ -406,16 +406,38 @@ export default function HomeScreen({
 
               <button
                 onClick={onOpenCommunityNavigator}
-                className="w-full bg-slate-800 hover:bg-slate-700 text-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] flex items-center gap-4 mb-4"
+                className="w-full bg-slate-800 hover:bg-slate-700 text-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] mb-4 text-left"
               >
-                <div className="w-12 h-12 bg-amber-400/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Compass className="w-6 h-6 text-amber-400" />
+                <div className="px-5 pt-5 pb-4 flex items-start gap-4">
+                  <div className="w-12 h-12 bg-amber-400/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Compass className="w-6 h-6 text-amber-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">Community Navigator</p>
+                    <h3 className="text-xl font-extrabold text-white leading-snug tracking-tight">Find help near you instantly</h3>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0 mt-1" />
                 </div>
-                <div className="text-left flex-1">
-                  <div className="font-bold text-base">Community Navigator</div>
-                  <div className="text-sm text-slate-300 mt-0.5">Find food, shelter, and services near you.</div>
+                <div className="px-5 pb-4 flex items-center gap-4">
+                  <div className="flex items-center gap-1.5 text-slate-300 text-xs font-semibold">
+                    <Building2 className="w-3.5 h-3.5 text-amber-400" />
+                    Housing
+                  </div>
+                  <div className="w-px h-3 bg-slate-600" />
+                  <div className="flex items-center gap-1.5 text-slate-300 text-xs font-semibold">
+                    <Wheat className="w-3.5 h-3.5 text-amber-400" />
+                    Food
+                  </div>
+                  <div className="w-px h-3 bg-slate-600" />
+                  <div className="flex items-center gap-1.5 text-slate-300 text-xs font-semibold">
+                    <Heart className="w-3.5 h-3.5 text-amber-400" />
+                    Healthcare
+                  </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                <div className="bg-amber-400 px-5 py-3 flex items-center justify-between">
+                  <span className="text-slate-900 font-bold text-sm">Open Community Navigator</span>
+                  <ChevronRight className="w-4 h-4 text-slate-900" />
+                </div>
               </button>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
