@@ -412,6 +412,51 @@ export default function LandingPage({
           </div>
         </section>
 
+        {/* ── COMMUNITY NAVIGATOR CTA ── */}
+        <section className="bg-slate-900 border-t border-white/6 py-14 px-6">
+          <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-center gap-8">
+            <div className="flex-1 text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2 mb-3">
+                <MapPin className="w-4 h-4 text-teal-400" />
+                <span className="text-xs font-bold uppercase tracking-widest text-teal-400">Community Resources</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-extrabold text-white leading-tight mb-2">
+                Need help beyond communication?
+              </h2>
+              <p className="text-slate-400 text-sm leading-relaxed mb-5">
+                Find local resources for housing, food, healthcare, and transportation.
+              </p>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-6">
+                {[
+                  { icon: <Wifi className="w-3 h-3" />, label: 'Offline Ready' },
+                  { icon: <Shield className="w-3 h-3" />, label: 'ID Vault' },
+                  { icon: <Zap className="w-3 h-3" />, label: 'Fast Access' },
+                ].map(({ icon, label }) => (
+                  <span
+                    key={label}
+                    className="inline-flex items-center gap-1.5 bg-white/8 border border-white/12 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-full"
+                  >
+                    {icon}
+                    {label}
+                  </span>
+                ))}
+              </div>
+              <button
+                onClick={onOpenCommunityNavigator}
+                className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-400 active:bg-teal-600 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-lg shadow-teal-900/40 transition-all duration-150 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Compass className="w-4 h-4" />
+                Open Community Navigator
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="hidden sm:flex flex-col items-center justify-center w-28 h-28 rounded-2xl bg-teal-500/10 border border-teal-500/20 flex-shrink-0">
+              <MapPin className="w-10 h-10 text-teal-400 mb-1" />
+              <span className="text-teal-300 text-xs font-semibold">Near You</span>
+            </div>
+          </div>
+        </section>
+
         {/* ── TRUST BAR ── */}
         <section className="w-full border-y border-slate-200" style={{ backgroundColor: '#F5F5F5' }}>
           <div className="max-w-6xl mx-auto px-6" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
