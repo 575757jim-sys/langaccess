@@ -87,12 +87,13 @@ export default function DebugOverlay() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="safe-bottom-fixed"
         style={{
-          right: '16px',
+          position: 'fixed',
+          top: '72px',
+          right: '12px',
           zIndex: 9999,
-          width: '48px',
-          height: '48px',
+          width: '44px',
+          height: '44px',
           borderRadius: '50%',
           backgroundColor: '#1e293b',
           border: '2px solid #475569',

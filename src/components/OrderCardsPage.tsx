@@ -388,7 +388,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         </p>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-8 space-y-10">
+      <div className="max-w-3xl mx-auto px-4 py-8 space-y-10" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
 
         {ambassador && (
           <div className="bg-[#111827] rounded-2xl p-6 border border-white/10">
@@ -535,6 +535,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
             onClick={handleConfirmOrder}
             disabled={step === 'submitting'}
             className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3"
+            style={{ position: 'relative', zIndex: 10, touchAction: 'manipulation', minHeight: 56 }}
           >
             {step === 'submitting' ? (
               <>
@@ -553,6 +554,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
             onClick={handleOrder}
             disabled={step === 'previewing'}
             className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3"
+            style={{ position: 'relative', zIndex: 10, touchAction: 'manipulation', minHeight: 56 }}
           >
             {step === 'previewing' ? (
               <>

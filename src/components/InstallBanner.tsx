@@ -37,6 +37,7 @@ export default function InstallBanner() {
     if (localStorage.getItem(DISMISSED_KEY)) return;
     if (isInStandaloneMode()) return;
     if (window.innerWidth >= 768) return;
+    if (window.location.pathname === '/order-cards') return;
 
     const timer = setTimeout(() => setShow(true), 8000);
     return () => clearTimeout(timer);
