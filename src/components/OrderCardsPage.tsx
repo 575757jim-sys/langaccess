@@ -18,7 +18,7 @@ interface AmbassadorData {
   ref_code: string | null;
 }
 
-type Step = 'loading' | 'unauthorized' | 'ready' | 'previewing' | 'submitting' | 'success' | 'error';
+type Step = 'loading' | 'unauthorized' | 'ready' | 'previewing' | 'submitting' | 'success';
 
 const QUANTITY_OPTIONS = [
   { value: 25, label: '25 cards', cost: '$8–10' },
@@ -187,24 +187,25 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     loadAmbassador();
   }, []);
 
-  function resolveAmbassadorFields(): { fullName: string; cityState: string } | null {
+  function resolveAmbassadorFields(): { fullName: string; cityState: string } {
     let fullName = (ambassador?.full_name || '').trim();
     let cityState = (ambassador?.city_state || '').trim();
 
-    if (!fullName || !cityState) {
-      const localData = localStorage.getItem('ambassador_data');
-      const parsed = localData ? JSON.parse(localData) : null;
-      if (!fullName && parsed?.name) fullName = (parsed.name as string).trim();
-      if (!cityState && parsed?.city) {
-        const rawCity = (parsed.city as string).trim();
-        const parts = rawCity.split(',');
-        cityState = parts.length > 1
-          ? `${parts[0].trim()}, ${parts[1].trim()}`
-          : `${rawCity}, CA`;
-      }
+    const localData = localStorage.getItem('ambassador_data');
+    const parsed = localData ? (() => { try { return JSON.parse(localData); } catch { return null; } })() : null;
+
+    if (!fullName && parsed?.name) fullName = (parsed.name as string).trim();
+    if (!cityState && parsed?.city) {
+      const rawCity = (parsed.city as string).trim();
+      const parts = rawCity.split(',');
+      cityState = parts.length > 1
+        ? `${parts[0].trim()}, ${parts[1].trim()}`
+        : `${rawCity}, CA`;
     }
 
-    if (!fullName || !cityState) return null;
+    if (!fullName) fullName = ambassador?.email?.split('@')[0] || 'Ambassador';
+    if (!cityState) cityState = 'Your City, CA';
+
     return { fullName, cityState };
   }
 
@@ -214,12 +215,6 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     setErrorMsg('');
 
     const fields = resolveAmbassadorFields();
-    if (!fields) {
-      setErrorMsg('Missing required fields. Please go back and complete your ambassador profile.');
-      setStep('error');
-      return;
-    }
-
     const { fullName } = fields;
     const formattedCityState = normalizeCityState(fields.cityState);
     const city = formattedCityState.split(',')[0]?.trim() || '';
@@ -227,8 +222,10 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const slug = ambassador.slug || ambassador.ref_code || ambassador.id || 'langaccess';
     const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-    let frontFileUrl = 'https://langaccess.org/card-front.pdf';
-    let backFileUrl = 'https://langaccess.org/card-back.pdf';
+    const fallbackFront = 'https://langaccess.org/card-front.pdf';
+    const fallbackBack = 'https://langaccess.org/card-back.pdf';
+    let frontFileUrl = fallbackFront;
+    let backFileUrl = fallbackBack;
     let composed: string = '';
     let stepLabel = 'not_started';
 
@@ -243,15 +240,15 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         if (pdfData.frontFileUrl) frontFileUrl = pdfData.frontFileUrl;
         if (pdfData.backFileUrl) backFileUrl = pdfData.backFileUrl;
         if (pdfData.composedDataUrl) composed = pdfData.composedDataUrl;
-        if (pdfData.composeStep) stepLabel = pdfData.composeStep;
+        stepLabel = pdfData.composeStep || 'success';
         console.log('[OrderCards] generate-card-pdf composeStep:', pdfData.composeStep);
       } else {
         stepLabel = `generate_card_pdf_http_${pdfRes.status}`;
-        console.warn('[OrderCards] generate-card-pdf failed:', pdfRes.status);
+        console.warn('[OrderCards] generate-card-pdf failed:', pdfRes.status, '— using fallback print assets');
       }
     } catch (imgErr) {
       stepLabel = 'generate_card_pdf_network_error';
-      console.warn('[OrderCards] generate-card-pdf error:', imgErr);
+      console.warn('[OrderCards] generate-card-pdf error:', imgErr, '— using fallback print assets');
     }
 
     setComposedPreviewUrl(composed);
@@ -266,7 +263,14 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     setStep('submitting');
     setErrorMsg('');
 
-    const { fullName, formattedCityState, city, state, frontFileUrl, backFileUrl } = pendingOrderData;
+    const fields = resolveAmbassadorFields();
+    const fullName = pendingOrderData.fullName || fields.fullName;
+    const { formattedCityState, city, state } = pendingOrderData;
+    const resolvedCity = city || formattedCityState.split(',')[0]?.trim() || '';
+    const resolvedState = state || formattedCityState.split(',')[1]?.trim() || '';
+
+    const frontFileUrl = pendingOrderData.frontFileUrl || 'https://langaccess.org/card-front.pdf';
+    const backFileUrl = pendingOrderData.backFileUrl || 'https://langaccess.org/card-back.pdf';
 
     try {
       const gelatoRes = await fetch('/.netlify/functions/create-gelato-order', {
@@ -278,8 +282,8 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
           email: ambassador.email,
           phone: '',
           shipping_address: ambassador.street_address || '',
-          city,
-          state,
+          city: resolvedCity,
+          state: resolvedState,
           zip: ambassador.zip_code || '',
           quantity,
           frontFileUrl,
@@ -289,13 +293,13 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
       if (!gelatoRes.ok) {
         const err = await gelatoRes.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(err.error || 'Could not prepare print file. Please try again.');
+        throw new Error(err.error || 'Could not submit order. Please try again.');
       }
 
       setStep('success');
     } catch (err: unknown) {
       setErrorMsg((err as Error)?.message || 'Something went wrong. Please try again.');
-      setStep('error');
+      setStep('ready');
     }
   };
 
@@ -524,9 +528,9 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
           </div>
         )}
 
-        {step === 'error' && errorMsg && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
-            <p className="text-red-400 text-sm">{errorMsg}</p>
+        {errorMsg && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3">
+            <p className="text-amber-400 text-sm">{errorMsg}</p>
           </div>
         )}
 
