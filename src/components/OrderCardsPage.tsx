@@ -85,8 +85,9 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const [ambassador, setAmbassador] = useState<AmbassadorData | null>(null);
   const [quantity, setQuantity] = useState(25);
   const [errorMsg, setErrorMsg] = useState('');
-  const [previewQrUrl, setPreviewQrUrl] = useState('');
   const [previewCityState, setPreviewCityState] = useState('');
+  const [composedPreviewUrl, setComposedPreviewUrl] = useState('');
+  const [composeStep, setComposeStep] = useState('');
   const [pendingOrderData, setPendingOrderData] = useState<{
     fullName: string;
     formattedCityState: string;
@@ -226,9 +227,10 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const slug = ambassador.slug || ambassador.ref_code || ambassador.id || 'langaccess';
     const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-    const fallbackQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&ecc=H&data=${encodeURIComponent(`https://langaccess.org/r/${encodeURIComponent(slug)}`)}`;
-    let frontFileUrl = fallbackQrUrl;
+    let frontFileUrl = 'https://langaccess.org/card-front.pdf';
     let backFileUrl = 'https://langaccess.org/card-back.pdf';
+    let composed: string = '';
+    let stepLabel = 'not_started';
 
     try {
       const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
@@ -240,14 +242,20 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         const pdfData = await pdfRes.json();
         if (pdfData.frontFileUrl) frontFileUrl = pdfData.frontFileUrl;
         if (pdfData.backFileUrl) backFileUrl = pdfData.backFileUrl;
+        if (pdfData.composedDataUrl) composed = pdfData.composedDataUrl;
+        if (pdfData.composeStep) stepLabel = pdfData.composeStep;
+        console.log('[OrderCards] generate-card-pdf composeStep:', pdfData.composeStep);
       } else {
-        console.warn('[OrderCards] generate-card-pdf failed — using fallback QR');
+        stepLabel = `generate_card_pdf_http_${pdfRes.status}`;
+        console.warn('[OrderCards] generate-card-pdf failed:', pdfRes.status);
       }
     } catch (imgErr) {
-      console.warn('[OrderCards] generate-card-pdf error — using fallback QR:', imgErr);
+      stepLabel = 'generate_card_pdf_network_error';
+      console.warn('[OrderCards] generate-card-pdf error:', imgErr);
     }
 
-    setPreviewQrUrl(frontFileUrl);
+    setComposedPreviewUrl(composed);
+    setComposeStep(stepLabel);
     setPreviewCityState(formattedCityState);
     setPendingOrderData({ fullName, formattedCityState, city, state, slug, frontFileUrl, backFileUrl });
     setStep('ready');
@@ -403,7 +411,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
               </div>
               <div>
                 <p className="text-slate-500 text-xs mb-1">Location</p>
-                <p className="text-white font-medium">{ambassador.city_state}</p>
+                <p className="text-white font-medium">{normalizeCityState(ambassador.city_state)}</p>
               </div>
               {ambassador.street_address && (
                 <div>
@@ -428,7 +436,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
               <CardFrontPreview
                 slug={ambassador.slug}
                 fullName={ambassador.full_name}
-                cityState={ambassador.city_state}
+                cityState={normalizeCityState(ambassador.city_state)}
               />
             </div>
             <p className="text-slate-500 text-xs text-center mt-3">Your unique QR code is printed on every card</p>
@@ -458,31 +466,61 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
         </div>
 
-        {previewQrUrl && pendingOrderData && (
+        {pendingOrderData && (
           <div className="bg-[#111827] rounded-2xl p-5 border border-white/10">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-4">
               <ImageIcon className="w-4 h-4 text-green-400" />
-              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Print Asset Verified</h2>
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+                {composedPreviewUrl ? 'Card Preview — Print Ready' : 'Print Asset Ready'}
+              </h2>
             </div>
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 rounded-lg overflow-hidden bg-white p-1" style={{ width: 80, height: 80 }}>
-                <img
-                  src={previewQrUrl}
-                  alt="QR for print"
-                  width={72}
-                  height={72}
-                  className="block"
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0.3'; }}
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-medium mb-0.5">QR code ready</p>
+
+            {composedPreviewUrl ? (
+              <div>
+                <div className="rounded-xl overflow-hidden border border-white/10 mb-3">
+                  <img
+                    src={composedPreviewUrl}
+                    alt="Your business card with QR code"
+                    className="w-full block"
+                    style={{ maxHeight: 260, objectFit: 'contain', background: '#000' }}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </div>
                 <p className="text-slate-400 text-xs leading-relaxed">
-                  Your unique QR code is confirmed. Shipping to <span className="text-white font-medium">{previewCityState}</span>.
+                  Your card is ready with your unique QR code. Shipping to{' '}
+                  <span className="text-white font-medium">{previewCityState}</span>.
                 </p>
-                <p className="text-slate-500 text-xs mt-1.5 break-all">{previewQrUrl.slice(0, 80)}{previewQrUrl.length > 80 ? '…' : ''}</p>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 flex flex-col items-center gap-1 bg-black rounded-lg p-2" style={{ minWidth: 120 }}>
+                  <div className="rounded overflow-hidden bg-white p-1" style={{ width: 90, height: 90 }}>
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=H&data=${encodeURIComponent(`https://langaccess.org/r/${encodeURIComponent(pendingOrderData.slug)}`)}`}
+                      alt="QR code"
+                      width={82}
+                      height={82}
+                      className="block"
+                    />
+                  </div>
+                  <p className="text-[10px] font-semibold mt-1" style={{ color: '#2dff72' }}>langaccess.org</p>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-sm font-medium mb-1">QR code ready</p>
+                  <p className="text-slate-400 text-xs leading-relaxed mb-2">
+                    Your unique QR code is confirmed. Shipping to{' '}
+                    <span className="text-white font-medium">{previewCityState}</span>.
+                  </p>
+                  {composeStep && composeStep !== 'success' && (
+                    <p className="text-amber-500/70 text-[10px]">
+                      Card preview unavailable ({composeStep}). Print file is ready.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
