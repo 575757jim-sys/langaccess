@@ -119,8 +119,11 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         if (localData) {
           try {
             const parsed = JSON.parse(localData);
-            const cityParts = (parsed.city || '').split(',');
-            const cityState = cityParts.length > 1 ? parsed.city : `${parsed.city}, `;
+            const rawCity = (parsed.city || '').trim();
+            const cityParts = rawCity.split(',');
+            const cityState = cityParts.length > 1
+              ? `${cityParts[0].trim()}, ${cityParts[1].trim()}`
+              : rawCity ? `${rawCity}, CA` : '';
             setAmbassador({
               id: parsed.code || '',
               full_name: parsed.name || '',
@@ -171,14 +174,36 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     setErrorMsg('');
 
     try {
-      const cityState = ambassador.city_state;
+      const fullName = (ambassador.full_name || '').trim();
+      const cityState = (ambassador.city_state || '').trim();
+
+      if (!fullName || !cityState) {
+        const localData = localStorage.getItem('ambassador_data');
+        const parsed = localData ? JSON.parse(localData) : null;
+        if (!fullName && parsed?.name) {
+          setAmbassador(prev => prev ? { ...prev, full_name: parsed.name } : prev);
+        }
+        if (!cityState && parsed?.city) {
+          const rawCity = (parsed.city || '').trim();
+          const parts = rawCity.split(',');
+          const fixed = parts.length > 1 ? `${parts[0].trim()}, ${parts[1].trim()}` : `${rawCity}, CA`;
+          setAmbassador(prev => prev ? { ...prev, city_state: fixed } : prev);
+        }
+        if (!fullName || !cityState) {
+          setErrorMsg('Missing required fields. Please go back and complete your ambassador profile.');
+          setStep('error');
+          return;
+        }
+      }
+
+      const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}`;
 
       const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          qr_slug: ambassador.slug || ambassador.id,
-          full_name: ambassador.full_name,
+          order_id: orderId,
+          full_name: fullName,
           city_state: cityState,
         }),
       });
@@ -199,7 +224,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ambassador_id: ambassador.id,
-          full_name: ambassador.full_name,
+          full_name: fullName,
           email: ambassador.email,
           phone: '',
           shipping_address: ambassador.street_address || '',
@@ -315,7 +340,18 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
         {ambassador && (
           <div className="bg-[#111827] rounded-2xl p-6 border border-white/10">
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Shipping To</h2>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Shipping To</h2>
+                <p className="text-slate-500 text-xs mt-0.5">Auto-filled from your ambassador profile</p>
+              </div>
+              <button
+                onClick={onBack}
+                className="text-xs text-slate-400 hover:text-white underline underline-offset-2 transition-colors"
+              >
+                Edit
+              </button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div>
                 <p className="text-slate-500 text-xs mb-1">Name</p>
