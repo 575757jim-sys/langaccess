@@ -233,15 +233,18 @@ export default function LandingPage({
                 ¿Cuál es el problema?
               </p>
 
+              {!demoPlayed && !demoPlaying && (
+                <p className="text-teal-300 text-xs font-semibold uppercase tracking-widest mb-2">Tap to hear instantly</p>
+              )}
               <button
                 onClick={handleDemoPlay}
                 disabled={demoPlaying}
                 className={`group w-full flex items-center justify-center gap-3 font-bold text-xl py-5 px-6 rounded-xl transition-all duration-200 active:scale-[0.97] shadow-xl ${
                   demoPlayed
-                    ? 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/50'
-                    : 'bg-teal-500 hover:bg-teal-400 text-white shadow-teal-500/60 hover:scale-[1.02]'
+                    ? 'bg-teal-400 hover:bg-teal-300 text-white shadow-teal-400/50'
+                    : 'bg-teal-400 hover:bg-teal-300 text-white shadow-teal-400/70 hover:scale-[1.02]'
                 } disabled:opacity-70 disabled:cursor-not-allowed`}
-                style={!demoPlayed && !demoPlaying ? { animation: 'pulse-glow 2s ease-in-out infinite', boxShadow: '0 0 24px 4px rgba(20,184,166,0.45)' } : { boxShadow: '0 0 18px 2px rgba(20,184,166,0.30)' }}
+                style={!demoPlayed && !demoPlaying ? { animation: 'pulse-glow 2s ease-in-out infinite', boxShadow: '0 0 28px 6px rgba(45,212,191,0.55)' } : { boxShadow: '0 0 18px 2px rgba(45,212,191,0.35)' }}
               >
                 {demoPlaying ? (
                   <>
@@ -250,12 +253,12 @@ export default function LandingPage({
                   </>
                 ) : demoPlayed ? (
                   <>
-                    <Volume2 className="w-7 h-7" />
+                    <Volume2 className="w-8 h-8" />
                     Play Again
                   </>
                 ) : (
                   <>
-                    <Volume2 className="w-7 h-7 group-hover:scale-110 transition-transform" />
+                    <Volume2 className="w-8 h-8 group-hover:scale-110 transition-transform" />
                     Hear it in Spanish
                   </>
                 )}
@@ -283,9 +286,9 @@ export default function LandingPage({
               {[
                 { icon: <Building2 className="w-6 h-6" />, label: 'Property Manager', desc: 'Fix issues, explain rules, and manage tenants.', sector: 'property-management' as Sector, accent: 'border-sky-500/60 hover:border-sky-400/90', iconBg: 'bg-sky-500/20 text-sky-300' },
                 { icon: <HardHat className="w-6 h-6" />, label: 'Construction', desc: 'Give safety instructions and guide your crew.', sector: 'construction' as Sector, accent: 'border-orange-500/60 hover:border-orange-400/90', iconBg: 'bg-orange-500/20 text-orange-300' },
-                { icon: <Warehouse className="w-6 h-6" />, label: 'Warehouse', desc: 'Direct tasks, move items, and avoid mistakes.', sector: 'warehouse' as Sector, accent: 'border-amber-500/60 hover:border-amber-400/90', iconBg: 'bg-amber-500/20 text-amber-300' },
-                { icon: <Hotel className="w-6 h-6" />, label: 'Hospitality', desc: 'Help guests, solve problems, and provide service.', sector: 'hospitality' as Sector, accent: 'border-rose-500/60 hover:border-rose-400/90', iconBg: 'bg-rose-500/20 text-rose-300' },
-                { icon: <Leaf className="w-6 h-6" />, label: 'Agriculture', desc: 'Guide work, ensure safety, and manage crews.', sector: 'agriculture' as Sector, accent: 'border-green-500/60 hover:border-green-400/90', iconBg: 'bg-green-500/20 text-green-300' },
+                { icon: <Warehouse className="w-6 h-6" />, label: 'Warehouse', desc: 'Direct tasks and avoid costly mistakes.', sector: 'warehouse' as Sector, accent: 'border-amber-500/60 hover:border-amber-400/90', iconBg: 'bg-amber-500/20 text-amber-300' },
+                { icon: <Hotel className="w-6 h-6" />, label: 'Hospitality', desc: 'Help guests and resolve problems fast.', sector: 'hospitality' as Sector, accent: 'border-rose-500/60 hover:border-rose-400/90', iconBg: 'bg-rose-500/20 text-rose-300' },
+                { icon: <Leaf className="w-6 h-6" />, label: 'Agriculture', desc: 'Guide work and keep crews safe.', sector: 'agriculture' as Sector, accent: 'border-green-500/60 hover:border-green-400/90', iconBg: 'bg-green-500/20 text-green-300' },
               ].map(({ icon, label, desc, sector, accent, iconBg }) => (
                 <button
                   key={label}
@@ -436,7 +439,8 @@ export default function LandingPage({
               <Compass className="w-5 h-5" />
               Request Institutional Pilot
             </button>
-            <p className="text-teal-300/60 text-xs mt-4">For multi-team deployments, staff training, or compliance integration</p>
+            <p className="text-teal-100/70 text-sm font-semibold mt-5">Reduce interpreter costs and meet compliance requirements instantly.</p>
+            <p className="text-teal-300/60 text-xs mt-2">For multi-team deployments, staff training, or compliance integration</p>
           </div>
         </section>
 
