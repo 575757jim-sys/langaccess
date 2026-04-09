@@ -556,6 +556,12 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
                           )}
                         </div>
 
+                        {phrase.responses.length === 0 && (
+                          <div className="border-t border-slate-100 px-5 py-2.5">
+                            <span className="text-xs text-slate-400">See possible responses</span>
+                          </div>
+                        )}
+
                         {/* Quick Reply Buttons */}
                         {phrase.responses.length > 0 && (
                           <div className="border-t border-slate-100">
