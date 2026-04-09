@@ -205,22 +205,35 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
       const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-      const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          order_id: orderId,
-          full_name: fullName,
-          city_state: formattedCityState,
-        }),
-      });
+      const slug = ambassador.slug || ambassador.ref_code || ambassador.id || 'langaccess';
+      const qrDataUrl = `https://langaccess.org/r/${encodeURIComponent(slug)}`;
+      const fallbackQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&ecc=H&data=${encodeURIComponent(qrDataUrl)}`;
 
-      if (!pdfRes.ok) {
-        const err = await pdfRes.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(err.error || 'Failed to generate card images');
+      let frontFileUrl: string = fallbackQrUrl;
+      let backFileUrl: string = '';
+
+      try {
+        const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            order_id: orderId,
+            full_name: fullName,
+            city_state: formattedCityState,
+            slug,
+          }),
+        });
+
+        if (pdfRes.ok) {
+          const pdfData = await pdfRes.json();
+          if (pdfData.frontFileUrl) frontFileUrl = pdfData.frontFileUrl;
+          if (pdfData.backFileUrl) backFileUrl = pdfData.backFileUrl;
+        } else {
+          console.warn('[OrderCards] Card image generation failed — continuing with QR fallback');
+        }
+      } catch (imgErr) {
+        console.warn('[OrderCards] Card image generation error — continuing with QR fallback:', imgErr);
       }
-
-      const { frontFileUrl, backFileUrl } = await pdfRes.json();
 
       const city = formattedCityState.split(',')[0]?.trim() || '';
       const state = formattedCityState.split(',')[1]?.trim() || '';
