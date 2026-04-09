@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users, MessageSquare, HardHat, Star, Maximize2, Mic, MicOff, Share2, Monitor } from 'lucide-react';
+import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users, MessageSquare, HardHat, Star, Maximize2, Mic, MicOff, Share2, Monitor, Award } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, outreachPhrases, hospitalityPhrases, warehousePhrases, propertyManagementPhrases, agriculturePhrases, PhraseGroup } from '../data/subcategories';
 import { loadCustomPhrases, addCustomPhrase, deleteCustomPhrase } from '../utils/storage';
@@ -31,6 +31,7 @@ interface PhrasesScreenProps {
   onOpenConversation?: () => void;
   onOpenTalkTogether?: () => void;
   onOpenJobSiteTalk?: () => void;
+  onOpenCertificates?: () => void;
 }
 
 interface PointAndSpeakData {
@@ -38,7 +39,7 @@ interface PointAndSpeakData {
   translation: string;
 }
 
-export default function PhrasesScreen({ language, sector, subcategory, onBack, onOpenConversation, onOpenTalkTogether, onOpenJobSiteTalk }: PhrasesScreenProps) {
+export default function PhrasesScreen({ language, sector, subcategory, onBack, onOpenConversation, onOpenTalkTogether, onOpenJobSiteTalk, onOpenCertificates }: PhrasesScreenProps) {
   const data = languageData[language];
   const allPhraseData = { ...subcategoryPhrases, ...outreachPhrases, ...hospitalityPhrases, ...warehousePhrases, ...propertyManagementPhrases, ...agriculturePhrases };
   const phraseGroups: PhraseGroup[] = allPhraseData[subcategory]?.[language] || [];
@@ -762,6 +763,21 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
               Request a Phrase
             </a>
           </div>
+
+          {onOpenCertificates && (
+            <div className="mt-4 flex items-center justify-between gap-4 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Award className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                <p className="text-sm text-slate-600">Want to master this?</p>
+              </div>
+              <button
+                onClick={onOpenCertificates}
+                className="flex-shrink-0 text-xs font-semibold text-slate-700 border border-slate-300 hover:border-slate-400 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                Start Certification
+              </button>
+            </div>
+          )}
 
           <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
             <p className="text-sm text-amber-900 text-center leading-relaxed">

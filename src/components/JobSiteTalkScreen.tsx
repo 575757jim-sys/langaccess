@@ -1,11 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { ArrowLeft, Volume2, Loader2, RefreshCw, Mic, MicOff, Send, ArrowUpDown } from 'lucide-react';
+import { ArrowLeft, Volume2, Loader2, RefreshCw, Mic, MicOff, Send, ArrowUpDown, Award } from 'lucide-react';
 import { Language, languageData } from '../data/phrases';
 import { globalAudio, playAudioFromGesture, fetchTTSBlob, ANON_KEY_VALUE } from '../utils/speech';
 
 interface JobSiteTalkScreenProps {
   language: Language;
   onBack: () => void;
+  onOpenCertificates?: () => void;
 }
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
@@ -116,7 +117,7 @@ interface PanelInputState {
 
 const freshInput = (): PanelInputState => ({ text: '', mode: 'type', recording: false, busy: false });
 
-export default function JobSiteTalkScreen({ language, onBack }: JobSiteTalkScreenProps) {
+export default function JobSiteTalkScreen({ language, onBack, onOpenCertificates }: JobSiteTalkScreenProps) {
   const langData = languageData[language];
   const langCode = TRANSLATE_CODES[language];
   const isRtl = language === 'arabic';
@@ -490,6 +491,23 @@ export default function JobSiteTalkScreen({ language, onBack }: JobSiteTalkScree
           </div>
         </div>
       </div>
+
+      {onOpenCertificates && (
+        <div className="px-4 pb-4">
+          <div className="flex items-center justify-between gap-4 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Award className="w-4 h-4 text-slate-400 flex-shrink-0" />
+              <p className="text-sm text-slate-600">Want to master this?</p>
+            </div>
+            <button
+              onClick={onOpenCertificates}
+              className="flex-shrink-0 text-xs font-semibold text-slate-700 border border-slate-300 hover:border-slate-400 hover:bg-slate-100 px-3 py-1.5 rounded-lg transition-colors"
+            >
+              Start Certification
+            </button>
+          </div>
+        </div>
+      )}
 
       <div ref={scrollRef} />
     </div>

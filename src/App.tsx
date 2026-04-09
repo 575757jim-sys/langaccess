@@ -298,6 +298,7 @@ function AppInner() {
         <ConversationScreen
           language={selectedLanguage}
           onBack={() => setView('phrases')}
+          onOpenCertificates={() => setView('certificates')}
         />
       );
     }
@@ -316,6 +317,7 @@ function AppInner() {
         <JobSiteTalkScreen
           language={selectedLanguage}
           onBack={() => setView('subcategory')}
+          onOpenCertificates={() => setView('certificates')}
         />
       );
     }
@@ -330,6 +332,7 @@ function AppInner() {
           onOpenConversation={selectedSector === 'healthcare' ? handleOpenConversation : undefined}
           onOpenTalkTogether={selectedSector === 'education' ? () => setView('talk-together') : undefined}
           onOpenJobSiteTalk={selectedSector === 'construction' ? () => setView('job-site-talk') : undefined}
+          onOpenCertificates={() => setView('certificates')}
         />
       );
     }
