@@ -280,11 +280,11 @@ export default function LandingPage({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
               {[
-                { icon: <Building2 className="w-6 h-6" />, label: 'Property Manager', desc: 'Maintenance requests, lease terms, inspections', sector: 'construction' as Sector, accent: 'border-sky-500/40 hover:border-sky-400/60', iconBg: 'bg-sky-500/20 text-sky-300' },
+                { icon: <Building2 className="w-6 h-6" />, label: 'Property Manager', desc: 'Maintenance requests, lease terms, inspections', sector: 'property-management' as Sector, accent: 'border-sky-500/40 hover:border-sky-400/60', iconBg: 'bg-sky-500/20 text-sky-300' },
                 { icon: <HardHat className="w-6 h-6" />, label: 'Construction', desc: 'Safety instructions for multilingual crews', sector: 'construction' as Sector, accent: 'border-orange-500/40 hover:border-orange-400/60', iconBg: 'bg-orange-500/20 text-orange-300' },
-                { icon: <Warehouse className="w-6 h-6" />, label: 'Warehouse', desc: 'Shift briefings, safety protocols, task direction', sector: 'construction' as Sector, accent: 'border-amber-500/40 hover:border-amber-400/60', iconBg: 'bg-amber-500/20 text-amber-300' },
-                { icon: <Hotel className="w-6 h-6" />, label: 'Hospitality', desc: 'Guest services, housekeeping, front desk', sector: 'outreach' as Sector, accent: 'border-rose-500/40 hover:border-rose-400/60', iconBg: 'bg-rose-500/20 text-rose-300' },
-                { icon: <Leaf className="w-6 h-6" />, label: 'Agriculture', desc: 'Field operations, crop handling, safety rules', sector: 'construction' as Sector, accent: 'border-green-500/40 hover:border-green-400/60', iconBg: 'bg-green-500/20 text-green-300' },
+                { icon: <Warehouse className="w-6 h-6" />, label: 'Warehouse', desc: 'Shift briefings, safety protocols, task direction', sector: 'warehouse' as Sector, accent: 'border-amber-500/40 hover:border-amber-400/60', iconBg: 'bg-amber-500/20 text-amber-300' },
+                { icon: <Hotel className="w-6 h-6" />, label: 'Hospitality', desc: 'Guest services, housekeeping, front desk', sector: 'hospitality' as Sector, accent: 'border-rose-500/40 hover:border-rose-400/60', iconBg: 'bg-rose-500/20 text-rose-300' },
+                { icon: <Leaf className="w-6 h-6" />, label: 'Agriculture', desc: 'Field operations, crop handling, safety rules', sector: 'agriculture' as Sector, accent: 'border-green-500/40 hover:border-green-400/60', iconBg: 'bg-green-500/20 text-green-300' },
               ].map(({ icon, label, desc, sector, accent, iconBg }) => (
                 <button
                   key={label}
