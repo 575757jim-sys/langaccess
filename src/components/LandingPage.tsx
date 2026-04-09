@@ -18,12 +18,6 @@ const JSON_LD_WEB_APP = {
   inLanguage: ['en', 'es', 'tl', 'vi', 'zh'],
 };
 
-const SECTOR_CARDS = [
-  { emoji: '🎓', title: 'Education', description: 'Teachers communicate clearly with students and families across languages.', border: 'border-blue-100', accentBg: 'bg-blue-50', accentText: 'text-blue-500' },
-  { emoji: '🏥', title: 'Healthcare', description: 'Medical staff deliver intake questions and instructions quickly and accurately.', border: 'border-green-100', accentBg: 'bg-green-50', accentText: 'text-green-500' },
-  { emoji: '🦺', title: 'Construction', description: 'Supervisors deliver safety instructions to multilingual crews on-site.', border: 'border-orange-100', accentBg: 'bg-orange-50', accentText: 'text-orange-500' },
-  { emoji: '🤝', title: 'Community Outreach', description: 'Outreach workers connect people to shelters, food, and vital services.', border: 'border-teal-100', accentBg: 'bg-teal-50', accentText: 'text-teal-500' },
-];
 
 const HOW_STEPS = [
   { step: '1', label: 'Choose your sector', desc: 'Pick Education, Healthcare, Construction, or Outreach.' },
@@ -102,7 +96,6 @@ export default function LandingPage({
               { label: 'How It Works', action: () => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }) },
               { label: 'Ambassador Brigade', action: onOpenAmbassadors },
               { label: 'Certificates', action: () => onOpenCertificates?.() },
-              { label: 'For Institutions', action: () => document.getElementById('sectors')?.scrollIntoView({ behavior: 'smooth' }) },
             ].map(({ label, action }) => (
               <button
                 key={label}
@@ -151,7 +144,6 @@ export default function LandingPage({
               { label: 'How It Works', action: () => { document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
               { label: 'Ambassador Brigade', action: () => { onOpenAmbassadors?.(); closeMobileMenu(); } },
               { label: 'Certificates', action: () => { onOpenCertificates?.(); closeMobileMenu(); } },
-              { label: 'For Institutions', action: () => { document.getElementById('sectors')?.scrollIntoView({ behavior: 'smooth' }); closeMobileMenu(); } },
             ].map(({ label, action }) => (
               <button
                 key={label}
@@ -383,30 +375,6 @@ export default function LandingPage({
           </div>
         </section>
 
-        {/* ── TRUST BAR ── */}
-        <section className="w-full border-y border-slate-200 bg-slate-50">
-          <div className="max-w-6xl mx-auto px-6 py-5">
-            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
-              <span className="text-slate-400 text-xs font-semibold uppercase tracking-widest mr-1 flex-shrink-0">Trusted by:</span>
-              {[
-                { label: 'Healthcare', emoji: '🏥' },
-                { label: 'Education', emoji: '🎓' },
-                { label: 'Construction', emoji: '🦺' },
-                { label: 'Community Organizations', emoji: '🤝' },
-              ].map(({ label, emoji }) => (
-                <span
-                  key={label}
-                  className="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 text-sm font-semibold px-3 py-2 rounded-full shadow-sm"
-                >
-                  <span>{emoji}</span>
-                  {label}
-                </span>
-              ))}
-              <span className="text-slate-400 text-xs font-medium ml-1 flex-shrink-0">across the Bay Area</span>
-            </div>
-          </div>
-        </section>
-
         {/* ── HOW IT WORKS ── */}
         <section id="how-it-works" className="py-24 sm:py-28 bg-white">
           <div className="max-w-5xl mx-auto px-6">
@@ -434,59 +402,6 @@ export default function LandingPage({
             <p className="text-center text-slate-500 text-base mt-12">
               Includes pre-built phrase packs for Healthcare, Construction, Education, and Community settings.
             </p>
-          </div>
-        </section>
-
-        {/* ── BUILT FOR FRONTLINE ── */}
-        <section id="sectors" className="py-24 sm:py-28 bg-slate-50">
-          <div className="max-w-5xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-3">Who it's for</p>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-5 tracking-tight">Built for Frontline Professionals</h2>
-              <p className="text-slate-500 max-w-xl mx-auto text-lg leading-relaxed">Every sector has unique communication needs. LangAccess is designed around real situations you face every day.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {SECTOR_CARDS.map(({ emoji, title, description, border, accentBg, accentText }) => {
-                const sectorId = title.toLowerCase() as Sector;
-                const isMainSector = ['education', 'healthcare', 'construction'].includes(sectorId);
-                return (
-                  <div
-                    key={title}
-                    id={`sector-${title.toLowerCase()}`}
-                    className={`bg-white border-2 ${border} rounded-2xl p-7 flex flex-col gap-4 shadow-sm hover:shadow-md transition-all duration-300`}
-                  >
-                    <div className="flex items-start gap-5">
-                      <span
-                        className="flex-shrink-0 select-none leading-none mt-0.5"
-                        style={{ fontSize: '2rem', lineHeight: 1 }}
-                        aria-hidden="true"
-                      >
-                        {emoji}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-slate-900 text-lg leading-snug mb-2">{title}</h3>
-                        <p className="text-slate-500 text-sm leading-relaxed">{description}</p>
-                      </div>
-                    </div>
-                    {isMainSector ? (
-                      <button
-                        onClick={() => onSelectSector(sectorId)}
-                        className={`w-full ${accentBg} ${accentText} hover:opacity-80 font-semibold px-4 py-2.5 rounded-lg transition-all duration-200 text-sm`}
-                      >
-                        Start {title} →
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => onOpenCommunityNavigator?.()}
-                        className={`w-full ${accentBg} ${accentText} hover:opacity-80 font-semibold px-4 py-2.5 rounded-lg transition-all duration-200 text-sm`}
-                      >
-                        Explore Resources →
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </section>
 
