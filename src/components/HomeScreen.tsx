@@ -272,30 +272,27 @@ export default function HomeScreen({
       <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
         {!selectedSector ? (
           <>
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-slate-800 mb-1">Select Your Sector</h1>
-              <p className="text-slate-500 text-sm">Choose the environment where you work to see relevant phrases.</p>
+            <div className="mb-8">
+              <h1 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">Select Your Sector</h1>
+              <p className="text-slate-500 text-base">Choose the environment where you work to see relevant phrases.</p>
             </div>
 
             {/* Sector Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              {SECTOR_CARDS.map(({ id, label, description, Icon, iconBg, iconColor, border, hoverBorder, accentBg, accentText, accentBorder }) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+              {SECTOR_CARDS.map(({ id, label, description, Icon, iconBg, hoverBorder, hoverShadow, accentText }) => (
                 <button
                   key={id}
                   onClick={() => onSelectSector(id)}
-                  className={`group bg-white border ${border} ${hoverBorder} rounded-2xl text-left shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-1 active:scale-[0.98] flex flex-col overflow-hidden`}
+                  className={`group bg-white border-2 border-slate-200 ${hoverBorder} rounded-2xl text-left shadow-md ${hoverShadow} hover:shadow-xl transition-all duration-200 hover:-translate-y-1 active:scale-[0.98] flex items-center gap-5 p-6`}
                 >
-                  <div className="p-5 flex-1">
-                    <div className={`w-14 h-14 ${iconBg} rounded-2xl flex items-center justify-center mb-4 shadow-sm`}>
-                      <Icon className={`w-7 h-7 ${iconColor}`} />
-                    </div>
-                    <h2 className="text-lg font-bold text-slate-800 mb-2">{label}</h2>
-                    <p className="text-sm text-slate-500 leading-relaxed">{description}</p>
+                  <div className={`w-16 h-16 ${iconBg} rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md`}>
+                    <Icon className="w-8 h-8 text-white" />
                   </div>
-                  <div className={`${accentBg} border-t ${accentBorder} px-5 py-3 flex items-center justify-between`}>
-                    <span className={`text-xs font-semibold ${accentText}`}>Tap to open phrases</span>
-                    <ChevronRight className={`w-4 h-4 ${accentText} group-hover:translate-x-0.5 transition-transform`} />
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-xl font-black text-slate-900 mb-1 tracking-tight">{label}</h2>
+                    <p className="text-sm text-slate-500 leading-snug">{description}</p>
                   </div>
+                  <ChevronRight className={`w-5 h-5 flex-shrink-0 text-slate-300 ${accentText} group-hover:translate-x-0.5 transition-all duration-150`} />
                 </button>
               ))}
             </div>
