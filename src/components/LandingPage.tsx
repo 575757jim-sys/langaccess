@@ -25,7 +25,6 @@ const HOW_STEPS = [
   { step: '3', label: 'Tap a phrase to play', desc: 'Hear the translation instantly in any language.' },
 ];
 
-const PHRASE_REQUEST_HREF = 'mailto:LangAccessInfo@gmail.com?subject=LangAccess%20Phrase%20Request&body=Sector:%0A%20Situation:%0A%20Phrase%20needed:%0A%20Language:%0A%20Optional%20context:';
 
 const LANGUAGES = [
   { label: 'Spanish', flag: '🇲🇽', bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700' },
@@ -211,7 +210,7 @@ export default function LandingPage({
         </section>
 
         {/* ── INSTANT DEMO ── */}
-        <section className="bg-gradient-to-b from-slate-900 to-slate-950 py-10 px-6">
+        <section className="bg-gradient-to-b from-slate-900 to-slate-950 py-8 px-6">
           <div className="max-w-sm mx-auto text-center">
             <p className="text-xs font-bold uppercase tracking-widest text-teal-400 mb-2">Hear it yourself</p>
             <h2 className="text-lg font-extrabold text-white mb-5">Tap to play a real translation</h2>
@@ -263,8 +262,6 @@ export default function LandingPage({
               </button>
 
               <p className="mt-2.5 text-xs text-slate-500">Real TTS audio — no sign-up needed</p>
-
-              <p className="mt-3 text-xs text-slate-500 italic">See possible responses</p>
             </div>
 
             <p className="mt-5 text-sm font-medium text-teal-400/80 tracking-wide">Now choose your role</p>
@@ -440,14 +437,6 @@ export default function LandingPage({
               Request Institutional Pilot
             </button>
             <p className="text-teal-300/60 text-xs mt-4">For multi-team deployments, staff training, or compliance integration</p>
-            <div className="mt-6">
-              <a
-                href={PHRASE_REQUEST_HREF}
-                className="inline-flex items-center gap-1.5 text-teal-200 hover:text-white text-sm font-medium underline underline-offset-2 transition-colors"
-              >
-                Missing a phrase? Tell us here
-              </a>
-            </div>
           </div>
         </section>
 
