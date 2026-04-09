@@ -1,11 +1,31 @@
 import { useState, useEffect } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users, ChevronRight, Handshake, Star, HandHeart, Bell, Barcode, Building2, Wheat } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, ArrowLeft, FileText, MessageSquarePlus, Compass, RefreshCw, Award, Users, ChevronRight, Handshake, Star, HandHeart, Bell, Barcode, Building2, Wheat, Volume2, Loader2 } from 'lucide-react';
 import FavoritesPanel from './FavoritesPanel';
 import { Language, Sector } from '../data/phrases';
 import { Subcategory } from '../data/subcategories';
 import { loadFavorites } from '../utils/favorites';
 import ToolkitRequestSection from './ToolkitRequestSection';
 import SEO from './SEO';
+import { playAudioFromGesture } from '../utils/speech';
+
+const DEMO_PHRASE = {
+  english: 'Where does it hurt?',
+  translations: {
+    spanish: '¿Dónde le duele?',
+    mandarin: '哪里疼？',
+    cantonese: '邊度痛？',
+    vietnamese: 'Bạn đau ở đâu?',
+    tagalog: 'Saan ka masakit?',
+  } as Record<Language, string>,
+};
+
+const DEMO_LANGS: { id: Language; label: string }[] = [
+  { id: 'spanish', label: 'Spanish' },
+  { id: 'mandarin', label: 'Mandarin' },
+  { id: 'cantonese', label: 'Cantonese' },
+  { id: 'vietnamese', label: 'Vietnamese' },
+  { id: 'tagalog', label: 'Tagalog' },
+];
 
 const JSON_LD_WEB_APP = {
   '@context': 'https://schema.org',
@@ -189,6 +209,18 @@ export default function HomeScreen({
   const [activeLanguage, setActiveLanguage] = useState<Language | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [favCount, setFavCount] = useState(0);
+  const [demoLang, setDemoLang] = useState<Language>('spanish');
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoPlayed, setDemoPlayed] = useState(false);
+
+  function handleDemoPlay() {
+    const text = DEMO_PHRASE.translations[demoLang];
+    if (!text || demoLoading) return;
+    setDemoLoading(true);
+    setDemoPlayed(false);
+    playAudioFromGesture(text, demoLang);
+    setTimeout(() => { setDemoLoading(false); setDemoPlayed(true); }, 2500);
+  }
 
   useEffect(() => {
     loadFavorites().then(favs => setFavCount(favs.length));
@@ -295,6 +327,50 @@ export default function HomeScreen({
                   <ChevronRight className={`w-5 h-5 flex-shrink-0 text-slate-300 ${accentText} group-hover:translate-x-0.5 transition-all duration-150`} />
                 </button>
               ))}
+            </div>
+
+            {/* Try a Phrase Now */}
+            <div className="mb-8 bg-slate-900 rounded-2xl overflow-hidden shadow-lg">
+              <div className="px-6 pt-5 pb-4 border-b border-slate-700">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Try a phrase now</p>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {DEMO_LANGS.map(({ id, label }) => (
+                    <button
+                      key={id}
+                      onClick={() => { setDemoLang(id); setDemoPlayed(false); }}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all duration-150 ${
+                        demoLang === id
+                          ? 'bg-white text-slate-900 border-white'
+                          : 'bg-transparent text-slate-400 border-slate-600 hover:border-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="px-6 py-4 flex items-center gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-bold text-base leading-snug">{DEMO_PHRASE.english}</p>
+                  <p className="text-slate-400 text-sm mt-0.5 leading-snug">{DEMO_PHRASE.translations[demoLang]}</p>
+                </div>
+                <button
+                  onClick={handleDemoPlay}
+                  disabled={demoLoading}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm flex-shrink-0 transition-all duration-150 active:scale-[0.97] disabled:opacity-60 ${
+                    demoPlayed
+                      ? 'bg-green-500 text-white'
+                      : 'bg-white text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  {demoLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Volume2 className="w-4 h-4" />
+                  )}
+                  {demoPlayed ? 'Played' : 'Play translation'}
+                </button>
+              </div>
             </div>
 
             {/* Community Outreach Card */}
