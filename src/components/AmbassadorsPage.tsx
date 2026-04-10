@@ -141,7 +141,7 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
                   className="block rounded"
                   style={{ imageRendering: 'crisp-edges' }}
                 />
-                <p className="text-slate-600 text-xs font-medium text-center">Scan to access LangAccess instantly</p>
+                <p className="text-slate-500 text-sm leading-relaxed text-center">Start helping right away. Save your QR code to your phone, print it, or share it with others. Every scan can connect someone to food, shelter, or local services nearby.</p>
               </div>
 
               <button
