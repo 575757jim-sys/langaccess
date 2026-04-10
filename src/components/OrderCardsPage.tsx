@@ -20,6 +20,12 @@ interface AmbassadorData {
 
 type Step = 'loading' | 'unauthorized' | 'ready' | 'previewing' | 'submitting' | 'success';
 
+interface QuoteResult {
+  price: number | null;
+  currency: string;
+  quantity: number;
+}
+
 const QUANTITY_OPTIONS = [
   { value: 25, label: '25 cards', cost: '$8–10' },
   { value: 50, label: '50 cards', cost: '$10–13' },
@@ -106,6 +112,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const [previewCityState, setPreviewCityState] = useState('');
   const [composedPreviewUrl, setComposedPreviewUrl] = useState('');
   const [composeStep, setComposeStep] = useState('');
+  const [quoteResult, setQuoteResult] = useState<QuoteResult | null>(null);
   const [pendingOrderData, setPendingOrderData] = useState<{
     fullName: string;
     formattedCityState: string;
@@ -330,7 +337,12 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       }
 
       const data = await gelatoRes.json();
-      console.log('[OrderCards] Gelato success — advancing to success step:', data);
+      console.log('[OrderCards] Gelato success — full response:', data);
+      setQuoteResult({
+        price: data.price ?? null,
+        currency: data.currency ?? 'USD',
+        quantity: data.quantity ?? quantity,
+      });
       setStep('success');
     } catch (err: unknown) {
       const msg = (err as Error)?.message || 'Something went wrong. Please try again.';
@@ -374,23 +386,48 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   }
 
   if (step === 'success') {
+    const hasPrice = quoteResult?.price != null;
+    const formattedPrice = hasPrice
+      ? (typeof quoteResult!.price === 'number'
+          ? quoteResult!.price.toFixed(2)
+          : String(quoteResult!.price))
+      : null;
+    const currencySymbol = quoteResult?.currency === 'USD' ? '$' : (quoteResult?.currency ?? '');
+    const qty = quoteResult?.quantity ?? quantity;
+
     return (
       <div className="min-h-screen bg-[#0a0f1e] text-white flex flex-col items-center justify-center px-4">
-        <SEO title="Order Confirmed | LangAccess" description="Your LangAccess card order has been placed." path="/order-cards" />
+        <SEO title="Quote Received | LangAccess" description="Your LangAccess card quote has been calculated." path="/order-cards" />
         <div className="max-w-md w-full text-center">
           <div className="w-20 h-20 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-400" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-3">Quote received</h1>
-          <p className="text-slate-300 text-base leading-relaxed mb-2">
-            Your final price was calculated successfully.
-          </p>
-          <p className="text-green-400 text-sm font-medium">
+          <h1 className="text-3xl font-bold text-white mb-4">Quote received</h1>
+
+          {hasPrice ? (
+            <div className="bg-[#111827] rounded-2xl border border-green-500/20 p-6 mb-6">
+              <p className="text-slate-400 text-sm mb-2">Your total</p>
+              <p className="text-4xl font-bold text-green-400 mb-1">
+                {currencySymbol}{formattedPrice}
+              </p>
+              <p className="text-slate-400 text-sm">
+                for {qty} cards · {quoteResult!.currency}
+              </p>
+            </div>
+          ) : (
+            <div className="bg-[#111827] rounded-2xl border border-white/10 p-6 mb-6">
+              <p className="text-slate-300 text-base leading-relaxed">
+                Your quote for {qty} cards was calculated successfully.
+              </p>
+            </div>
+          )}
+
+          <p className="text-slate-500 text-xs mb-8">
             This is a price quote only. No order has been submitted yet.
           </p>
           <button
             onClick={onBack}
-            className="mt-10 inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
+            className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home

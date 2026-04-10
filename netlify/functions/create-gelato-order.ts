@@ -108,6 +108,8 @@ export const handler: Handler = async (event) => {
   console.log("[Gelato] Order payload:", JSON.stringify(orderPayload));
 
   let gelatoOrderId: string | null = null;
+  let gelatoPrice: number | null = null;
+  let gelatoCurrency = "USD";
 
   try {
     const gelatoRes = await fetch("https://order.gelatoapis.com/v4/orders", {
@@ -132,8 +134,22 @@ export const handler: Handler = async (event) => {
     }
 
     const gelatoData = await gelatoRes.json();
-    console.log("[Gelato] Success:", JSON.stringify(gelatoData));
+    console.log("[Gelato] Full response:", JSON.stringify(gelatoData));
     gelatoOrderId = gelatoData.id || gelatoData.orderId || null;
+
+    const items = gelatoData.items || [];
+    const firstItem = items[0] || {};
+    gelatoPrice =
+      gelatoData.price ??
+      gelatoData.totalPrice ??
+      gelatoData.total ??
+      firstItem.price ??
+      null;
+    gelatoCurrency =
+      gelatoData.currency ??
+      gelatoData.currencyIsoCode ??
+      orderPayload.currency ??
+      "USD";
   } catch (err) {
     console.error("[Gelato] Network error:", err);
     return {
@@ -190,6 +206,12 @@ export const handler: Handler = async (event) => {
   return {
     statusCode: 200,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ success: true, gelatoOrderId }),
+    body: JSON.stringify({
+      success: true,
+      gelatoOrderId,
+      price: gelatoPrice,
+      currency: gelatoCurrency,
+      quantity,
+    }),
   };
 };
