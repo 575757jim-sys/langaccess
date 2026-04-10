@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, Image as ImageIcon, MapPin, Hash, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, MapPin, Hash, ShoppingCart, CreditCard as Edit2 } from 'lucide-react';
 import SEO from './SEO';
 
 interface Props {
@@ -27,9 +27,9 @@ interface QuoteResult {
 }
 
 const QUANTITY_OPTIONS = [
-  { value: 25, label: '25 cards', cost: '$8–10' },
-  { value: 50, label: '50 cards', cost: '$10–13' },
-  { value: 100, label: '100 cards', cost: '$13–15' },
+  { value: 25, label: '25', sublabel: 'cards' },
+  { value: 50, label: '50', sublabel: 'cards' },
+  { value: 100, label: '100', sublabel: 'cards' },
 ];
 
 function generateQRCodeUrl(ambassadorId: string): string {
@@ -37,7 +37,9 @@ function generateQRCodeUrl(ambassadorId: string): string {
   return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(target)}&bgcolor=ffffff&color=000000&margin=2`;
 }
 
-function CardFrontPreview({ slug, fullName, cityState, ambassadorId }: { slug: string; fullName: string; cityState: string; ambassadorId?: string }) {
+function CardFrontPreview({ slug, fullName, cityState, ambassadorId }: {
+  slug: string; fullName: string; cityState: string; ambassadorId?: string;
+}) {
   const effectiveId = ambassadorId || slug || 'demo123';
   const qrUrl = generateQRCodeUrl(effectiveId);
 
@@ -66,13 +68,11 @@ function CardFrontPreview({ slug, fullName, cityState, ambassadorId }: { slug: s
                 width={80}
                 height={80}
                 className="block"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = 'none';
-                }}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
               />
             </div>
             <p className="text-xs font-semibold" style={{ color: '#2dff72' }}>langaccess.org</p>
-            <p className="text-slate-500 text-[10px] text-center leading-tight">Español disponible<br/>al escanear</p>
+            <p className="text-slate-500 text-[10px] text-center leading-tight">Español disponible<br />al escanear</p>
           </div>
         </div>
       </div>
@@ -109,7 +109,6 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const [ambassador, setAmbassador] = useState<AmbassadorData | null>(null);
   const [quantity, setQuantity] = useState(25);
   const [errorMsg, setErrorMsg] = useState('');
-  const [previewCityState, setPreviewCityState] = useState('');
   const [composedPreviewUrl, setComposedPreviewUrl] = useState('');
   const [composeStep, setComposeStep] = useState('');
   const [quoteResult, setQuoteResult] = useState<QuoteResult | null>(null);
@@ -131,14 +130,11 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       const refParam = params.get('ref');
       const aidParam = params.get('aid');
 
-      if (aidParam) {
-        localStorage.setItem('ambassador_id', aidParam);
-      }
+      if (aidParam) localStorage.setItem('ambassador_id', aidParam);
 
       if (refParam) {
         const refUpper = refParam.toUpperCase();
         console.log('[OrderCards] Looking up ref_code:', refUpper);
-
         const res = await fetch('/.netlify/functions/lookup-ambassador', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -146,12 +142,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         });
         const json = await res.json();
         console.log('[OrderCards] lookup-ambassador response:', json);
-
-        if (!json.found || !json.ambassador) {
-          setStep('unauthorized');
-          return;
-        }
-
+        if (!json.found || !json.ambassador) { setStep('unauthorized'); return; }
         const data: AmbassadorData = json.ambassador;
         if (data.id) localStorage.setItem('ambassador_id', data.id);
         setAmbassador(data);
@@ -181,17 +172,12 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
               ref_code: parsed.code || null,
             });
             setStep('ready');
-          } catch {
-            setStep('unauthorized');
-          }
-        } else {
-          setStep('unauthorized');
-        }
+          } catch { setStep('unauthorized'); }
+        } else { setStep('unauthorized'); }
         return;
       }
 
       console.log('[OrderCards] Looking up by ambassador_id:', ambassadorId);
-
       const res = await fetch('/.netlify/functions/lookup-ambassador', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -199,44 +185,32 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       });
       const json = await res.json();
       console.log('[OrderCards] lookup-ambassador response:', json);
-
-      if (!json.found || !json.ambassador) {
-        setStep('unauthorized');
-        return;
-      }
-
+      if (!json.found || !json.ambassador) { setStep('unauthorized'); return; }
       const data: AmbassadorData = json.ambassador;
       if (data.id) localStorage.setItem('ambassador_id', data.id);
       setAmbassador(data);
       setStep('ready');
     }
-
     loadAmbassador();
   }, []);
 
   function resolveAmbassadorFields(): { fullName: string; cityState: string } {
     let fullName = (ambassador?.full_name || '').trim();
     let cityState = (ambassador?.city_state || '').trim();
-
     const localData = localStorage.getItem('ambassador_data');
     const parsed = localData ? (() => { try { return JSON.parse(localData); } catch { return null; } })() : null;
-
     if (!fullName && parsed?.name) fullName = (parsed.name as string).trim();
     if (!cityState && parsed?.city) {
       const rawCity = (parsed.city as string).trim();
       const parts = rawCity.split(',');
-      cityState = parts.length > 1
-        ? `${parts[0].trim()}, ${parts[1].trim()}`
-        : `${rawCity}, CA`;
+      cityState = parts.length > 1 ? `${parts[0].trim()}, ${parts[1].trim()}` : `${rawCity}, CA`;
     }
-
     if (!fullName) fullName = ambassador?.email?.split('@')[0] || 'Ambassador';
     if (!cityState) cityState = 'Your City, CA';
-
     return { fullName, cityState };
   }
 
-  const handlePreview = async () => {
+  const handleGetPrice = async () => {
     if (!ambassador) return;
     setStep('previewing');
     setErrorMsg('');
@@ -249,15 +223,16 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const ambassadorId = ambassador.id || ambassador.ref_code || slug;
     const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-    const qrDestination = `https://langaccess.org/help?ref=${encodeURIComponent(ambassadorId)}`;
-    console.log('[OrderCards] Final QR destination URL:', qrDestination);
-    console.log('[OrderCards] handlePreview — fields resolved:', { fullName, formattedCityState, city, state, slug, ambassadorId });
+    console.log('[OrderCards] Selected quantity:', quantity);
+    console.log('[OrderCards] Ambassador code:', ambassador.ref_code || ambassador.id);
+    console.log('[OrderCards] Final QR destination URL:', `https://langaccess.org/help?ref=${encodeURIComponent(ambassadorId)}`);
+    console.log('[OrderCards] handleGetPrice — fields resolved:', { fullName, formattedCityState, city, state, slug, ambassadorId });
 
     const fallbackFront = 'https://langaccess.org/card-front.pdf';
     const fallbackBack = 'https://langaccess.org/card-back.pdf';
     let frontFileUrl = fallbackFront;
     let backFileUrl = fallbackBack;
-    let composed: string = '';
+    let composed = '';
     let stepLabel = 'not_started';
 
     try {
@@ -282,29 +257,12 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       console.warn('[OrderCards] generate-card-pdf error:', imgErr, '— using fallback print assets');
     }
 
-    console.log('[OrderCards] Final print asset URL:', composed ? '(composedDataUrl — base64 image)' : frontFileUrl);
     setComposedPreviewUrl(composed);
     setComposeStep(stepLabel);
-    setPreviewCityState(formattedCityState);
     setPendingOrderData({ fullName, formattedCityState, city, state, slug, frontFileUrl, backFileUrl });
-    setStep('ready');
-  };
 
-  const handleConfirmOrder = async () => {
-    if (!ambassador || !pendingOrderData) return;
-
-    console.log('[OrderCards] Confirm button tapped');
+    console.log('[OrderCards] Gelato quote request starting...');
     setStep('submitting');
-    setErrorMsg('');
-
-    const fields = resolveAmbassadorFields();
-    const fullName = (ambassador.full_name || '').trim() || pendingOrderData.fullName || fields.fullName;
-
-    const { formattedCityState } = pendingOrderData;
-    const { city: resolvedCity, state: resolvedState } = splitCityState(formattedCityState);
-
-    const frontFileUrl = pendingOrderData.frontFileUrl || 'https://langaccess.org/card-front.pdf';
-    const backFileUrl = pendingOrderData.backFileUrl || 'https://langaccess.org/card-back.pdf';
 
     const payload = {
       ambassador_id: ambassador.id,
@@ -312,16 +270,15 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       email: ambassador.email,
       phone: '',
       shipping_address: ambassador.street_address || '',
-      city: resolvedCity,
-      state: resolvedState,
+      city,
+      state,
       zip: ambassador.zip_code || '',
       quantity,
       frontFileUrl,
       backFileUrl,
     };
 
-    console.log('[OrderCards] Payload built:', JSON.stringify(payload));
-    console.log('[OrderCards] Gelato request starting...');
+    console.log('[OrderCards] Quote payload built:', JSON.stringify(payload));
 
     try {
       const gelatoRes = await fetch('/.netlify/functions/create-gelato-order', {
@@ -339,7 +296,9 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       }
 
       const data = await gelatoRes.json();
-      console.log('[OrderCards] Gelato success — full response:', data);
+      console.log('[OrderCards] Gelato quote success — full response:', data);
+      console.log('[OrderCards] Quoted total:', data.price ?? null);
+
       setQuoteResult({
         price: data.price ?? null,
         currency: data.currency ?? 'USD',
@@ -348,10 +307,16 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       setStep('success');
     } catch (err: unknown) {
       const msg = (err as Error)?.message || 'Something went wrong. Please try again.';
-      console.error('[OrderCards] handleConfirmOrder error:', msg);
+      console.error('[OrderCards] handleGetPrice error:', msg);
       setErrorMsg(msg);
       setStep('ready');
     }
+  };
+
+  const handleEditOrder = () => {
+    setStep('ready');
+    setErrorMsg('');
+    setCheckoutError('');
   };
 
   const handleCheckout = async () => {
@@ -417,8 +382,6 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     }
   };
 
-  const handleOrder = handlePreview;
-
   if (step === 'loading') {
     return (
       <div className="min-h-screen bg-[#0a0f1e] flex items-center justify-center">
@@ -454,8 +417,8 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const hasPrice = quoteResult?.price != null;
     const formattedPrice = hasPrice
       ? (typeof quoteResult!.price === 'number'
-          ? quoteResult!.price.toFixed(2)
-          : String(quoteResult!.price))
+        ? quoteResult!.price.toFixed(2)
+        : String(quoteResult!.price))
       : null;
     const currencySymbol = quoteResult?.currency === 'USD' ? '$' : (quoteResult?.currency ?? '');
     const qty = quoteResult?.quantity ?? quantity;
@@ -463,312 +426,274 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const cityState = pendingOrderData?.formattedCityState || normalizeCityState(ambassador?.city_state || '');
 
     return (
-      <div className="min-h-screen bg-[#0a0f1e] text-white flex flex-col items-center justify-center px-4 py-12">
-        <SEO title="Quote Received | LangAccess" description="Your LangAccess card quote has been calculated." path="/order-cards" />
-        <div className="max-w-md w-full">
+      <div className="min-h-screen bg-[#0a0f1e] text-white flex flex-col">
+        <SEO title="Your Quote | LangAccess" description="Your LangAccess card quote is ready." path="/order-cards" />
 
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-5">
-              <CheckCircle className="w-10 h-10 text-green-400" />
-            </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Quote received</h1>
-            {hasPrice ? (
-              <p className="text-slate-400 text-sm">
-                Your total is{' '}
-                <span className="text-green-400 font-semibold">{currencySymbol}{formattedPrice}</span>
-                {' '}for {qty} cards
-              </p>
-            ) : (
-              <p className="text-slate-400 text-sm">Your quote for {qty} cards was calculated.</p>
-            )}
-          </div>
-
-          <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden mb-5">
-            <div className="px-5 py-4 border-b border-white/5">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Order Summary</p>
-            </div>
-
-            <div className="divide-y divide-white/5">
-              <div className="flex items-center gap-3 px-5 py-4">
-                <Package className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                <span className="text-slate-400 text-sm flex-1">Quantity</span>
-                <span className="text-white font-medium text-sm">{qty} cards</span>
-              </div>
-
-              {hasPrice && (
-                <div className="flex items-center gap-3 px-5 py-4">
-                  <CreditCard className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                  <span className="text-slate-400 text-sm flex-1">Total price</span>
-                  <span className="text-green-400 font-bold text-sm">
-                    {currencySymbol}{formattedPrice}{' '}
-                    <span className="text-slate-500 font-normal">{quoteResult!.currency}</span>
-                  </span>
-                </div>
-              )}
-
-              {cityState && (
-                <div className="flex items-center gap-3 px-5 py-4">
-                  <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                  <span className="text-slate-400 text-sm flex-1">Ships to</span>
-                  <span className="text-white font-medium text-sm">{cityState}</span>
-                </div>
-              )}
-
-              {refCode && (
-                <div className="flex items-center gap-3 px-5 py-4">
-                  <Hash className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                  <span className="text-slate-400 text-sm flex-1">Ambassador code</span>
-                  <span className="text-white font-medium text-sm font-mono">{refCode}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {checkoutError && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 mb-4">
-              <p className="text-red-400 text-sm">{checkoutError}</p>
-            </div>
-          )}
-
-          <button
-            onClick={handleCheckout}
-            disabled={checkoutLoading || !hasPrice}
-            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3 mb-4"
-            style={{ minHeight: 56 }}
-          >
-            {checkoutLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Starting checkout...
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="w-5 h-5" />
-                Continue to Checkout
-              </>
-            )}
-          </button>
-
-          <p className="text-slate-600 text-xs text-center mb-6">
-            Secure payment via Stripe. Your card is not charged until you complete checkout.
-          </p>
-
-          <div className="text-center">
+        <div className="sticky top-0 bg-[#0a0f1e]/95 backdrop-blur border-b border-white/10 z-20">
+          <div className="max-w-lg mx-auto px-4 py-4 flex items-center gap-3">
             <button
-              onClick={onBack}
-              className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-300 transition-colors text-sm"
+              onClick={handleEditOrder}
+              className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Home
+              <ArrowLeft className="w-5 h-5" />
+              <span className="text-sm font-medium">Edit Order</span>
             </button>
+            <div className="flex-1" />
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-slate-600" />
+              <div className="w-2 h-2 rounded-full bg-green-400" />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-lg mx-auto px-4 pt-8 pb-10" style={{ paddingBottom: 'calc(40px + env(safe-area-inset-bottom))' }}>
+
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-400" />
+              </div>
+              <h1 className="text-2xl font-bold text-white mb-1">Your exact price is ready</h1>
+              <p className="text-slate-400 text-sm">Review your order before checkout</p>
+            </div>
+
+            <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden mb-5">
+              <div className="px-5 py-4 border-b border-white/5">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Order Summary</p>
+              </div>
+              <div className="divide-y divide-white/5">
+                <div className="flex items-center gap-3 px-5 py-4">
+                  <Package className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                  <span className="text-slate-400 text-sm flex-1">Quantity</span>
+                  <span className="text-white font-medium text-sm">{qty} cards</span>
+                </div>
+
+                {hasPrice && (
+                  <div className="flex items-center gap-3 px-5 py-4">
+                    <CreditCard className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                    <span className="text-slate-400 text-sm flex-1">Total price</span>
+                    <span className="text-green-400 font-bold text-sm">
+                      {currencySymbol}{formattedPrice}{' '}
+                      <span className="text-slate-500 font-normal">{quoteResult!.currency}</span>
+                    </span>
+                  </div>
+                )}
+
+                {cityState && (
+                  <div className="flex items-center gap-3 px-5 py-4">
+                    <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                    <span className="text-slate-400 text-sm flex-1">Ships to</span>
+                    <span className="text-white font-medium text-sm">{cityState}</span>
+                  </div>
+                )}
+
+                {refCode && (
+                  <div className="flex items-center gap-3 px-5 py-4">
+                    <Hash className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                    <span className="text-slate-400 text-sm flex-1">Ambassador code</span>
+                    <span className="text-white font-medium text-sm font-mono">{refCode}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {composedPreviewUrl && (
+              <div className="rounded-xl overflow-hidden border border-white/10 mb-5">
+                <img
+                  src={composedPreviewUrl}
+                  alt="Your card preview"
+                  className="w-full block"
+                  style={{ maxHeight: 220, objectFit: 'contain', background: '#000' }}
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                />
+              </div>
+            )}
+
+            {composeStep && composeStep !== 'success' && composeStep !== 'not_started' && !composedPreviewUrl && (
+              <div className="bg-[#111827] rounded-xl border border-white/10 px-4 py-3 mb-5 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                  <Package className="w-4 h-4 text-green-400" />
+                </div>
+                <p className="text-slate-400 text-sm">Print file ready with your unique QR code</p>
+              </div>
+            )}
+
+            {checkoutError && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 mb-4">
+                <p className="text-red-400 text-sm">{checkoutError}</p>
+              </div>
+            )}
+
+            <button
+              onClick={handleCheckout}
+              disabled={checkoutLoading || !hasPrice}
+              className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 active:bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3 mb-3"
+              style={{ minHeight: 56, touchAction: 'manipulation' }}
+            >
+              {checkoutLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Starting checkout...
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="w-5 h-5" />
+                  Continue to Checkout
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleEditOrder}
+              className="w-full py-3 rounded-xl border border-white/15 hover:border-white/30 text-slate-300 hover:text-white font-medium text-sm transition-colors flex items-center justify-center gap-2 mb-5"
+              style={{ touchAction: 'manipulation' }}
+            >
+              <Edit2 className="w-4 h-4" />
+              Edit Order
+            </button>
+
+            <p className="text-slate-600 text-xs text-center">
+              Secure payment via Stripe. Your card is not charged until you complete checkout.
+            </p>
           </div>
         </div>
       </div>
     );
   }
 
+  const isGenerating = step === 'previewing' || step === 'submitting';
+  const cityStateDisplay = normalizeCityState(ambassador?.city_state || '');
+  const refCodeDisplay = ambassador?.ref_code || ambassador?.id || '';
+  const fields = resolveAmbassadorFields();
+
   return (
-    <div className="min-h-screen bg-[#0a0f1e] text-white">
+    <div className="min-h-screen bg-[#0a0f1e] text-white flex flex-col">
       <SEO title="Order My Cards | LangAccess" description="Order your personalized LangAccess ambassador cards." path="/order-cards" />
 
       <div className="sticky top-0 bg-[#0a0f1e]/95 backdrop-blur border-b border-white/10 z-20">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
+        <div className="max-w-lg mx-auto px-4 py-4 flex items-center gap-3">
           <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors">
             <ArrowLeft className="w-5 h-5" />
             <span className="text-sm font-medium">Back</span>
           </button>
+          <div className="flex-1" />
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-green-400" />
+            <div className="w-2 h-2 rounded-full bg-slate-600" />
+          </div>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 pt-10 pb-2">
-        <h1 className="text-3xl font-bold text-white leading-tight mb-3">Order Your Ambassador Cards</h1>
-        <p className="text-slate-400 text-base leading-relaxed mb-1">
-          Printed with your unique QR code.
-        </p>
-        <p className="text-slate-400 text-base leading-relaxed mb-1">
-          You pay printing and shipping only.
-        </p>
-        <p className="text-slate-400 text-base leading-relaxed mb-1">
-          At cost. No markup. Just impact.
-        </p>
-        <p className="text-slate-500 text-sm mt-3">
-          Estimated cost: $8–15 depending on your location.
-        </p>
-      </div>
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-lg mx-auto px-4 pt-8 space-y-6" style={{ paddingBottom: 'calc(100px + env(safe-area-inset-bottom))' }}>
 
-      <div className="max-w-3xl mx-auto px-4 py-8 space-y-10" style={{ paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
-
-        {ambassador && (
-          <div className="bg-[#111827] rounded-2xl p-6 border border-white/10">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Shipping To</h2>
-                <p className="text-slate-500 text-xs mt-0.5">Auto-filled from your ambassador profile</p>
-              </div>
-              <button
-                onClick={onBack}
-                className="text-xs text-slate-400 hover:text-white underline underline-offset-2 transition-colors"
-              >
-                Edit
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <div>
-                <p className="text-slate-500 text-xs mb-1">Name</p>
-                <p className="text-white font-medium">{ambassador.full_name}</p>
-              </div>
-              <div>
-                <p className="text-slate-500 text-xs mb-1">Location</p>
-                <p className="text-white font-medium">{normalizeCityState(ambassador.city_state)}</p>
-              </div>
-              {ambassador.street_address && (
-                <div>
-                  <p className="text-slate-500 text-xs mb-1">Street Address</p>
-                  <p className="text-white font-medium">{ambassador.street_address}</p>
-                </div>
-              )}
-              {ambassador.zip_code && (
-                <div>
-                  <p className="text-slate-500 text-xs mb-1">ZIP Code</p>
-                  <p className="text-white font-medium">{ambassador.zip_code}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {ambassador?.slug && (
           <div>
-            <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Card Preview — Front</h2>
-            <div className="flex justify-center">
-              <CardFrontPreview
-                slug={ambassador.slug || ''}
-                fullName={ambassador.full_name}
-                cityState={normalizeCityState(ambassador.city_state)}
-                ambassadorId={ambassador.id || 'demo123'}
-              />
-            </div>
-            <p className="text-slate-500 text-xs text-center mt-3">Your unique QR code is printed on every card</p>
-          </div>
-        )}
-
-        <div>
-          <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Select Quantity</h2>
-          <div className="grid grid-cols-3 gap-3">
-            {QUANTITY_OPTIONS.map(opt => (
-              <button
-                key={opt.value}
-                onClick={() => setQuantity(opt.value)}
-                className={`rounded-xl p-4 text-left border transition-all ${
-                  quantity === opt.value
-                    ? 'border-green-500/60 bg-green-500/10'
-                    : 'border-white/10 bg-[#111827] hover:border-white/20'
-                }`}
-              >
-                <p className={`text-lg font-bold ${quantity === opt.value ? 'text-green-400' : 'text-white'}`}>
-                  {opt.label}
-                </p>
-                <p className="text-slate-400 text-sm mt-1">{opt.cost}</p>
-              </button>
-            ))}
+            <h1 className="text-2xl font-bold text-white leading-tight mb-1">Order Your Ambassador Cards</h1>
+            <p className="text-slate-400 text-sm leading-relaxed">
+              Printed with your unique QR code. At cost — no markup.
+            </p>
           </div>
 
-        </div>
-
-        {pendingOrderData && (
-          <div className="bg-[#111827] rounded-2xl p-5 border border-white/10">
-            <div className="flex items-center gap-2 mb-4">
-              <ImageIcon className="w-4 h-4 text-green-400" />
-              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
-                {composedPreviewUrl ? 'Card Preview — Print Ready' : 'Print Asset Ready'}
-              </h2>
+          <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/5">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Shipping To</p>
             </div>
-
-            {composedPreviewUrl ? (
-              <div>
-                <div className="rounded-xl overflow-hidden border border-white/10 mb-3">
-                  <img
-                    src={composedPreviewUrl}
-                    alt="Your business card with QR code"
-                    className="w-full block"
-                    style={{ maxHeight: 260, objectFit: 'contain', background: '#000' }}
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-                <p className="text-slate-400 text-xs leading-relaxed">
-                  Your card is ready with your unique QR code. Shipping to{' '}
-                  <span className="text-white font-medium">{previewCityState}</span>.
-                </p>
-              </div>
-            ) : (
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 flex flex-col items-center gap-1 bg-black rounded-lg p-2" style={{ minWidth: 120 }}>
-                  <div className="rounded overflow-hidden bg-white p-1" style={{ width: 90, height: 90 }}>
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=H&data=${encodeURIComponent(`https://langaccess.org/help?ref=${encodeURIComponent(pendingOrderData.slug)}`)}`}
-                      alt="QR code"
-                      width={82}
-                      height={82}
-                      className="block"
-                    />
-                  </div>
-                  <p className="text-[10px] font-semibold mt-1" style={{ color: '#2dff72' }}>langaccess.org</p>
+            <div className="px-5 py-4 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-slate-500 text-xs mb-0.5">Name</p>
+                  <p className="text-white font-medium text-sm truncate">{fields.fullName}</p>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium mb-1">QR code ready</p>
-                  <p className="text-slate-400 text-xs leading-relaxed mb-2">
-                    Your unique QR code is confirmed. Shipping to{' '}
-                    <span className="text-white font-medium">{previewCityState}</span>.
-                  </p>
-                  {composeStep && composeStep !== 'success' && composeStep !== 'not_started' && (
-                    <p className="text-slate-500 text-[10px]">
-                      Preview unavailable. Your print file is ready.
-                    </p>
-                  )}
+                  <p className="text-slate-500 text-xs mb-0.5">Location</p>
+                  <p className="text-white font-medium text-sm truncate">{cityStateDisplay || fields.cityState}</p>
                 </div>
               </div>
-            )}
+              {ambassador?.street_address && (
+                <div>
+                  <p className="text-slate-500 text-xs mb-0.5">Street Address</p>
+                  <p className="text-white font-medium text-sm">{ambassador.street_address}</p>
+                </div>
+              )}
+              {ambassador?.zip_code && (
+                <div>
+                  <p className="text-slate-500 text-xs mb-0.5">ZIP Code</p>
+                  <p className="text-white font-medium text-sm">{ambassador.zip_code}</p>
+                </div>
+              )}
+            </div>
           </div>
-        )}
 
-        {errorMsg && (
-          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3">
-            <p className="text-amber-400 text-sm">{errorMsg}</p>
+          {ambassador?.slug && (
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Card Preview</p>
+              <CardFrontPreview
+                slug={ambassador.slug || ''}
+                fullName={fields.fullName}
+                cityState={cityStateDisplay || fields.cityState}
+                ambassadorId={ambassador.id || 'demo123'}
+              />
+              <p className="text-slate-500 text-xs text-center mt-2">Your unique QR code is printed on every card</p>
+            </div>
+          )}
+
+          <div>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Select Quantity</p>
+            <div className="grid grid-cols-3 gap-3">
+              {QUANTITY_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setQuantity(opt.value)}
+                  disabled={isGenerating}
+                  className={`rounded-xl p-4 text-center border transition-all ${
+                    quantity === opt.value
+                      ? 'border-green-500/60 bg-green-500/10'
+                      : 'border-white/10 bg-[#111827] hover:border-white/25'
+                  }`}
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  <p className={`text-2xl font-bold leading-none mb-1 ${quantity === opt.value ? 'text-green-400' : 'text-white'}`}>
+                    {opt.label}
+                  </p>
+                  <p className="text-slate-500 text-xs">{opt.sublabel}</p>
+                </button>
+              ))}
+            </div>
           </div>
-        )}
 
-        {pendingOrderData ? (
+          <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden">
+            <div className="px-5 py-4 border-b border-white/5">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Ambassador Code</p>
+            </div>
+            <div className="px-5 py-4">
+              <p className="text-white font-mono font-medium text-sm">{refCodeDisplay || '—'}</p>
+              <p className="text-slate-500 text-xs mt-1">Linked to your personalized QR code</p>
+            </div>
+          </div>
+
+          {errorMsg && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3">
+              <p className="text-amber-400 text-sm">{errorMsg}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div
+        className="fixed bottom-0 left-0 right-0 bg-[#0a0f1e]/95 backdrop-blur border-t border-white/10 px-4 pt-3 z-20"
+        style={{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom))' }}
+      >
+        <div className="max-w-lg mx-auto">
           <button
-            onClick={handleConfirmOrder}
-            disabled={step === 'submitting'}
-            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3"
-            style={{ position: 'relative', zIndex: 10, touchAction: 'manipulation', minHeight: 56 }}
+            onClick={handleGetPrice}
+            disabled={isGenerating}
+            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 active:bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3"
+            style={{ minHeight: 56, touchAction: 'manipulation' }}
           >
-            {step === 'submitting' ? (
+            {isGenerating ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Submitting order...
-              </>
-            ) : (
-              <>
-                <Package className="w-5 h-5" />
-                Confirm &amp; Get Exact Price
-              </>
-            )}
-          </button>
-        ) : (
-          <button
-            onClick={handleOrder}
-            disabled={step === 'previewing'}
-            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3"
-            style={{ position: 'relative', zIndex: 10, touchAction: 'manipulation', minHeight: 56 }}
-          >
-            {step === 'previewing' ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Preparing your card...
+                {step === 'previewing' ? 'Preparing your card...' : 'Getting your price...'}
               </>
             ) : (
               <>
@@ -777,11 +702,10 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
               </>
             )}
           </button>
-        )}
-
-        <p className="text-slate-600 text-xs text-center pb-4">
-          Payment is handled securely by Gelato at checkout. No payment info is stored here.
-        </p>
+          <p className="text-slate-600 text-xs text-center mt-2">
+            Get your exact price instantly — no commitment
+          </p>
+        </div>
       </div>
     </div>
   );
