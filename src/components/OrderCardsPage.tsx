@@ -681,33 +681,28 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
             </div>
           </div>
 
-          {ambassador?.slug && (() => {
-            const ambassadorIdForQR = ambassador.id || ambassador.ref_code || ambassador.slug || 'demo123';
+          {(() => {
+            const ambassadorIdForQR = ambassador?.id || ambassador?.ref_code || ambassador?.slug || 'demo123';
             const qrDownloadUrl = generateQRCodeUrl(ambassadorIdForQR);
             return (
               <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Card Preview</p>
-                  <CardFrontPreview
-                    slug={ambassador.slug || ''}
-                    fullName={fields.fullName}
-                    cityState={cityStateDisplay || fields.cityState}
-                    ambassadorId={ambassadorIdForQR}
-                  />
-                </div>
+                {ambassador?.slug && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Card Preview</p>
+                    <CardFrontPreview
+                      slug={ambassador.slug || ''}
+                      fullName={fields.fullName}
+                      cityState={cityStateDisplay || fields.cityState}
+                      ambassadorId={ambassadorIdForQR}
+                    />
+                  </div>
+                )}
 
                 <div className="bg-[#111827] rounded-2xl border border-green-500/25 p-5">
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Smartphone className="w-4 h-4 text-green-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-bold text-sm mb-1">Start helping right away</p>
-                      <p className="text-slate-300 text-sm leading-relaxed">
-                        Save your QR code to your phone, print it, or share it. Every scan can connect someone to food, shelter, or local services.
-                      </p>
-                    </div>
-                  </div>
+                  <p className="text-white font-bold text-sm mb-2">Start helping right away</p>
+                  <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                    Save your QR code to your phone, print it, or share it with others. Every scan can connect someone to food, shelter, or local services nearby.
+                  </p>
                   <a
                     href={qrDownloadUrl}
                     download={`langaccess-qr-${ambassadorIdForQR}.png`}
