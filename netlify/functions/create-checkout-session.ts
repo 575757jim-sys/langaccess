@@ -33,10 +33,16 @@ const handler: Handler = async (event: HandlerEvent) => {
       back_file_url,
     } = body;
 
-    if (!full_name || !email || !quantity || !total_price) {
+    const missing: string[] = [];
+    if (!full_name) missing.push('full_name');
+    if (!email) missing.push('email');
+    if (!quantity) missing.push('quantity');
+    if (!total_price) missing.push('total_price');
+    if (missing.length > 0) {
+      console.error('Missing required fields:', missing);
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Missing required fields' }),
+        body: JSON.stringify({ error: `Missing required fields: ${missing.join(', ')}` }),
       };
     }
 

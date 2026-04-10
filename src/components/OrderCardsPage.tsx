@@ -424,16 +424,19 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const qty = quoteResult?.quantity ?? quantity;
     const refCode = ambassador?.ref_code || ambassador?.id || '';
     const cityState = pendingOrderData?.formattedCityState || normalizeCityState(ambassador?.city_state || '');
+    const ambassadorIdForQR = ambassador?.id || ambassador?.ref_code || ambassador?.slug || 'demo123';
+    const qrDownloadUrl = generateQRCodeUrl(ambassadorIdForQR);
 
     return (
-      <div className="min-h-screen bg-[#0a0f1e] text-white flex flex-col">
+      <div className="min-h-screen bg-[#0a0f1e] text-white" style={{ WebkitOverflowScrolling: 'touch' }}>
         <SEO title="Your Quote | LangAccess" description="Your LangAccess card quote is ready." path="/order-cards" />
 
-        <div className="sticky top-0 bg-[#0a0f1e]/95 backdrop-blur border-b border-white/10 z-20">
+        <div className="sticky top-0 bg-[#0a0f1e] border-b border-white/10 z-20" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="max-w-lg mx-auto px-4 py-4 flex items-center gap-3">
             <button
               onClick={handleEditOrder}
               className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+              style={{ touchAction: 'manipulation' }}
             >
               <ArrowLeft className="w-5 h-5" />
               <span className="text-sm font-medium">Edit Order</span>
@@ -446,127 +449,118 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-lg mx-auto px-4 pt-8" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 180px)' }}>
+        <div className="max-w-lg mx-auto px-4 pt-8" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 200px)' }}>
 
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-green-400" />
-              </div>
-              <h1 className="text-2xl font-bold text-white mb-1">Your exact price is ready</h1>
-              <p className="text-slate-400 text-sm">Review your order before checkout</p>
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-green-400" />
             </div>
-
-            <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden mb-5">
-              <div className="px-5 py-4 border-b border-white/5">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Order Summary</p>
-              </div>
-              <div className="divide-y divide-white/5">
-                <div className="flex items-center gap-3 px-5 py-4">
-                  <Package className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                  <span className="text-slate-400 text-sm flex-1">Quantity</span>
-                  <span className="text-white font-medium text-sm">{qty} cards</span>
-                </div>
-
-                {hasPrice && (
-                  <div className="flex items-center gap-3 px-5 py-4">
-                    <CreditCard className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                    <span className="text-slate-400 text-sm flex-1">Total price</span>
-                    <span className="text-green-400 font-bold text-sm">
-                      {currencySymbol}{formattedPrice}{' '}
-                      <span className="text-slate-500 font-normal">{quoteResult!.currency}</span>
-                    </span>
-                  </div>
-                )}
-
-                {cityState && (
-                  <div className="flex items-center gap-3 px-5 py-4">
-                    <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                    <span className="text-slate-400 text-sm flex-1">Ships to</span>
-                    <span className="text-white font-medium text-sm">{cityState}</span>
-                  </div>
-                )}
-
-                {refCode && (
-                  <div className="flex items-center gap-3 px-5 py-4">
-                    <Hash className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                    <span className="text-slate-400 text-sm flex-1">Ambassador code</span>
-                    <span className="text-white font-medium text-sm font-mono">{refCode}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {(() => {
-              const ambassadorIdForQR = ambassador?.id || ambassador?.ref_code || ambassador?.slug || 'demo123';
-              const qrDownloadUrl = generateQRCodeUrl(ambassadorIdForQR);
-              return (
-                <div className="bg-[#111827] rounded-2xl border border-green-500/20 p-5 mb-5">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                      <Smartphone className="w-4 h-4 text-green-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold text-sm mb-0.5">Use Your QR Code Right Away</p>
-                      <p className="text-slate-400 text-xs leading-relaxed">
-                        Download your QR code to start helping immediately. Every scan can connect someone to local resources.
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-slate-500 text-xs mb-3">Share it, print it, or keep it on your phone. Help people access resources faster.</p>
-                  <a
-                    href={qrDownloadUrl}
-                    download={`langaccess-qr-${ambassadorIdForQR}.png`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 bg-[#0d1f17] border border-green-500/30 hover:border-green-500/60 hover:bg-green-500/10 text-green-400 font-semibold text-sm px-4 py-3 rounded-xl transition-all"
-                    style={{ touchAction: 'manipulation' }}
-                  >
-                    <Download className="w-4 h-4" />
-                    Download QR Code
-                  </a>
-                </div>
-              );
-            })()}
-
-            {composedPreviewUrl && (
-              <div className="rounded-xl overflow-hidden border border-white/10 mb-5">
-                <img
-                  src={composedPreviewUrl}
-                  alt="Your card preview"
-                  className="w-full block"
-                  style={{ maxHeight: 220, objectFit: 'contain', background: '#000' }}
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                />
-              </div>
-            )}
-
-            {composeStep && composeStep !== 'success' && composeStep !== 'not_started' && !composedPreviewUrl && (
-              <div className="bg-[#111827] rounded-xl border border-white/10 px-4 py-3 mb-5 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                  <Package className="w-4 h-4 text-green-400" />
-                </div>
-                <p className="text-slate-400 text-sm">Print file ready with your unique QR code</p>
-              </div>
-            )}
-
-            <p className="text-slate-500 text-xs text-center mb-1">
-              Each card you distribute helps someone find real help nearby.
-            </p>
-            <p className="text-slate-600 text-xs text-center">
-              Secure payment via Stripe. Your card is not charged until you complete checkout.
-            </p>
+            <h1 className="text-2xl font-bold text-white mb-1">Your exact price is ready</h1>
+            <p className="text-slate-400 text-sm">Review your order before checkout</p>
           </div>
+
+          <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden mb-5">
+            <div className="px-5 py-4 border-b border-white/5">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Order Summary</p>
+            </div>
+            <div className="divide-y divide-white/5">
+              <div className="flex items-center gap-3 px-5 py-4">
+                <Package className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                <span className="text-slate-400 text-sm flex-1">Quantity</span>
+                <span className="text-white font-medium text-sm">{qty} cards</span>
+              </div>
+
+              {hasPrice && (
+                <div className="flex items-center gap-3 px-5 py-4">
+                  <CreditCard className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                  <span className="text-slate-400 text-sm flex-1">Total price</span>
+                  <span className="text-green-400 font-bold text-sm">
+                    {currencySymbol}{formattedPrice}{' '}
+                    <span className="text-slate-500 font-normal">{quoteResult!.currency}</span>
+                  </span>
+                </div>
+              )}
+
+              {cityState && (
+                <div className="flex items-center gap-3 px-5 py-4">
+                  <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                  <span className="text-slate-400 text-sm flex-1">Ships to</span>
+                  <span className="text-white font-medium text-sm">{cityState}</span>
+                </div>
+              )}
+
+              {refCode && (
+                <div className="flex items-center gap-3 px-5 py-4">
+                  <Hash className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                  <span className="text-slate-400 text-sm flex-1">Ambassador code</span>
+                  <span className="text-white font-medium text-sm font-mono">{refCode}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-[#111827] rounded-2xl border border-green-500/25 p-5 mb-5">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Smartphone className="w-5 h-5 text-green-400" />
+              </div>
+              <div>
+                <p className="text-white font-bold text-sm mb-1">Start Helping Right Away</p>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Download your QR code so you can start helping immediately. Keep it on your phone, print it, or share it with others. Every scan can connect someone to food, shelter, or local services.
+                </p>
+              </div>
+            </div>
+            <a
+              href={qrDownloadUrl}
+              download={`langaccess-qr-${ambassadorIdForQR}.png`}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full inline-flex items-center justify-center gap-2 bg-[#0d1f17] border border-green-500/40 hover:border-green-400/70 hover:bg-green-500/10 text-green-400 font-semibold text-sm px-4 py-3 rounded-xl transition-all"
+              style={{ touchAction: 'manipulation' }}
+            >
+              <Download className="w-4 h-4" />
+              Download QR Code
+            </a>
+          </div>
+
+          {composedPreviewUrl && (
+            <div className="rounded-xl overflow-hidden border border-white/10 mb-5">
+              <img
+                src={composedPreviewUrl}
+                alt="Your card preview"
+                className="w-full block"
+                style={{ maxHeight: 220, objectFit: 'contain', background: '#000' }}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+              />
+            </div>
+          )}
+
+          {composeStep && composeStep !== 'success' && composeStep !== 'not_started' && !composedPreviewUrl && (
+            <div className="bg-[#111827] rounded-xl border border-white/10 px-4 py-3 mb-5 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                <Package className="w-4 h-4 text-green-400" />
+              </div>
+              <p className="text-slate-400 text-sm">Print file ready with your unique QR code</p>
+            </div>
+          )}
+
+          <p className="text-slate-500 text-xs text-center mb-1">
+            Each card you distribute helps someone find real help nearby.
+          </p>
+          <p className="text-slate-600 text-xs text-center">
+            Secure payment via Stripe. Your card is not charged until you complete checkout.
+          </p>
         </div>
 
         <div
-          className="fixed bottom-0 left-0 right-0 z-30 bg-[#0a0f1e]/98 border-t border-white/10 backdrop-blur"
-          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}
+          className="fixed bottom-0 left-0 right-0 z-30 bg-[#0a0f1e] border-t border-white/10"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
         >
-          <div className="max-w-lg mx-auto px-4 pt-3 pb-1">
+          <div className="max-w-lg mx-auto px-4 pt-3">
             {checkoutError && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-2 mb-2">
-                <p className="text-red-400 text-xs">{checkoutError}</p>
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-2 mb-3">
+                <p className="text-red-400 text-xs leading-relaxed">{checkoutError}</p>
               </div>
             )}
             <button
@@ -589,7 +583,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
             </button>
             <button
               onClick={handleEditOrder}
-              className="w-full py-2.5 rounded-xl border border-white/15 hover:border-white/30 text-slate-300 hover:text-white font-medium text-sm transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl border border-white/15 hover:border-white/30 text-slate-300 hover:text-white font-medium text-sm transition-colors flex items-center justify-center gap-2"
               style={{ touchAction: 'manipulation' }}
             >
               <Pencil className="w-4 h-4" />
