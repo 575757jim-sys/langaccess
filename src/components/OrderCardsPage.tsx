@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, MapPin, Hash, ShoppingCart, CreditCard as Edit2 } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, MapPin, Hash, ShoppingCart, Pencil, Download, Smartphone } from 'lucide-react';
 import SEO from './SEO';
 
 interface Props {
@@ -497,6 +497,38 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
               </div>
             </div>
 
+            {(() => {
+              const ambassadorIdForQR = ambassador?.id || ambassador?.ref_code || ambassador?.slug || 'demo123';
+              const qrDownloadUrl = generateQRCodeUrl(ambassadorIdForQR);
+              return (
+                <div className="bg-[#111827] rounded-2xl border border-green-500/20 p-5 mb-5">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                      <Smartphone className="w-4 h-4 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm mb-0.5">Use Your QR Code Right Away</p>
+                      <p className="text-slate-400 text-xs leading-relaxed">
+                        Download your QR code to start helping immediately. Every scan can connect someone to local resources.
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-slate-500 text-xs mb-3">Share it, print it, or keep it on your phone. Help people access resources faster.</p>
+                  <a
+                    href={qrDownloadUrl}
+                    download={`langaccess-qr-${ambassadorIdForQR}.png`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 bg-[#0d1f17] border border-green-500/30 hover:border-green-500/60 hover:bg-green-500/10 text-green-400 font-semibold text-sm px-4 py-3 rounded-xl transition-all"
+                    style={{ touchAction: 'manipulation' }}
+                  >
+                    <Download className="w-4 h-4" />
+                    Download QR Code
+                  </a>
+                </div>
+              );
+            })()}
+
             {composedPreviewUrl && (
               <div className="rounded-xl overflow-hidden border border-white/10 mb-5">
                 <img
@@ -548,10 +580,13 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
               className="w-full py-3 rounded-xl border border-white/15 hover:border-white/30 text-slate-300 hover:text-white font-medium text-sm transition-colors flex items-center justify-center gap-2 mb-5"
               style={{ touchAction: 'manipulation' }}
             >
-              <Edit2 className="w-4 h-4" />
+              <Pencil className="w-4 h-4" />
               Edit Order
             </button>
 
+            <p className="text-slate-500 text-xs text-center mb-2">
+              Each card you distribute helps someone find real help nearby.
+            </p>
             <p className="text-slate-600 text-xs text-center">
               Secure payment via Stripe. Your card is not charged until you complete checkout.
             </p>
@@ -590,7 +625,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
           <div>
             <h1 className="text-2xl font-bold text-white leading-tight mb-1">Order Your Ambassador Cards</h1>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Printed with your unique QR code. At cost — no markup.
+              Each card you hand out helps someone find food, shelter, or medical care nearby. Printed at cost — no markup.
             </p>
           </div>
 
@@ -624,18 +659,49 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
             </div>
           </div>
 
-          {ambassador?.slug && (
-            <div>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Card Preview</p>
-              <CardFrontPreview
-                slug={ambassador.slug || ''}
-                fullName={fields.fullName}
-                cityState={cityStateDisplay || fields.cityState}
-                ambassadorId={ambassador.id || 'demo123'}
-              />
-              <p className="text-slate-500 text-xs text-center mt-2">Your unique QR code is printed on every card</p>
-            </div>
-          )}
+          {ambassador?.slug && (() => {
+            const ambassadorIdForQR = ambassador.id || ambassador.ref_code || ambassador.slug || 'demo123';
+            const qrDownloadUrl = generateQRCodeUrl(ambassadorIdForQR);
+            return (
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Card Preview</p>
+                  <CardFrontPreview
+                    slug={ambassador.slug || ''}
+                    fullName={fields.fullName}
+                    cityState={cityStateDisplay || fields.cityState}
+                    ambassadorId={ambassadorIdForQR}
+                  />
+                </div>
+
+                <div className="bg-[#111827] rounded-2xl border border-white/10 p-5">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="w-9 h-9 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                      <Smartphone className="w-4 h-4 text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm mb-0.5">Use Your QR Code Right Away</p>
+                      <p className="text-slate-400 text-xs leading-relaxed">
+                        Download your QR code to start helping immediately. Every scan can connect someone to local resources.
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-slate-500 text-xs mb-3">Share it, print it, or keep it on your phone.</p>
+                  <a
+                    href={qrDownloadUrl}
+                    download={`langaccess-qr-${ambassadorIdForQR}.png`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full inline-flex items-center justify-center gap-2 bg-[#0d1f17] border border-green-500/30 hover:border-green-500/60 hover:bg-green-500/10 text-green-400 font-semibold text-sm px-4 py-3 rounded-xl transition-all"
+                    style={{ touchAction: 'manipulation' }}
+                  >
+                    <Download className="w-4 h-4" />
+                    Download QR Code
+                  </a>
+                </div>
+              </div>
+            );
+          })()}
 
           <div>
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Select Quantity</p>
