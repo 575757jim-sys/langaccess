@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, Image as ImageIcon, MapPin, Hash, ShoppingCart } from 'lucide-react';
 import SEO from './SEO';
 
 interface Props {
@@ -113,6 +113,8 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const [composedPreviewUrl, setComposedPreviewUrl] = useState('');
   const [composeStep, setComposeStep] = useState('');
   const [quoteResult, setQuoteResult] = useState<QuoteResult | null>(null);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState('');
   const [pendingOrderData, setPendingOrderData] = useState<{
     fullName: string;
     formattedCityState: string;
@@ -352,6 +354,69 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     }
   };
 
+  const handleCheckout = async () => {
+    if (!ambassador || !quoteResult || !pendingOrderData) return;
+
+    const refCode = ambassador.ref_code || ambassador.id || '';
+    const qty = quoteResult.quantity;
+    const total = quoteResult.price;
+    const cityState = pendingOrderData.formattedCityState;
+
+    console.log('[OrderCards] Stripe checkout starting');
+    console.log('[OrderCards] Selected quantity:', qty);
+    console.log('[OrderCards] Quoted total:', total);
+    console.log('[OrderCards] Ambassador code:', refCode);
+
+    setCheckoutLoading(true);
+    setCheckoutError('');
+
+    const { city, state } = splitCityState(cityState);
+    const fields = resolveAmbassadorFields();
+    const fullName = (ambassador.full_name || '').trim() || pendingOrderData.fullName || fields.fullName;
+
+    const payload = {
+      full_name: fullName,
+      email: ambassador.email,
+      quantity: qty,
+      ref_code: refCode,
+      product_price: total,
+      shipping_price: 0,
+      total_price: total,
+      currency: quoteResult.currency,
+      shipment_method_name: '',
+      street_address: ambassador.street_address || '',
+      city,
+      state,
+      zip: ambassador.zip_code || '',
+      order_type: 'card_order',
+      ambassador_id: ambassador.id,
+      front_file_url: pendingOrderData.frontFileUrl,
+      back_file_url: pendingOrderData.backFileUrl,
+    };
+
+    try {
+      const res = await fetch('/.netlify/functions/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || 'Could not start checkout. Please try again.');
+      }
+
+      console.log('[OrderCards] Stripe checkout session created, redirecting...');
+      window.location.href = data.url;
+    } catch (err: unknown) {
+      const msg = (err as Error)?.message || 'Something went wrong. Please try again.';
+      console.error('[OrderCards] Stripe checkout error:', msg);
+      setCheckoutError(msg);
+      setCheckoutLoading(false);
+    }
+  };
+
   const handleOrder = handlePreview;
 
   if (step === 'loading') {
@@ -394,44 +459,109 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       : null;
     const currencySymbol = quoteResult?.currency === 'USD' ? '$' : (quoteResult?.currency ?? '');
     const qty = quoteResult?.quantity ?? quantity;
+    const refCode = ambassador?.ref_code || ambassador?.id || '';
+    const cityState = pendingOrderData?.formattedCityState || normalizeCityState(ambassador?.city_state || '');
 
     return (
-      <div className="min-h-screen bg-[#0a0f1e] text-white flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen bg-[#0a0f1e] text-white flex flex-col items-center justify-center px-4 py-12">
         <SEO title="Quote Received | LangAccess" description="Your LangAccess card quote has been calculated." path="/order-cards" />
-        <div className="max-w-md w-full text-center">
-          <div className="w-20 h-20 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-green-400" />
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-4">Quote received</h1>
+        <div className="max-w-md w-full">
 
-          {hasPrice ? (
-            <div className="bg-[#111827] rounded-2xl border border-green-500/20 p-6 mb-6">
-              <p className="text-slate-400 text-sm mb-2">Your total</p>
-              <p className="text-4xl font-bold text-green-400 mb-1">
-                {currencySymbol}{formattedPrice}
-              </p>
-              <p className="text-slate-400 text-sm">
-                for {qty} cards · {quoteResult!.currency}
-              </p>
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto mb-5">
+              <CheckCircle className="w-10 h-10 text-green-400" />
             </div>
-          ) : (
-            <div className="bg-[#111827] rounded-2xl border border-white/10 p-6 mb-6">
-              <p className="text-slate-300 text-base leading-relaxed">
-                Your quote for {qty} cards was calculated successfully.
+            <h1 className="text-3xl font-bold text-white mb-2">Quote received</h1>
+            {hasPrice ? (
+              <p className="text-slate-400 text-sm">
+                Your total is{' '}
+                <span className="text-green-400 font-semibold">{currencySymbol}{formattedPrice}</span>
+                {' '}for {qty} cards
               </p>
+            ) : (
+              <p className="text-slate-400 text-sm">Your quote for {qty} cards was calculated.</p>
+            )}
+          </div>
+
+          <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden mb-5">
+            <div className="px-5 py-4 border-b border-white/5">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Order Summary</p>
+            </div>
+
+            <div className="divide-y divide-white/5">
+              <div className="flex items-center gap-3 px-5 py-4">
+                <Package className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                <span className="text-slate-400 text-sm flex-1">Quantity</span>
+                <span className="text-white font-medium text-sm">{qty} cards</span>
+              </div>
+
+              {hasPrice && (
+                <div className="flex items-center gap-3 px-5 py-4">
+                  <CreditCard className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                  <span className="text-slate-400 text-sm flex-1">Total price</span>
+                  <span className="text-green-400 font-bold text-sm">
+                    {currencySymbol}{formattedPrice}{' '}
+                    <span className="text-slate-500 font-normal">{quoteResult!.currency}</span>
+                  </span>
+                </div>
+              )}
+
+              {cityState && (
+                <div className="flex items-center gap-3 px-5 py-4">
+                  <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                  <span className="text-slate-400 text-sm flex-1">Ships to</span>
+                  <span className="text-white font-medium text-sm">{cityState}</span>
+                </div>
+              )}
+
+              {refCode && (
+                <div className="flex items-center gap-3 px-5 py-4">
+                  <Hash className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                  <span className="text-slate-400 text-sm flex-1">Ambassador code</span>
+                  <span className="text-white font-medium text-sm font-mono">{refCode}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {checkoutError && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 mb-4">
+              <p className="text-red-400 text-sm">{checkoutError}</p>
             </div>
           )}
 
-          <p className="text-slate-500 text-xs mb-8">
-            This is a price quote only. No order has been submitted yet.
-          </p>
           <button
-            onClick={onBack}
-            className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
+            onClick={handleCheckout}
+            disabled={checkoutLoading || !hasPrice}
+            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3 mb-4"
+            style={{ minHeight: 56 }}
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
+            {checkoutLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Starting checkout...
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-5 h-5" />
+                Continue to Checkout
+              </>
+            )}
           </button>
+
+          <p className="text-slate-600 text-xs text-center mb-6">
+            Secure payment via Stripe. Your card is not charged until you complete checkout.
+          </p>
+
+          <div className="text-center">
+            <button
+              onClick={onBack}
+              className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-300 transition-colors text-sm"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Home
+            </button>
+          </div>
         </div>
       </div>
     );

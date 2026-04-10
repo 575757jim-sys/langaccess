@@ -27,6 +27,10 @@ const handler: Handler = async (event: HandlerEvent) => {
       city,
       state,
       zip,
+      order_type,
+      ambassador_id,
+      front_file_url,
+      back_file_url,
     } = body;
 
     if (!full_name || !email || !quantity || !total_price) {
@@ -144,6 +148,10 @@ const handler: Handler = async (event: HandlerEvent) => {
         total_price: String(lockedTotalPrice),
         currency: currency || 'USD',
         shipment_method_name: shipment_method_name || '',
+        order_type: order_type || '',
+        ambassador_id: ambassador_id || '',
+        front_file_url: front_file_url || '',
+        back_file_url: back_file_url || '',
       },
       success_url: `${event.headers.origin || 'https://langaccess.org'}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${event.headers.origin || 'https://langaccess.org'}/cancel`,

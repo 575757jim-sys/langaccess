@@ -7,6 +7,104 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+async function createGelatoOrder(meta: Record<string, string>, supabase: ReturnType<typeof createClient>) {
+  const gelatoApiKey = Deno.env.get("GELATO_API_KEY");
+  if (!gelatoApiKey) {
+    console.error("[Webhook] GELATO_API_KEY not configured");
+    return;
+  }
+
+  const {
+    ambassador_id,
+    full_name,
+    email,
+    quantity,
+    street_address,
+    city,
+    state,
+    zip,
+    front_file_url,
+    back_file_url,
+    order_id,
+    currency,
+  } = meta;
+
+  const STATIC_FRONT = "https://langaccess.org/card-front.pdf";
+  const STATIC_BACK = "https://langaccess.org/card-back.pdf";
+
+  const resolvedFront = front_file_url && front_file_url.startsWith("https://") ? front_file_url : STATIC_FRONT;
+  const resolvedBack = back_file_url && back_file_url.startsWith("https://") ? back_file_url : STATIC_BACK;
+
+  const nameParts = (full_name || "").trim().split(/\s+/);
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
+  const qty = parseInt(quantity || "1");
+
+  const orderPayload = {
+    orderType: "order",
+    orderReferenceId: `paid-${order_id || crypto.randomUUID()}`,
+    customerReferenceId: ambassador_id || "",
+    currency: currency || "USD",
+    items: [
+      {
+        itemReferenceId: "item-1",
+        productUid: Deno.env.get("GELATO_PRODUCT_UID") || "cards_pf_bx_pt_300-gsm-uncoated_cl_4-4_hor",
+        files: [
+          { type: "default", url: resolvedFront },
+          { type: "back", url: resolvedBack },
+        ],
+        quantity: qty,
+      },
+    ],
+    shippingAddress: {
+      firstName,
+      lastName,
+      addressLine1: street_address || "",
+      city: city || "",
+      stateCode: state || "",
+      postCode: zip || "",
+      countryIsoCode: "US",
+      email: email || "",
+      phone: "0000000000",
+    },
+  };
+
+  console.log("[Webhook] Creating Gelato order for paid order:", order_id);
+  console.log("[Webhook] Gelato order payload:", JSON.stringify(orderPayload));
+
+  const gelatoRes = await fetch("https://order.gelatoapis.com/v4/orders", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-KEY": gelatoApiKey,
+    },
+    body: JSON.stringify(orderPayload),
+  });
+
+  if (!gelatoRes.ok) {
+    const errText = await gelatoRes.text();
+    console.error("[Webhook] Gelato order creation failed:", errText);
+    if (order_id) {
+      await supabase.from("card_orders").update({
+        status: "gelato_failed",
+        gelato_error: errText,
+      }).eq("id", order_id);
+    }
+    return;
+  }
+
+  const gelatoData = await gelatoRes.json();
+  const gelatoOrderId = gelatoData.id || gelatoData.orderId || null;
+  console.log("[Webhook] Gelato order created successfully:", gelatoOrderId);
+
+  if (order_id) {
+    await supabase.from("card_orders").update({
+      gelato_order_id: gelatoOrderId,
+      status: "gelato_submitted",
+    }).eq("id", order_id);
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -68,37 +166,52 @@ Deno.serve(async (req: Request) => {
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
-      const trackId = session.client_reference_id as string;
-      const customerEmail = session.customer_details?.email as string | undefined;
-      const sessionId = session.metadata?.session_id as string | undefined;
+      const meta: Record<string, string> = session.metadata || {};
 
-      if (trackId && sessionId) {
-        const supabase = createClient(
-          Deno.env.get("SUPABASE_URL")!,
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-        );
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      );
 
-        await supabase.from("certificate_purchases").upsert({
-          session_id: sessionId,
-          track_id: trackId,
-          stripe_session_id: session.id,
-          purchased_at: new Date().toISOString(),
-        }, { onConflict: "stripe_session_id" });
+      if (meta.order_type === "card_order") {
+        console.log("[Webhook] card_order payment confirmed — order_id:", meta.order_id);
 
-        if (customerEmail) {
-          const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-          await fetch(`${supabaseUrl}/functions/v1/send-cert-completion-email`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
-            },
-            body: JSON.stringify({
-              email: customerEmail,
-              trackId,
-              type: "purchase",
-            }),
-          });
+        if (meta.order_id) {
+          await supabase.from("card_orders").update({
+            status: "paid",
+            stripe_session_id: session.id,
+          }).eq("id", meta.order_id);
+        }
+
+        EdgeRuntime.waitUntil(createGelatoOrder(meta, supabase));
+      } else {
+        const trackId = session.client_reference_id as string;
+        const customerEmail = session.customer_details?.email as string | undefined;
+        const sessionId = meta.session_id;
+
+        if (trackId && sessionId) {
+          await supabase.from("certificate_purchases").upsert({
+            session_id: sessionId,
+            track_id: trackId,
+            stripe_session_id: session.id,
+            purchased_at: new Date().toISOString(),
+          }, { onConflict: "stripe_session_id" });
+
+          if (customerEmail) {
+            const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+            await fetch(`${supabaseUrl}/functions/v1/send-cert-completion-email`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+              },
+              body: JSON.stringify({
+                email: customerEmail,
+                trackId,
+                type: "purchase",
+              }),
+            });
+          }
         }
       }
     }
