@@ -26,8 +26,14 @@ const QUANTITY_OPTIONS = [
   { value: 100, label: '100 cards', cost: '$13–15' },
 ];
 
-function CardFrontPreview({ slug, fullName, cityState }: { slug: string; fullName: string; cityState: string }) {
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://langaccess.org/r/${encodeURIComponent(slug)}&bgcolor=ffffff&color=000000&margin=2`;
+function generateQRCodeUrl(ambassadorId: string): string {
+  const target = `https://langaccess.org/help?ref=${encodeURIComponent(ambassadorId)}`;
+  return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(target)}&bgcolor=ffffff&color=000000&margin=2`;
+}
+
+function CardFrontPreview({ slug, fullName, cityState, ambassadorId }: { slug: string; fullName: string; cityState: string; ambassadorId?: string }) {
+  const effectiveId = ambassadorId || slug || 'demo123';
+  const qrUrl = generateQRCodeUrl(effectiveId);
 
   return (
     <div
@@ -465,9 +471,10 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
             <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Card Preview — Front</h2>
             <div className="flex justify-center">
               <CardFrontPreview
-                slug={ambassador.slug}
+                slug={ambassador.slug || ''}
                 fullName={ambassador.full_name}
                 cityState={normalizeCityState(ambassador.city_state)}
+                ambassadorId={ambassador.id || 'demo123'}
               />
             </div>
             <p className="text-slate-500 text-xs text-center mt-3">Your unique QR code is printed on every card</p>
