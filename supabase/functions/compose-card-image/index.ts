@@ -33,7 +33,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    let body: { slug: string; full_name?: string; city_state?: string };
+    let body: { slug: string; ambassador_id?: string; full_name?: string; city_state?: string };
     try {
       body = await req.json();
     } catch {
@@ -43,16 +43,19 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { slug } = body;
-    if (!slug) {
+    const { slug, ambassador_id } = body;
+    if (!slug && !ambassador_id) {
       return new Response(
-        JSON.stringify({ error: "Missing required field: slug" }),
+        JSON.stringify({ error: "Missing required field: slug or ambassador_id" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const qrTarget = `https://langaccess.org/r/${encodeURIComponent(slug)}`;
+    const refCode = ambassador_id || slug;
+    const qrTarget = `https://langaccess.org/help?ref=${encodeURIComponent(refCode)}`;
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&ecc=H&data=${encodeURIComponent(qrTarget)}&bgcolor=ffffff&color=000000&margin=2`;
+
+    console.log("[compose] Final QR destination URL:", qrTarget);
 
     console.log("[compose] Fetching template...");
     let templateBuf = await fetchImageBuffer(TEMPLATE_URL);

@@ -87,8 +87,11 @@ export default function AmbassadorsPage({ onBack, onOrderCards }: Props) {
   }
 
   if (viewMode === 'get-cards' && (ambassadorData || localStorage.getItem('ambassador_id'))) {
-    const code = ambassadorData?.code || '';
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(`https://langaccess.org/help?ref=${code}`)}&bgcolor=ffffff&color=000000&margin=4`;
+    const code = ambassadorData?.code || localStorage.getItem('ambassador_id') || '';
+    const qrDestination = code ? `https://langaccess.org/help?ref=${encodeURIComponent(code)}` : 'https://langaccess.org/help';
+    console.log('[AmbassadorsPage] Final QR destination URL:', qrDestination);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(qrDestination)}&bgcolor=ffffff&color=000000&margin=4`;
+    console.log('[AmbassadorsPage] Final print asset URL (QR image):', qrUrl);
 
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white flex flex-col">

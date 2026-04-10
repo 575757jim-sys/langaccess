@@ -24,14 +24,14 @@ export const handler: Handler = async (event) => {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
-  let body: { order_id: string; full_name: string; city_state: string; slug?: string };
+  let body: { order_id: string; full_name: string; city_state: string; slug?: string; ambassador_id?: string };
   try {
     body = JSON.parse(event.body || "{}");
   } catch {
     return { statusCode: 400, body: JSON.stringify({ error: "Invalid JSON" }) };
   }
 
-  const { order_id, full_name, city_state, slug } = body;
+  const { order_id, full_name, city_state, slug, ambassador_id } = body;
 
   if (!order_id || !full_name || !city_state) {
     return {
@@ -44,9 +44,10 @@ export const handler: Handler = async (event) => {
   const batchCode = generateBatchCode(city);
 
   const effectiveSlug = slug || batchCode;
-  const qrTarget = slug
-    ? `https://langaccess.org/r/${encodeURIComponent(slug)}`
-    : generateBatchQRUrl(batchCode);
+  const refCode = ambassador_id || slug || batchCode;
+  const qrTarget = `https://langaccess.org/help?ref=${encodeURIComponent(refCode)}`;
+
+  console.log("[generate-card-pdf] Final QR destination URL:", qrTarget);
 
   const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&ecc=H&data=${encodeURIComponent(qrTarget)}`;
 
@@ -68,6 +69,7 @@ export const handler: Handler = async (event) => {
       },
       body: JSON.stringify({
         slug: effectiveSlug,
+        ambassador_id: refCode,
         full_name,
         city_state: formattedCityState,
       }),
@@ -107,6 +109,9 @@ export const handler: Handler = async (event) => {
   if (updateError) {
     console.warn("[generate-card-pdf] Could not update card_orders:", updateError.message);
   }
+
+  const finalPrintAssetUrl = composedDataUrl ? "(composedDataUrl — base64 image)" : frontFileUrl;
+  console.log("[generate-card-pdf] Final print asset URL:", finalPrintAssetUrl);
 
   return {
     statusCode: 200,

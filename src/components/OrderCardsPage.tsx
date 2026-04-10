@@ -237,9 +237,12 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const formattedCityState = normalizeCityState(fields.cityState) || fields.cityState;
     const { city, state } = splitCityState(formattedCityState);
     const slug = ambassador.slug || ambassador.ref_code || ambassador.id || 'langaccess';
+    const ambassadorId = ambassador.id || ambassador.ref_code || slug;
     const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-    console.log('[OrderCards] handlePreview — fields resolved:', { fullName, formattedCityState, city, state, slug });
+    const qrDestination = `https://langaccess.org/help?ref=${encodeURIComponent(ambassadorId)}`;
+    console.log('[OrderCards] Final QR destination URL:', qrDestination);
+    console.log('[OrderCards] handlePreview — fields resolved:', { fullName, formattedCityState, city, state, slug, ambassadorId });
 
     const fallbackFront = 'https://langaccess.org/card-front.pdf';
     const fallbackBack = 'https://langaccess.org/card-back.pdf';
@@ -252,7 +255,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: orderId, full_name: fullName, city_state: formattedCityState, slug }),
+        body: JSON.stringify({ order_id: orderId, full_name: fullName, city_state: formattedCityState, slug, ambassador_id: ambassadorId }),
       });
       if (pdfRes.ok) {
         const pdfData = await pdfRes.json();
@@ -270,6 +273,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       console.warn('[OrderCards] generate-card-pdf error:', imgErr, '— using fallback print assets');
     }
 
+    console.log('[OrderCards] Final print asset URL:', composed ? '(composedDataUrl — base64 image)' : frontFileUrl);
     setComposedPreviewUrl(composed);
     setComposeStep(stepLabel);
     setPreviewCityState(formattedCityState);
@@ -536,7 +540,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
                 <div className="flex-shrink-0 flex flex-col items-center gap-1 bg-black rounded-lg p-2" style={{ minWidth: 120 }}>
                   <div className="rounded overflow-hidden bg-white p-1" style={{ width: 90, height: 90 }}>
                     <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=H&data=${encodeURIComponent(`https://langaccess.org/r/${encodeURIComponent(pendingOrderData.slug)}`)}`}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=H&data=${encodeURIComponent(`https://langaccess.org/help?ref=${encodeURIComponent(pendingOrderData.slug)}`)}`}
                       alt="QR code"
                       width={82}
                       height={82}
