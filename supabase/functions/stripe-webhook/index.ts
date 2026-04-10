@@ -16,6 +16,7 @@ async function createGelatoOrder(meta: Record<string, string>, supabase: ReturnT
 
   const {
     ambassador_id,
+    ambassadorCode,
     full_name,
     email,
     quantity,
@@ -27,7 +28,16 @@ async function createGelatoOrder(meta: Record<string, string>, supabase: ReturnT
     back_file_url,
     order_id,
     currency,
+    gelatoBaseCost,
+    markup,
+    finalTotal,
   } = meta;
+
+  console.log("[Webhook] ambassadorCode:", ambassadorCode || ambassador_id || "");
+  console.log("[Webhook] quantity:", quantity);
+  console.log("[Webhook] gelatoBaseCost:", gelatoBaseCost);
+  console.log("[Webhook] markup:", markup);
+  console.log("[Webhook] finalTotal:", finalTotal);
 
   const STATIC_FRONT = "https://langaccess.org/card-front.pdf";
   const STATIC_BACK = "https://langaccess.org/card-back.pdf";
@@ -95,6 +105,7 @@ async function createGelatoOrder(meta: Record<string, string>, supabase: ReturnT
 
   const gelatoData = await gelatoRes.json();
   const gelatoOrderId = gelatoData.id || gelatoData.orderId || null;
+  console.log("[Webhook] gelatoOrderCreated:", gelatoOrderId);
   console.log("[Webhook] Gelato order created successfully:", gelatoOrderId);
 
   if (order_id) {

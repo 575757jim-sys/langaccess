@@ -18,6 +18,8 @@ const handler: Handler = async (event: HandlerEvent) => {
       email,
       quantity,
       ref_code,
+      gelato_base_cost,
+      markup,
       product_price,
       shipping_price,
       total_price,
@@ -68,9 +70,19 @@ const handler: Handler = async (event: HandlerEvent) => {
       };
     }
 
+    const lockedGelatoBaseCost = parseFloat(String(gelato_base_cost || product_price || 0));
+    const lockedMarkup = parseFloat(String(markup || 0));
     const lockedProductPrice = parseFloat(String(product_price || 0));
     const lockedShippingPrice = parseFloat(String(shipping_price || 0));
     const lockedTotalPrice = parseFloat(String(total_price));
+    const lockedFinalTotal = lockedTotalPrice;
+
+    console.log('[Checkout] ambassadorCode:', ref_code || '');
+    console.log('[Checkout] quantity:', quantity);
+    console.log('[Checkout] gelatoBaseCost:', lockedGelatoBaseCost);
+    console.log('[Checkout] markup:', lockedMarkup);
+    console.log('[Checkout] finalTotal:', lockedFinalTotal);
+    console.log('[Checkout] stripeCheckoutAmount:', lockedFinalTotal);
 
     const orderRecord = {
       ambassador_id: ref_code || '',
@@ -116,9 +128,9 @@ const handler: Handler = async (event: HandlerEvent) => {
       apiVersion: '2024-12-18.acacia',
     });
 
-    const amountInCents = Math.round(lockedTotalPrice * 100);
+    const amountInCents = Math.round(lockedFinalTotal * 100);
 
-    let description = `${quantity} cards`;
+    let description = `${quantity} LangAccess Ambassador Cards`;
     if (shipment_method_name) {
       description += ` • ${shipment_method_name}`;
     }
@@ -141,23 +153,29 @@ const handler: Handler = async (event: HandlerEvent) => {
       ],
       metadata: {
         order_id: savedOrder.id,
+        order_type: order_type || 'card_order',
         full_name,
         email,
         quantity: String(quantity),
+        ambassadorCode: ref_code || '',
         ref_code: ref_code || '',
+        ambassador_id: ambassador_id || '',
+        gelatoBaseCost: String(lockedGelatoBaseCost),
+        markup: String(lockedMarkup),
+        finalTotal: String(lockedFinalTotal),
+        shippingCity: city || '',
+        shippingState: state || '',
         street_address: street_address || '',
-        city: city || '',
-        state: state || '',
         zip: zip || '',
-        product_price: String(lockedProductPrice),
-        shipping_price: String(lockedShippingPrice),
-        total_price: String(lockedTotalPrice),
         currency: currency || 'USD',
         shipment_method_name: shipment_method_name || '',
-        order_type: order_type || '',
-        ambassador_id: ambassador_id || '',
         front_file_url: front_file_url || '',
         back_file_url: back_file_url || '',
+        product_price: String(lockedProductPrice),
+        shipping_price: String(lockedShippingPrice),
+        total_price: String(lockedFinalTotal),
+        city: city || '',
+        state: state || '',
       },
       success_url: `${event.headers.origin || 'https://langaccess.org'}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${event.headers.origin || 'https://langaccess.org'}/cancel`,

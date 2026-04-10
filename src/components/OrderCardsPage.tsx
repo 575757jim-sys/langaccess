@@ -21,9 +21,22 @@ interface AmbassadorData {
 type Step = 'loading' | 'unauthorized' | 'ready' | 'previewing' | 'submitting' | 'success';
 
 interface QuoteResult {
+  gelatoBaseCost: number | null;
+  markup: number;
+  finalTotal: number | null;
   price: number | null;
   currency: string;
   quantity: number;
+}
+
+const MARKUP_BY_QUANTITY: Record<number, number> = {
+  25: 5.00,
+  50: 7.00,
+  100: 10.00,
+};
+
+function getMarkup(qty: number): number {
+  return MARKUP_BY_QUANTITY[qty] ?? 5.00;
 }
 
 const QUANTITY_OPTIONS = [
@@ -297,12 +310,23 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
       const data = await gelatoRes.json();
       console.log('[OrderCards] Gelato quote success — full response:', data);
-      console.log('[OrderCards] Quoted total:', data.price ?? null);
+
+      const resolvedQty = data.quantity ?? quantity;
+      const gelatoBaseCost = data.price ?? null;
+      const markup = getMarkup(resolvedQty);
+      const finalTotal = gelatoBaseCost != null ? parseFloat((gelatoBaseCost + markup).toFixed(2)) : null;
+
+      console.log('[OrderCards] gelatoQuoteTotal:', gelatoBaseCost);
+      console.log('[OrderCards] markup:', markup);
+      console.log('[OrderCards] finalTotal:', finalTotal);
 
       setQuoteResult({
-        price: data.price ?? null,
+        gelatoBaseCost,
+        markup,
+        finalTotal,
+        price: finalTotal,
         currency: data.currency ?? 'USD',
-        quantity: data.quantity ?? quantity,
+        quantity: resolvedQty,
       });
       setStep('success');
     } catch (err: unknown) {
@@ -324,13 +348,18 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
     const refCode = ambassador.ref_code || ambassador.id || '';
     const qty = quoteResult.quantity;
-    const total = quoteResult.price;
+    const gelatoBaseCost = quoteResult.gelatoBaseCost;
+    const markup = quoteResult.markup;
+    const finalTotal = quoteResult.finalTotal;
     const cityState = pendingOrderData.formattedCityState;
 
     console.log('[OrderCards] Stripe checkout starting');
-    console.log('[OrderCards] Selected quantity:', qty);
-    console.log('[OrderCards] Quoted total:', total);
-    console.log('[OrderCards] Ambassador code:', refCode);
+    console.log('[OrderCards] ambassadorCode:', refCode);
+    console.log('[OrderCards] quantity:', qty);
+    console.log('[OrderCards] gelatoBaseCost:', gelatoBaseCost);
+    console.log('[OrderCards] markup:', markup);
+    console.log('[OrderCards] finalTotal:', finalTotal);
+    console.log('[OrderCards] stripeCheckoutAmount:', finalTotal);
 
     setCheckoutLoading(true);
     setCheckoutError('');
@@ -344,9 +373,11 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       email: ambassador.email,
       quantity: qty,
       ref_code: refCode,
-      product_price: total,
+      gelato_base_cost: gelatoBaseCost,
+      markup,
+      product_price: gelatoBaseCost,
       shipping_price: 0,
-      total_price: total,
+      total_price: finalTotal,
       currency: quoteResult.currency,
       shipment_method_name: '',
       street_address: ambassador.street_address || '',
@@ -414,14 +445,12 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   }
 
   if (step === 'success') {
-    const hasPrice = quoteResult?.price != null;
-    const formattedPrice = hasPrice
-      ? (typeof quoteResult!.price === 'number'
-        ? quoteResult!.price.toFixed(2)
-        : String(quoteResult!.price))
-      : null;
     const currencySymbol = quoteResult?.currency === 'USD' ? '$' : (quoteResult?.currency ?? '');
     const qty = quoteResult?.quantity ?? quantity;
+    const gelatoBaseCost = quoteResult?.gelatoBaseCost ?? null;
+    const markup = quoteResult?.markup ?? getMarkup(qty);
+    const finalTotal = quoteResult?.finalTotal ?? null;
+    const hasFinalTotal = finalTotal != null;
     const refCode = ambassador?.ref_code || ambassador?.id || '';
     const cityState = pendingOrderData?.formattedCityState || normalizeCityState(ambassador?.city_state || '');
     const ambassadorIdForQR = ambassador?.id || ambassador?.ref_code || ambassador?.slug || 'demo123';
@@ -470,12 +499,26 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
                 <span className="text-white font-medium text-sm">{qty} cards</span>
               </div>
 
-              {hasPrice && (
+              {gelatoBaseCost != null && (
                 <div className="flex items-center gap-3 px-5 py-4">
                   <CreditCard className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                  <span className="text-slate-400 text-sm flex-1">Total price</span>
+                  <span className="text-slate-400 text-sm flex-1">Base print + shipping</span>
+                  <span className="text-white font-medium text-sm">{currencySymbol}{gelatoBaseCost.toFixed(2)}</span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 px-5 py-4">
+                <CreditCard className="w-4 h-4 text-slate-500 flex-shrink-0 opacity-0" />
+                <span className="text-slate-400 text-sm flex-1">Service fee</span>
+                <span className="text-white font-medium text-sm">{currencySymbol}{markup.toFixed(2)}</span>
+              </div>
+
+              {hasFinalTotal && (
+                <div className="flex items-center gap-3 px-5 py-4 bg-white/[0.03]">
+                  <CreditCard className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  <span className="text-white font-semibold text-sm flex-1">Total</span>
                   <span className="text-green-400 font-bold text-sm">
-                    {currencySymbol}{formattedPrice}{' '}
+                    {currencySymbol}{finalTotal!.toFixed(2)}{' '}
                     <span className="text-slate-500 font-normal">{quoteResult!.currency}</span>
                   </span>
                 </div>
@@ -565,7 +608,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
             )}
             <button
               onClick={handleCheckout}
-              disabled={checkoutLoading || !hasPrice}
+              disabled={checkoutLoading || !hasFinalTotal}
               className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 active:bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3 mb-2"
               style={{ minHeight: 56, touchAction: 'manipulation' }}
             >
