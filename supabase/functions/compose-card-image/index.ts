@@ -8,11 +8,17 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const TEMPLATE_URL =
-  "https://langaccess.org/templates/langaccess_master_noqr_v1..png";
+// QR box position as fractions of card dimensions, derived from the master SVG template
+// SVG canvas: 1125×675 — white QR box: x=804, y=293, w=259, h=259
+const QR_X_RATIO = 804 / 1125;   // ~0.7147
+const QR_Y_RATIO = 293 / 675;    // ~0.4341
+const QR_W_RATIO = 259 / 1125;   // ~0.2302
+const QR_H_RATIO = 259 / 675;    // ~0.3837
 
-const FALLBACK_TEMPLATE_URL =
-  "https://tllfqsthkxgsadxtutpm.supabase.co/storage/v1/object/public/card-templates/langaccess_master_noqr_v1.png";
+const TEMPLATE_URLS = [
+  "https://tllfqsthkxgsadxtutpm.supabase.co/storage/v1/object/public/composed-cards/templates/langaccess_master_noqr_v1.png",
+  "https://langaccess.org/templates/langaccess_master_noqr_v1..png",
+];
 
 async function fetchImageBuffer(url: string): Promise<ArrayBuffer | null> {
   try {
@@ -25,6 +31,35 @@ async function fetchImageBuffer(url: string): Promise<ArrayBuffer | null> {
   } catch (err) {
     console.error(`[compose] Fetch error for ${url}:`, err);
     return null;
+  }
+}
+
+async function ensureTemplateInStorage(
+  supabase: ReturnType<typeof createClient>
+): Promise<void> {
+  const { data } = await supabase.storage
+    .from("composed-cards")
+    .list("templates");
+
+  const exists = data?.some((f) => f.name === "langaccess_master_noqr_v1.png");
+  if (exists) return;
+
+  console.log("[compose] Template not in storage — uploading from langaccess.org...");
+  const buf = await fetchImageBuffer("https://langaccess.org/templates/langaccess_master_noqr_v1..png");
+  if (!buf) {
+    console.warn("[compose] Could not fetch template for storage upload");
+    return;
+  }
+  const { error } = await supabase.storage
+    .from("composed-cards")
+    .upload("templates/langaccess_master_noqr_v1.png", new Uint8Array(buf), {
+      contentType: "image/png",
+      upsert: false,
+    });
+  if (error) {
+    console.warn("[compose] Template upload to storage failed:", error.message);
+  } else {
+    console.log("[compose] Template uploaded to storage successfully");
   }
 }
 
@@ -52,33 +87,41 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const ambassadorCode = ambassador_id || slug;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    await ensureTemplateInStorage(supabase);
+
+    const ambassadorCode = (ambassador_id || slug) as string;
     const qrDestinationUrl = `https://langaccess.org/join?code=${encodeURIComponent(ambassadorCode)}`;
-    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&ecc=H&data=${encodeURIComponent(qrDestinationUrl)}&bgcolor=ffffff&color=000000&margin=2`;
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&ecc=H&data=${encodeURIComponent(qrDestinationUrl)}&bgcolor=ffffff&color=000000&margin=2`;
 
     console.log("[compose] ambassadorCode:", ambassadorCode);
     console.log("[compose] qrDestinationUrl:", qrDestinationUrl);
     console.log("[compose] qrImageUrl:", qrImageUrl);
 
     console.log("[compose] Fetching template...");
-    let templateBuf = await fetchImageBuffer(TEMPLATE_URL);
-    if (!templateBuf) {
-      console.log("[compose] Primary template failed, trying fallback...");
-      templateBuf = await fetchImageBuffer(FALLBACK_TEMPLATE_URL);
+    let templateBuf: ArrayBuffer | null = null;
+    for (const url of TEMPLATE_URLS) {
+      templateBuf = await fetchImageBuffer(url);
+      if (templateBuf) {
+        console.log("[compose] Template fetched from:", url, "size:", templateBuf.byteLength);
+        break;
+      }
     }
 
     if (!templateBuf) {
-      console.error("[compose] FAILED: template not found at either URL");
+      console.error("[compose] FAILED: template not found at any URL");
       return new Response(
         JSON.stringify({
           error: "Could not load card template.",
           step: "template_not_found",
-          urls_tried: [TEMPLATE_URL, FALLBACK_TEMPLATE_URL],
+          urls_tried: TEMPLATE_URLS,
         }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-    console.log("[compose] Template fetched, size:", templateBuf.byteLength);
 
     console.log("[compose] Fetching QR code...");
     const qrBuf = await fetchImageBuffer(qrImageUrl);
@@ -104,12 +147,15 @@ Deno.serve(async (req: Request) => {
       const cardW = templateImg.width;
       const cardH = templateImg.height;
 
-      const qrSize = Math.round(cardH * 0.40);
-      qrImg.resize({ w: qrSize, h: qrSize });
+      const qrW = Math.round(cardW * QR_W_RATIO);
+      const qrH = Math.round(cardH * QR_H_RATIO);
+      const qrX = Math.round(cardW * QR_X_RATIO);
+      const qrY = Math.round(cardH * QR_Y_RATIO);
 
-      const qrX = cardW - qrSize - Math.round(cardW * 0.03);
-      const qrY = Math.round(cardH * 0.12);
+      console.log(`[compose] Card size: ${cardW}x${cardH}`);
+      console.log(`[compose] QR size: ${qrW}x${qrH}, position: (${qrX}, ${qrY})`);
 
+      qrImg.resize({ w: qrW, h: qrH });
       templateImg.composite(qrImg, qrX, qrY);
 
       const outputBuf = await templateImg.getBuffer("image/png");
@@ -128,10 +174,6 @@ Deno.serve(async (req: Request) => {
 
     console.log("[compose] Composition success, PNG size:", outputPngBuffer.length);
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
     const fileName = `card-${ambassadorCode}-${Date.now()}.png`;
     const storagePath = `cards/${fileName}`;
 
@@ -146,24 +188,13 @@ Deno.serve(async (req: Request) => {
 
     if (uploadError) {
       console.error("[compose] Storage upload failed:", uploadError);
-      const bytes = outputPngBuffer;
-      let binary = "";
-      for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      const composedDataUrl = "data:image/png;base64," + btoa(binary);
-      console.warn("[compose] Falling back to base64 data URL due to upload failure");
       return new Response(
         JSON.stringify({
-          success: true,
-          composedDataUrl,
-          finalPrintAssetUrl: null,
-          qrImageUrl,
-          qrDestinationUrl,
-          ambassadorCode,
-          uploadFailed: true,
+          error: "Storage upload failed.",
+          step: "upload_failed",
+          detail: uploadError.message,
         }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
