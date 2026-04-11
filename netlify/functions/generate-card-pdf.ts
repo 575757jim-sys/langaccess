@@ -7,8 +7,11 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY!
 );
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL!;
-const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY!;
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
+
+console.log("[generate-card-pdf] SUPABASE_URL resolved:", SUPABASE_URL || "(MISSING — check env vars)");
+console.log("[generate-card-pdf] SUPABASE_ANON_KEY present:", SUPABASE_ANON_KEY ? "yes" : "NO — key is missing");
 
 function normalizeCityState(raw: string): { city: string; state: string; formatted: string } {
   const parts = raw.split(",").map((p) => p.trim()).filter(Boolean);
@@ -56,50 +59,66 @@ export const handler: Handler = async (event) => {
   let composedDataUrl: string | null = null;
   let composeStep = "not_started";
 
-  try {
-    composeStep = "calling_compose_edge_function";
-    console.log("[generate-card-pdf] Calling compose-card-image for ambassadorCode:", ambassadorCode);
+  const composeUrl = `${SUPABASE_URL}/functions/v1/compose-card-image`;
 
-    const composeRes = await fetch(`${SUPABASE_URL}/functions/v1/compose-card-image`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
-      body: JSON.stringify({
-        slug: effectiveSlug,
-        ambassador_id: ambassadorCode,
-        full_name,
-        city_state: formattedCityState,
-      }),
-    });
+  if (!SUPABASE_URL) {
+    composeStep = "compose_missing_supabase_url";
+    console.error("[generate-card-pdf] compose-card-image endpoint not found — check deployment or URL. SUPABASE_URL is empty.");
+  } else {
+    try {
+      composeStep = "calling_compose_edge_function";
+      console.log("[generate-card-pdf] Calling compose-card-image:", composeUrl);
+      console.log("[generate-card-pdf] ambassadorCode:", ambassadorCode);
+      console.log("[generate-card-pdf] qrDestinationUrl:", qrDestinationUrl);
 
-    if (composeRes.ok) {
-      composeStep = "parsing_compose_response";
-      const composeData = await composeRes.json();
+      const composeRes = await fetch(composeUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          slug: effectiveSlug,
+          ambassador_id: ambassadorCode,
+          full_name,
+          city_state: formattedCityState,
+        }),
+      });
 
-      if (composeData.finalPrintAssetUrl) {
-        finalPrintAssetUrl = composeData.finalPrintAssetUrl;
-        composedDataUrl = composeData.finalPrintAssetUrl;
-        composeStep = "success";
-        console.log("[generate-card-pdf] finalPrintAssetUrl received:", finalPrintAssetUrl);
-      } else if (composeData.composedDataUrl) {
-        composedDataUrl = composeData.composedDataUrl;
-        finalPrintAssetUrl = null;
-        composeStep = "success_base64_fallback";
-        console.warn("[generate-card-pdf] Only base64 data URL available — storage upload may have failed");
+      console.log("[generate-card-pdf] compose-card-image response status:", composeRes.status);
+
+      if (composeRes.ok) {
+        composeStep = "parsing_compose_response";
+        const composeData = await composeRes.json();
+        console.log("[generate-card-pdf] compose-card-image response body:", JSON.stringify(composeData));
+
+        if (composeData.finalPrintAssetUrl) {
+          finalPrintAssetUrl = composeData.finalPrintAssetUrl;
+          composedDataUrl = composeData.finalPrintAssetUrl;
+          composeStep = "success";
+          console.log("[generate-card-pdf] finalPrintAssetUrl received:", finalPrintAssetUrl);
+        } else if (composeData.composedDataUrl) {
+          composedDataUrl = composeData.composedDataUrl;
+          finalPrintAssetUrl = null;
+          composeStep = "success_base64_fallback";
+          console.warn("[generate-card-pdf] Only base64 data URL available — storage upload may have failed");
+        } else {
+          composeStep = "compose_returned_no_url";
+          console.error("[generate-card-pdf] compose-card-image returned no finalPrintAssetUrl:", JSON.stringify(composeData));
+        }
       } else {
-        composeStep = "compose_returned_no_url";
-        console.warn("[generate-card-pdf] compose-card-image returned no URL:", JSON.stringify(composeData));
+        const errText = await composeRes.text();
+        composeStep = `compose_http_error_${composeRes.status}`;
+        if (composeRes.status === 404) {
+          console.error("[generate-card-pdf] compose-card-image endpoint not found — check deployment or URL. URL used:", composeUrl, "Response:", errText);
+        } else {
+          console.error(`[generate-card-pdf] compose-card-image HTTP ${composeRes.status}:`, errText, "URL used:", composeUrl);
+        }
       }
-    } else {
-      const errText = await composeRes.text();
-      composeStep = `compose_http_error_${composeRes.status}`;
-      console.warn(`[generate-card-pdf] compose-card-image HTTP ${composeRes.status}:`, errText);
+    } catch (err) {
+      composeStep = "compose_network_error";
+      console.error("[generate-card-pdf] compose-card-image network error. URL used:", composeUrl, "Error:", err);
     }
-  } catch (err) {
-    composeStep = "compose_network_error";
-    console.error("[generate-card-pdf] compose-card-image network error:", err);
   }
 
   console.log("[generate-card-pdf] composeStep:", composeStep);
