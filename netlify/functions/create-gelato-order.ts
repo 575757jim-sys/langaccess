@@ -1,13 +1,4 @@
 import { Handler } from "@netlify/functions";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY!
-);
-
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL!;
-const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY!;
 
 function isPublicHttpsUrl(url: string | undefined): boolean {
   if (!url) return false;
@@ -28,7 +19,7 @@ export const handler: Handler = async (event) => {
     ambassador_id: string;
     full_name: string;
     email: string;
-    phone: string;
+    phone?: string;
     shipping_address: string;
     city: string;
     state: string;
@@ -49,7 +40,6 @@ export const handler: Handler = async (event) => {
     ambassador_id,
     full_name,
     email,
-    phone,
     shipping_address,
     city,
     state,
@@ -63,7 +53,7 @@ export const handler: Handler = async (event) => {
   const stateClean = (state || "").trim().replace(/,/g, "").trim();
   const cityStateDisplay = stateClean ? `${cityClean}, ${stateClean}` : cityClean;
 
-  const nameParts = full_name.trim().split(/\s+/);
+  const nameParts = (full_name || "").trim().split(/\s+/);
   const firstName = nameParts[0] || "";
   const lastName = nameParts.slice(1).join(" ") || "";
 
@@ -73,14 +63,19 @@ export const handler: Handler = async (event) => {
     ? frontFileUrl!
     : "https://langaccess.org/card-front.pdf";
 
-  console.log("[Gelato] ambassadorCode:", ambassador_id);
-  console.log("[Gelato] finalPrintAssetUrl (input):", finalPrintAssetUrl || "(none)");
-  console.log("[Gelato] resolvedPrintUrl (sending to Gelato):", resolvedPrintUrl);
-  console.log("[Gelato] Shipping to:", cityStateDisplay, zip);
+  const isTestMode = (process.env.STRIPE_SECRET_KEY || "").startsWith("sk_test_");
+
+  console.log("[GelatoQuote] QUOTE ONLY — no real order submitted");
+  console.log("[GelatoQuote] sandboxMode:", isTestMode);
+  console.log("[GelatoQuote] ambassadorCode:", ambassador_id);
+  console.log("[GelatoQuote] quantity:", quantity);
+  console.log("[GelatoQuote] finalPrintAssetUrl (input):", finalPrintAssetUrl || "(none)");
+  console.log("[GelatoQuote] resolvedPrintUrl:", resolvedPrintUrl);
+  console.log("[GelatoQuote] Shipping to:", cityStateDisplay, zip);
 
   const gelatoQuotePayload = {
-    orderType: "order",
-    orderReferenceId: crypto.randomUUID(),
+    orderType: "draft",
+    orderReferenceId: `quote-${ambassador_id || "anon"}-${Date.now()}`,
     customerReferenceId: ambassador_id,
     currency: "USD",
     items: [
@@ -102,13 +97,12 @@ export const handler: Handler = async (event) => {
       postCode: zip || "",
       countryIsoCode: "US",
       email,
-      phone: phone || "0000000000",
+      phone: "0000000000",
     },
   };
 
-  console.log("[Gelato] gelatoQuotePayload:", JSON.stringify(gelatoQuotePayload));
+  console.log("[GelatoQuote] gelatoQuotePayload:", JSON.stringify(gelatoQuotePayload));
 
-  let gelatoOrderId: string | null = null;
   let gelatoPrice: number | null = null;
   let gelatoCurrency = "USD";
 
@@ -123,22 +117,21 @@ export const handler: Handler = async (event) => {
     });
 
     const gelatoResponseText = await gelatoRes.text();
-    console.log("[Gelato] gelatoResponse (raw):", gelatoResponseText);
+    console.log("[GelatoQuote] gelatoResponse (raw):", gelatoResponseText);
 
     if (!gelatoRes.ok) {
-      console.error("[Gelato] API error status:", gelatoRes.status, "body:", gelatoResponseText);
+      console.error("[GelatoQuote] API error status:", gelatoRes.status, "body:", gelatoResponseText);
       return {
         statusCode: gelatoRes.status,
         body: JSON.stringify({
-          error: "Could not prepare print file. Please try again.",
+          error: "Could not retrieve print quote. Please try again.",
           _debug: gelatoResponseText,
         }),
       };
     }
 
     const gelatoData = JSON.parse(gelatoResponseText);
-    console.log("[Gelato] gelatoOrderPayload response parsed:", JSON.stringify(gelatoData));
-    gelatoOrderId = gelatoData.id || gelatoData.orderId || null;
+    console.log("[GelatoQuote] quoteGenerated — response parsed:", JSON.stringify(gelatoData));
 
     const items = gelatoData.items || [];
     const firstItem = items[0] || {};
@@ -153,8 +146,10 @@ export const handler: Handler = async (event) => {
       gelatoData.currencyIsoCode ??
       gelatoQuotePayload.currency ??
       "USD";
+
+    console.log("[GelatoQuote] quote generated — price:", gelatoPrice, "currency:", gelatoCurrency);
   } catch (err) {
-    console.error("[Gelato] Network error:", err);
+    console.error("[GelatoQuote] Network error:", err);
     return {
       statusCode: 500,
       body: JSON.stringify({
@@ -164,57 +159,17 @@ export const handler: Handler = async (event) => {
     };
   }
 
-  const shippingAddressJson = {
-    address: shipping_address,
-    city: cityClean,
-    state: stateClean,
-    zip,
-  };
-
-  const { error: dbError } = await supabase.from("card_orders").insert({
-    ambassador_id,
-    gelato_order_id: gelatoOrderId,
-    quantity,
-    shipping_name: full_name,
-    shipping_address_json: shippingAddressJson,
-    status: "submitted",
-    created_at: new Date().toISOString(),
-  });
-
-  if (dbError) {
-    console.error("[Gelato] Supabase insert error:", dbError);
-  }
-
-  const shippingAddressDisplay = [shipping_address, cityStateDisplay, zip].filter(Boolean).join(", ");
-
-  try {
-    await fetch(`${SUPABASE_URL}/functions/v1/send-order-confirmation`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-      },
-      body: JSON.stringify({
-        full_name,
-        email,
-        quantity,
-        gelato_order_id: gelatoOrderId,
-        shipping_address: shippingAddressDisplay,
-      }),
-    });
-  } catch (emailErr) {
-    console.error("[Gelato] Confirmation email failed (non-fatal):", emailErr);
-  }
+  console.log("[GelatoQuote] Returning quote to client — NO Gelato order created, NO DB write");
 
   return {
     statusCode: 200,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       success: true,
-      gelatoOrderId,
       price: gelatoPrice,
       currency: gelatoCurrency,
       quantity,
+      quoteOnly: true,
     }),
   };
 };

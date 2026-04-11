@@ -619,8 +619,11 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
           <p className="text-slate-500 text-xs text-center mb-1">
             Each card you distribute helps someone find real help nearby.
           </p>
-          <p className="text-slate-600 text-xs text-center mb-6">
+          <p className="text-slate-600 text-xs text-center mb-2">
             Secure payment via Stripe. Your card is not charged until you complete checkout.
+          </p>
+          <p className="text-slate-600 text-xs text-center mb-6">
+            No print order is submitted until payment is completed.
           </p>
 
           {checkoutError && (

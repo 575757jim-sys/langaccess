@@ -80,7 +80,7 @@ async function createGelatoOrder(meta: Record<string, string>, supabase: ReturnT
     },
   };
 
-  console.log("[Webhook] Creating Gelato order for paid order:", order_id);
+  console.log("[Webhook] gelatoOrderCreating — order_id:", order_id);
   console.log("[Webhook] gelatoOrderPayload:", JSON.stringify(gelatoOrderPayload));
   const orderPayload = gelatoOrderPayload;
 
@@ -181,6 +181,14 @@ Deno.serve(async (req: Request) => {
       const session = event.data.object;
       const meta: Record<string, string> = session.metadata || {};
 
+      const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") || "";
+      const isTestMode = stripeKey.startsWith("sk_test_");
+
+      console.log("[Webhook] stripePaymentSuccess — session:", session.id);
+      console.log("[Webhook] sandboxMode:", isTestMode);
+      console.log("[Webhook] event.type:", event.type);
+      console.log("[Webhook] meta.order_type:", meta.order_type || "(none)");
+
       const supabase = createClient(
         Deno.env.get("SUPABASE_URL")!,
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -188,6 +196,7 @@ Deno.serve(async (req: Request) => {
 
       if (meta.order_type === "card_order") {
         console.log("[Webhook] card_order payment confirmed — order_id:", meta.order_id);
+        console.log("[Webhook] Stripe checkout started and completed — now creating Gelato order");
 
         if (meta.order_id) {
           await supabase.from("card_orders").update({
