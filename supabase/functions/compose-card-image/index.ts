@@ -4,8 +4,9 @@ import {
   initializeImageMagick,
   MagickFormat,
   MagickGeometry,
-  Gravity,
   CompositeOperator,
+  ColorSpace,
+  Point,
 } from "npm:@imagemagick/magick-wasm@0.0.30";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -20,6 +21,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+// SVG canvas: 1125×675 — white QR box: x=804, y=293, w=259, h=259
 const QR_X_RATIO = 804 / 1125;
 const QR_Y_RATIO = 293 / 675;
 const QR_W_RATIO = 259 / 1125;
@@ -37,8 +39,7 @@ async function fetchImageBytes(url: string): Promise<Uint8Array | null> {
       console.error(`[compose] Fetch failed for ${url}: ${res.status}`);
       return null;
     }
-    const buf = await res.arrayBuffer();
-    return new Uint8Array(buf);
+    return new Uint8Array(await res.arrayBuffer());
   } catch (err) {
     console.error(`[compose] Fetch error for ${url}:`, err);
     return null;
@@ -51,7 +52,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    let body: { slug: string; ambassador_id?: string; full_name?: string; city_state?: string };
+    let body: { slug: string; ambassador_id?: string };
     try {
       body = await req.json();
     } catch {
@@ -91,13 +92,8 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!templateBytes) {
-      console.error("[compose] FAILED: template not found at any URL");
       return new Response(
-        JSON.stringify({
-          error: "Could not load card template.",
-          step: "template_not_found",
-          urls_tried: TEMPLATE_URLS,
-        }),
+        JSON.stringify({ error: "Could not load card template.", step: "template_not_found", urls_tried: TEMPLATE_URLS }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -105,13 +101,8 @@ Deno.serve(async (req: Request) => {
     console.log("[compose] Fetching QR code...");
     const qrBytes = await fetchImageBytes(qrImageUrl);
     if (!qrBytes) {
-      console.error("[compose] FAILED: QR image not found");
       return new Response(
-        JSON.stringify({
-          error: "Could not load QR code image.",
-          step: "qr_not_found",
-          qr_url: qrImageUrl,
-        }),
+        JSON.stringify({ error: "Could not load QR code image.", step: "qr_not_found", qr_url: qrImageUrl }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -129,24 +120,25 @@ Deno.serve(async (req: Request) => {
         const qrX = Math.round(cardW * QR_X_RATIO);
         const qrY = Math.round(cardH * QR_Y_RATIO);
 
-        console.log(`[compose] Card size: ${cardW}x${cardH}`);
-        console.log(`[compose] QR target size: ${qrW}x${qrH}, position: (${qrX}, ${qrY})`);
+        console.log(`[compose] Card dimensions: ${cardW}x${cardH}`);
+        console.log(`[compose] QR placement: x=${qrX}, y=${qrY}, w=${qrW}, h=${qrH}`);
 
         ImageMagick.read(qrBytes, (qrImg) => {
+          // Normalize QR to match template colorspace to avoid channel artifacts
+          qrImg.colorSpace = templateImg.colorSpace;
+          // Resize QR to fit the white box exactly
           qrImg.resize(new MagickGeometry(qrW, qrH));
-          templateImg.composite(qrImg, qrX, qrY, CompositeOperator.Over);
+          // Composite at absolute pixel coordinates using Point
+          templateImg.composite(qrImg, CompositeOperator.Over, new Point(qrX, qrY));
         });
 
+        console.log(`[compose] Final image dimensions: ${templateImg.width}x${templateImg.height}`);
         return templateImg.write(MagickFormat.Png, (data) => data);
       });
     } catch (magickErr) {
       console.error("[compose] FAILED: ImageMagick composition error:", magickErr);
       return new Response(
-        JSON.stringify({
-          error: "Card image composition failed.",
-          step: "composition_failed",
-          detail: String(magickErr),
-        }),
+        JSON.stringify({ error: "Card image composition failed.", step: "composition_failed", detail: String(magickErr) }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -157,42 +149,24 @@ Deno.serve(async (req: Request) => {
     const storagePath = `cards/${fileName}`;
 
     console.log("[compose] Uploading to Supabase Storage:", storagePath);
-
     const { error: uploadError } = await supabase.storage
       .from("composed-cards")
-      .upload(storagePath, outputPngBuffer, {
-        contentType: "image/png",
-        upsert: true,
-      });
+      .upload(storagePath, outputPngBuffer, { contentType: "image/png", upsert: true });
 
     if (uploadError) {
       console.error("[compose] Storage upload failed:", uploadError);
       return new Response(
-        JSON.stringify({
-          error: "Storage upload failed.",
-          step: "upload_failed",
-          detail: uploadError.message,
-        }),
+        JSON.stringify({ error: "Storage upload failed.", step: "upload_failed", detail: uploadError.message }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const { data: publicUrlData } = supabase.storage
-      .from("composed-cards")
-      .getPublicUrl(storagePath);
-
+    const { data: publicUrlData } = supabase.storage.from("composed-cards").getPublicUrl(storagePath);
     const finalPrintAssetUrl = publicUrlData.publicUrl;
     console.log("[compose] finalPrintAssetUrl:", finalPrintAssetUrl);
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        finalPrintAssetUrl,
-        composedDataUrl: finalPrintAssetUrl,
-        qrImageUrl,
-        qrDestinationUrl,
-        ambassadorCode,
-      }),
+      JSON.stringify({ success: true, finalPrintAssetUrl, composedDataUrl: finalPrintAssetUrl, qrImageUrl, qrDestinationUrl, ambassadorCode }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
