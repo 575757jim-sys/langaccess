@@ -224,8 +224,6 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
   const handleGetPrice = async () => {
     if (!ambassador) return;
-
-    touchAllFields();
     if (!shippingReady) return;
 
     setStep('previewing');
@@ -371,13 +369,18 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const handleCheckout = async () => {
     if (!ambassador || !quoteResult || !pendingOrderData) return;
 
+    const { fullName, email, addressLine1, city, state, postalCode, country } = pendingOrderData;
+    if (!fullName || !email || !addressLine1 || !city || !state || !postalCode || !country) {
+      setCheckoutError('Please complete all required fields before checkout.');
+      return;
+    }
+
     const refCode = ambassador.ref_code || ambassador.id || '';
     const qty = quoteResult.quantity;
     const gelatoBaseCost = quoteResult.gelatoBaseCost;
     const markup = quoteResult.markup;
     const finalTotal = quoteResult.finalTotal;
     const printUrl = pendingOrderData.finalPrintAssetUrl || finalPrintAssetUrl || '';
-    const { fullName, email, city, state, addressLine1, postalCode, country } = pendingOrderData;
 
     console.log('[OrderCards] Stripe checkout starting');
     console.log('[OrderCards] ambassadorCode:', refCode);
@@ -898,8 +901,14 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         )}
 
         <div className="pt-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
+          {!shippingReady && Object.keys(shippingTouched).length > 0 && (
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 mb-3 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+              <p className="text-amber-400 text-xs leading-relaxed">Please complete all required fields before checkout.</p>
+            </div>
+          )}
           <button
-            onClick={handleGetPrice}
+            onClick={() => { touchAllFields(); if (shippingReady && !isGenerating) handleGetPrice(); }}
             disabled={isGenerating}
             className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 active:bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3"
             style={{ minHeight: 56, touchAction: 'manipulation' }}
