@@ -24,7 +24,7 @@ export default function AmbassadorSignup({ onClose, onComplete }: AmbassadorSign
     }
   };
 
-  const isValid = name.trim() && city.trim();
+  const isValid = name.trim() && city.trim() && email.trim();
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -85,7 +85,7 @@ export default function AmbassadorSignup({ onClose, onComplete }: AmbassadorSign
 
           <div>
             <label className="block text-white font-semibold text-sm mb-2">
-              Email <span className="text-slate-400">(optional—helps us send your Ambassador QR & updates)</span>
+              Email <span className="text-red-400">*</span>
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 pointer-events-none" />
@@ -94,9 +94,11 @@ export default function AmbassadorSignup({ onClose, onComplete }: AmbassadorSign
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="maria@example.com"
+                required
                 className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl pl-10 pr-4 py-4 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
               />
             </div>
+            <p className="text-slate-400 text-xs mt-1.5">Required for QR delivery, order confirmation, and checkout.</p>
           </div>
 
           <button
