@@ -104,11 +104,27 @@ export const handler: Handler = async (event) => {
       } else {
         const errText = await composeRes.text();
         composeStep = `compose_http_error_${composeRes.status}`;
-        if (composeRes.status === 404) {
-          console.error("[generate-card-pdf] compose-card-image endpoint not found. URL used:", SUPABASE_FUNCTION_URL, "Response:", errText);
-        } else {
-          console.error(`[generate-card-pdf] compose-card-image HTTP ${composeRes.status}:`, errText, "URL used:", SUPABASE_FUNCTION_URL);
+        let composeDebugJson: unknown = null;
+        try {
+          composeDebugJson = JSON.parse(errText);
+        } catch {
+          composeDebugJson = errText;
         }
+        console.error(`[generate-card-pdf] compose-card-image HTTP ${composeRes.status}:`, JSON.stringify(composeDebugJson), "URL used:", SUPABASE_FUNCTION_URL);
+        return {
+          statusCode: 200,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            success: false,
+            finalPrintAssetUrl: null,
+            composedDataUrl: null,
+            qrImageUrl,
+            qrDestinationUrl,
+            ambassadorCode,
+            composeStep,
+            composeDebug: composeDebugJson,
+          }),
+        };
       }
     }
   } catch (err) {

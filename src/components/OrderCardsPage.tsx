@@ -116,6 +116,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const [finalPrintAssetUrl, setFinalPrintAssetUrl] = useState('');
   const [qrImageUrl, setQrImageUrl] = useState('');
   const [composeStep, setComposeStep] = useState('');
+  const [composeDebug, setComposeDebug] = useState<unknown>(null);
   const [previewState, setPreviewState] = useState<PreviewState>('idle');
   const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [previewParams, setPreviewParams] = useState<{
@@ -281,6 +282,11 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         console.log('[OrderCards][Preview] qrImageUrl from response:', resolvedQrImageUrl || '(none)');
         console.log('[OrderCards][Preview] finalPrintAssetUrl from response:', resolvedFinalPrintAssetUrl || '(none)');
         console.log('[OrderCards][Preview] compose-card-image full response:', JSON.stringify(pdfData));
+
+        if (pdfData.composeDebug) {
+          console.error('[OrderCards][Preview] compose debug:', pdfData.composeDebug);
+          setComposeDebug(pdfData.composeDebug);
+        }
 
         if (!resolvedFinalPrintAssetUrl) {
           console.error(
@@ -722,6 +728,11 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
                 <p className="text-slate-400 text-xs text-center leading-relaxed">
                   Preview could not be loaded yet. Tap Retry Preview.
                 </p>
+                {composeDebug && (
+                  <pre className="w-full text-left text-xs text-amber-300 bg-black/40 border border-amber-500/30 rounded-lg p-3 overflow-x-auto whitespace-pre-wrap break-all">
+                    {JSON.stringify(composeDebug, null, 2)}
+                  </pre>
+                )}
                 <button
                   onClick={handleRetryPreview}
                   disabled={previewState === 'loading'}
