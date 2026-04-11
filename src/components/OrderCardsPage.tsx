@@ -245,6 +245,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     setPreviewState('loading');
     setFinalPrintAssetUrl('');
     setQrImageUrl('');
+    setPendingOrderData(prev => prev ? { ...prev, finalPrintAssetUrl: '' } : prev);
 
     previewTimeoutRef.current = setTimeout(() => {
       console.error('[OrderCards][Preview] Timeout — preview still not ready after 8s. finalPrintAssetUrl was empty.');
