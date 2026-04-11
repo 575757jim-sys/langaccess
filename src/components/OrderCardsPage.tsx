@@ -583,29 +583,20 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
           {printPreviewUrl ? (
             <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden mb-5">
               <div className="px-5 py-3 border-b border-white/5">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Your Printed Card</p>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Your card preview</p>
               </div>
               <div className="p-3" style={{ background: '#0b0d12' }}>
                 <img
                   src={printPreviewUrl}
                   alt="Your card print preview"
-                  className="w-full block rounded-lg"
-                  style={{ maxHeight: 240, objectFit: 'contain' }}
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                  style={{ width: '100%', borderRadius: 12 }}
                 />
               </div>
               <div className="px-5 py-3">
                 <p className="text-slate-500 text-xs">This is the exact image that will be printed with your QR code embedded.</p>
               </div>
             </div>
-          ) : (
-            <div className="bg-[#111827] rounded-xl border border-white/10 px-4 py-3 mb-5 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                <Package className="w-4 h-4 text-green-400" />
-              </div>
-              <p className="text-slate-400 text-sm">Print file prepared with your unique QR code</p>
-            </div>
-          )}
+          ) : null}
 
           <a
             href={qrDownloadUrl}
