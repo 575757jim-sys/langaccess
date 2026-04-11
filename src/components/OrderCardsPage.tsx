@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, MapPin, Hash, ShoppingCart, Pencil, Download } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, MapPin, Hash, ShoppingCart, Pencil, Download, AlertCircle } from 'lucide-react';
 import SEO from './SEO';
 
 interface Props {
@@ -16,6 +16,16 @@ interface AmbassadorData {
   zip_code: string | null;
   slug: string | null;
   ref_code: string | null;
+}
+
+interface ShippingForm {
+  fullName: string;
+  email: string;
+  addressLine1: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
 }
 
 type Step = 'loading' | 'unauthorized' | 'ready' | 'previewing' | 'submitting' | 'success';
@@ -50,54 +60,6 @@ function generateQRCodeUrl(ambassadorCode: string): string {
   return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(target)}&bgcolor=ffffff&color=000000&margin=2`;
 }
 
-function CardFrontPreview({ slug, fullName, cityState, ambassadorCode }: {
-  slug: string; fullName: string; cityState: string; ambassadorCode?: string;
-}) {
-  const effectiveCode = ambassadorCode || slug || 'demo123';
-  const qrUrl = generateQRCodeUrl(effectiveCode);
-
-  return (
-    <div
-      className="w-full rounded-2xl overflow-hidden shadow-2xl"
-      style={{ background: '#0b0d0c', border: '1px solid rgba(255,255,255,0.08)', maxWidth: 520 }}
-    >
-      <div className="flex" style={{ minHeight: 160 }}>
-        <div className="w-1.5 flex-shrink-0" style={{ background: '#2dff72' }} />
-        <div className="flex-1 p-5 flex gap-4">
-          <div className="flex-1 min-w-0">
-            <p className="text-white font-bold text-lg leading-tight mb-1">One Card. One Lifeline.</p>
-            <p className="text-slate-400 text-sm mb-4">Scan to find help near you</p>
-            <div className="flex gap-2 text-xl">
-              <span title="Food">&#127822;</span>
-              <span title="Shelter">&#128716;</span>
-              <span title="Medical">&#127973;</span>
-            </div>
-          </div>
-          <div className="flex-shrink-0 flex flex-col items-center gap-1.5">
-            <div className="rounded-lg overflow-hidden" style={{ background: 'white', padding: 4, width: 88, height: 88 }}>
-              <img
-                src={qrUrl}
-                alt="QR code"
-                width={80}
-                height={80}
-                className="block"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-              />
-            </div>
-            <p className="text-xs font-semibold" style={{ color: '#2dff72' }}>langaccess.org</p>
-            <p className="text-slate-500 text-[10px] text-center leading-tight">Español disponible<br />al escanear</p>
-          </div>
-        </div>
-      </div>
-      <div className="px-5 pb-3 flex justify-end">
-        <p className="text-xs font-medium" style={{ color: '#2dff72' }}>
-          {fullName} &nbsp;•&nbsp; {cityState}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 function normalizeCityState(raw: string): string {
   const parts = raw.split(',').map((p) => p.trim()).filter(Boolean);
   if (parts.length >= 2) {
@@ -110,11 +72,38 @@ function normalizeCityState(raw: string): string {
   return '';
 }
 
-function splitCityState(cityState: string): { city: string; state: string } {
+function validateShipping(form: ShippingForm): Partial<Record<keyof ShippingForm, string>> {
+  const errors: Partial<Record<keyof ShippingForm, string>> = {};
+  if (!form.fullName.trim()) errors.fullName = 'Full name is required';
+  if (!form.email.trim()) errors.email = 'Email is required';
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errors.email = 'Enter a valid email address';
+  if (!form.addressLine1.trim()) errors.addressLine1 = 'Street address is required';
+  if (!form.city.trim()) errors.city = 'City is required';
+  if (!form.state.trim()) errors.state = 'State is required';
+  if (!form.postalCode.trim()) errors.postalCode = 'ZIP code is required';
+  if (!form.country.trim()) errors.country = 'Country is required';
+  return errors;
+}
+
+function isShippingComplete(form: ShippingForm): boolean {
+  return Object.keys(validateShipping(form)).length === 0;
+}
+
+function buildShippingFormFromAmbassador(ambassador: AmbassadorData | null): ShippingForm {
+  const cityState = (ambassador?.city_state || '').trim();
   const parts = cityState.split(',').map((p) => p.trim()).filter(Boolean);
   const city = parts[0] || '';
   const state = parts.length > 1 ? parts[1].toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2) : '';
-  return { city, state };
+
+  return {
+    fullName: (ambassador?.full_name || '').trim(),
+    email: (ambassador?.email || '').trim(),
+    addressLine1: (ambassador?.street_address || '').trim(),
+    city,
+    state,
+    postalCode: (ambassador?.zip_code || '').trim(),
+    country: 'US',
+  };
 }
 
 export default function OrderCardsPage({ onBack, onGateBack }: Props) {
@@ -127,6 +116,10 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const [quoteResult, setQuoteResult] = useState<QuoteResult | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
+  const [shippingForm, setShippingForm] = useState<ShippingForm>({
+    fullName: '', email: '', addressLine1: '', city: '', state: '', postalCode: '', country: 'US',
+  });
+  const [shippingTouched, setShippingTouched] = useState<Partial<Record<keyof ShippingForm, boolean>>>({});
   const [pendingOrderData, setPendingOrderData] = useState<{
     fullName: string;
     formattedCityState: string;
@@ -135,6 +128,10 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     slug: string;
     ambassadorCode: string;
     finalPrintAssetUrl: string;
+    email: string;
+    addressLine1: string;
+    postalCode: string;
+    country: string;
   } | null>(null);
 
   useEffect(() => {
@@ -159,6 +156,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         const data: AmbassadorData = json.ambassador;
         if (data.id) localStorage.setItem('ambassador_id', data.id);
         setAmbassador(data);
+        setShippingForm(buildShippingFormFromAmbassador(data));
         setStep('ready');
         return;
       }
@@ -174,7 +172,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
             const cityState = cityParts.length > 1
               ? `${cityParts[0].trim()}, ${cityParts[1].trim()}`
               : rawCity ? `${rawCity}, CA` : '';
-            setAmbassador({
+            const amb: AmbassadorData = {
               id: parsed.code || '',
               full_name: parsed.name || '',
               email: parsed.email || '',
@@ -183,7 +181,9 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
               zip_code: null,
               slug: null,
               ref_code: parsed.code || null,
-            });
+            };
+            setAmbassador(amb);
+            setShippingForm(buildShippingFormFromAmbassador(amb));
             setStep('ready');
           } catch { setStep('unauthorized'); }
         } else { setStep('unauthorized'); }
@@ -202,36 +202,37 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       const data: AmbassadorData = json.ambassador;
       if (data.id) localStorage.setItem('ambassador_id', data.id);
       setAmbassador(data);
+      setShippingForm(buildShippingFormFromAmbassador(data));
       setStep('ready');
     }
     loadAmbassador();
   }, []);
 
-  function resolveAmbassadorFields(): { fullName: string; cityState: string } {
-    let fullName = (ambassador?.full_name || '').trim();
-    let cityState = (ambassador?.city_state || '').trim();
-    const localData = localStorage.getItem('ambassador_data');
-    const parsed = localData ? (() => { try { return JSON.parse(localData); } catch { return null; } })() : null;
-    if (!fullName && parsed?.name) fullName = (parsed.name as string).trim();
-    if (!cityState && parsed?.city) {
-      const rawCity = (parsed.city as string).trim();
-      const parts = rawCity.split(',');
-      cityState = parts.length > 1 ? `${parts[0].trim()}, ${parts[1].trim()}` : `${rawCity}, CA`;
-    }
-    if (!fullName) fullName = ambassador?.email?.split('@')[0] || 'Ambassador';
-    if (!cityState) cityState = 'Your City, CA';
-    return { fullName, cityState };
+  function updateShippingField(field: keyof ShippingForm, value: string) {
+    setShippingForm(prev => ({ ...prev, [field]: value }));
+    setShippingTouched(prev => ({ ...prev, [field]: true }));
   }
+
+  function touchAllFields() {
+    const all: Partial<Record<keyof ShippingForm, boolean>> = {};
+    (Object.keys(shippingForm) as (keyof ShippingForm)[]).forEach(k => { all[k] = true; });
+    setShippingTouched(all);
+  }
+
+  const shippingErrors = validateShipping(shippingForm);
+  const shippingReady = isShippingComplete(shippingForm);
 
   const handleGetPrice = async () => {
     if (!ambassador) return;
+
+    touchAllFields();
+    if (!shippingReady) return;
+
     setStep('previewing');
     setErrorMsg('');
 
-    const fields = resolveAmbassadorFields();
-    const { fullName } = fields;
-    const formattedCityState = normalizeCityState(fields.cityState) || fields.cityState;
-    const { city, state } = splitCityState(formattedCityState);
+    const { fullName, email, addressLine1, city, state, postalCode, country } = shippingForm;
+    const formattedCityState = state ? `${city}, ${state}` : city;
     const slug = ambassador.slug || ambassador.ref_code || ambassador.id || 'langaccess';
     const ambassadorCode = ambassador.ref_code || ambassador.id || slug;
     const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -239,8 +240,14 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
     console.log('[OrderCards] ambassadorCode:', ambassadorCode);
     console.log('[OrderCards] qrDestinationUrl:', qrDestinationUrl);
+    console.log('[OrderCards] fullName:', fullName);
+    console.log('[OrderCards] email:', email);
+    console.log('[OrderCards] addressLine1:', addressLine1);
+    console.log('[OrderCards] city:', city);
+    console.log('[OrderCards] state:', state);
+    console.log('[OrderCards] postalCode:', postalCode);
+    console.log('[OrderCards] country:', country);
     console.log('[OrderCards] Selected quantity:', quantity);
-    console.log('[OrderCards] handleGetPrice — fields resolved:', { fullName, formattedCityState, city, state, slug, ambassadorCode });
 
     let resolvedFinalPrintAssetUrl = '';
     let stepLabel = 'not_started';
@@ -249,7 +256,13 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: orderId, full_name: fullName, city_state: formattedCityState, slug, ambassador_id: ambassadorCode }),
+        body: JSON.stringify({
+          order_id: orderId,
+          full_name: fullName,
+          city_state: formattedCityState,
+          slug,
+          ambassador_id: ambassadorCode,
+        }),
       });
       if (pdfRes.ok) {
         const pdfData = await pdfRes.json();
@@ -271,7 +284,19 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
     setFinalPrintAssetUrl(resolvedFinalPrintAssetUrl);
     setComposeStep(stepLabel);
-    setPendingOrderData({ fullName, formattedCityState, city, state, slug, ambassadorCode, finalPrintAssetUrl: resolvedFinalPrintAssetUrl });
+    setPendingOrderData({
+      fullName,
+      formattedCityState,
+      city,
+      state,
+      slug,
+      ambassadorCode,
+      finalPrintAssetUrl: resolvedFinalPrintAssetUrl,
+      email,
+      addressLine1,
+      postalCode,
+      country,
+    });
 
     console.log('[OrderCards] finalPrintAssetUrl stored in state:', resolvedFinalPrintAssetUrl || '(none — will use fallback at Gelato step)');
     console.log('[OrderCards] Gelato quote request starting...');
@@ -280,12 +305,12 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const gelatoQuotePayload = {
       ambassador_id: ambassador.id,
       full_name: fullName,
-      email: ambassador.email,
+      email,
       phone: '',
-      shipping_address: ambassador.street_address || '',
+      shipping_address: addressLine1,
       city,
       state,
-      zip: ambassador.zip_code || '',
+      zip: postalCode,
       quantity,
       finalPrintAssetUrl: resolvedFinalPrintAssetUrl || undefined,
       frontFileUrl: resolvedFinalPrintAssetUrl || undefined,
@@ -351,11 +376,18 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const gelatoBaseCost = quoteResult.gelatoBaseCost;
     const markup = quoteResult.markup;
     const finalTotal = quoteResult.finalTotal;
-    const cityState = pendingOrderData.formattedCityState;
     const printUrl = pendingOrderData.finalPrintAssetUrl || finalPrintAssetUrl || '';
+    const { fullName, email, city, state, addressLine1, postalCode, country } = pendingOrderData;
 
     console.log('[OrderCards] Stripe checkout starting');
     console.log('[OrderCards] ambassadorCode:', refCode);
+    console.log('[OrderCards] fullName:', fullName);
+    console.log('[OrderCards] email:', email);
+    console.log('[OrderCards] addressLine1:', addressLine1);
+    console.log('[OrderCards] city:', city);
+    console.log('[OrderCards] state:', state);
+    console.log('[OrderCards] postalCode:', postalCode);
+    console.log('[OrderCards] country:', country);
     console.log('[OrderCards] quantity:', qty);
     console.log('[OrderCards] gelatoBaseCost:', gelatoBaseCost);
     console.log('[OrderCards] markup:', markup);
@@ -365,13 +397,9 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     setCheckoutLoading(true);
     setCheckoutError('');
 
-    const { city, state } = splitCityState(cityState);
-    const fields = resolveAmbassadorFields();
-    const fullName = (ambassador.full_name || '').trim() || pendingOrderData.fullName || fields.fullName;
-
-    const checkoutPayload = {
+    const stripeCheckoutPayload = {
       full_name: fullName,
-      email: ambassador.email,
+      email,
       quantity: qty,
       ref_code: refCode,
       gelato_base_cost: gelatoBaseCost,
@@ -381,10 +409,11 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       total_price: finalTotal,
       currency: quoteResult.currency,
       shipment_method_name: '',
-      street_address: ambassador.street_address || '',
+      street_address: addressLine1,
       city,
       state,
-      zip: ambassador.zip_code || '',
+      zip: postalCode,
+      country,
       order_type: 'card_order',
       ambassador_id: ambassador.id,
       final_print_asset_url: printUrl,
@@ -392,13 +421,13 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       back_file_url: '',
     };
 
-    console.log('[OrderCards] checkoutPayload finalPrintAssetUrl:', printUrl);
+    console.log('[OrderCards] stripeCheckoutPayload:', JSON.stringify(stripeCheckoutPayload));
 
     try {
       const res = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(checkoutPayload),
+        body: JSON.stringify(stripeCheckoutPayload),
       });
 
       const data = await res.json();
@@ -456,10 +485,11 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const resolvedFinalTotal = quoteResult?.finalTotal ?? null;
     const hasFinalTotal = resolvedFinalTotal != null;
     const refCode = ambassador?.ref_code || ambassador?.id || '';
-    const cityState = pendingOrderData?.formattedCityState || normalizeCityState(ambassador?.city_state || '');
+    const cityStateDisplay = pendingOrderData?.formattedCityState || normalizeCityState(ambassador?.city_state || '');
     const ambassadorCode = ambassador?.ref_code || ambassador?.id || ambassador?.slug || 'demo123';
     const qrDownloadUrl = generateQRCodeUrl(ambassadorCode);
     const printPreviewUrl = pendingOrderData?.finalPrintAssetUrl || finalPrintAssetUrl || '';
+    const checkoutReady = hasFinalTotal && !checkoutLoading;
 
     return (
       <div className="bg-[#0a0f1e] text-white" style={{ minHeight: '100dvh' }}>
@@ -529,11 +559,11 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
                 </div>
               )}
 
-              {cityState && (
+              {cityStateDisplay && (
                 <div className="flex items-center gap-3 px-5 py-4">
                   <MapPin className="w-4 h-4 text-slate-500 flex-shrink-0" />
                   <span className="text-slate-400 text-sm flex-1">Ships to</span>
-                  <span className="text-white font-medium text-sm">{cityState}</span>
+                  <span className="text-white font-medium text-sm">{cityStateDisplay}</span>
                 </div>
               )}
 
@@ -547,25 +577,30 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
             </div>
           </div>
 
-          {printPreviewUrl && (
-            <div className="rounded-xl overflow-hidden border border-white/10 mb-5">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest px-4 pt-3 pb-2">Print Preview</p>
-              <img
-                src={printPreviewUrl}
-                alt="Your card print preview"
-                className="w-full block"
-                style={{ maxHeight: 220, objectFit: 'contain', background: '#000' }}
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-              />
+          {printPreviewUrl ? (
+            <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden mb-5">
+              <div className="px-5 py-3 border-b border-white/5">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Your Printed Card</p>
+              </div>
+              <div className="p-3" style={{ background: '#0b0d12' }}>
+                <img
+                  src={printPreviewUrl}
+                  alt="Your card print preview"
+                  className="w-full block rounded-lg"
+                  style={{ maxHeight: 240, objectFit: 'contain' }}
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                />
+              </div>
+              <div className="px-5 py-3">
+                <p className="text-slate-500 text-xs">This is the exact image that will be printed with your QR code embedded.</p>
+              </div>
             </div>
-          )}
-
-          {composeStep && composeStep !== 'success' && composeStep !== 'not_started' && !printPreviewUrl && (
+          ) : (
             <div className="bg-[#111827] rounded-xl border border-white/10 px-4 py-3 mb-5 flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
                 <Package className="w-4 h-4 text-green-400" />
               </div>
-              <p className="text-slate-400 text-sm">Print file ready with your unique QR code</p>
+              <p className="text-slate-400 text-sm">Print file prepared with your unique QR code</p>
             </div>
           )}
 
@@ -589,13 +624,15 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
           </p>
 
           {checkoutError && (
-            <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-2 mb-3">
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 mb-3 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
               <p className="text-red-400 text-xs leading-relaxed">{checkoutError}</p>
             </div>
           )}
+
           <button
             onClick={handleCheckout}
-            disabled={checkoutLoading || !hasFinalTotal}
+            disabled={!checkoutReady}
             className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 active:bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3 mb-3"
             style={{ minHeight: 56, touchAction: 'manipulation' }}
           >
@@ -625,9 +662,17 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   }
 
   const isGenerating = step === 'previewing' || step === 'submitting';
-  const cityStateDisplay = normalizeCityState(ambassador?.city_state || '');
+  const ambassadorCode = ambassador?.ref_code || ambassador?.id || ambassador?.slug || 'demo123';
+  const qrDownloadUrl = generateQRCodeUrl(ambassadorCode);
   const refCodeDisplay = ambassador?.ref_code || ambassador?.id || '';
-  const fields = resolveAmbassadorFields();
+
+  const inputBase = 'w-full bg-[#0a0f1e] border rounded-lg px-3 py-2.5 text-white text-sm placeholder-slate-600 outline-none transition-colors focus:border-green-500/60';
+  const inputNormal = `${inputBase} border-white/15 hover:border-white/25`;
+  const inputError = `${inputBase} border-red-500/50 focus:border-red-400`;
+
+  function fieldClass(field: keyof ShippingForm) {
+    return shippingTouched[field] && shippingErrors[field] ? inputError : inputNormal;
+  }
 
   return (
     <div className="bg-[#0a0f1e] text-white" style={{ minHeight: '100dvh' }}>
@@ -647,147 +692,230 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         </div>
       </div>
 
-      <div>
-        <div className="max-w-lg mx-auto px-4 pt-8 space-y-6" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)' }}>
+      <div className="max-w-lg mx-auto px-4 pt-8 space-y-6" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)' }}>
 
-          <div>
-            <h1 className="text-2xl font-bold text-white leading-tight mb-1">Order Your Ambassador Cards</h1>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Each card you hand out helps someone find food, shelter, or medical care nearby. Printed at cost — no markup.
-            </p>
+        <div>
+          <h1 className="text-2xl font-bold text-white leading-tight mb-1">Order Your Ambassador Cards</h1>
+          <p className="text-slate-400 text-sm leading-relaxed">
+            Each card you hand out helps someone find food, shelter, or medical care nearby.
+          </p>
+        </div>
+
+        <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden">
+          <div className="px-5 py-4 border-b border-white/5">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Shipping Details</p>
           </div>
-
-          <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden">
-            <div className="px-5 py-4 border-b border-white/5">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Shipping To</p>
-            </div>
-            <div className="px-5 py-4 space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="text-slate-500 text-xs mb-0.5">Name</p>
-                  <p className="text-white font-medium text-sm truncate">{fields.fullName}</p>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-slate-500 text-xs mb-0.5">Location</p>
-                  <p className="text-white font-medium text-sm truncate">{cityStateDisplay || fields.cityState}</p>
-                </div>
-              </div>
-              {ambassador?.street_address && (
-                <div>
-                  <p className="text-slate-500 text-xs mb-0.5">Street Address</p>
-                  <p className="text-white font-medium text-sm">{ambassador.street_address}</p>
-                </div>
-              )}
-              {ambassador?.zip_code && (
-                <div>
-                  <p className="text-slate-500 text-xs mb-0.5">ZIP Code</p>
-                  <p className="text-white font-medium text-sm">{ambassador.zip_code}</p>
-                </div>
+          <div className="px-5 py-4 space-y-3">
+            <div>
+              <label className="block text-slate-400 text-xs mb-1.5">Full Name <span className="text-red-400">*</span></label>
+              <input
+                type="text"
+                className={fieldClass('fullName')}
+                value={shippingForm.fullName}
+                onChange={e => updateShippingField('fullName', e.target.value)}
+                placeholder="Your full name"
+                disabled={isGenerating}
+              />
+              {shippingTouched.fullName && shippingErrors.fullName && (
+                <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />{shippingErrors.fullName}
+                </p>
               )}
             </div>
-          </div>
 
-          {(() => {
-            const ambassadorCode = ambassador?.ref_code || ambassador?.id || ambassador?.slug || 'demo123';
-            const qrDownloadUrl = generateQRCodeUrl(ambassadorCode);
-            return (
-              <div className="space-y-4">
-                {ambassador?.slug && (
-                  <div>
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Card Preview</p>
-                    <CardFrontPreview
-                      slug={ambassador.slug || ''}
-                      fullName={fields.fullName}
-                      cityState={cityStateDisplay || fields.cityState}
-                      ambassadorCode={ambassadorCode}
-                    />
-                  </div>
-                )}
+            <div>
+              <label className="block text-slate-400 text-xs mb-1.5">Email Address <span className="text-red-400">*</span></label>
+              <input
+                type="email"
+                className={fieldClass('email')}
+                value={shippingForm.email}
+                onChange={e => updateShippingField('email', e.target.value)}
+                placeholder="you@example.com"
+                disabled={isGenerating}
+              />
+              {shippingTouched.email && shippingErrors.email && (
+                <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />{shippingErrors.email}
+                </p>
+              )}
+            </div>
 
-                <div className="bg-[#111827] rounded-2xl border border-green-500/25 p-5">
-                  <p className="text-white font-bold text-sm mb-2">Start helping right away</p>
-                  <p className="text-slate-300 text-sm leading-relaxed mb-4">
-                    Save your QR code to your phone, print it, or share it with others. Every scan can connect someone to food, shelter, or local services nearby.
-                  </p>
-                  <a
-                    href={qrDownloadUrl}
-                    download={`langaccess-qr-${ambassadorCode}.png`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 bg-[#0d1f17] border border-green-500/40 hover:border-green-400/70 hover:bg-green-500/10 text-green-400 font-semibold text-sm px-4 py-3 rounded-xl transition-all"
-                    style={{ touchAction: 'manipulation' }}
-                  >
-                    <Download className="w-4 h-4" />
-                    Download QR Code
-                  </a>
-                </div>
-              </div>
-            );
-          })()}
+            <div>
+              <label className="block text-slate-400 text-xs mb-1.5">Street Address <span className="text-red-400">*</span></label>
+              <input
+                type="text"
+                className={fieldClass('addressLine1')}
+                value={shippingForm.addressLine1}
+                onChange={e => updateShippingField('addressLine1', e.target.value)}
+                placeholder="123 Main St"
+                disabled={isGenerating}
+              />
+              {shippingTouched.addressLine1 && shippingErrors.addressLine1 && (
+                <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />{shippingErrors.addressLine1}
+                </p>
+              )}
+            </div>
 
-          <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Select Quantity</p>
-            <div className="grid grid-cols-3 gap-3">
-              {QUANTITY_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  onClick={() => setQuantity(opt.value)}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-slate-400 text-xs mb-1.5">City <span className="text-red-400">*</span></label>
+                <input
+                  type="text"
+                  className={fieldClass('city')}
+                  value={shippingForm.city}
+                  onChange={e => updateShippingField('city', e.target.value)}
+                  placeholder="Oakland"
                   disabled={isGenerating}
-                  className={`rounded-xl p-4 text-center border transition-all ${
-                    quantity === opt.value
-                      ? 'border-green-500/60 bg-green-500/10'
-                      : 'border-white/10 bg-[#111827] hover:border-white/25'
-                  }`}
-                  style={{ touchAction: 'manipulation' }}
-                >
-                  <p className={`text-2xl font-bold leading-none mb-1 ${quantity === opt.value ? 'text-green-400' : 'text-white'}`}>
-                    {opt.label}
+                />
+                {shippingTouched.city && shippingErrors.city && (
+                  <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />{shippingErrors.city}
                   </p>
-                  <p className="text-slate-500 text-xs">{opt.sublabel}</p>
-                </button>
-              ))}
+                )}
+              </div>
+              <div>
+                <label className="block text-slate-400 text-xs mb-1.5">State <span className="text-red-400">*</span></label>
+                <input
+                  type="text"
+                  className={fieldClass('state')}
+                  value={shippingForm.state}
+                  onChange={e => updateShippingField('state', e.target.value.toUpperCase().slice(0, 2))}
+                  placeholder="CA"
+                  maxLength={2}
+                  disabled={isGenerating}
+                />
+                {shippingTouched.state && shippingErrors.state && (
+                  <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />{shippingErrors.state}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-slate-400 text-xs mb-1.5">ZIP Code <span className="text-red-400">*</span></label>
+                <input
+                  type="text"
+                  className={fieldClass('postalCode')}
+                  value={shippingForm.postalCode}
+                  onChange={e => updateShippingField('postalCode', e.target.value)}
+                  placeholder="94601"
+                  disabled={isGenerating}
+                />
+                {shippingTouched.postalCode && shippingErrors.postalCode && (
+                  <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />{shippingErrors.postalCode}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-slate-400 text-xs mb-1.5">Country <span className="text-red-400">*</span></label>
+                <input
+                  type="text"
+                  className={fieldClass('country')}
+                  value={shippingForm.country}
+                  onChange={e => updateShippingField('country', e.target.value.toUpperCase().slice(0, 2))}
+                  placeholder="US"
+                  maxLength={2}
+                  disabled={isGenerating}
+                />
+                {shippingTouched.country && shippingErrors.country && (
+                  <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />{shippingErrors.country}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
+        </div>
 
+        <div className="space-y-4">
+          <div className="bg-[#111827] rounded-2xl border border-green-500/25 p-5">
+            <p className="text-white font-bold text-sm mb-2">Start helping right away</p>
+            <p className="text-slate-300 text-sm leading-relaxed mb-4">
+              Save your QR code to your phone, print it, or share it. Every scan connects someone to food, shelter, or local services nearby.
+            </p>
+            <a
+              href={qrDownloadUrl}
+              download={`langaccess-qr-${ambassadorCode}.png`}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full inline-flex items-center justify-center gap-2 bg-[#0d1f17] border border-green-500/40 hover:border-green-400/70 hover:bg-green-500/10 text-green-400 font-semibold text-sm px-4 py-3 rounded-xl transition-all"
+              style={{ touchAction: 'manipulation' }}
+            >
+              <Download className="w-4 h-4" />
+              Download QR Code
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Select Quantity</p>
+          <div className="grid grid-cols-3 gap-3">
+            {QUANTITY_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setQuantity(opt.value)}
+                disabled={isGenerating}
+                className={`rounded-xl p-4 text-center border transition-all ${
+                  quantity === opt.value
+                    ? 'border-green-500/60 bg-green-500/10'
+                    : 'border-white/10 bg-[#111827] hover:border-white/25'
+                }`}
+                style={{ touchAction: 'manipulation' }}
+              >
+                <p className={`text-2xl font-bold leading-none mb-1 ${quantity === opt.value ? 'text-green-400' : 'text-white'}`}>
+                  {opt.label}
+                </p>
+                <p className="text-slate-500 text-xs">{opt.sublabel}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {refCodeDisplay && (
           <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden">
             <div className="px-5 py-4 border-b border-white/5">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Ambassador Code</p>
             </div>
             <div className="px-5 py-4">
-              <p className="text-white font-mono font-medium text-sm">{refCodeDisplay || '—'}</p>
+              <p className="text-white font-mono font-medium text-sm">{refCodeDisplay}</p>
               <p className="text-slate-500 text-xs mt-1">Linked to your personalized QR code</p>
             </div>
           </div>
+        )}
 
-          {errorMsg && (
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3">
-              <p className="text-amber-400 text-sm">{errorMsg}</p>
-            </div>
-          )}
-
-          <div className="pt-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
-            <button
-              onClick={handleGetPrice}
-              disabled={isGenerating}
-              className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 active:bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3"
-              style={{ minHeight: 56, touchAction: 'manipulation' }}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  {step === 'previewing' ? 'Preparing your card...' : 'Getting your price...'}
-                </>
-              ) : (
-                <>
-                  <Package className="w-5 h-5" />
-                  Get Exact Price
-                </>
-              )}
-            </button>
-            <p className="text-slate-600 text-xs text-center mt-2">
-              Get your exact price instantly — no commitment
-            </p>
+        {errorMsg && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+            <p className="text-amber-400 text-sm">{errorMsg}</p>
           </div>
+        )}
+
+        <div className="pt-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}>
+          <button
+            onClick={handleGetPrice}
+            disabled={isGenerating}
+            className="w-full py-4 rounded-xl bg-green-500 hover:bg-green-400 active:bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-base transition-colors flex items-center justify-center gap-3"
+            style={{ minHeight: 56, touchAction: 'manipulation' }}
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                {step === 'previewing' ? 'Preparing your card...' : 'Getting your price...'}
+              </>
+            ) : (
+              <>
+                <Package className="w-5 h-5" />
+                Get Exact Price
+              </>
+            )}
+          </button>
+          <p className="text-slate-600 text-xs text-center mt-2">
+            Get your exact price instantly — no commitment
+          </p>
         </div>
       </div>
     </div>
