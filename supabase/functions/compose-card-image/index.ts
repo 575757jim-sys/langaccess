@@ -21,11 +21,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-// SVG canvas: 1125×675 — white QR box: x=804, y=293, w=259, h=259
-const QR_X_RATIO = 804 / 1125;
-const QR_Y_RATIO = 293 / 675;
-const QR_W_RATIO = 259 / 1125;
-const QR_H_RATIO = 259 / 675;
+// Template canvas: 1125×675 — QR white box absolute pixel coordinates
+const TEMPLATE_W = 1125;
+const TEMPLATE_H = 675;
+const QR_X = 804;
+const QR_Y = 293;
+const QR_W = 259;
+const QR_H = 259;
 
 const TEMPLATE_URLS = [
   "https://tllfqsthkxgsadxtutpm.supabase.co/storage/v1/object/public/composed-cards/templates/langaccess_master_noqr_v1.png",
@@ -115,21 +117,16 @@ Deno.serve(async (req: Request) => {
         const cardW = templateImg.width;
         const cardH = templateImg.height;
 
-        const qrW = Math.round(cardW * QR_W_RATIO);
-        const qrH = Math.round(cardH * QR_H_RATIO);
-        const qrX = Math.round(cardW * QR_X_RATIO);
-        const qrY = Math.round(cardH * QR_Y_RATIO);
-
-        console.log(`[compose] Card dimensions: ${cardW}x${cardH}`);
-        console.log(`[compose] QR placement: x=${qrX}, y=${qrY}, w=${qrW}, h=${qrH}`);
+        console.log(`[compose] Card dimensions: ${cardW}x${cardH} (expected ${TEMPLATE_W}x${TEMPLATE_H})`);
+        console.log(`[compose] QR placement: x=${QR_X}, y=${QR_Y}, w=${QR_W}, h=${QR_H}`);
 
         ImageMagick.read(qrBytes, (qrImg) => {
-          // Normalize QR to match template colorspace to avoid channel artifacts
           qrImg.colorSpace = templateImg.colorSpace;
-          // Resize QR to fit the white box exactly
-          qrImg.resize(new MagickGeometry(qrW, qrH));
-          // Composite at absolute pixel coordinates using Point
-          templateImg.composite(qrImg, CompositeOperator.Over, new Point(qrX, qrY));
+          const geom = new MagickGeometry(QR_W, QR_H);
+          geom.ignoreAspectRatio = true;
+          qrImg.resize(geom);
+          console.log(`[compose] QR resized to: ${qrImg.width}x${qrImg.height}`);
+          templateImg.composite(qrImg, CompositeOperator.Over, new Point(QR_X, QR_Y));
         });
 
         console.log(`[compose] Final image dimensions: ${templateImg.width}x${templateImg.height}`);
