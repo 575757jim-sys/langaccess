@@ -151,13 +151,31 @@ export const handler: Handler = async (event) => {
     console.log("[generate-card-pdf] Skipping DB update — preview mode (no real order_id)");
   }
 
+  if (!finalPrintAssetUrl) {
+    console.error("[generate-card-pdf] No finalPrintAssetUrl — returning failure. composeStep:", composeStep);
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        success: false,
+        finalPrintAssetUrl: null,
+        composedDataUrl: null,
+        qrImageUrl,
+        qrDestinationUrl,
+        ambassadorCode,
+        composeStep,
+        error: "composed image was not created",
+      }),
+    };
+  }
+
   return {
     statusCode: 200,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       success: true,
       finalPrintAssetUrl,
-      frontFileUrl: finalPrintAssetUrl || "https://langaccess.org/card-front.pdf",
+      frontFileUrl: finalPrintAssetUrl,
       backFileUrl: "https://langaccess.org/card-back.pdf",
       composedDataUrl,
       qrImageUrl,
