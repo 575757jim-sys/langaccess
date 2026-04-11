@@ -125,10 +125,13 @@ Deno.serve(async (req: Request) => {
         const qrSize = boxSize;
         const qrX = boxX + Math.floor((boxSize - qrSize) / 2);
         const qrY = boxY + Math.floor((boxSize - qrSize) / 2);
+        const finalQrX = qrX + 18;
+        const finalQrY = qrY + 18;
 
         console.log(`[compose] Card dimensions: ${cardW}x${cardH} (expected ${TEMPLATE_W}x${TEMPLATE_H})`);
         console.log(`[compose] scaleX=${scaleX}, scaleY=${scaleY}`);
         console.log(`[compose] boxX=${boxX}, boxY=${boxY}, boxSize=${boxSize}, qrX=${qrX}, qrY=${qrY}`);
+        console.log(`[compose] finalQrX=${finalQrX}, finalQrY=${finalQrY}`);
 
         ImageMagick.read(qrBytes, (qrImg) => {
           qrImg.colorSpace = templateImg.colorSpace;
@@ -136,7 +139,7 @@ Deno.serve(async (req: Request) => {
           geom.ignoreAspectRatio = true;
           qrImg.resize(geom);
           console.log(`[compose] QR resized to: ${qrImg.width}x${qrImg.height}`);
-          templateImg.composite(qrImg, CompositeOperator.Over, new Point(qrX, qrY));
+          templateImg.composite(qrImg, CompositeOperator.Over, new Point(finalQrX, finalQrY));
         });
 
         console.log(`[compose] Final image dimensions: ${templateImg.width}x${templateImg.height}`);
