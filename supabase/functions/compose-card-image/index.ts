@@ -26,17 +26,42 @@ const QR_Y = 585;
 const QR_W = 260;
 const QR_H = 260;
 
-async function fetchImageBytes(url: string): Promise<Uint8Array | null> {
+interface DiagnosticState {
+  step: string;
+  templateFetchStatus: number | null;
+  templateFetchOk: boolean | null;
+  templateBytes: number | null;
+  templateWidth: number | null;
+  templateHeight: number | null;
+  qrFetchStatus: number | null;
+  qrFetchOk: boolean | null;
+  qrBytes: number | null;
+  qrWidth: number | null;
+  qrHeight: number | null;
+  bufferCreated: boolean;
+  bufferSize: number | null;
+  uploadAttempted: boolean;
+  uploadError: string | null;
+  error: string | null;
+  stack: string | null;
+}
+
+function diagResponse(diag: DiagnosticState, status: number): Response {
+  return new Response(
+    JSON.stringify({ debug: true, ...diag }),
+    { status, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
+}
+
+async function fetchImageBytes(url: string): Promise<{ bytes: Uint8Array | null; status: number | null; ok: boolean | null }> {
   try {
     const res = await fetch(url, { headers: { Accept: "image/*" } });
     if (!res.ok) {
-      console.error(`[compose] Fetch failed for ${url}: ${res.status}`);
-      return null;
+      return { bytes: null, status: res.status, ok: false };
     }
-    return new Uint8Array(await res.arrayBuffer());
+    return { bytes: new Uint8Array(await res.arrayBuffer()), status: res.status, ok: true };
   } catch (err) {
-    console.error(`[compose] Fetch error for ${url}:`, err);
-    return null;
+    return { bytes: null, status: null, ok: false };
   }
 }
 
@@ -45,23 +70,41 @@ Deno.serve(async (req: Request) => {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
+  const diag: DiagnosticState = {
+    step: "init",
+    templateFetchStatus: null,
+    templateFetchOk: null,
+    templateBytes: null,
+    templateWidth: null,
+    templateHeight: null,
+    qrFetchStatus: null,
+    qrFetchOk: null,
+    qrBytes: null,
+    qrWidth: null,
+    qrHeight: null,
+    bufferCreated: false,
+    bufferSize: null,
+    uploadAttempted: false,
+    uploadError: null,
+    error: null,
+    stack: null,
+  };
+
   try {
+    diag.step = "parse_body";
     let body: { slug: string; ambassador_id?: string };
     try {
       body = await req.json();
-    } catch {
-      return new Response(
-        JSON.stringify({ error: "Invalid JSON body" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    } catch (parseErr) {
+      diag.error = "Invalid JSON body";
+      diag.stack = parseErr instanceof Error ? parseErr.stack ?? null : String(parseErr);
+      return diagResponse(diag, 400);
     }
 
     const { slug, ambassador_id } = body;
     if (!slug && !ambassador_id) {
-      return new Response(
-        JSON.stringify({ error: "Missing required field: slug or ambassador_id" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      diag.error = "Missing required field: slug or ambassador_id";
+      return diagResponse(diag, 400);
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -72,72 +115,80 @@ Deno.serve(async (req: Request) => {
     const qrDestinationUrl = `https://langaccess.org/join?code=${encodeURIComponent(ambassadorCode)}`;
     const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&ecc=H&data=${encodeURIComponent(qrDestinationUrl)}&bgcolor=ffffff&color=000000&margin=2`;
 
-    console.log("[compose] ambassadorCode:", ambassadorCode);
-    console.log("[compose] qrDestinationUrl:", qrDestinationUrl);
-
+    diag.step = "fetch_template";
     console.log("[compose] Fetching template from:", TEMPLATE_URL);
-    const templateBytes = await fetchImageBytes(TEMPLATE_URL);
-    if (!templateBytes) {
-      return new Response(
-        JSON.stringify({ error: "Could not load card template.", step: "template_not_found", url: TEMPLATE_URL }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-    console.log("[compose] Template fetched, size:", templateBytes.length);
+    const templateFetch = await fetchImageBytes(TEMPLATE_URL);
+    diag.templateFetchStatus = templateFetch.status;
+    diag.templateFetchOk = templateFetch.ok;
+    diag.templateBytes = templateFetch.bytes?.length ?? null;
 
-    console.log("[compose] Fetching QR code...");
-    const qrBytes = await fetchImageBytes(qrImageUrl);
-    if (!qrBytes) {
-      return new Response(
-        JSON.stringify({ error: "Could not load QR code image.", step: "qr_not_found", qr_url: qrImageUrl }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (!templateFetch.bytes) {
+      diag.error = `Template fetch failed — HTTP ${templateFetch.status ?? "network error"}`;
+      return diagResponse(diag, 502);
     }
-    console.log("[compose] QR fetched, size:", qrBytes.length);
+    console.log("[compose] Template fetched, size:", templateFetch.bytes.length);
 
+    diag.step = "fetch_qr";
+    console.log("[compose] Fetching QR code from:", qrImageUrl);
+    const qrFetch = await fetchImageBytes(qrImageUrl);
+    diag.qrFetchStatus = qrFetch.status;
+    diag.qrFetchOk = qrFetch.ok;
+    diag.qrBytes = qrFetch.bytes?.length ?? null;
+
+    if (!qrFetch.bytes) {
+      diag.error = `QR fetch failed — HTTP ${qrFetch.status ?? "network error"}`;
+      return diagResponse(diag, 502);
+    }
+    console.log("[compose] QR fetched, size:", qrFetch.bytes.length);
+
+    diag.step = "compose";
     let outputPngBuffer: Uint8Array;
     try {
-      outputPngBuffer = ImageMagick.read(templateBytes, (templateImg) => {
+      outputPngBuffer = ImageMagick.read(templateFetch.bytes, (templateImg) => {
+        diag.templateWidth = templateImg.width;
+        diag.templateHeight = templateImg.height;
         console.log(`[compose] template width=${templateImg.width}, height=${templateImg.height}`);
 
-        ImageMagick.read(qrBytes, (qrImg) => {
+        ImageMagick.read(qrFetch.bytes!, (qrImg) => {
+          diag.qrWidth = qrImg.width;
+          diag.qrHeight = qrImg.height;
           const geom = new MagickGeometry(QR_W, QR_H);
           geom.ignoreAspectRatio = true;
           qrImg.resize(geom);
-          console.log(`[compose] qr width=${qrImg.width}, height=${qrImg.height}`);
-          console.log(`[compose] qr x=${QR_X}, y=${QR_Y}`);
+          console.log(`[compose] qr resized to ${QR_W}x${QR_H}, placing at x=${QR_X}, y=${QR_Y}`);
           templateImg.composite(qrImg, CompositeOperator.Over, new Point(QR_X, QR_Y));
         });
 
-        console.log(`[compose] final image width=${templateImg.width}, height=${templateImg.height}`);
+        console.log(`[compose] final image ${templateImg.width}x${templateImg.height}`);
         return templateImg.write(MagickFormat.Png, (data) => data);
       });
     } catch (magickErr) {
-      console.error("[compose] ImageMagick composition error:", magickErr);
-      return new Response(
-        JSON.stringify({ error: "Card image composition failed.", step: "composition_failed", detail: String(magickErr) }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      diag.error = `ImageMagick composition failed: ${magickErr instanceof Error ? magickErr.message : String(magickErr)}`;
+      diag.stack = magickErr instanceof Error ? magickErr.stack ?? null : null;
+      return diagResponse(diag, 500);
     }
 
+    diag.bufferCreated = true;
+    diag.bufferSize = outputPngBuffer.length;
     console.log("[compose] Composition success, PNG size:", outputPngBuffer.length);
 
+    diag.step = "upload";
     const fileName = `card-${ambassadorCode}-${Date.now()}.png`;
     const storagePath = `cards/${fileName}`;
+    diag.uploadAttempted = true;
 
     console.log("[compose] Uploading to Supabase Storage:", storagePath);
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadErr } = await supabase.storage
       .from("composed-cards")
       .upload(storagePath, outputPngBuffer, { contentType: "image/png", upsert: true });
 
-    if (uploadError) {
-      console.error("[compose] Storage upload failed:", uploadError);
-      return new Response(
-        JSON.stringify({ error: "Storage upload failed.", step: "upload_failed", detail: uploadError.message }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (uploadErr) {
+      diag.uploadError = uploadErr.message;
+      diag.error = `Storage upload failed: ${uploadErr.message}`;
+      return diagResponse(diag, 500);
     }
 
+    diag.step = "success";
     const { data: publicUrlData } = supabase.storage.from("composed-cards").getPublicUrl(storagePath);
     const finalPrintAssetUrl = publicUrlData.publicUrl;
     console.log("[compose] finalPrintAssetUrl:", finalPrintAssetUrl);
@@ -147,10 +198,9 @@ Deno.serve(async (req: Request) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
+    diag.error = `Unhandled error: ${err instanceof Error ? err.message : String(err)}`;
+    diag.stack = err instanceof Error ? err.stack ?? null : null;
     console.error("[compose] Unhandled error:", err);
-    return new Response(
-      JSON.stringify({ error: "Unexpected error in compose-card-image.", detail: String(err) }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return diagResponse(diag, 500);
   }
 });
