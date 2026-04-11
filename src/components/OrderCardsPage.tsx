@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, MapPin, Hash, ShoppingCart, Pencil, Download, AlertCircle } from 'lucide-react';
 import SEO from './SEO';
+import { supabase } from '../lib/supabase';
 
 interface Props {
   onBack: () => void;
@@ -258,50 +259,39 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     let stepLabel = 'not_started';
 
     try {
-      console.log('[OrderCards][Preview] Calling generate-card-pdf...');
-      const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          order_id: params.orderId,
-          full_name: params.fullName,
-          city_state: params.formattedCityState,
+      console.log('[OrderCards][Preview] Calling generate-card edge function...');
+      const { data: cardData, error: invokeError } = await supabase.functions.invoke('generate-card', {
+        body: {
           slug: params.slug,
           ambassador_id: params.ambassadorCode,
-        }),
+          full_name: params.fullName,
+          city_state: params.formattedCityState,
+        },
       });
 
-      if (pdfRes.ok) {
-        const pdfData = await pdfRes.json();
-        stepLabel = pdfData.composeStep || 'success';
+      if (invokeError) {
+        stepLabel = 'generate_card_invoke_error';
+        console.error('[OrderCards][Preview] generate-card invoke error:', invokeError);
+        setComposeDebug(invokeError);
+      } else if (cardData) {
+        stepLabel = cardData.step || (cardData.success ? 'success' : 'generate_card_failed');
 
-        resolvedQrImageUrl = pdfData.qrImageUrl || '';
-        resolvedFinalPrintAssetUrl = pdfData.finalPrintAssetUrl || '';
+        resolvedQrImageUrl = cardData.qrImageUrl || '';
+        resolvedFinalPrintAssetUrl = cardData.finalPrintAssetUrl || '';
 
-        console.log('[OrderCards][Preview] generate-card-pdf composeStep:', pdfData.composeStep);
-        console.log('[OrderCards][Preview] qrImageUrl from response:', resolvedQrImageUrl || '(none)');
-        console.log('[OrderCards][Preview] finalPrintAssetUrl from response:', resolvedFinalPrintAssetUrl || '(none)');
-        console.log('[OrderCards][Preview] compose-card-image full response:', JSON.stringify(pdfData));
+        console.log('[OrderCards][Preview] generate-card step:', stepLabel);
+        console.log('[OrderCards][Preview] qrImageUrl:', resolvedQrImageUrl || '(none)');
+        console.log('[OrderCards][Preview] finalPrintAssetUrl:', resolvedFinalPrintAssetUrl || '(none)');
+        console.log('[OrderCards][Preview] generate-card full response:', JSON.stringify(cardData));
 
-        if (pdfData.composeDebug) {
-          console.error('[OrderCards][Preview] compose debug:', pdfData.composeDebug);
-          setComposeDebug(pdfData.composeDebug);
+        if (!cardData.success || !resolvedFinalPrintAssetUrl) {
+          console.error('[OrderCards][Preview] generate-card debug:', cardData);
+          setComposeDebug(cardData);
         }
-
-        if (!resolvedFinalPrintAssetUrl) {
-          console.error(
-            '[OrderCards][Preview] ERROR: finalPrintAssetUrl is empty after generate-card-pdf.',
-            'composeStep was:', stepLabel,
-            '— compose-card-image may have failed. Check Supabase Edge Function logs for [compose] errors.'
-          );
-        }
-      } else {
-        stepLabel = `generate_card_pdf_http_${pdfRes.status}`;
-        console.error('[OrderCards][Preview] generate-card-pdf HTTP error:', pdfRes.status);
       }
     } catch (imgErr) {
-      stepLabel = 'generate_card_pdf_network_error';
-      console.error('[OrderCards][Preview] generate-card-pdf network error:', imgErr);
+      stepLabel = 'generate_card_network_error';
+      console.error('[OrderCards][Preview] generate-card network error:', imgErr);
     }
 
     if (previewTimeoutRef.current) {

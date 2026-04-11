@@ -7,7 +7,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY!
 );
 
-const SUPABASE_FUNCTION_URL = "https://tllfqsthkxgsadxtutpm.supabase.co/functions/v1/compose-card-image";
+const SUPABASE_FUNCTION_URL = "https://tllfqsthkxgsadxtutpm.supabase.co/functions/v1/generate-card";
 const SUPABASE_ANON_KEY =
   process.env.SUPABASE_ANON_KEY ||
   process.env.VITE_SUPABASE_ANON_KEY ||
@@ -60,76 +60,74 @@ export const handler: Handler = async (event) => {
   let composeStep = "not_started";
 
   try {
-    composeStep = "calling_compose_edge_function";
-    console.log("[generate-card-pdf] Calling compose-card-image:", SUPABASE_FUNCTION_URL);
+    composeStep = "calling_generate_card";
+    console.log("[generate-card-pdf] Calling generate-card:", SUPABASE_FUNCTION_URL);
     console.log("[generate-card-pdf] ambassadorCode:", ambassadorCode);
     console.log("[generate-card-pdf] qrDestinationUrl:", qrDestinationUrl);
 
-    {
-      const composeRes = await fetch(SUPABASE_FUNCTION_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
-          slug: effectiveSlug,
-          ambassador_id: ambassadorCode,
-          full_name,
-          city_state: formattedCityState,
-        }),
-      });
+    const generateRes = await fetch(SUPABASE_FUNCTION_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({
+        slug: effectiveSlug,
+        ambassador_id: ambassadorCode,
+        full_name,
+        city_state: formattedCityState,
+      }),
+    });
 
-      console.log("[generate-card-pdf] compose-card-image response status:", composeRes.status);
+    console.log("[generate-card-pdf] generate-card response status:", generateRes.status);
 
-      if (composeRes.ok) {
-        composeStep = "parsing_compose_response";
-        const composeData = await composeRes.json();
-        console.log("[generate-card-pdf] compose-card-image response body:", JSON.stringify(composeData));
+    if (generateRes.ok) {
+      composeStep = "parsing_response";
+      const generateData = await generateRes.json();
+      console.log("[generate-card-pdf] generate-card response body:", JSON.stringify(generateData));
 
-        if (composeData.finalPrintAssetUrl) {
-          finalPrintAssetUrl = composeData.finalPrintAssetUrl;
-          composedDataUrl = composeData.finalPrintAssetUrl;
-          composeStep = "success";
-          console.log("[generate-card-pdf] finalPrintAssetUrl received:", finalPrintAssetUrl);
-        } else if (composeData.composedDataUrl) {
-          composedDataUrl = composeData.composedDataUrl;
-          finalPrintAssetUrl = null;
-          composeStep = "success_base64_fallback";
-          console.warn("[generate-card-pdf] Only base64 data URL available — storage upload may have failed");
-        } else {
-          composeStep = "compose_returned_no_url";
-          console.error("[generate-card-pdf] compose-card-image returned no finalPrintAssetUrl:", JSON.stringify(composeData));
-        }
+      if (generateData.finalPrintAssetUrl) {
+        finalPrintAssetUrl = generateData.finalPrintAssetUrl;
+        composedDataUrl = generateData.finalPrintAssetUrl;
+        composeStep = "success";
+        console.log("[generate-card-pdf] finalPrintAssetUrl received:", finalPrintAssetUrl);
+      } else if (generateData.composedDataUrl) {
+        composedDataUrl = generateData.composedDataUrl;
+        finalPrintAssetUrl = null;
+        composeStep = "success_base64_fallback";
+        console.warn("[generate-card-pdf] Only base64 data URL available — storage upload may have failed");
       } else {
-        const errText = await composeRes.text();
-        composeStep = `compose_http_error_${composeRes.status}`;
-        let composeDebugJson: unknown = null;
-        try {
-          composeDebugJson = JSON.parse(errText);
-        } catch {
-          composeDebugJson = errText;
-        }
-        console.error(`[generate-card-pdf] compose-card-image HTTP ${composeRes.status}:`, JSON.stringify(composeDebugJson), "URL used:", SUPABASE_FUNCTION_URL);
-        return {
-          statusCode: 200,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            success: false,
-            finalPrintAssetUrl: null,
-            composedDataUrl: null,
-            qrImageUrl,
-            qrDestinationUrl,
-            ambassadorCode,
-            composeStep,
-            composeDebug: composeDebugJson,
-          }),
-        };
+        composeStep = "generate_card_returned_no_url";
+        console.error("[generate-card-pdf] generate-card returned no finalPrintAssetUrl:", JSON.stringify(generateData));
       }
+    } else {
+      const errText = await generateRes.text();
+      composeStep = `generate_card_http_error_${generateRes.status}`;
+      let generateDebugJson: unknown = null;
+      try {
+        generateDebugJson = JSON.parse(errText);
+      } catch {
+        generateDebugJson = errText;
+      }
+      console.error(`[generate-card-pdf] generate-card HTTP ${generateRes.status}:`, JSON.stringify(generateDebugJson), "URL used:", SUPABASE_FUNCTION_URL);
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          success: false,
+          finalPrintAssetUrl: null,
+          composedDataUrl: null,
+          qrImageUrl,
+          qrDestinationUrl,
+          ambassadorCode,
+          composeStep,
+          composeDebug: generateDebugJson,
+        }),
+      };
     }
   } catch (err) {
-    composeStep = "compose_network_error";
-    console.error("[generate-card-pdf] compose-card-image network error. URL used:", SUPABASE_FUNCTION_URL, "Error:", err);
+    composeStep = "generate_card_network_error";
+    console.error("[generate-card-pdf] generate-card network error. URL used:", SUPABASE_FUNCTION_URL, "Error:", err);
   }
 
   console.log("[generate-card-pdf] composeStep:", composeStep);
