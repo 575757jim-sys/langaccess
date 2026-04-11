@@ -1,6 +1,6 @@
 import type { Handler } from "@netlify/functions";
 import { createClient } from "@supabase/supabase-js";
-import { generateBatchCode, generateBatchQRUrl } from "./utils/batchGenerator";
+import { generateBatchCode } from "./utils/batchGenerator";
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL!,
@@ -44,22 +44,21 @@ export const handler: Handler = async (event) => {
   const batchCode = generateBatchCode(city);
 
   const effectiveSlug = slug || batchCode;
-  const refCode = ambassador_id || slug || batchCode;
-  const qrTarget = `https://langaccess.org/help?ref=${encodeURIComponent(refCode)}`;
+  const ambassadorCode = ambassador_id || slug || batchCode;
+  const qrDestinationUrl = `https://langaccess.org/join?code=${encodeURIComponent(ambassadorCode)}`;
+  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&ecc=H&data=${encodeURIComponent(qrDestinationUrl)}`;
 
-  console.log("[generate-card-pdf] Final QR destination URL:", qrTarget);
+  console.log("[generate-card-pdf] ambassadorCode:", ambassadorCode);
+  console.log("[generate-card-pdf] qrDestinationUrl:", qrDestinationUrl);
+  console.log("[generate-card-pdf] qrImageUrl:", qrImageUrl);
 
-  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&ecc=H&data=${encodeURIComponent(qrTarget)}`;
-
-  const backFileUrl = "https://langaccess.org/card-back.pdf";
-  const frontFileUrl = "https://langaccess.org/card-front.pdf";
-
+  let finalPrintAssetUrl: string | null = null;
   let composedDataUrl: string | null = null;
   let composeStep = "not_started";
 
   try {
     composeStep = "calling_compose_edge_function";
-    console.log("[generate-card-pdf] Calling compose-card-image for slug:", effectiveSlug);
+    console.log("[generate-card-pdf] Calling compose-card-image for ambassadorCode:", ambassadorCode);
 
     const composeRes = await fetch(`${SUPABASE_URL}/functions/v1/compose-card-image`, {
       method: "POST",
@@ -69,7 +68,7 @@ export const handler: Handler = async (event) => {
       },
       body: JSON.stringify({
         slug: effectiveSlug,
-        ambassador_id: refCode,
+        ambassador_id: ambassadorCode,
         full_name,
         city_state: formattedCityState,
       }),
@@ -78,13 +77,20 @@ export const handler: Handler = async (event) => {
     if (composeRes.ok) {
       composeStep = "parsing_compose_response";
       const composeData = await composeRes.json();
-      if (composeData.composedDataUrl) {
-        composedDataUrl = composeData.composedDataUrl;
+
+      if (composeData.finalPrintAssetUrl) {
+        finalPrintAssetUrl = composeData.finalPrintAssetUrl;
+        composedDataUrl = composeData.finalPrintAssetUrl;
         composeStep = "success";
-        console.log("[generate-card-pdf] Composed image received, length:", composedDataUrl.length);
+        console.log("[generate-card-pdf] finalPrintAssetUrl received:", finalPrintAssetUrl);
+      } else if (composeData.composedDataUrl) {
+        composedDataUrl = composeData.composedDataUrl;
+        finalPrintAssetUrl = null;
+        composeStep = "success_base64_fallback";
+        console.warn("[generate-card-pdf] Only base64 data URL available — storage upload may have failed");
       } else {
-        composeStep = "compose_returned_no_data_url";
-        console.warn("[generate-card-pdf] compose-card-image returned no composedDataUrl:", JSON.stringify(composeData));
+        composeStep = "compose_returned_no_url";
+        console.warn("[generate-card-pdf] compose-card-image returned no URL:", JSON.stringify(composeData));
       }
     } else {
       const errText = await composeRes.text();
@@ -96,13 +102,16 @@ export const handler: Handler = async (event) => {
     console.error("[generate-card-pdf] compose-card-image network error:", err);
   }
 
+  console.log("[generate-card-pdf] composeStep:", composeStep);
+  console.log("[generate-card-pdf] finalPrintAssetUrl:", finalPrintAssetUrl || "(none — will use fallback)");
+
   const { error: updateError } = await supabase
     .from("card_orders")
     .update({
       batch_code: batchCode,
-      qr_url: qrApiUrl,
-      qr_image_path: qrApiUrl,
-      card_asset_path: composedDataUrl ? "data_url" : qrApiUrl,
+      qr_url: qrImageUrl,
+      qr_image_path: qrImageUrl,
+      card_asset_path: finalPrintAssetUrl || qrImageUrl,
     })
     .eq("id", order_id);
 
@@ -110,18 +119,18 @@ export const handler: Handler = async (event) => {
     console.warn("[generate-card-pdf] Could not update card_orders:", updateError.message);
   }
 
-  const finalPrintAssetUrl = composedDataUrl ? "(composedDataUrl — base64 image)" : frontFileUrl;
-  console.log("[generate-card-pdf] Final print asset URL:", finalPrintAssetUrl);
-
   return {
     statusCode: 200,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       success: true,
-      frontFileUrl,
-      backFileUrl,
+      finalPrintAssetUrl,
+      frontFileUrl: finalPrintAssetUrl || "https://langaccess.org/card-front.pdf",
+      backFileUrl: "https://langaccess.org/card-back.pdf",
       composedDataUrl,
-      qrUrl: qrApiUrl,
+      qrImageUrl,
+      qrDestinationUrl,
+      ambassadorCode,
       batch_code: batchCode,
       city_state: formattedCityState,
       city,

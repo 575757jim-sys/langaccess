@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import Jimp from "npm:jimp@1.6.0";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -51,11 +52,13 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const refCode = ambassador_id || slug;
-    const qrTarget = `https://langaccess.org/help?ref=${encodeURIComponent(refCode)}`;
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&ecc=H&data=${encodeURIComponent(qrTarget)}&bgcolor=ffffff&color=000000&margin=2`;
+    const ambassadorCode = ambassador_id || slug;
+    const qrDestinationUrl = `https://langaccess.org/join?code=${encodeURIComponent(ambassadorCode)}`;
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&ecc=H&data=${encodeURIComponent(qrDestinationUrl)}&bgcolor=ffffff&color=000000&margin=2`;
 
-    console.log("[compose] Final QR destination URL:", qrTarget);
+    console.log("[compose] ambassadorCode:", ambassadorCode);
+    console.log("[compose] qrDestinationUrl:", qrDestinationUrl);
+    console.log("[compose] qrImageUrl:", qrImageUrl);
 
     console.log("[compose] Fetching template...");
     let templateBuf = await fetchImageBuffer(TEMPLATE_URL);
@@ -78,14 +81,14 @@ Deno.serve(async (req: Request) => {
     console.log("[compose] Template fetched, size:", templateBuf.byteLength);
 
     console.log("[compose] Fetching QR code...");
-    const qrBuf = await fetchImageBuffer(qrUrl);
+    const qrBuf = await fetchImageBuffer(qrImageUrl);
     if (!qrBuf) {
       console.error("[compose] FAILED: QR image not found");
       return new Response(
         JSON.stringify({
           error: "Could not load QR code image.",
           step: "qr_not_found",
-          qr_url: qrUrl,
+          qr_url: qrImageUrl,
         }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -93,7 +96,7 @@ Deno.serve(async (req: Request) => {
     console.log("[compose] QR fetched, size:", qrBuf.byteLength);
 
     console.log("[compose] Compositing images with Jimp...");
-    let composedBase64: string;
+    let outputPngBuffer: Uint8Array;
     try {
       const templateImg = await Jimp.fromBuffer(new Uint8Array(templateBuf).buffer as ArrayBuffer);
       const qrImg = await Jimp.fromBuffer(new Uint8Array(qrBuf).buffer as ArrayBuffer);
@@ -110,12 +113,7 @@ Deno.serve(async (req: Request) => {
       templateImg.composite(qrImg, qrX, qrY);
 
       const outputBuf = await templateImg.getBuffer("image/png");
-      const bytes = new Uint8Array(outputBuf);
-      let binary = "";
-      for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      composedBase64 = "data:image/png;base64," + btoa(binary);
+      outputPngBuffer = new Uint8Array(outputBuf);
     } catch (jimpErr) {
       console.error("[compose] FAILED: Jimp composition error:", jimpErr);
       return new Response(
@@ -128,13 +126,63 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log("[compose] Success! Composed image length:", composedBase64.length);
+    console.log("[compose] Composition success, PNG size:", outputPngBuffer.length);
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const fileName = `card-${ambassadorCode}-${Date.now()}.png`;
+    const storagePath = `cards/${fileName}`;
+
+    console.log("[compose] Uploading to Supabase Storage:", storagePath);
+
+    const { error: uploadError } = await supabase.storage
+      .from("composed-cards")
+      .upload(storagePath, outputPngBuffer, {
+        contentType: "image/png",
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error("[compose] Storage upload failed:", uploadError);
+      const bytes = outputPngBuffer;
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const composedDataUrl = "data:image/png;base64," + btoa(binary);
+      console.warn("[compose] Falling back to base64 data URL due to upload failure");
+      return new Response(
+        JSON.stringify({
+          success: true,
+          composedDataUrl,
+          finalPrintAssetUrl: null,
+          qrImageUrl,
+          qrDestinationUrl,
+          ambassadorCode,
+          uploadFailed: true,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from("composed-cards")
+      .getPublicUrl(storagePath);
+
+    const finalPrintAssetUrl = publicUrlData.publicUrl;
+
+    console.log("[compose] finalPrintAssetUrl:", finalPrintAssetUrl);
 
     return new Response(
       JSON.stringify({
         success: true,
-        composedDataUrl: composedBase64,
-        qrUrl,
+        finalPrintAssetUrl,
+        composedDataUrl: finalPrintAssetUrl,
+        qrImageUrl,
+        qrDestinationUrl,
+        ambassadorCode,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

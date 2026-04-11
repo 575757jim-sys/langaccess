@@ -31,6 +31,7 @@ const handler: Handler = async (event: HandlerEvent) => {
       zip,
       order_type,
       ambassador_id,
+      final_print_asset_url,
       front_file_url,
       back_file_url,
     } = body;
@@ -169,7 +170,8 @@ const handler: Handler = async (event: HandlerEvent) => {
         zip: zip || '',
         currency: currency || 'USD',
         shipment_method_name: shipment_method_name || '',
-        front_file_url: front_file_url || '',
+        final_print_asset_url: final_print_asset_url || front_file_url || '',
+        front_file_url: final_print_asset_url || front_file_url || '',
         back_file_url: back_file_url || '',
         product_price: String(lockedProductPrice),
         shipping_price: String(lockedShippingPrice),

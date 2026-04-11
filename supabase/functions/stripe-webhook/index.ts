@@ -24,8 +24,8 @@ async function createGelatoOrder(meta: Record<string, string>, supabase: ReturnT
     city,
     state,
     zip,
+    final_print_asset_url,
     front_file_url,
-    back_file_url,
     order_id,
     currency,
     gelatoBaseCost,
@@ -38,19 +38,21 @@ async function createGelatoOrder(meta: Record<string, string>, supabase: ReturnT
   console.log("[Webhook] gelatoBaseCost:", gelatoBaseCost);
   console.log("[Webhook] markup:", markup);
   console.log("[Webhook] finalTotal:", finalTotal);
+  console.log("[Webhook] final_print_asset_url:", final_print_asset_url || "(none)");
 
   const STATIC_FRONT = "https://langaccess.org/card-front.pdf";
-  const STATIC_BACK = "https://langaccess.org/card-back.pdf";
 
-  const resolvedFront = front_file_url && front_file_url.startsWith("https://") ? front_file_url : STATIC_FRONT;
-  const resolvedBack = back_file_url && back_file_url.startsWith("https://") ? back_file_url : STATIC_BACK;
+  const resolvedPrintUrl =
+    (final_print_asset_url && final_print_asset_url.startsWith("https://")) ? final_print_asset_url :
+    (front_file_url && front_file_url.startsWith("https://")) ? front_file_url :
+    STATIC_FRONT;
 
   const nameParts = (full_name || "").trim().split(/\s+/);
   const firstName = nameParts[0] || "";
   const lastName = nameParts.slice(1).join(" ") || "";
   const qty = parseInt(quantity || "1");
 
-  const orderPayload = {
+  const gelatoOrderPayload = {
     orderType: "order",
     orderReferenceId: `paid-${order_id || crypto.randomUUID()}`,
     customerReferenceId: ambassador_id || "",
@@ -60,8 +62,7 @@ async function createGelatoOrder(meta: Record<string, string>, supabase: ReturnT
         itemReferenceId: "item-1",
         productUid: Deno.env.get("GELATO_PRODUCT_UID") || "cards_pf_bx_pt_300-gsm-uncoated_cl_4-4_hor",
         files: [
-          { type: "default", url: resolvedFront },
-          { type: "back", url: resolvedBack },
+          { type: "default", url: resolvedPrintUrl },
         ],
         quantity: qty,
       },
@@ -80,7 +81,8 @@ async function createGelatoOrder(meta: Record<string, string>, supabase: ReturnT
   };
 
   console.log("[Webhook] Creating Gelato order for paid order:", order_id);
-  console.log("[Webhook] Gelato order payload:", JSON.stringify(orderPayload));
+  console.log("[Webhook] gelatoOrderPayload:", JSON.stringify(gelatoOrderPayload));
+  const orderPayload = gelatoOrderPayload;
 
   const gelatoRes = await fetch("https://order.gelatoapis.com/v4/orders", {
     method: "POST",

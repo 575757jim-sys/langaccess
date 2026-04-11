@@ -9,10 +9,7 @@ const supabase = createClient(
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY!;
 
-const STATIC_FRONT_PDF = "https://langaccess.org/card-front.pdf";
-const STATIC_BACK_PDF = "https://langaccess.org/card-back.pdf";
-
-function isPublicUrl(url: string | undefined): boolean {
+function isPublicHttpsUrl(url: string | undefined): boolean {
   if (!url) return false;
   try {
     const parsed = new URL(url);
@@ -37,6 +34,7 @@ export const handler: Handler = async (event) => {
     state: string;
     zip: string;
     quantity: number;
+    finalPrintAssetUrl?: string;
     frontFileUrl?: string;
     backFileUrl?: string;
   };
@@ -57,8 +55,8 @@ export const handler: Handler = async (event) => {
     state,
     zip,
     quantity,
+    finalPrintAssetUrl,
     frontFileUrl,
-    backFileUrl,
   } = body;
 
   const cityClean = (city || "").trim().replace(/,\s*$/, "");
@@ -69,14 +67,18 @@ export const handler: Handler = async (event) => {
   const firstName = nameParts[0] || "";
   const lastName = nameParts.slice(1).join(" ") || "";
 
-  const resolvedFrontUrl = isPublicUrl(frontFileUrl) ? frontFileUrl! : STATIC_FRONT_PDF;
-  const resolvedBackUrl = isPublicUrl(backFileUrl) ? backFileUrl! : STATIC_BACK_PDF;
+  const resolvedPrintUrl = isPublicHttpsUrl(finalPrintAssetUrl)
+    ? finalPrintAssetUrl!
+    : isPublicHttpsUrl(frontFileUrl)
+    ? frontFileUrl!
+    : "https://langaccess.org/card-front.pdf";
 
-  console.log("[Gelato] Front file URL:", resolvedFrontUrl);
-  console.log("[Gelato] Back file URL:", resolvedBackUrl);
+  console.log("[Gelato] ambassadorCode:", ambassador_id);
+  console.log("[Gelato] finalPrintAssetUrl (input):", finalPrintAssetUrl || "(none)");
+  console.log("[Gelato] resolvedPrintUrl (sending to Gelato):", resolvedPrintUrl);
   console.log("[Gelato] Shipping to:", cityStateDisplay, zip);
 
-  const orderPayload = {
+  const gelatoQuotePayload = {
     orderType: "order",
     orderReferenceId: crypto.randomUUID(),
     customerReferenceId: ambassador_id,
@@ -86,8 +88,7 @@ export const handler: Handler = async (event) => {
         itemReferenceId: "item-1",
         productUid: process.env.GELATO_PRODUCT_UID || "cards_pf_bx_pt_300-gsm-uncoated_cl_4-4_hor",
         files: [
-          { type: "default", url: resolvedFrontUrl },
-          { type: "back", url: resolvedBackUrl },
+          { type: "default", url: resolvedPrintUrl },
         ],
         quantity: quantity || 1,
       },
@@ -105,7 +106,7 @@ export const handler: Handler = async (event) => {
     },
   };
 
-  console.log("[Gelato] Order payload:", JSON.stringify(orderPayload));
+  console.log("[Gelato] gelatoQuotePayload:", JSON.stringify(gelatoQuotePayload));
 
   let gelatoOrderId: string | null = null;
   let gelatoPrice: number | null = null;
@@ -118,23 +119,25 @@ export const handler: Handler = async (event) => {
         "Content-Type": "application/json",
         "X-API-KEY": process.env.GELATO_API_KEY!,
       },
-      body: JSON.stringify(orderPayload),
+      body: JSON.stringify(gelatoQuotePayload),
     });
 
+    const gelatoResponseText = await gelatoRes.text();
+    console.log("[Gelato] gelatoResponse (raw):", gelatoResponseText);
+
     if (!gelatoRes.ok) {
-      const errorText = await gelatoRes.text();
-      console.error("[Gelato] API error:", errorText);
+      console.error("[Gelato] API error status:", gelatoRes.status, "body:", gelatoResponseText);
       return {
         statusCode: gelatoRes.status,
         body: JSON.stringify({
           error: "Could not prepare print file. Please try again.",
-          _debug: errorText,
+          _debug: gelatoResponseText,
         }),
       };
     }
 
-    const gelatoData = await gelatoRes.json();
-    console.log("[Gelato] Full response:", JSON.stringify(gelatoData));
+    const gelatoData = JSON.parse(gelatoResponseText);
+    console.log("[Gelato] gelatoOrderPayload response parsed:", JSON.stringify(gelatoData));
     gelatoOrderId = gelatoData.id || gelatoData.orderId || null;
 
     const items = gelatoData.items || [];
@@ -148,7 +151,7 @@ export const handler: Handler = async (event) => {
     gelatoCurrency =
       gelatoData.currency ??
       gelatoData.currencyIsoCode ??
-      orderPayload.currency ??
+      gelatoQuotePayload.currency ??
       "USD";
   } catch (err) {
     console.error("[Gelato] Network error:", err);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, MapPin, Hash, ShoppingCart, Pencil, Download, Smartphone } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, MapPin, Hash, ShoppingCart, Pencil, Download } from 'lucide-react';
 import SEO from './SEO';
 
 interface Props {
@@ -45,16 +45,16 @@ const QUANTITY_OPTIONS = [
   { value: 100, label: '100', sublabel: 'cards' },
 ];
 
-function generateQRCodeUrl(ambassadorId: string): string {
-  const target = `https://langaccess.org/help?ref=${encodeURIComponent(ambassadorId)}`;
+function generateQRCodeUrl(ambassadorCode: string): string {
+  const target = `https://langaccess.org/join?code=${encodeURIComponent(ambassadorCode)}`;
   return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(target)}&bgcolor=ffffff&color=000000&margin=2`;
 }
 
-function CardFrontPreview({ slug, fullName, cityState, ambassadorId }: {
-  slug: string; fullName: string; cityState: string; ambassadorId?: string;
+function CardFrontPreview({ slug, fullName, cityState, ambassadorCode }: {
+  slug: string; fullName: string; cityState: string; ambassadorCode?: string;
 }) {
-  const effectiveId = ambassadorId || slug || 'demo123';
-  const qrUrl = generateQRCodeUrl(effectiveId);
+  const effectiveCode = ambassadorCode || slug || 'demo123';
+  const qrUrl = generateQRCodeUrl(effectiveCode);
 
   return (
     <div
@@ -122,7 +122,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const [ambassador, setAmbassador] = useState<AmbassadorData | null>(null);
   const [quantity, setQuantity] = useState(25);
   const [errorMsg, setErrorMsg] = useState('');
-  const [composedPreviewUrl, setComposedPreviewUrl] = useState('');
+  const [finalPrintAssetUrl, setFinalPrintAssetUrl] = useState('');
   const [composeStep, setComposeStep] = useState('');
   const [quoteResult, setQuoteResult] = useState<QuoteResult | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -133,8 +133,8 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     city: string;
     state: string;
     slug: string;
-    frontFileUrl: string;
-    backFileUrl: string;
+    ambassadorCode: string;
+    finalPrintAssetUrl: string;
   } | null>(null);
 
   useEffect(() => {
@@ -233,51 +233,51 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const formattedCityState = normalizeCityState(fields.cityState) || fields.cityState;
     const { city, state } = splitCityState(formattedCityState);
     const slug = ambassador.slug || ambassador.ref_code || ambassador.id || 'langaccess';
-    const ambassadorId = ambassador.id || ambassador.ref_code || slug;
+    const ambassadorCode = ambassador.ref_code || ambassador.id || slug;
     const orderId = `order-${ambassador.id || 'anon'}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const qrDestinationUrl = `https://langaccess.org/join?code=${encodeURIComponent(ambassadorCode)}`;
 
+    console.log('[OrderCards] ambassadorCode:', ambassadorCode);
+    console.log('[OrderCards] qrDestinationUrl:', qrDestinationUrl);
     console.log('[OrderCards] Selected quantity:', quantity);
-    console.log('[OrderCards] Ambassador code:', ambassador.ref_code || ambassador.id);
-    console.log('[OrderCards] Final QR destination URL:', `https://langaccess.org/help?ref=${encodeURIComponent(ambassadorId)}`);
-    console.log('[OrderCards] handleGetPrice — fields resolved:', { fullName, formattedCityState, city, state, slug, ambassadorId });
+    console.log('[OrderCards] handleGetPrice — fields resolved:', { fullName, formattedCityState, city, state, slug, ambassadorCode });
 
-    const fallbackFront = 'https://langaccess.org/card-front.pdf';
-    const fallbackBack = 'https://langaccess.org/card-back.pdf';
-    let frontFileUrl = fallbackFront;
-    let backFileUrl = fallbackBack;
-    let composed = '';
+    let resolvedFinalPrintAssetUrl = '';
     let stepLabel = 'not_started';
 
     try {
       const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: orderId, full_name: fullName, city_state: formattedCityState, slug, ambassador_id: ambassadorId }),
+        body: JSON.stringify({ order_id: orderId, full_name: fullName, city_state: formattedCityState, slug, ambassador_id: ambassadorCode }),
       });
       if (pdfRes.ok) {
         const pdfData = await pdfRes.json();
-        if (pdfData.frontFileUrl) frontFileUrl = pdfData.frontFileUrl;
-        if (pdfData.backFileUrl) backFileUrl = pdfData.backFileUrl;
-        if (pdfData.composedDataUrl) composed = pdfData.composedDataUrl;
+        if (pdfData.finalPrintAssetUrl) {
+          resolvedFinalPrintAssetUrl = pdfData.finalPrintAssetUrl;
+        }
         stepLabel = pdfData.composeStep || 'success';
         console.log('[OrderCards] generate-card-pdf composeStep:', pdfData.composeStep);
+        console.log('[OrderCards] qrImageUrl:', pdfData.qrImageUrl);
+        console.log('[OrderCards] finalPrintAssetUrl:', pdfData.finalPrintAssetUrl || '(none)');
       } else {
         stepLabel = `generate_card_pdf_http_${pdfRes.status}`;
-        console.warn('[OrderCards] generate-card-pdf failed:', pdfRes.status, '— using fallback print assets');
+        console.warn('[OrderCards] generate-card-pdf failed:', pdfRes.status, '— using fallback');
       }
     } catch (imgErr) {
       stepLabel = 'generate_card_pdf_network_error';
-      console.warn('[OrderCards] generate-card-pdf error:', imgErr, '— using fallback print assets');
+      console.warn('[OrderCards] generate-card-pdf error:', imgErr, '— using fallback');
     }
 
-    setComposedPreviewUrl(composed);
+    setFinalPrintAssetUrl(resolvedFinalPrintAssetUrl);
     setComposeStep(stepLabel);
-    setPendingOrderData({ fullName, formattedCityState, city, state, slug, frontFileUrl, backFileUrl });
+    setPendingOrderData({ fullName, formattedCityState, city, state, slug, ambassadorCode, finalPrintAssetUrl: resolvedFinalPrintAssetUrl });
 
+    console.log('[OrderCards] finalPrintAssetUrl stored in state:', resolvedFinalPrintAssetUrl || '(none — will use fallback at Gelato step)');
     console.log('[OrderCards] Gelato quote request starting...');
     setStep('submitting');
 
-    const payload = {
+    const gelatoQuotePayload = {
       ambassador_id: ambassador.id,
       full_name: fullName,
       email: ambassador.email,
@@ -287,17 +287,17 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       state,
       zip: ambassador.zip_code || '',
       quantity,
-      frontFileUrl,
-      backFileUrl,
+      finalPrintAssetUrl: resolvedFinalPrintAssetUrl || undefined,
+      frontFileUrl: resolvedFinalPrintAssetUrl || undefined,
     };
 
-    console.log('[OrderCards] Quote payload built:', JSON.stringify(payload));
+    console.log('[OrderCards] gelatoQuotePayload:', JSON.stringify(gelatoQuotePayload));
 
     try {
       const gelatoRes = await fetch('/.netlify/functions/create-gelato-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(gelatoQuotePayload),
       });
 
       console.log('[OrderCards] Gelato response received — status:', gelatoRes.status);
@@ -309,14 +309,14 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       }
 
       const data = await gelatoRes.json();
-      console.log('[OrderCards] Gelato quote success — full response:', data);
+      console.log('[OrderCards] gelatoResponse:', data);
 
       const resolvedQty = data.quantity ?? quantity;
       const gelatoBaseCost = data.price ?? null;
       const markup = getMarkup(resolvedQty);
       const finalTotal = gelatoBaseCost != null ? parseFloat((gelatoBaseCost + markup).toFixed(2)) : null;
 
-      console.log('[OrderCards] gelatoQuoteTotal:', gelatoBaseCost);
+      console.log('[OrderCards] gelatoBaseCost:', gelatoBaseCost);
       console.log('[OrderCards] markup:', markup);
       console.log('[OrderCards] finalTotal:', finalTotal);
 
@@ -352,6 +352,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const markup = quoteResult.markup;
     const finalTotal = quoteResult.finalTotal;
     const cityState = pendingOrderData.formattedCityState;
+    const printUrl = pendingOrderData.finalPrintAssetUrl || finalPrintAssetUrl || '';
 
     console.log('[OrderCards] Stripe checkout starting');
     console.log('[OrderCards] ambassadorCode:', refCode);
@@ -359,7 +360,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     console.log('[OrderCards] gelatoBaseCost:', gelatoBaseCost);
     console.log('[OrderCards] markup:', markup);
     console.log('[OrderCards] finalTotal:', finalTotal);
-    console.log('[OrderCards] stripeCheckoutAmount:', finalTotal);
+    console.log('[OrderCards] finalPrintAssetUrl (going to checkout):', printUrl);
 
     setCheckoutLoading(true);
     setCheckoutError('');
@@ -368,7 +369,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const fields = resolveAmbassadorFields();
     const fullName = (ambassador.full_name || '').trim() || pendingOrderData.fullName || fields.fullName;
 
-    const payload = {
+    const checkoutPayload = {
       full_name: fullName,
       email: ambassador.email,
       quantity: qty,
@@ -386,15 +387,18 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       zip: ambassador.zip_code || '',
       order_type: 'card_order',
       ambassador_id: ambassador.id,
-      front_file_url: pendingOrderData.frontFileUrl,
-      back_file_url: pendingOrderData.backFileUrl,
+      final_print_asset_url: printUrl,
+      front_file_url: printUrl,
+      back_file_url: '',
     };
+
+    console.log('[OrderCards] checkoutPayload finalPrintAssetUrl:', printUrl);
 
     try {
       const res = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(checkoutPayload),
       });
 
       const data = await res.json();
@@ -449,12 +453,13 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const qty = quoteResult?.quantity ?? quantity;
     const gelatoBaseCost = quoteResult?.gelatoBaseCost ?? null;
     const markup = quoteResult?.markup ?? getMarkup(qty);
-    const finalTotal = quoteResult?.finalTotal ?? null;
-    const hasFinalTotal = finalTotal != null;
+    const resolvedFinalTotal = quoteResult?.finalTotal ?? null;
+    const hasFinalTotal = resolvedFinalTotal != null;
     const refCode = ambassador?.ref_code || ambassador?.id || '';
     const cityState = pendingOrderData?.formattedCityState || normalizeCityState(ambassador?.city_state || '');
-    const ambassadorIdForQR = ambassador?.id || ambassador?.ref_code || ambassador?.slug || 'demo123';
-    const qrDownloadUrl = generateQRCodeUrl(ambassadorIdForQR);
+    const ambassadorCode = ambassador?.ref_code || ambassador?.id || ambassador?.slug || 'demo123';
+    const qrDownloadUrl = generateQRCodeUrl(ambassadorCode);
+    const printPreviewUrl = pendingOrderData?.finalPrintAssetUrl || finalPrintAssetUrl || '';
 
     return (
       <div className="bg-[#0a0f1e] text-white" style={{ minHeight: '100dvh' }}>
@@ -518,7 +523,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
                   <CreditCard className="w-4 h-4 text-green-500 flex-shrink-0" />
                   <span className="text-white font-semibold text-sm flex-1">Total</span>
                   <span className="text-green-400 font-bold text-sm">
-                    {currencySymbol}{finalTotal!.toFixed(2)}{' '}
+                    {currencySymbol}{resolvedFinalTotal!.toFixed(2)}{' '}
                     <span className="text-slate-500 font-normal">{quoteResult!.currency}</span>
                   </span>
                 </div>
@@ -542,9 +547,31 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
             </div>
           </div>
 
+          {printPreviewUrl && (
+            <div className="rounded-xl overflow-hidden border border-white/10 mb-5">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest px-4 pt-3 pb-2">Print Preview</p>
+              <img
+                src={printPreviewUrl}
+                alt="Your card print preview"
+                className="w-full block"
+                style={{ maxHeight: 220, objectFit: 'contain', background: '#000' }}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+              />
+            </div>
+          )}
+
+          {composeStep && composeStep !== 'success' && composeStep !== 'not_started' && !printPreviewUrl && (
+            <div className="bg-[#111827] rounded-xl border border-white/10 px-4 py-3 mb-5 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                <Package className="w-4 h-4 text-green-400" />
+              </div>
+              <p className="text-slate-400 text-sm">Print file ready with your unique QR code</p>
+            </div>
+          )}
+
           <a
             href={qrDownloadUrl}
-            download={`langaccess-qr-${ambassadorIdForQR}.png`}
+            download={`langaccess-qr-${ambassadorCode}.png`}
             target="_blank"
             rel="noreferrer"
             className="w-full inline-flex items-center justify-center gap-2 bg-[#0d1f17] border border-green-500/40 hover:border-green-400/70 hover:bg-green-500/10 text-green-400 font-semibold text-sm px-4 py-3 rounded-xl transition-all mb-5"
@@ -553,27 +580,6 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
             <Download className="w-4 h-4" />
             Download QR Code — use it now, cards ship later
           </a>
-
-          {composedPreviewUrl && (
-            <div className="rounded-xl overflow-hidden border border-white/10 mb-5">
-              <img
-                src={composedPreviewUrl}
-                alt="Your card preview"
-                className="w-full block"
-                style={{ maxHeight: 220, objectFit: 'contain', background: '#000' }}
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-              />
-            </div>
-          )}
-
-          {composeStep && composeStep !== 'success' && composeStep !== 'not_started' && !composedPreviewUrl && (
-            <div className="bg-[#111827] rounded-xl border border-white/10 px-4 py-3 mb-5 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                <Package className="w-4 h-4 text-green-400" />
-              </div>
-              <p className="text-slate-400 text-sm">Print file ready with your unique QR code</p>
-            </div>
-          )}
 
           <p className="text-slate-500 text-xs text-center mb-1">
             Each card you distribute helps someone find real help nearby.
@@ -682,8 +688,8 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
           </div>
 
           {(() => {
-            const ambassadorIdForQR = ambassador?.id || ambassador?.ref_code || ambassador?.slug || 'demo123';
-            const qrDownloadUrl = generateQRCodeUrl(ambassadorIdForQR);
+            const ambassadorCode = ambassador?.ref_code || ambassador?.id || ambassador?.slug || 'demo123';
+            const qrDownloadUrl = generateQRCodeUrl(ambassadorCode);
             return (
               <div className="space-y-4">
                 {ambassador?.slug && (
@@ -693,7 +699,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
                       slug={ambassador.slug || ''}
                       fullName={fields.fullName}
                       cityState={cityStateDisplay || fields.cityState}
-                      ambassadorId={ambassadorIdForQR}
+                      ambassadorCode={ambassadorCode}
                     />
                   </div>
                 )}
@@ -705,7 +711,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
                   </p>
                   <a
                     href={qrDownloadUrl}
-                    download={`langaccess-qr-${ambassadorIdForQR}.png`}
+                    download={`langaccess-qr-${ambassadorCode}.png`}
                     target="_blank"
                     rel="noreferrer"
                     className="w-full inline-flex items-center justify-center gap-2 bg-[#0d1f17] border border-green-500/40 hover:border-green-400/70 hover:bg-green-500/10 text-green-400 font-semibold text-sm px-4 py-3 rounded-xl transition-all"
