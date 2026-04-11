@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Package, CheckCircle, Loader2, CreditCard, MapPin, Hash, ShoppingCart, Pencil, Download, AlertCircle } from 'lucide-react';
 import SEO from './SEO';
 
@@ -106,6 +106,8 @@ function buildShippingFormFromAmbassador(ambassador: AmbassadorData | null): Shi
   };
 }
 
+type PreviewState = 'idle' | 'loading' | 'ready' | 'timeout' | 'error';
+
 export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const [step, setStep] = useState<Step>('loading');
   const [ambassador, setAmbassador] = useState<AmbassadorData | null>(null);
@@ -114,6 +116,16 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const [finalPrintAssetUrl, setFinalPrintAssetUrl] = useState('');
   const [qrImageUrl, setQrImageUrl] = useState('');
   const [composeStep, setComposeStep] = useState('');
+  const [previewState, setPreviewState] = useState<PreviewState>('idle');
+  const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [previewParams, setPreviewParams] = useState<{
+    orderId: string;
+    fullName: string;
+    formattedCityState: string;
+    slug: string;
+    ambassadorCode: string;
+    qrDestinationUrl: string;
+  } | null>(null);
   const [quoteResult, setQuoteResult] = useState<QuoteResult | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState('');
@@ -209,6 +221,104 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     loadAmbassador();
   }, []);
 
+  async function generatePreview(params: {
+    orderId: string;
+    fullName: string;
+    formattedCityState: string;
+    slug: string;
+    ambassadorCode: string;
+    qrDestinationUrl: string;
+  }) {
+    if (previewTimeoutRef.current) {
+      clearTimeout(previewTimeoutRef.current);
+      previewTimeoutRef.current = null;
+    }
+
+    console.log('[OrderCards][Preview] Starting preview generation');
+    console.log('[OrderCards][Preview] ambassadorCode:', params.ambassadorCode);
+    console.log('[OrderCards][Preview] qrDestinationUrl:', params.qrDestinationUrl);
+    console.log('[OrderCards][Preview] orderId:', params.orderId);
+    console.log('[OrderCards][Preview] fullName:', params.fullName);
+    console.log('[OrderCards][Preview] formattedCityState:', params.formattedCityState);
+    console.log('[OrderCards][Preview] slug:', params.slug);
+
+    setPreviewState('loading');
+    setFinalPrintAssetUrl('');
+    setQrImageUrl('');
+
+    previewTimeoutRef.current = setTimeout(() => {
+      console.error('[OrderCards][Preview] Timeout — preview still not ready after 8s. finalPrintAssetUrl was empty.');
+      setPreviewState('timeout');
+    }, 8000);
+
+    let resolvedFinalPrintAssetUrl = '';
+    let resolvedQrImageUrl = '';
+    let stepLabel = 'not_started';
+
+    try {
+      console.log('[OrderCards][Preview] Calling generate-card-pdf...');
+      const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: params.orderId,
+          full_name: params.fullName,
+          city_state: params.formattedCityState,
+          slug: params.slug,
+          ambassador_id: params.ambassadorCode,
+        }),
+      });
+
+      if (pdfRes.ok) {
+        const pdfData = await pdfRes.json();
+        stepLabel = pdfData.composeStep || 'success';
+
+        resolvedQrImageUrl = pdfData.qrImageUrl || '';
+        resolvedFinalPrintAssetUrl = pdfData.finalPrintAssetUrl || '';
+
+        console.log('[OrderCards][Preview] generate-card-pdf composeStep:', pdfData.composeStep);
+        console.log('[OrderCards][Preview] qrImageUrl from response:', resolvedQrImageUrl || '(none)');
+        console.log('[OrderCards][Preview] finalPrintAssetUrl from response:', resolvedFinalPrintAssetUrl || '(none)');
+        console.log('[OrderCards][Preview] compose-card-image full response:', JSON.stringify(pdfData));
+
+        if (!resolvedFinalPrintAssetUrl) {
+          console.error(
+            '[OrderCards][Preview] ERROR: finalPrintAssetUrl is empty after generate-card-pdf.',
+            'composeStep was:', stepLabel,
+            '— compose-card-image may have failed. Check Supabase Edge Function logs for [compose] errors.'
+          );
+        }
+      } else {
+        stepLabel = `generate_card_pdf_http_${pdfRes.status}`;
+        console.error('[OrderCards][Preview] generate-card-pdf HTTP error:', pdfRes.status);
+      }
+    } catch (imgErr) {
+      stepLabel = 'generate_card_pdf_network_error';
+      console.error('[OrderCards][Preview] generate-card-pdf network error:', imgErr);
+    }
+
+    if (previewTimeoutRef.current) {
+      clearTimeout(previewTimeoutRef.current);
+      previewTimeoutRef.current = null;
+    }
+
+    console.log('[OrderCards][Preview] resolvedQrImageUrl:', resolvedQrImageUrl || '(none)');
+    console.log('[OrderCards][Preview] resolvedFinalPrintAssetUrl:', resolvedFinalPrintAssetUrl || '(none)');
+    console.log('[OrderCards][Preview] Will render preview as:', resolvedFinalPrintAssetUrl ? `image: ${resolvedFinalPrintAssetUrl}` : 'FAILED — no finalPrintAssetUrl available');
+
+    setQrImageUrl(resolvedQrImageUrl);
+    setFinalPrintAssetUrl(resolvedFinalPrintAssetUrl);
+    setComposeStep(stepLabel);
+
+    if (resolvedFinalPrintAssetUrl) {
+      setPreviewState('ready');
+    } else {
+      setPreviewState('error');
+    }
+
+    return { resolvedFinalPrintAssetUrl, resolvedQrImageUrl, stepLabel };
+  }
+
   function updateShippingField(field: keyof ShippingForm, value: string) {
     setShippingForm(prev => ({ ...prev, [field]: value }));
     setShippingTouched(prev => ({ ...prev, [field]: true }));
@@ -248,50 +358,11 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     console.log('[OrderCards] country:', country);
     console.log('[OrderCards] Selected quantity:', quantity);
 
-    let resolvedFinalPrintAssetUrl = '';
-    let resolvedQrImageUrl = '';
-    let stepLabel = 'not_started';
+    const previewParamsVal = { orderId, fullName, formattedCityState, slug, ambassadorCode, qrDestinationUrl };
+    setPreviewParams(previewParamsVal);
 
-    try {
-      const pdfRes = await fetch('/.netlify/functions/generate-card-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          order_id: orderId,
-          full_name: fullName,
-          city_state: formattedCityState,
-          slug,
-          ambassador_id: ambassadorCode,
-        }),
-      });
-      if (pdfRes.ok) {
-        const pdfData = await pdfRes.json();
-        if (pdfData.finalPrintAssetUrl) {
-          resolvedFinalPrintAssetUrl = pdfData.finalPrintAssetUrl;
-        }
-        if (pdfData.qrImageUrl) {
-          resolvedQrImageUrl = pdfData.qrImageUrl;
-        }
-        stepLabel = pdfData.composeStep || 'success';
-        console.log('[OrderCards] generate-card-pdf composeStep:', pdfData.composeStep);
-        console.log('[OrderCards] qrImageUrl from response:', pdfData.qrImageUrl || '(none)');
-        console.log('[OrderCards] finalPrintAssetUrl from response:', pdfData.finalPrintAssetUrl || '(none)');
-      } else {
-        stepLabel = `generate_card_pdf_http_${pdfRes.status}`;
-        console.warn('[OrderCards] generate-card-pdf failed:', pdfRes.status);
-      }
-    } catch (imgErr) {
-      stepLabel = 'generate_card_pdf_network_error';
-      console.warn('[OrderCards] generate-card-pdf error:', imgErr);
-    }
+    const { resolvedFinalPrintAssetUrl } = await generatePreview(previewParamsVal);
 
-    console.log('[OrderCards] resolvedFinalPrintAssetUrl:', resolvedFinalPrintAssetUrl || '(none)');
-    console.log('[OrderCards] resolvedQrImageUrl:', resolvedQrImageUrl || '(none)');
-    console.log('[OrderCards] Preview will render:', resolvedFinalPrintAssetUrl ? `finalPrintAssetUrl: ${resolvedFinalPrintAssetUrl}` : 'loading state (no finalPrintAssetUrl)');
-
-    setFinalPrintAssetUrl(resolvedFinalPrintAssetUrl);
-    setQrImageUrl(resolvedQrImageUrl);
-    setComposeStep(stepLabel);
     setPendingOrderData({
       fullName,
       formattedCityState,
@@ -306,7 +377,6 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       country,
     });
 
-    console.log('[OrderCards] finalPrintAssetUrl stored in state:', resolvedFinalPrintAssetUrl || '(none — will use fallback at Gelato step)');
     console.log('[OrderCards] Gelato quote request starting...');
     setStep('submitting');
 
@@ -521,14 +591,23 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const cityStateDisplay = pendingOrderData?.formattedCityState || normalizeCityState(ambassador?.city_state || '');
     const ambassadorCode = ambassador?.ref_code || ambassador?.id || ambassador?.slug || 'demo123';
     const qrDownloadUrl = generateQRCodeUrl(ambassadorCode);
-    const printPreviewUrl = pendingOrderData?.finalPrintAssetUrl || finalPrintAssetUrl || '';
+    const printPreviewUrl = finalPrintAssetUrl || pendingOrderData?.finalPrintAssetUrl || '';
     const checkoutReady = hasFinalTotal && !checkoutLoading;
+
+    const handleRetryPreview = async () => {
+      if (!previewParams) return;
+      const result = await generatePreview(previewParams);
+      if (result.resolvedFinalPrintAssetUrl && pendingOrderData) {
+        setPendingOrderData({ ...pendingOrderData, finalPrintAssetUrl: result.resolvedFinalPrintAssetUrl });
+      }
+    };
 
     console.log('[OrderCards] Review screen — qrImageUrl state:', qrImageUrl || '(none)');
     console.log('[OrderCards] Review screen — finalPrintAssetUrl state:', finalPrintAssetUrl || '(none)');
     console.log('[OrderCards] Review screen — pendingOrderData.finalPrintAssetUrl:', pendingOrderData?.finalPrintAssetUrl || '(none)');
     console.log('[OrderCards] Review screen — printPreviewUrl (resolved):', printPreviewUrl || '(none)');
-    console.log('[OrderCards] Review screen — rendering preview as:', printPreviewUrl ? `image: ${printPreviewUrl}` : 'loading state');
+    console.log('[OrderCards] Review screen — previewState:', previewState);
+    console.log('[OrderCards] Review screen — rendering preview as:', printPreviewUrl ? `image: ${printPreviewUrl}` : `no image — previewState is "${previewState}"`);
 
     return (
       <div className="bg-[#0a0f1e] text-white" style={{ minHeight: '100dvh' }}>
@@ -636,6 +715,28 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
                   <p className="text-slate-500 text-xs">This is the exact image that will be printed on your cards with your QR code embedded.</p>
                 </div>
               </>
+            ) : previewState === 'timeout' || previewState === 'error' ? (
+              <div className="px-5 py-8 flex flex-col items-center gap-4" style={{ background: '#0b0d12' }}>
+                <AlertCircle className="w-6 h-6 text-amber-500" />
+                <p className="text-slate-400 text-xs text-center leading-relaxed">
+                  Preview could not be loaded yet. Tap Retry Preview.
+                </p>
+                <button
+                  onClick={handleRetryPreview}
+                  disabled={previewState === 'loading'}
+                  className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/15 hover:border-white/30 text-slate-300 hover:text-white text-xs font-medium px-4 py-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ touchAction: 'manipulation' }}
+                >
+                  {previewState === 'loading' ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Retrying...
+                    </>
+                  ) : (
+                    'Retry Preview'
+                  )}
+                </button>
+              </div>
             ) : (
               <div className="px-5 py-8 flex flex-col items-center gap-3" style={{ background: '#0b0d12' }}>
                 <Loader2 className="w-6 h-6 text-slate-500 animate-spin" />
