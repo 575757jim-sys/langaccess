@@ -259,39 +259,57 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     let stepLabel = 'not_started';
 
     try {
-      console.log('[OrderCards][Preview] Calling generate-card edge function...');
-      const { data: cardData, error: invokeError } = await supabase.functions.invoke('generate-card', {
-        body: {
-          slug: params.slug,
-          ambassador_id: params.ambassadorCode,
-          full_name: params.fullName,
-          city_state: params.formattedCityState,
+      console.log('[OrderCards][Preview] Calling generate-card via direct fetch...');
+      const generateCardUrl = 'https://waxbnkwybpeqdydxtgsy.supabase.co/functions/v1/generate-card';
+      const payload = {
+        slug: params.slug,
+        ambassador_id: params.ambassadorCode,
+        full_name: params.fullName,
+        city_state: params.formattedCityState,
+      };
+      console.log('[OrderCards][Preview] POST payload:', JSON.stringify(payload));
+
+      const rawResponse = await fetch(generateCardUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
         },
+        body: JSON.stringify(payload),
       });
 
-      if (invokeError) {
-        stepLabel = 'generate_card_invoke_error';
-        console.error('[OrderCards][Preview] generate-card invoke error:', invokeError);
-        setComposeDebug(invokeError);
-      } else if (cardData) {
-        stepLabel = cardData.step || (cardData.success ? 'success' : 'generate_card_failed');
+      const text = await rawResponse.text();
+      console.log('[OrderCards][Preview] generate-card HTTP status:', rawResponse.status);
+      console.log('[OrderCards][Preview] generate-card raw body:', text);
 
-        resolvedQrImageUrl = cardData.qrImageUrl || '';
-        resolvedFinalPrintAssetUrl = cardData.finalPrintAssetUrl || '';
+      let cardData: Record<string, unknown> | null = null;
+      try {
+        cardData = JSON.parse(text);
+        console.log('[OrderCards][Preview] generate-card parsed JSON:', JSON.stringify(cardData));
+      } catch {
+        console.error('[OrderCards][Preview] generate-card body is not JSON:', text);
+        setComposeDebug({ rawStatus: rawResponse.status, rawBody: text });
+      }
+
+      if (cardData) {
+        stepLabel = (cardData.step as string) || (cardData.success ? 'success' : 'generate_card_failed');
+
+        resolvedQrImageUrl = (cardData.qrImageUrl as string) || '';
+        resolvedFinalPrintAssetUrl = (cardData.finalPrintAssetUrl as string) || '';
 
         console.log('[OrderCards][Preview] generate-card step:', stepLabel);
         console.log('[OrderCards][Preview] qrImageUrl:', resolvedQrImageUrl || '(none)');
         console.log('[OrderCards][Preview] finalPrintAssetUrl:', resolvedFinalPrintAssetUrl || '(none)');
-        console.log('[OrderCards][Preview] generate-card full response:', JSON.stringify(cardData));
 
         if (!cardData.success || !resolvedFinalPrintAssetUrl) {
-          console.error('[OrderCards][Preview] generate-card debug:', cardData);
-          setComposeDebug(cardData);
+          console.error('[OrderCards][Preview] generate-card failure debug:', cardData);
+          setComposeDebug({ rawStatus: rawResponse.status, parsedBody: cardData });
         }
       }
     } catch (imgErr) {
       stepLabel = 'generate_card_network_error';
       console.error('[OrderCards][Preview] generate-card network error:', imgErr);
+      setComposeDebug({ networkError: (imgErr as Error)?.message || String(imgErr) });
     }
 
     if (previewTimeoutRef.current) {
