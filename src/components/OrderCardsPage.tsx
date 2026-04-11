@@ -112,6 +112,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
   const [quantity, setQuantity] = useState(25);
   const [errorMsg, setErrorMsg] = useState('');
   const [finalPrintAssetUrl, setFinalPrintAssetUrl] = useState('');
+  const [qrImageUrl, setQrImageUrl] = useState('');
   const [composeStep, setComposeStep] = useState('');
   const [quoteResult, setQuoteResult] = useState<QuoteResult | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -248,6 +249,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     console.log('[OrderCards] Selected quantity:', quantity);
 
     let resolvedFinalPrintAssetUrl = '';
+    let resolvedQrImageUrl = '';
     let stepLabel = 'not_started';
 
     try {
@@ -267,20 +269,28 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
         if (pdfData.finalPrintAssetUrl) {
           resolvedFinalPrintAssetUrl = pdfData.finalPrintAssetUrl;
         }
+        if (pdfData.qrImageUrl) {
+          resolvedQrImageUrl = pdfData.qrImageUrl;
+        }
         stepLabel = pdfData.composeStep || 'success';
         console.log('[OrderCards] generate-card-pdf composeStep:', pdfData.composeStep);
-        console.log('[OrderCards] qrImageUrl:', pdfData.qrImageUrl);
-        console.log('[OrderCards] finalPrintAssetUrl:', pdfData.finalPrintAssetUrl || '(none)');
+        console.log('[OrderCards] qrImageUrl from response:', pdfData.qrImageUrl || '(none)');
+        console.log('[OrderCards] finalPrintAssetUrl from response:', pdfData.finalPrintAssetUrl || '(none)');
       } else {
         stepLabel = `generate_card_pdf_http_${pdfRes.status}`;
-        console.warn('[OrderCards] generate-card-pdf failed:', pdfRes.status, '— using fallback');
+        console.warn('[OrderCards] generate-card-pdf failed:', pdfRes.status);
       }
     } catch (imgErr) {
       stepLabel = 'generate_card_pdf_network_error';
-      console.warn('[OrderCards] generate-card-pdf error:', imgErr, '— using fallback');
+      console.warn('[OrderCards] generate-card-pdf error:', imgErr);
     }
 
+    console.log('[OrderCards] resolvedFinalPrintAssetUrl:', resolvedFinalPrintAssetUrl || '(none)');
+    console.log('[OrderCards] resolvedQrImageUrl:', resolvedQrImageUrl || '(none)');
+    console.log('[OrderCards] Preview will render:', resolvedFinalPrintAssetUrl ? `finalPrintAssetUrl: ${resolvedFinalPrintAssetUrl}` : 'loading state (no finalPrintAssetUrl)');
+
     setFinalPrintAssetUrl(resolvedFinalPrintAssetUrl);
+    setQrImageUrl(resolvedQrImageUrl);
     setComposeStep(stepLabel);
     setPendingOrderData({
       fullName,
@@ -514,9 +524,11 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const printPreviewUrl = pendingOrderData?.finalPrintAssetUrl || finalPrintAssetUrl || '';
     const checkoutReady = hasFinalTotal && !checkoutLoading;
 
-    console.log('[OrderCards] Review screen — printPreviewUrl:', printPreviewUrl || '(none)');
-    console.log('[OrderCards] Review screen — pendingOrderData.finalPrintAssetUrl:', pendingOrderData?.finalPrintAssetUrl || '(none)');
+    console.log('[OrderCards] Review screen — qrImageUrl state:', qrImageUrl || '(none)');
     console.log('[OrderCards] Review screen — finalPrintAssetUrl state:', finalPrintAssetUrl || '(none)');
+    console.log('[OrderCards] Review screen — pendingOrderData.finalPrintAssetUrl:', pendingOrderData?.finalPrintAssetUrl || '(none)');
+    console.log('[OrderCards] Review screen — printPreviewUrl (resolved):', printPreviewUrl || '(none)');
+    console.log('[OrderCards] Review screen — rendering preview as:', printPreviewUrl ? `image: ${printPreviewUrl}` : 'loading state');
 
     return (
       <div className="bg-[#0a0f1e] text-white" style={{ minHeight: '100dvh' }}>
@@ -617,7 +629,7 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
                     className="w-full"
                     style={{ borderRadius: 12 }}
                     onLoad={() => console.log('[OrderCards] Card preview image loaded successfully:', printPreviewUrl)}
-                    onError={() => console.error('[OrderCards] Card preview image failed to load:', printPreviewUrl)}
+                    onError={() => console.error('[OrderCards] Card preview image FAILED to load:', printPreviewUrl)}
                   />
                 </div>
                 <div className="px-5 py-3">
@@ -625,18 +637,10 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
                 </div>
               </>
             ) : (
-              <>
-                <div className="p-5 flex flex-col items-center gap-4" style={{ background: '#0b0d12' }}>
-                  <img
-                    src={qrDownloadUrl}
-                    alt="Your ambassador QR code"
-                    className="w-32 h-32 rounded-xl border border-white/10"
-                  />
-                  <p className="text-slate-400 text-xs text-center leading-relaxed max-w-xs">
-                    Your personalized QR code is ready. The full card print file is being prepared and will be used when your order is printed.
-                  </p>
-                </div>
-              </>
+              <div className="px-5 py-8 flex flex-col items-center gap-3" style={{ background: '#0b0d12' }}>
+                <Loader2 className="w-6 h-6 text-slate-500 animate-spin" />
+                <p className="text-slate-500 text-xs text-center">Preparing your printable card preview...</p>
+              </div>
             )}
           </div>
 
