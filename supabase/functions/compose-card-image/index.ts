@@ -127,8 +127,8 @@ Deno.serve(async (req: Request) => {
         const qrSize = boxSize;
         const qrX = boxX + Math.floor((boxSize - qrSize) / 2);
         const qrY = boxY + Math.floor((boxSize - qrSize) / 2);
-        const finalQrX = qrX + 18;
-        const finalQrY = qrY + 18;
+        const finalQrX = qrX - 22;
+        const finalQrY = qrY - 18;
 
         console.log(`[compose] template width=${TEMPLATE_W}, height=${TEMPLATE_H}`);
         console.log(`[compose] Card dimensions: ${cardW}x${cardH}`);
