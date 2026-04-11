@@ -7,8 +7,14 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY!
 );
 
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
+const SUPABASE_URL =
+  process.env.SUPABASE_URL ||
+  process.env.VITE_SUPABASE_URL ||
+  "https://tllfqsthkxgsadxtutpm.supabase.co";
+const SUPABASE_ANON_KEY =
+  process.env.SUPABASE_ANON_KEY ||
+  process.env.VITE_SUPABASE_ANON_KEY ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRsbGZxc3Roa3hnc2FkeHR1dHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MDc5MzgsImV4cCI6MjA5MDQ4MzkzOH0.X2W1DpBKfKIKHCmP-P4m8iX0IPnP1G0OVYNNActJBvk";
 
 console.log("[generate-card-pdf] SUPABASE_URL resolved:", SUPABASE_URL || "(MISSING — check env vars)");
 console.log("[generate-card-pdf] SUPABASE_ANON_KEY present:", SUPABASE_ANON_KEY ? "yes" : "NO — key is missing");
