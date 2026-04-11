@@ -70,7 +70,7 @@ Deno.serve(async (req: Request) => {
         qrUrl,
         templateFetchOk,
         qrFetchOk,
-      }, 400);
+      });
     }
 
     const { slug, ambassador_id } = body;
@@ -85,7 +85,7 @@ Deno.serve(async (req: Request) => {
         qrUrl,
         templateFetchOk,
         qrFetchOk,
-      }, 400);
+      });
     }
 
     step = "setup";
@@ -113,7 +113,7 @@ Deno.serve(async (req: Request) => {
         qrUrl,
         templateFetchOk,
         qrFetchOk,
-      }, 502);
+      });
     }
 
     step = "fetch_qr";
@@ -132,7 +132,7 @@ Deno.serve(async (req: Request) => {
         qrUrl,
         templateFetchOk,
         qrFetchOk,
-      }, 502);
+      });
     }
 
     step = "compose";
@@ -162,7 +162,7 @@ Deno.serve(async (req: Request) => {
         qrUrl,
         templateFetchOk,
         qrFetchOk,
-      }, 500);
+      });
     }
 
     console.log("[generate-card] compose — success, PNG size:", outputPngBuffer.length);
@@ -187,7 +187,7 @@ Deno.serve(async (req: Request) => {
         qrUrl,
         templateFetchOk,
         qrFetchOk,
-      }, 500);
+      });
     }
 
     step = "success";
@@ -212,13 +212,13 @@ Deno.serve(async (req: Request) => {
     console.error("[generate-card] unhandled error at step", step, ":", err);
     return jsonResponse({
       success: false,
-      step,
-      error: err instanceof Error ? err.message : String(err),
+      step: "top-level-catch",
+      error: err instanceof Error ? err.message : "unknown",
       stack: err instanceof Error ? err.stack ?? null : null,
       templateUrl,
       qrUrl,
       templateFetchOk,
       qrFetchOk,
-    }, 500);
+    });
   }
 });
