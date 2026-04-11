@@ -5,7 +5,10 @@ import {
   MagickFormat,
   MagickGeometry,
   CompositeOperator,
+  ColorSpace,
   Point,
+  Drawables,
+  MagickColor,
 } from "npm:@imagemagick/magick-wasm@0.0.30";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -19,6 +22,14 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
+
+// Template canvas: 1125×675 — QR white box absolute pixel coordinates
+const TEMPLATE_W = 1125;
+const TEMPLATE_H = 675;
+const QR_X = 804;
+const QR_Y = 293;
+const QR_W = 259;
+const QR_H = 259;
 
 const TEMPLATE_URLS = [
   "https://tllfqsthkxgsadxtutpm.supabase.co/storage/v1/object/public/composed-cards/templates/langaccess_master_noqr_v1.png",
@@ -101,68 +112,6 @@ Deno.serve(async (req: Request) => {
     }
     console.log("[compose] QR fetched, size:", qrBytes.length);
 
-    // Scan the template RGBA pixel data to detect the white QR placeholder box
-    // in the bottom-right quadrant, then place the QR perfectly inside it.
-    function detectWhiteBox(
-      pixels: Uint8Array,
-      imgWidth: number,
-      imgHeight: number
-    ): { boxX: number; boxY: number; boxWidth: number; boxHeight: number } | null {
-      const BRIGHTNESS = 245; // threshold: r,g,b all >= this = "white"
-      const MIN_RUN = 40;     // minimum consecutive white pixels to count as a box edge
-
-      // Search only the bottom-right quadrant
-      const startX = Math.floor(imgWidth / 2);
-      const startY = Math.floor(imgHeight / 2);
-
-      let bestBoxX = -1, bestBoxY = -1, bestBoxW = 0, bestBoxH = 0;
-      let bestArea = 0;
-
-      // Scan horizontally row by row to find white runs
-      for (let y = startY; y < imgHeight; y++) {
-        let runStart = -1;
-        let runLen = 0;
-        for (let x = startX; x <= imgWidth; x++) {
-          const isWhite = x < imgWidth && (() => {
-            const idx = (y * imgWidth + x) * 4;
-            return pixels[idx] >= BRIGHTNESS && pixels[idx + 1] >= BRIGHTNESS && pixels[idx + 2] >= BRIGHTNESS;
-          })();
-          if (isWhite) {
-            if (runStart === -1) runStart = x;
-            runLen++;
-          } else {
-            if (runLen >= MIN_RUN) {
-              // Found a horizontal white run — scan vertically to find box height
-              const colX = runStart + Math.floor(runLen / 2);
-              let vRunStart = y;
-              let vRunLen = 0;
-              for (let vy = y; vy < imgHeight; vy++) {
-                const idx = (vy * imgWidth + colX) * 4;
-                const vWhite = pixels[idx] >= BRIGHTNESS && pixels[idx + 1] >= BRIGHTNESS && pixels[idx + 2] >= BRIGHTNESS;
-                if (vWhite) vRunLen++;
-                else break;
-              }
-              if (vRunLen >= MIN_RUN) {
-                const area = runLen * vRunLen;
-                if (area > bestArea) {
-                  bestArea = area;
-                  bestBoxX = runStart;
-                  bestBoxY = vRunStart;
-                  bestBoxW = runLen;
-                  bestBoxH = vRunLen;
-                }
-              }
-            }
-            runStart = -1;
-            runLen = 0;
-          }
-        }
-      }
-
-      if (bestArea === 0) return null;
-      return { boxX: bestBoxX, boxY: bestBoxY, boxWidth: bestBoxW, boxHeight: bestBoxH };
-    }
-
     console.log("[compose] Compositing images with ImageMagick...");
     let outputPngBuffer: Uint8Array;
     try {
@@ -170,36 +119,30 @@ Deno.serve(async (req: Request) => {
         const cardW = templateImg.width;
         const cardH = templateImg.height;
 
-        console.log(`[compose] template width=${cardW}, height=${cardH}`);
+        const scaleX = cardW / TEMPLATE_W;
+        const scaleY = cardH / TEMPLATE_H;
+        const boxX = Math.round(QR_X * scaleX);
+        const boxY = Math.round(QR_Y * scaleY);
+        const boxSize = Math.round(QR_W * scaleX);
+        const qrSize = boxSize;
+        const qrX = boxX + Math.floor((boxSize - qrSize) / 2);
+        const qrY = boxY + Math.floor((boxSize - qrSize) / 2);
+        const finalQrX = qrX - 22;
+        const finalQrY = qrY - 18;
 
-        // Export template pixels for white-box detection
-        const rawPixels = templateImg.getPixels((px) => px.toByteArray());
-        const detected = rawPixels
-          ? detectWhiteBox(rawPixels, cardW, cardH)
-          : null;
+        console.log(`[compose] template width=${TEMPLATE_W}, height=${TEMPLATE_H}`);
+        console.log(`[compose] Card dimensions: ${cardW}x${cardH}`);
+        console.log(`[compose] scaleX=${scaleX}, scaleY=${scaleY}`);
+        console.log(`[compose] boxX=${boxX}, boxY=${boxY}, boxSize=${boxSize}`);
+        console.log(`[compose] qrX=${qrX}, qrY=${qrY}, qrSize=${qrSize}`);
+        console.log(`[compose] finalQrX=${finalQrX}, finalQrY=${finalQrY}`);
 
-        let boxX: number, boxY: number, boxWidth: number, boxHeight: number;
-
-        if (detected) {
-          ({ boxX, boxY, boxWidth, boxHeight } = detected);
-          console.log(`[compose] detected boxX=${boxX}, boxY=${boxY}, boxWidth=${boxWidth}, boxHeight=${boxHeight}`);
-        } else {
-          // Fallback: use known hardcoded coordinates scaled to actual image size
-          const scaleX = cardW / 1125;
-          const scaleY = cardH / 675;
-          boxX = Math.round(804 * scaleX);
-          boxY = Math.round(293 * scaleY);
-          boxWidth = Math.round(259 * scaleX);
-          boxHeight = Math.round(259 * scaleY);
-          console.log(`[compose] detection failed, using fallback boxX=${boxX}, boxY=${boxY}, boxWidth=${boxWidth}, boxHeight=${boxHeight}`);
-        }
-
-        const MARGIN = 8;
-        const qrSize = Math.min(boxWidth, boxHeight) - MARGIN * 2;
-        const finalQrX = boxX + MARGIN + Math.floor((boxWidth - MARGIN * 2 - qrSize) / 2);
-        const finalQrY = boxY + MARGIN + Math.floor((boxHeight - MARGIN * 2 - qrSize) / 2);
-
-        console.log(`[compose] finalQrX=${finalQrX}, finalQrY=${finalQrY}, qrSize=${qrSize}`);
+        new Drawables()
+          .strokeColor(new MagickColor("red"))
+          .strokeWidth(4)
+          .fillColor(new MagickColor("transparent"))
+          .rectangle(boxX, boxY, boxX + boxSize, boxY + boxSize)
+          .draw(templateImg);
 
         ImageMagick.read(qrBytes, (qrImg) => {
           qrImg.colorSpace = templateImg.colorSpace;
