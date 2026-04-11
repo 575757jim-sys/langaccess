@@ -119,13 +119,16 @@ Deno.serve(async (req: Request) => {
 
         const scaleX = cardW / TEMPLATE_W;
         const scaleY = cardH / TEMPLATE_H;
-        const qrX = Math.round(QR_X * scaleX);
-        const qrY = Math.round(QR_Y * scaleY);
-        const qrSize = Math.round(QR_W * scaleX);
+        const boxX = Math.round(QR_X * scaleX);
+        const boxY = Math.round(QR_Y * scaleY);
+        const boxSize = Math.round(QR_W * scaleX);
+        const qrSize = boxSize;
+        const qrX = boxX + Math.floor((boxSize - qrSize) / 2);
+        const qrY = boxY + Math.floor((boxSize - qrSize) / 2);
 
         console.log(`[compose] Card dimensions: ${cardW}x${cardH} (expected ${TEMPLATE_W}x${TEMPLATE_H})`);
         console.log(`[compose] scaleX=${scaleX}, scaleY=${scaleY}`);
-        console.log(`[compose] QR placement: x=${qrX}, y=${qrY}, size=${qrSize}`);
+        console.log(`[compose] boxX=${boxX}, boxY=${boxY}, boxSize=${boxSize}, qrX=${qrX}, qrY=${qrY}`);
 
         ImageMagick.read(qrBytes, (qrImg) => {
           qrImg.colorSpace = templateImg.colorSpace;
