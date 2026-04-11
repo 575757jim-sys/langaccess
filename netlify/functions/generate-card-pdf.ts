@@ -36,10 +36,10 @@ export const handler: Handler = async (event) => {
 
   const { order_id, full_name, city_state, slug, ambassador_id } = body;
 
-  if (!order_id || !full_name || !city_state) {
+  if (!full_name || !city_state) {
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: "Missing required fields: order_id, full_name, city_state" }),
+      body: JSON.stringify({ error: "Missing required fields: full_name, city_state" }),
     };
   }
 
@@ -133,18 +133,22 @@ export const handler: Handler = async (event) => {
   console.log("[generate-card-pdf] composeStep:", composeStep);
   console.log("[generate-card-pdf] finalPrintAssetUrl:", finalPrintAssetUrl || "(none — will use fallback)");
 
-  const { error: updateError } = await supabase
-    .from("card_orders")
-    .update({
-      batch_code: batchCode,
-      qr_url: qrImageUrl,
-      qr_image_path: qrImageUrl,
-      card_asset_path: finalPrintAssetUrl || qrImageUrl,
-    })
-    .eq("id", order_id);
+  if (order_id && !order_id.startsWith("order-")) {
+    const { error: updateError } = await supabase
+      .from("card_orders")
+      .update({
+        batch_code: batchCode,
+        qr_url: qrImageUrl,
+        qr_image_path: qrImageUrl,
+        card_asset_path: finalPrintAssetUrl || qrImageUrl,
+      })
+      .eq("id", order_id);
 
-  if (updateError) {
-    console.warn("[generate-card-pdf] Could not update card_orders:", updateError.message);
+    if (updateError) {
+      console.warn("[generate-card-pdf] Could not update card_orders:", updateError.message);
+    }
+  } else {
+    console.log("[generate-card-pdf] Skipping DB update — preview mode (no real order_id)");
   }
 
   return {
