@@ -5,10 +5,7 @@ import {
   MagickFormat,
   MagickGeometry,
   CompositeOperator,
-  ColorSpace,
   Point,
-  Drawables,
-  MagickColor,
 } from "npm:@imagemagick/magick-wasm@0.0.30";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -23,18 +20,11 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-// Template canvas: 1125×675 — QR white box absolute pixel coordinates
-const TEMPLATE_W = 1125;
-const TEMPLATE_H = 675;
-const QR_X = 804;
-const QR_Y = 293;
-const QR_W = 259;
-const QR_H = 259;
-
-const TEMPLATE_URLS = [
-  "https://tllfqsthkxgsadxtutpm.supabase.co/storage/v1/object/public/composed-cards/templates/langaccess_master_noqr_v1.png",
-  "https://langaccess.org/templates/langaccess_master_noqr_v1..png",
-];
+const TEMPLATE_URL = "https://waxbnkwybpeqdydxtgsy.supabase.co/storage/v1/object/public/templates/langaccess_master.png";
+const QR_X = 1465;
+const QR_Y = 585;
+const QR_W = 260;
+const QR_H = 260;
 
 async function fetchImageBytes(url: string): Promise<Uint8Array | null> {
   try {
@@ -85,22 +75,15 @@ Deno.serve(async (req: Request) => {
     console.log("[compose] ambassadorCode:", ambassadorCode);
     console.log("[compose] qrDestinationUrl:", qrDestinationUrl);
 
-    console.log("[compose] Fetching template...");
-    let templateBytes: Uint8Array | null = null;
-    for (const url of TEMPLATE_URLS) {
-      templateBytes = await fetchImageBytes(url);
-      if (templateBytes) {
-        console.log("[compose] Template fetched from:", url, "size:", templateBytes.length);
-        break;
-      }
-    }
-
+    console.log("[compose] Fetching template from:", TEMPLATE_URL);
+    const templateBytes = await fetchImageBytes(TEMPLATE_URL);
     if (!templateBytes) {
       return new Response(
-        JSON.stringify({ error: "Could not load card template.", step: "template_not_found", urls_tried: TEMPLATE_URLS }),
+        JSON.stringify({ error: "Could not load card template.", step: "template_not_found", url: TEMPLATE_URL }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    console.log("[compose] Template fetched, size:", templateBytes.length);
 
     console.log("[compose] Fetching QR code...");
     const qrBytes = await fetchImageBytes(qrImageUrl);
@@ -112,52 +95,25 @@ Deno.serve(async (req: Request) => {
     }
     console.log("[compose] QR fetched, size:", qrBytes.length);
 
-    console.log("[compose] Compositing images with ImageMagick...");
     let outputPngBuffer: Uint8Array;
     try {
       outputPngBuffer = ImageMagick.read(templateBytes, (templateImg) => {
-        const cardW = templateImg.width;
-        const cardH = templateImg.height;
-
-        const scaleX = cardW / TEMPLATE_W;
-        const scaleY = cardH / TEMPLATE_H;
-        const boxX = Math.round(QR_X * scaleX);
-        const boxY = Math.round(QR_Y * scaleY);
-        const boxSize = Math.round(QR_W * scaleX);
-        const qrSize = boxSize;
-        const qrX = boxX + Math.floor((boxSize - qrSize) / 2);
-        const qrY = boxY + Math.floor((boxSize - qrSize) / 2);
-        const finalQrX = qrX - 22;
-        const finalQrY = qrY - 18;
-
-        console.log(`[compose] template width=${TEMPLATE_W}, height=${TEMPLATE_H}`);
-        console.log(`[compose] Card dimensions: ${cardW}x${cardH}`);
-        console.log(`[compose] scaleX=${scaleX}, scaleY=${scaleY}`);
-        console.log(`[compose] boxX=${boxX}, boxY=${boxY}, boxSize=${boxSize}`);
-        console.log(`[compose] qrX=${qrX}, qrY=${qrY}, qrSize=${qrSize}`);
-        console.log(`[compose] finalQrX=${finalQrX}, finalQrY=${finalQrY}`);
-
-        new Drawables()
-          .strokeColor(new MagickColor("red"))
-          .strokeWidth(4)
-          .fillColor(new MagickColor("transparent"))
-          .rectangle(boxX, boxY, boxX + boxSize, boxY + boxSize)
-          .draw(templateImg);
+        console.log(`[compose] template width=${templateImg.width}, height=${templateImg.height}`);
 
         ImageMagick.read(qrBytes, (qrImg) => {
-          qrImg.colorSpace = templateImg.colorSpace;
-          const geom = new MagickGeometry(qrSize, qrSize);
+          const geom = new MagickGeometry(QR_W, QR_H);
           geom.ignoreAspectRatio = true;
           qrImg.resize(geom);
-          console.log(`[compose] QR resized to: ${qrImg.width}x${qrImg.height}`);
-          templateImg.composite(qrImg, CompositeOperator.Over, new Point(finalQrX, finalQrY));
+          console.log(`[compose] qr width=${qrImg.width}, height=${qrImg.height}`);
+          console.log(`[compose] qr x=${QR_X}, y=${QR_Y}`);
+          templateImg.composite(qrImg, CompositeOperator.Over, new Point(QR_X, QR_Y));
         });
 
-        console.log(`[compose] Final image dimensions: ${templateImg.width}x${templateImg.height}`);
+        console.log(`[compose] final image width=${templateImg.width}, height=${templateImg.height}`);
         return templateImg.write(MagickFormat.Png, (data) => data);
       });
     } catch (magickErr) {
-      console.error("[compose] FAILED: ImageMagick composition error:", magickErr);
+      console.error("[compose] ImageMagick composition error:", magickErr);
       return new Response(
         JSON.stringify({ error: "Card image composition failed.", step: "composition_failed", detail: String(magickErr) }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
