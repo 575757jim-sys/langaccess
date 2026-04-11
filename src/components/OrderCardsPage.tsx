@@ -259,56 +259,53 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     let stepLabel = 'not_started';
 
     try {
-      console.log('[OrderCards][Preview] Calling generate-card via direct fetch...');
-      const generateCardUrl = 'https://waxbnkwybpeqdydxtgsy.supabase.co/functions/v1/generate-card';
+      console.log('[OrderCards][Preview] Calling generate-card-pdf Netlify proxy...');
       const payload = {
-        slug: params.slug,
-        ambassador_id: params.ambassadorCode,
+        order_id: params.orderId,
         full_name: params.fullName,
         city_state: params.formattedCityState,
+        slug: params.slug,
+        ambassador_id: params.ambassadorCode,
       };
       console.log('[OrderCards][Preview] POST payload:', JSON.stringify(payload));
 
-      const rawResponse = await fetch(generateCardUrl, {
+      const rawResponse = await fetch('/.netlify/functions/generate-card-pdf', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       const text = await rawResponse.text();
-      console.log('[OrderCards][Preview] generate-card HTTP status:', rawResponse.status);
-      console.log('[OrderCards][Preview] generate-card raw body:', text);
+      console.log('[OrderCards][Preview] generate-card-pdf HTTP status:', rawResponse.status);
+      console.log('[OrderCards][Preview] generate-card-pdf raw body:', text);
 
       let cardData: Record<string, unknown> | null = null;
       try {
         cardData = JSON.parse(text);
-        console.log('[OrderCards][Preview] generate-card parsed JSON:', JSON.stringify(cardData));
+        console.log('[OrderCards][Preview] generate-card-pdf parsed JSON:', JSON.stringify(cardData));
       } catch {
-        console.error('[OrderCards][Preview] generate-card body is not JSON:', text);
+        console.error('[OrderCards][Preview] generate-card-pdf body is not JSON:', text);
         setComposeDebug({ rawStatus: rawResponse.status, rawBody: text });
       }
 
       if (cardData) {
-        stepLabel = (cardData.step as string) || (cardData.success ? 'success' : 'generate_card_failed');
+        stepLabel = (cardData.composeStep as string) || (cardData.success ? 'success' : 'generate_card_failed');
 
         resolvedQrImageUrl = (cardData.qrImageUrl as string) || '';
         resolvedFinalPrintAssetUrl = (cardData.finalPrintAssetUrl as string) || '';
 
-        console.log('[OrderCards][Preview] generate-card step:', stepLabel);
+        console.log('[OrderCards][Preview] composeStep:', stepLabel);
         console.log('[OrderCards][Preview] qrImageUrl:', resolvedQrImageUrl || '(none)');
         console.log('[OrderCards][Preview] finalPrintAssetUrl:', resolvedFinalPrintAssetUrl || '(none)');
 
         if (!cardData.success || !resolvedFinalPrintAssetUrl) {
-          console.error('[OrderCards][Preview] generate-card failure debug:', cardData);
+          console.error('[OrderCards][Preview] generate-card-pdf failure debug:', cardData);
           setComposeDebug({ rawStatus: rawResponse.status, parsedBody: cardData });
         }
       }
     } catch (imgErr) {
       stepLabel = 'generate_card_network_error';
-      console.error('[OrderCards][Preview] generate-card network error:', imgErr);
+      console.error('[OrderCards][Preview] generate-card-pdf network error:', imgErr);
       setComposeDebug({ networkError: (imgErr as Error)?.message || String(imgErr) });
     }
 
