@@ -6,6 +6,7 @@ import {
   MagickGeometry,
   CompositeOperator,
   Point,
+  MagickImage,
 } from "npm:@imagemagick/magick-wasm@0.0.30";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -65,7 +66,6 @@ Deno.serve(async (req: Request) => {
         success: false,
         step,
         error: parseErr instanceof Error ? parseErr.message : String(parseErr),
-        stack: parseErr instanceof Error ? parseErr.stack ?? null : null,
         templateUrl,
         qrUrl,
         templateFetchOk,
@@ -80,7 +80,6 @@ Deno.serve(async (req: Request) => {
         success: false,
         step,
         error: "Missing required field: slug or ambassador_id",
-        stack: null,
         templateUrl,
         qrUrl,
         templateFetchOk,
@@ -108,7 +107,6 @@ Deno.serve(async (req: Request) => {
         success: false,
         step,
         error: `Template fetch failed — HTTP ${templateFetch.status ?? "network error"}`,
-        stack: null,
         templateUrl,
         qrUrl,
         templateFetchOk,
@@ -127,7 +125,6 @@ Deno.serve(async (req: Request) => {
         success: false,
         step,
         error: `QR fetch failed — HTTP ${qrFetch.status ?? "network error"}`,
-        stack: null,
         templateUrl,
         qrUrl,
         templateFetchOk,
@@ -137,19 +134,34 @@ Deno.serve(async (req: Request) => {
 
     step = "compose";
     console.log("[generate-card] compose — starting ImageMagick composition");
+
     let outputPngBuffer: Uint8Array;
     try {
+      const qrResizedBytes = ImageMagick.read(qrFetch.bytes, (qrImg) => {
+        const geom = new MagickGeometry(QR_W, QR_H);
+        geom.ignoreAspectRatio = true;
+        qrImg.resize(geom);
+        console.log(`[generate-card] QR resized to ${qrImg.width}x${qrImg.height}`);
+        return qrImg.write(MagickFormat.Png, (data) => new Uint8Array(data));
+      });
+
+      if (!qrResizedBytes || qrResizedBytes.length === 0) {
+        throw new Error("QR resize produced empty buffer");
+      }
+      console.log("[generate-card] QR resized buffer size:", qrResizedBytes.length);
+
       outputPngBuffer = ImageMagick.read(templateFetch.bytes, (templateImg) => {
-        console.log(`[generate-card] compose — template ${templateImg.width}x${templateImg.height}`);
-        ImageMagick.read(qrFetch.bytes!, (qrImg) => {
-          const geom = new MagickGeometry(QR_W, QR_H);
-          geom.ignoreAspectRatio = true;
-          qrImg.resize(geom);
-          console.log(`[generate-card] compose — QR resized to ${QR_W}x${QR_H}, placing at (${QR_X}, ${QR_Y})`);
-          templateImg.composite(qrImg, CompositeOperator.Over, new Point(QR_X, QR_Y));
-        });
-        console.log(`[generate-card] compose — final image ${templateImg.width}x${templateImg.height}`);
-        return templateImg.write(MagickFormat.Png, (data) => data);
+        console.log(`[generate-card] template ${templateImg.width}x${templateImg.height}`);
+
+        const qrImage = MagickImage.create();
+        qrImage.read(qrResizedBytes);
+        console.log(`[generate-card] QR image loaded ${qrImage.width}x${qrImage.height}, placing at (${QR_X}, ${QR_Y})`);
+
+        templateImg.composite(qrImage, CompositeOperator.Over, new Point(QR_X, QR_Y));
+        qrImage.dispose();
+
+        console.log(`[generate-card] composited — final template ${templateImg.width}x${templateImg.height}`);
+        return templateImg.write(MagickFormat.Png, (data) => new Uint8Array(data));
       });
     } catch (magickErr) {
       console.error("[generate-card] compose failed:", magickErr);
@@ -158,6 +170,19 @@ Deno.serve(async (req: Request) => {
         step,
         error: magickErr instanceof Error ? magickErr.message : String(magickErr),
         stack: magickErr instanceof Error ? magickErr.stack ?? null : null,
+        templateUrl,
+        qrUrl,
+        templateFetchOk,
+        qrFetchOk,
+      });
+    }
+
+    if (!outputPngBuffer || outputPngBuffer.length === 0) {
+      console.error("[generate-card] compose produced empty buffer");
+      return jsonResponse({
+        success: false,
+        step,
+        error: "Composition produced empty image buffer",
         templateUrl,
         qrUrl,
         templateFetchOk,
@@ -182,7 +207,6 @@ Deno.serve(async (req: Request) => {
         success: false,
         step,
         error: `Storage upload failed: ${uploadErr.message}`,
-        stack: null,
         templateUrl,
         qrUrl,
         templateFetchOk,
