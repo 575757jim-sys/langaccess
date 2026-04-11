@@ -424,6 +424,16 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
       back_file_url: '',
     };
 
+    console.log('[OrderCards] --- Pre-checkout payload summary ---');
+    console.log('[OrderCards] fullName:', fullName);
+    console.log('[OrderCards] email:', email);
+    console.log('[OrderCards] addressLine1:', addressLine1);
+    console.log('[OrderCards] city:', city);
+    console.log('[OrderCards] state:', state);
+    console.log('[OrderCards] postalCode:', postalCode);
+    console.log('[OrderCards] country:', country);
+    console.log('[OrderCards] ambassadorCode (ref_code):', refCode);
+    console.log('[OrderCards] finalPrintAssetUrl:', printUrl || '(none)');
     console.log('[OrderCards] stripeCheckoutPayload:', JSON.stringify(stripeCheckoutPayload));
 
     try {
@@ -435,15 +445,25 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
 
       const data = await res.json();
 
-      if (!res.ok || !data.url) {
-        throw new Error(data.error || 'Could not start checkout. Please try again.');
+      if (!res.ok) {
+        const dbMsg = data.db_error_message ? ` DB: ${data.db_error_message}` : '';
+        const dbCode = data.db_error_code ? ` [${data.db_error_code}]` : '';
+        const dbHint = data.db_error_hint ? ` Hint: ${data.db_error_hint}` : '';
+        const fullMsg = `${data.error || 'Could not start checkout.'}${dbCode}${dbMsg}${dbHint}`;
+        console.error('[OrderCards] Checkout session failed — saveOrder response:', JSON.stringify(data));
+        throw new Error(fullMsg);
       }
 
-      console.log('[OrderCards] Stripe checkout session created, redirecting...');
+      if (!data.url) {
+        console.error('[OrderCards] No redirect URL returned from checkout session:', JSON.stringify(data));
+        throw new Error('Checkout session created but no redirect URL was returned.');
+      }
+
+      console.log('[OrderCards] Stripe checkout session created, redirecting to:', data.url);
       window.location.href = data.url;
     } catch (err: unknown) {
       const msg = (err as Error)?.message || 'Something went wrong. Please try again.';
-      console.error('[OrderCards] Stripe checkout error:', msg);
+      console.error('[OrderCards] Stripe checkout error (full):', msg);
       setCheckoutError(msg);
       setCheckoutLoading(false);
     }
@@ -493,6 +513,10 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
     const qrDownloadUrl = generateQRCodeUrl(ambassadorCode);
     const printPreviewUrl = pendingOrderData?.finalPrintAssetUrl || finalPrintAssetUrl || '';
     const checkoutReady = hasFinalTotal && !checkoutLoading;
+
+    console.log('[OrderCards] Review screen — printPreviewUrl:', printPreviewUrl || '(none)');
+    console.log('[OrderCards] Review screen — pendingOrderData.finalPrintAssetUrl:', pendingOrderData?.finalPrintAssetUrl || '(none)');
+    console.log('[OrderCards] Review screen — finalPrintAssetUrl state:', finalPrintAssetUrl || '(none)');
 
     return (
       <div className="bg-[#0a0f1e] text-white" style={{ minHeight: '100dvh' }}>
@@ -580,23 +604,41 @@ export default function OrderCardsPage({ onBack, onGateBack }: Props) {
             </div>
           </div>
 
-          {printPreviewUrl ? (
-            <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden mb-5">
-              <div className="px-5 py-3 border-b border-white/5">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Your card preview</p>
-              </div>
-              <div className="p-3" style={{ background: '#0b0d12' }}>
-                <img
-                  src={printPreviewUrl}
-                  alt="Your card print preview"
-                  style={{ width: '100%', borderRadius: 12 }}
-                />
-              </div>
-              <div className="px-5 py-3">
-                <p className="text-slate-500 text-xs">This is the exact image that will be printed with your QR code embedded.</p>
-              </div>
+          <div className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden mb-5">
+            <div className="px-5 py-3 border-b border-white/5">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Your card preview</p>
             </div>
-          ) : null}
+            {printPreviewUrl ? (
+              <>
+                <div className="p-3" style={{ background: '#0b0d12' }}>
+                  <img
+                    src={printPreviewUrl}
+                    alt="Your card print preview"
+                    className="w-full"
+                    style={{ borderRadius: 12 }}
+                    onLoad={() => console.log('[OrderCards] Card preview image loaded successfully:', printPreviewUrl)}
+                    onError={() => console.error('[OrderCards] Card preview image failed to load:', printPreviewUrl)}
+                  />
+                </div>
+                <div className="px-5 py-3">
+                  <p className="text-slate-500 text-xs">This is the exact image that will be printed on your cards with your QR code embedded.</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="p-5 flex flex-col items-center gap-4" style={{ background: '#0b0d12' }}>
+                  <img
+                    src={qrDownloadUrl}
+                    alt="Your ambassador QR code"
+                    className="w-32 h-32 rounded-xl border border-white/10"
+                  />
+                  <p className="text-slate-400 text-xs text-center leading-relaxed max-w-xs">
+                    Your personalized QR code is ready. The full card print file is being prepared and will be used when your order is printed.
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
 
           <a
             href={qrDownloadUrl}

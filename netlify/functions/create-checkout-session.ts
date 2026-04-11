@@ -115,10 +115,21 @@ const handler: Handler = async (event: HandlerEvent) => {
       .single();
 
     if (dbError || !savedOrder) {
-      console.error('Failed to save order:', dbError);
+      console.error('Failed to save order to card_orders table.');
+      console.error('DB error code:', dbError?.code);
+      console.error('DB error message:', dbError?.message);
+      console.error('DB error details:', dbError?.details);
+      console.error('DB error hint:', dbError?.hint);
+      console.error('orderRecord attempted:', JSON.stringify(orderRecord));
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: 'Failed to save order' }),
+        body: JSON.stringify({
+          error: 'Failed to save order',
+          db_error_code: dbError?.code || null,
+          db_error_message: dbError?.message || null,
+          db_error_details: dbError?.details || null,
+          db_error_hint: dbError?.hint || null,
+        }),
       };
     }
 
