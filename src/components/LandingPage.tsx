@@ -303,7 +303,8 @@ export default function LandingPage({
                   </div>
                   <div className="min-w-0">
                     <div className="text-white font-bold text-base leading-tight mb-1">{label}</div>
-                    <div className="text-slate-300 text-xs leading-snug">{desc}</div>
+                    <div className="text-slate-300 text-xs leading-snug mb-2">{desc}</div>
+                    <div className="text-slate-400 text-[11px] font-medium">🎓 Certification Available</div>
                   </div>
                   <ChevronRight className="ml-auto flex-shrink-0 w-5 h-5 text-slate-400 group-hover:text-white transition-colors group-hover:translate-x-0.5 duration-200" />
                 </button>
@@ -331,7 +332,8 @@ export default function LandingPage({
                     {icon}
                   </div>
                   <div className="text-white font-semibold text-sm leading-tight">{label}</div>
-                  <div className="text-slate-500 text-xs leading-snug">{desc}</div>
+                  <div className="text-slate-500 text-xs leading-snug mb-1">{desc}</div>
+                  <div className="text-slate-500 text-[10px] font-medium">🎓 Certification Available</div>
                 </button>
               ))}
             </div>
