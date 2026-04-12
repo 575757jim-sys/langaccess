@@ -22,7 +22,7 @@ const JSON_LD_WEB_APP = {
 const HOW_STEPS = [
   { step: '1', label: 'Choose your role', desc: 'Pick the role that matches your job.' },
   { step: '2', label: 'Select a situation', desc: 'Choose the scenario that fits your need.' },
-  { step: '3', label: 'Tap to speak', desc: 'Hear the translation instantly in any language.' },
+  { step: '3', label: 'Tap to play translation', desc: 'Hear the translation instantly in any language.' },
 ];
 
 
@@ -182,7 +182,7 @@ export default function LandingPage({
             </h1>
 
             <p className="text-slate-400 text-lg leading-relaxed mb-8 max-w-xl mx-auto">
-              Instant multilingual phrases for teachers, healthcare workers, property managers, warehouse teams, hospitality staff, agricultural crews, construction teams, and frontline teams. No sign-up needed.
+              Built for teachers, healthcare workers, and frontline teams. <span className="text-white font-semibold">No sign-up needed. Use it instantly.</span>
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -391,7 +391,7 @@ export default function LandingPage({
           <div className="max-w-5xl mx-auto px-6">
             <div className="text-center mb-16">
               <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-3">Simple to use</p>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-5 tracking-tight">How LangAccess Works</h2>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-5 tracking-tight">Instant Translation for Your Team</h2>
               <p className="text-slate-500 text-lg leading-relaxed">Three steps to clear communication with anyone on your team.</p>
             </div>
 
