@@ -1,4 +1,4 @@
-export type TrackId = 'healthcare' | 'education' | 'construction' | 'social-services' | 'mental-health';
+export type TrackId = 'healthcare' | 'education' | 'construction' | 'social-services' | 'mental-health' | 'property-management' | 'warehouse';
 
 export interface QuizQuestion {
   question: string;
@@ -1718,6 +1718,716 @@ const mh5Phrases: KeyPhrase[] = [
   { english: 'I am proud of the work you have done.', spanish: 'Estoy orgulloso del trabajo que ha realizado.', context: 'Closing affirmation in a wellness or recovery planning session' },
 ];
 
+const pm1Questions: QuizQuestion[] = [
+  {
+    question: "How do you ask a tenant 'Is there a leak in your apartment?'",
+    options: ['¿Hay una gotera en su apartamento?', '¿Hay ruido en su apartamento?', '¿Hay una llave rota?', '¿Necesita más agua?'],
+    correctIndex: 0,
+    explanation: "'¿Hay una gotera en su apartamento?' directly asks about a water leak — the most common maintenance report.",
+  },
+  {
+    question: "Which phrase means 'Please describe the problem'?",
+    options: ['Por favor, describa el problema.', 'Por favor, firme aquí.', 'Por favor, llame más tarde.', 'Por favor, espere afuera.'],
+    correctIndex: 0,
+    explanation: "'Por favor, describa el problema' invites the tenant to explain the issue clearly before submitting a work order.",
+  },
+  {
+    question: "How do you say 'We will send someone to fix it'?",
+    options: ['Vamos a mandarle una carta.', 'Vamos a mandar a alguien para repararlo.', 'Necesita llamar al propietario.', 'Debe esperar dos semanas.'],
+    correctIndex: 1,
+    explanation: "'Vamos a mandar a alguien para repararlo' tells the tenant a technician will come — managing expectations early.",
+  },
+  {
+    question: "'¿Cuándo comenzó el problema?' means:",
+    options: ['Where is the problem?', 'How bad is the problem?', 'When did the problem start?', 'Who caused the problem?'],
+    correctIndex: 2,
+    explanation: "'¿Cuándo comenzó el problema?' establishes the timeline — important for determining urgency and liability.",
+  },
+  {
+    question: "Which phrase means 'We need to access your unit to make the repair'?",
+    options: ['Necesitamos acceder a su unidad para hacer la reparación.', 'Necesitamos su firma en el contrato.', 'Necesitamos su número de teléfono.', 'Necesitamos renovar su contrato.'],
+    correctIndex: 0,
+    explanation: "'Necesitamos acceder a su unidad para hacer la reparación' is the standard phrasing for requesting legal unit access.",
+  },
+  {
+    question: "How do you tell a tenant 'The office is open Monday through Friday'?",
+    options: ['La oficina abre los fines de semana.', 'La oficina está cerrada esta semana.', 'La oficina está abierta de lunes a viernes.', 'La oficina abre solo por la tarde.'],
+    correctIndex: 2,
+    explanation: "'La oficina está abierta de lunes a viernes' sets clear office hours — reducing after-hours contact attempts.",
+  },
+  {
+    question: "Which phrase means 'Please submit a written request'?",
+    options: ['Por favor, hable con su vecino.', 'Por favor, presente una solicitud por escrito.', 'Por favor, llame al número de emergencia.', 'Por favor, espere la aprobación.'],
+    correctIndex: 1,
+    explanation: "'Por favor, presente una solicitud por escrito' initiates the formal maintenance request process.",
+  },
+  {
+    question: "How do you say 'Someone will be there between 9 and 11 in the morning'?",
+    options: ['Alguien llegará entre las 9 y las 11 de la mañana.', 'Alguien llegará mañana por la tarde.', 'Nadie puede venir hoy.', 'Llame antes de las 9.'],
+    correctIndex: 0,
+    explanation: "'Alguien llegará entre las 9 y las 11 de la mañana' sets a repair window — reducing missed appointment friction.",
+  },
+  {
+    question: "'¿Está en casa durante el día?' means:",
+    options: ['Are you home in the evenings?', 'Are you home during the day?', 'Are you available on weekends?', 'Are you home right now?'],
+    correctIndex: 1,
+    explanation: "'¿Está en casa durante el día?' confirms availability before scheduling a maintenance visit.",
+  },
+  {
+    question: "How do you say 'Thank you for letting us know'?",
+    options: ['Gracias por avisarnos.', 'Gracias por esperar.', 'Gracias por pagar.', 'Gracias por mudarse.'],
+    correctIndex: 0,
+    explanation: "'Gracias por avisarnos' acknowledges the tenant's report professionally — setting a cooperative tone.",
+  },
+];
+
+const pm2Questions: QuizQuestion[] = [
+  {
+    question: "How do you ask 'Is this an emergency?'",
+    options: ['¿Es una emergencia?', '¿Es un problema pequeño?', '¿Es nuevo el problema?', '¿Es su primer reporte?'],
+    correctIndex: 0,
+    explanation: "'¿Es una emergencia?' determines whether a work order requires same-day dispatch or routine scheduling.",
+  },
+  {
+    question: "Which phrase describes a broken pipe that is flooding?",
+    options: ['Una tubería rota que está inundando', 'Un problema menor de fontanería', 'Una gotera pequeña en el techo', 'Un desagüe lento en el baño'],
+    correctIndex: 0,
+    explanation: "'Una tubería rota que está inundando' = a broken pipe that is flooding — a Level 1 emergency requiring immediate response.",
+  },
+  {
+    question: "How do you say 'We need to turn off the water to your unit'?",
+    options: ['Necesitamos limpiar su unidad.', 'Necesitamos apagar el agua de su unidad.', 'Necesitamos revisar su contrato.', 'Necesitamos abrir las ventanas.'],
+    correctIndex: 1,
+    explanation: "'Necesitamos apagar el agua de su unidad' is the critical phrase used before stopping water service for emergency repairs.",
+  },
+  {
+    question: "'Permiso de acceso' means:",
+    options: ['Parking permit', 'Access permission', 'Utility payment', 'Move-in form'],
+    correctIndex: 1,
+    explanation: "'Permiso de acceso' = access permission. Landlords must document tenant consent before entering a unit.",
+  },
+  {
+    question: "How do you ask 'Can the vendor enter on Tuesday?'",
+    options: ['¿Puede el proveedor entrar el martes?', '¿Puede el inquilino salir el martes?', '¿Puede el técnico cobrar el martes?', '¿Puede el gerente llamar el martes?'],
+    correctIndex: 0,
+    explanation: "'¿Puede el proveedor entrar el martes?' confirms tenant availability for vendor access — required for legal entry.",
+  },
+  {
+    question: "Which phrase means 'The repair will take about two hours'?",
+    options: ['La reparación durará unos dos días.', 'La reparación es muy complicada.', 'La reparación tardará unas dos horas.', 'La reparación no se puede hacer hoy.'],
+    correctIndex: 2,
+    explanation: "'La reparación tardará unas dos horas' sets the work duration expectation — reducing tenant anxiety during repairs.",
+  },
+  {
+    question: "How do you say 'Please keep the area clear for the technician'?",
+    options: ['Por favor, llame al técnico usted mismo.', 'Por favor, mantenga el área despejada para el técnico.', 'Por favor, espere en otra habitación.', 'Por favor, cierre todas las puertas.'],
+    correctIndex: 1,
+    explanation: "'Por favor, mantenga el área despejada para el técnico' ensures safe work conditions for the repair crew.",
+  },
+  {
+    question: "'Trabajo de rutina' means:",
+    options: ['Emergency repair', 'Routine work', 'Urgent inspection', 'Final walkthrough'],
+    correctIndex: 1,
+    explanation: "'Trabajo de rutina' = routine work. Used to distinguish non-urgent repairs from emergencies in dispatch prioritization.",
+  },
+  {
+    question: "How do you ask 'Did the technician complete the repair?'",
+    options: ['¿Terminó el técnico la reparación?', '¿Llegó el técnico ayer?', '¿Pagó el técnico la factura?', '¿Necesita el técnico más herramientas?'],
+    correctIndex: 0,
+    explanation: "'¿Terminó el técnico la reparación?' closes the work order loop — confirming job completion with the tenant.",
+  },
+  {
+    question: "Which phrase means 'Please sign to confirm the work is done'?",
+    options: ['Por favor, firme para confirmar que el trabajo está terminado.', 'Por favor, pague la factura en línea.', 'Por favor, llame a la oficina cuando llegue el técnico.', 'Por favor, describa el daño adicional.'],
+    correctIndex: 0,
+    explanation: "'Por favor, firme para confirmar que el trabajo está terminado' is the standard tenant sign-off phrase for work order closure.",
+  },
+];
+
+const pm3Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Your rent is due on the first of each month'?",
+    options: ['Su renta vence el primero de cada mes.', 'Su renta vence el último día del mes.', 'Su renta debe pagarse cada dos semanas.', 'Su renta vence cuando usted decida.'],
+    correctIndex: 0,
+    explanation: "'Su renta vence el primero de cada mes' establishes the rent due date — the most fundamental lease term to communicate.",
+  },
+  {
+    question: "'Cargo por pago atrasado' means:",
+    options: ['Lease renewal fee', 'Late payment fee', 'Security deposit', 'Move-out charge'],
+    correctIndex: 1,
+    explanation: "'Cargo por pago atrasado' = late payment fee. Clear communication of this term reduces disputes and non-payment.",
+  },
+  {
+    question: "How do you ask 'Have you paid your rent this month?'",
+    options: ['¿Ha pagado su renta este mes?', '¿Ha firmado su contrato este mes?', '¿Ha renovado su seguro este mes?', '¿Ha recibido su recibo este mes?'],
+    correctIndex: 0,
+    explanation: "'¿Ha pagado su renta este mes?' is the direct payment confirmation question used during collections follow-up.",
+  },
+  {
+    question: "Which phrase means 'We can set up a payment plan for you'?",
+    options: ['Podemos cancelar su contrato de arrendamiento.', 'Podemos establecer un plan de pago para usted.', 'Podemos darle una prórroga permanente.', 'Podemos reducir su renta mensual.'],
+    correctIndex: 1,
+    explanation: "'Podemos establecer un plan de pago para usted' opens a collaborative resolution that avoids eviction proceedings.",
+  },
+  {
+    question: "How do you explain 'Your lease ends on December 31st'?",
+    options: ['Su contrato vence el 31 de diciembre.', 'Su contrato empieza el 31 de diciembre.', 'Su contrato se renueva el 31 de diciembre.', 'Su contrato se cancela en enero.'],
+    correctIndex: 0,
+    explanation: "'Su contrato vence el 31 de diciembre' clearly states the lease termination date — critical for renewal or move-out planning.",
+  },
+  {
+    question: "'Depósito de seguridad' means:",
+    options: ['Monthly rent', 'Security deposit', 'Cleaning fee', 'Application fee'],
+    correctIndex: 1,
+    explanation: "'Depósito de seguridad' = security deposit. Understanding this term helps tenants know what is refundable.",
+  },
+  {
+    question: "How do you say 'You have a balance of $200 due'?",
+    options: ['Tiene un saldo de $200 pendiente.', 'Tiene un descuento de $200 disponible.', 'Tiene un crédito de $200 en su cuenta.', 'Tiene un recibo de $200 en la oficina.'],
+    correctIndex: 0,
+    explanation: "'Tiene un saldo de $200 pendiente' communicates an outstanding balance clearly — preventing misunderstanding.",
+  },
+  {
+    question: "Which phrase means 'The lease automatically renews unless you give notice'?",
+    options: ['El contrato se cancela automáticamente sin aviso.', 'El contrato se renueva automáticamente a menos que dé aviso.', 'El contrato requiere firma nueva cada año.', 'El contrato no se puede renovar.'],
+    correctIndex: 1,
+    explanation: "'El contrato se renueva automáticamente a menos que dé aviso' informs tenants of auto-renewal terms — reducing move-out disputes.",
+  },
+  {
+    question: "How do you ask 'Do you need help understanding the lease terms?'",
+    options: ['¿Necesita ayuda para entender los términos del contrato?', '¿Necesita una copia del contrato en inglés?', '¿Necesita un abogado para firmar?', '¿Necesita más tiempo para mudarse?'],
+    correctIndex: 0,
+    explanation: "'¿Necesita ayuda para entender los términos del contrato?' proactively supports tenant comprehension — reducing legal risk.",
+  },
+  {
+    question: "'¿Cómo prefiere pagar su renta?' means:",
+    options: ['How much is your rent?', 'When did you last pay rent?', 'How do you prefer to pay your rent?', 'Where do you pay your rent?'],
+    correctIndex: 2,
+    explanation: "'¿Cómo prefiere pagar su renta?' opens a conversation about payment methods — online, check, or money order.",
+  },
+];
+
+const pm4Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'We will enter your unit on Thursday at 10 AM'?",
+    options: ['Entraremos a su unidad el jueves a las 10 de la mañana.', 'Entraremos a su unidad el viernes por la tarde.', 'Enviaremos una carta el jueves.', 'Llamaremos antes del jueves.'],
+    correctIndex: 0,
+    explanation: "'Entraremos a su unidad el jueves a las 10 de la mañana' is the standard advance entry notice phrasing — legally required in most states.",
+  },
+  {
+    question: "Which phrase means 'This is a violation of your lease agreement'?",
+    options: ['Esto es una violación de su contrato de arrendamiento.', 'Esto es un problema de mantenimiento.', 'Esto requiere su firma inmediata.', 'Esto está permitido bajo las reglas de la propiedad.'],
+    correctIndex: 0,
+    explanation: "'Esto es una violación de su contrato de arrendamiento' is used in formal compliance conversations — clear and legally precise.",
+  },
+  {
+    question: "How do you ask 'Is there a pet in your unit?'",
+    options: ['¿Hay una mascota en su unidad?', '¿Tiene un jardín en su unidad?', '¿Hay niños en su unidad?', '¿Hay invitados en su unidad?'],
+    correctIndex: 0,
+    explanation: "'¿Hay una mascota en su unidad?' is used during inspections to identify unauthorized animals — a common lease violation.",
+  },
+  {
+    question: "'Aviso de desalojo' means:",
+    options: ['Move-in inspection', 'Lease renewal notice', 'Eviction notice', 'Entry notice'],
+    correctIndex: 2,
+    explanation: "'Aviso de desalojo' = eviction notice. Knowing this term helps staff communicate the seriousness of non-compliance.",
+  },
+  {
+    question: "How do you say 'You have the right to a safe living environment'?",
+    options: ['Usted tiene el derecho a un ambiente de vida seguro.', 'Usted debe mantener su unidad limpia.', 'Usted no puede hacer cambios en la unidad.', 'Usted debe pagar por todos los daños.'],
+    correctIndex: 0,
+    explanation: "'Usted tiene el derecho a un ambiente de vida seguro' is a tenant rights statement — builds trust and reduces adversarial situations.",
+  },
+  {
+    question: "Which phrase means 'Smoking is not allowed on the property'?",
+    options: ['Fumar no está permitido en la propiedad.', 'Fumar solo está permitido afuera.', 'Fumar está permitido en las áreas comunes.', 'Fumar no afecta su contrato.'],
+    correctIndex: 0,
+    explanation: "'Fumar no está permitido en la propiedad' enforces a no-smoking policy — a common lease addendum requirement.",
+  },
+  {
+    question: "How do you say 'We will document this with a written notice'?",
+    options: ['Vamos a documentar esto con un aviso escrito.', 'Vamos a cancelar su contrato de inmediato.', 'Vamos a llamar a las autoridades.', 'Vamos a cobrar una multa adicional.'],
+    correctIndex: 0,
+    explanation: "'Vamos a documentar esto con un aviso escrito' communicates a formal follow-up step — important for legal paper trails.",
+  },
+  {
+    question: "'¿Recibió el aviso de entrada?' means:",
+    options: ['Did you pay the entry fee?', 'Did you receive the entry notice?', 'Did you sign the entry permit?', 'Did you schedule the inspection?'],
+    correctIndex: 1,
+    explanation: "'¿Recibió el aviso de entrada?' confirms the tenant received proper notice — satisfying legal notification requirements.",
+  },
+  {
+    question: "How do you explain 'Noise must stop by 10 PM per building rules'?",
+    options: ['El ruido debe cesar a las 10 PM según las reglas del edificio.', 'El ruido no está permitido durante el día.', 'El ruido es permitido hasta medianoche los fines de semana.', 'El ruido debe reportarse a la policía.'],
+    correctIndex: 0,
+    explanation: "'El ruido debe cesar a las 10 PM según las reglas del edificio' enforces quiet hours — critical to preventing neighbor complaints.",
+  },
+  {
+    question: "Which phrase means 'You are responsible for keeping common areas clean'?",
+    options: ['Usted es responsable de mantener limpias las áreas comunes.', 'La administración limpia todas las áreas.', 'Los vecinos comparten la responsabilidad de reparaciones.', 'Las áreas comunes son solo para uso del personal.'],
+    correctIndex: 0,
+    explanation: "'Usted es responsable de mantener limpias las áreas comunes' sets shared-space expectations — reducing housekeeping disputes.",
+  },
+];
+
+const pm5Questions: QuizQuestion[] = [
+  {
+    question: "How do you begin a de-escalation with 'I understand this is frustrating'?",
+    options: ['Entiendo que esto es frustrante.', 'Eso no es mi responsabilidad.', 'Por favor, no grite en la oficina.', 'Llame a la línea de emergencia.'],
+    correctIndex: 0,
+    explanation: "'Entiendo que esto es frustrante' validates the tenant's emotion — the first step in every de-escalation model.",
+  },
+  {
+    question: "Which phrase means 'Let's find a solution together'?",
+    options: ['Vamos a encontrar una solución juntos.', 'Esto no tiene solución posible.', 'Hable con el dueño del edificio.', 'Escriba su queja por correo.'],
+    correctIndex: 0,
+    explanation: "'Vamos a encontrar una solución juntos' shifts the dynamic from adversarial to collaborative — critical for de-escalation.",
+  },
+  {
+    question: "How do you say 'Please tell me what happened from the beginning'?",
+    options: ['Por favor, cuénteme qué pasó desde el principio.', 'Por favor, firme este formulario primero.', 'Por favor, espere a que llegue mi supervisor.', 'Por favor, regrese mañana con la documentación.'],
+    correctIndex: 0,
+    explanation: "'Por favor, cuénteme qué pasó desde el principio' invites a full explanation — gathering facts before responding.",
+  },
+  {
+    question: "'¿Cómo puedo ayudarle hoy?' means:",
+    options: ['How long have you lived here?', 'How can I help you today?', 'How did this happen?', 'How much do you owe?'],
+    correctIndex: 1,
+    explanation: "'¿Cómo puedo ayudarle hoy?' opens every interaction on a service-oriented note — reducing defensive posturing.",
+  },
+  {
+    question: "How do you say 'I will follow up with you within 24 hours'?",
+    options: ['Me pondré en contacto con usted en 24 horas.', 'Le mandaré una carta dentro de dos semanas.', 'No puedo prometerle nada en este momento.', 'Hable con alguien en la oficina principal.'],
+    correctIndex: 0,
+    explanation: "'Me pondré en contacto con usted en 24 horas' sets a clear commitment — reducing tenant anxiety and repeat contacts.",
+  },
+  {
+    question: "Which phrase means 'I hear your concern and we take it seriously'?",
+    options: ['Escucho su preocupación y la tomamos en serio.', 'Su preocupación no está dentro de nuestras reglas.', 'Debe hablar con el propietario directamente.', 'Presentaremos su queja a la ciudad.'],
+    correctIndex: 0,
+    explanation: "'Escucho su preocupación y la tomamos en serio' demonstrates active listening — the foundation of professional conflict resolution.",
+  },
+  {
+    question: "How do you say 'This is our policy and I am not able to make exceptions'?",
+    options: ['Esta es nuestra política y no puedo hacer excepciones.', 'Esta política solo aplica a algunos inquilinos.', 'Las excepciones son posibles con aprobación.', 'La política cambia según el caso.'],
+    correctIndex: 0,
+    explanation: "'Esta es nuestra política y no puedo hacer excepciones' sets firm, fair limits — maintaining professionalism without escalating.",
+  },
+  {
+    question: "'¿Hay algo más en lo que pueda ayudarle?' means:",
+    options: ['Is there a problem I can report?', 'Is there anything else I can help you with?', 'Is there someone else you can call?', 'Is there a fee for this service?'],
+    correctIndex: 1,
+    explanation: "'¿Hay algo más en lo que pueda ayudarle?' closes interactions professionally — signaling attentiveness and goodwill.",
+  },
+  {
+    question: "How do you say 'I want to make sure we resolve this for you'?",
+    options: ['Quiero asegurarme de que resolvamos esto para usted.', 'Quiero que entienda nuestras reglas.', 'Quiero documentar todo lo que dijo.', 'Quiero hablar con mi supervisor primero.'],
+    correctIndex: 0,
+    explanation: "'Quiero asegurarme de que resolvamos esto para usted' is a resolution commitment — reinforcing tenant-centered service.",
+  },
+  {
+    question: "Which phrase means 'Thank you for your patience'?",
+    options: ['Gracias por su paciencia.', 'Gracias por mudarse pronto.', 'Gracias por pagar a tiempo.', 'Gracias por llamar antes de venir.'],
+    correctIndex: 0,
+    explanation: "'Gracias por su paciencia' acknowledges the tenant's cooperation — always use it when a resolution took longer than expected.",
+  },
+];
+
+const pm1Phrases: KeyPhrase[] = [
+  { english: 'Is there a problem in your apartment?', spanish: '¿Hay un problema en su apartamento?', context: 'Opening a tenant maintenance conversation at the front desk' },
+  { english: 'When did the problem start?', spanish: '¿Cuándo empezó el problema?', context: 'Gathering timeline information before creating a work order' },
+  { english: 'We will send a technician as soon as possible.', spanish: 'Enviaremos a un técnico lo antes posible.', context: 'Reassuring a tenant that their request is being processed' },
+  { english: 'Please leave a note if you are not home.', spanish: 'Por favor, deje una nota si no está en casa.', context: 'Coordinating access for a repair visit' },
+  { english: 'The office is open Monday through Friday from 9 to 5.', spanish: 'La oficina está abierta de lunes a viernes de 9 a 5.', context: 'Responding to an after-hours tenant inquiry about office access' },
+];
+
+const pm2Phrases: KeyPhrase[] = [
+  { english: 'This is an emergency repair.', spanish: 'Esta es una reparación de emergencia.', context: 'Classifying a work order as critical priority for same-day dispatch' },
+  { english: 'The technician will arrive between 10 AM and 12 PM.', spanish: 'El técnico llegará entre las 10 y las 12 del mediodía.', context: 'Setting a repair window for a scheduled maintenance visit' },
+  { english: 'Please keep the area around the problem clear.', spanish: 'Por favor, mantenga el área alrededor del problema despejada.', context: 'Preparing the tenant before a repair crew arrives' },
+  { english: 'We need your permission to enter the unit.', spanish: 'Necesitamos su permiso para entrar a la unidad.', context: 'Requesting verbal or written consent before non-emergency access' },
+  { english: 'Please sign here to confirm the work is complete.', spanish: 'Por favor, firme aquí para confirmar que el trabajo está completo.', context: 'Closing a work order with tenant sign-off documentation' },
+];
+
+const pm3Phrases: KeyPhrase[] = [
+  { english: 'Your rent is due on the first of the month.', spanish: 'Su renta vence el primero del mes.', context: 'Reminding a tenant of the monthly payment due date' },
+  { english: 'There is a late fee if payment is received after the 5th.', spanish: 'Hay un cargo por pago tardío si el pago se recibe después del día 5.', context: 'Explaining late fee policy during a lease signing or payment follow-up' },
+  { english: 'We can set up a payment plan if needed.', spanish: 'Podemos establecer un plan de pago si es necesario.', context: 'Offering flexibility to a tenant experiencing financial hardship' },
+  { english: 'Your lease expires on December 31st.', spanish: 'Su contrato vence el 31 de diciembre.', context: 'Communicating lease end date during a renewal discussion' },
+  { english: 'Do you have any questions about the lease terms?', spanish: '¿Tiene alguna pregunta sobre los términos del contrato?', context: 'Closing a lease signing meeting with an open offer to clarify terms' },
+];
+
+const pm4Phrases: KeyPhrase[] = [
+  { english: 'We will enter your unit on Monday at 10 AM to perform an inspection.', spanish: 'Entraremos a su unidad el lunes a las 10 AM para realizar una inspección.', context: 'Delivering a legally required advance entry notice to a tenant' },
+  { english: 'This is a lease violation notice.', spanish: 'Este es un aviso de violación del contrato de arrendamiento.', context: 'Presenting formal written notice of a policy breach' },
+  { english: 'Smoking is not permitted anywhere on the property.', spanish: 'Fumar no está permitido en ninguna parte de la propiedad.', context: 'Enforcing a no-smoking policy after a complaint is received' },
+  { english: 'You have the right to a safe and habitable home.', spanish: 'Usted tiene derecho a un hogar seguro y habitable.', context: 'Acknowledging tenant rights during a compliance or inspection conversation' },
+  { english: 'We will follow up with a written notice within 24 hours.', spanish: 'Le daremos seguimiento con un aviso escrito en 24 horas.', context: 'Communicating next steps after a verbal compliance warning' },
+];
+
+const pm5Phrases: KeyPhrase[] = [
+  { english: 'I understand this is frustrating.', spanish: 'Entiendo que esto es frustrante.', context: 'Opening a de-escalation conversation with an upset tenant' },
+  { english: 'Let me see what I can do to help you.', spanish: 'Déjeme ver qué puedo hacer para ayudarle.', context: 'Demonstrating willingness to act before committing to a specific resolution' },
+  { english: 'I will personally follow up with you tomorrow.', spanish: 'Yo personalmente me pondré en contacto con usted mañana.', context: 'Making a direct commitment to follow up after a complaint conversation' },
+  { english: 'We take all concerns seriously.', spanish: 'Tomamos todas las inquietudes en serio.', context: 'Validating a tenant complaint to reduce defensiveness and build trust' },
+  { english: 'Thank you for bringing this to our attention.', spanish: 'Gracias por informarnos sobre esto.', context: 'Closing a conflict conversation on a constructive, professional note' },
+];
+
+const wh1Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Pick this item and put it in the bin'?",
+    options: ['Recoge este artículo y ponlo en el contenedor.', 'Deja este artículo en el suelo.', 'Lleva este artículo a la oficina.', 'Cuenta los artículos en el estante.'],
+    correctIndex: 0,
+    explanation: "'Recoge este artículo y ponlo en el contenedor' is the most common pick instruction on the warehouse floor.",
+  },
+  {
+    question: "Which phrase means 'Follow me'?",
+    options: ['Espera aquí.', 'Sígueme.', 'Ve a tu área.', 'Habla con el supervisor.'],
+    correctIndex: 1,
+    explanation: "'Sígueme' = follow me — used constantly to guide workers to new areas, equipment, or tasks.",
+  },
+  {
+    question: "How do you say 'Put it here'?",
+    options: ['Ponlo aquí.', 'Llévalo allá.', 'Déjalo en el camión.', 'Tíralo al basurero.'],
+    correctIndex: 0,
+    explanation: "'Ponlo aquí' = put it here — a direct placement instruction used in receiving, packing, and staging areas.",
+  },
+  {
+    question: "'¿Entiendes las instrucciones?' means:",
+    options: ['Do you have the instructions?', 'Did you finish the instructions?', 'Do you understand the instructions?', 'Where are the instructions?'],
+    correctIndex: 2,
+    explanation: "'¿Entiendes las instrucciones?' confirms comprehension before a worker proceeds — reducing costly errors.",
+  },
+  {
+    question: "How do you ask 'How many items are in this box?'",
+    options: ['¿Cuántos artículos hay en esta caja?', '¿Cuántos camiones hay hoy?', '¿Cuántas etiquetas necesitas?', '¿Cuánto tiempo te queda?'],
+    correctIndex: 0,
+    explanation: "'¿Cuántos artículos hay en esta caja?' is the standard count verification question during receiving and inventory checks.",
+  },
+  {
+    question: "Which phrase means 'Start your shift here'?",
+    options: ['Tu turno empieza aquí.', 'Tu turno termina aquí.', 'Ve al área de descanso.', 'Firma tu entrada en la oficina.'],
+    correctIndex: 0,
+    explanation: "'Tu turno empieza aquí' directs a worker to their starting station — reducing early-shift confusion.",
+  },
+  {
+    question: "How do you say 'Please wear your badge at all times'?",
+    options: ['Por favor, lleva tu gafete en todo momento.', 'Por favor, deja tu gafete en tu casillero.', 'Por favor, entrega tu gafete al salir.', 'Por favor, registra tu gafete en la entrada.'],
+    correctIndex: 0,
+    explanation: "'Por favor, lleva tu gafete en todo momento' enforces ID badge policy — standard for all facility access control.",
+  },
+  {
+    question: "'Área de recepción' means:",
+    options: ['Break room', 'Office area', 'Receiving area', 'Restroom'],
+    correctIndex: 2,
+    explanation: "'Área de recepción' = receiving area — where inbound shipments are unloaded, inspected, and logged.",
+  },
+  {
+    question: "How do you say 'Line up at the station before you begin'?",
+    options: ['Fórmense en la estación antes de empezar.', 'Siéntense en el área de descanso.', 'Vayan directamente a sus camiones.', 'Esperen afuera hasta las 6 AM.'],
+    correctIndex: 0,
+    explanation: "'Fórmense en la estación antes de empezar' organizes workers for shift briefings and task assignments.",
+  },
+  {
+    question: "Which phrase means 'Do you need help with your task?'",
+    options: ['¿Necesitas ayuda con tu tarea?', '¿Terminaste tu turno?', '¿Tienes tu equipo de seguridad?', '¿Puedes quedarte tiempo extra?'],
+    correctIndex: 0,
+    explanation: "'¿Necesitas ayuda con tu tarea?' allows supervisors to proactively offer support — catching problems before they delay fulfillment.",
+  },
+];
+
+const wh2Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Always wear your safety vest'?",
+    options: ['Siempre usa tu chaleco de seguridad.', 'Deja tu chaleco en el casillero.', 'El chaleco es opcional en el almacén.', 'Usa el chaleco solo en el estacionamiento.'],
+    correctIndex: 0,
+    explanation: "'Siempre usa tu chaleco de seguridad' is a non-negotiable PPE instruction — required in all OSHA-compliant environments.",
+  },
+  {
+    question: "Which phrase means 'Stay away from forklift lanes'?",
+    options: ['Mantente alejado de los carriles de montacargas.', 'Puedes caminar en los carriles de montacargas.', 'Los montacargas no operan en este turno.', 'Avisa al operador si necesitas pasar.'],
+    correctIndex: 0,
+    explanation: "'Mantente alejado de los carriles de montacargas' is the critical pedestrian safety instruction that prevents most warehouse injuries.",
+  },
+  {
+    question: "How do you ask 'Are you wearing your hard hat?'",
+    options: ['¿Estás usando tu casco?', '¿Tienes tu casco en el casillero?', '¿Necesitas un casco nuevo?', '¿Tu casco está aprobado?'],
+    correctIndex: 0,
+    explanation: "'¿Estás usando tu casco?' is a spot-check question supervisors use during walkthroughs to enforce PPE compliance.",
+  },
+  {
+    question: "'Zona restringida' means:",
+    options: ['Break area', 'Loading dock', 'Restricted zone', 'Storage room'],
+    correctIndex: 2,
+    explanation: "'Zona restringida' = restricted zone. Workers must recognize this term to avoid unauthorized access to hazardous areas.",
+  },
+  {
+    question: "How do you say 'Do not enter this area without authorization'?",
+    options: ['No entres a esta área sin autorización.', 'Entra solo si tienes tu gafete.', 'Esta área está abierta después de las 3 PM.', 'Pide permiso al supervisor de turno.'],
+    correctIndex: 0,
+    explanation: "'No entres a esta área sin autorización' is the standard restricted area warning — often posted and verbally enforced.",
+  },
+  {
+    question: "Which phrase means 'The forklift is operating in this aisle'?",
+    options: ['El montacargas está operando en este pasillo.', 'El montacargas está apagado hoy.', 'El pasillo está cerrado por inventario.', 'El montacargas necesita reparación.'],
+    correctIndex: 0,
+    explanation: "'El montacargas está operando en este pasillo' alerts pedestrians to active forklift movement — preventing collisions.",
+  },
+  {
+    question: "How do you say 'Wear steel-toed boots at all times'?",
+    options: ['Usa botas con puntera de acero en todo momento.', 'Los zapatos normales están permitidos.', 'Las botas son opcionales para trabajo de oficina.', 'Solo usa botas en zonas de carga.'],
+    correctIndex: 0,
+    explanation: "'Usa botas con puntera de acero en todo momento' is a mandatory footwear instruction for all warehouse floor workers.",
+  },
+  {
+    question: "'Peligro de caída' means:",
+    options: ['Chemical spill', 'Fire hazard', 'Fall hazard', 'Trip wire'],
+    correctIndex: 2,
+    explanation: "'Peligro de caída' = fall hazard. Recognizing this warning is required for working at height and in wet areas.",
+  },
+  {
+    question: "How do you ask 'Have you completed your safety training?'",
+    options: ['¿Has completado tu capacitación de seguridad?', '¿Has firmado el contrato de trabajo?', '¿Has recibido tu uniforme?', '¿Has hablado con tu supervisor?'],
+    correctIndex: 0,
+    explanation: "'¿Has completado tu capacitación de seguridad?' is asked before a worker begins tasks in a new area or with new equipment.",
+  },
+  {
+    question: "Which phrase means 'Report any unsafe condition immediately'?",
+    options: ['Reporta cualquier condición insegura de inmediato.', 'Espera al siguiente turno para reportar problemas.', 'Solo el supervisor puede reportar condiciones.', 'Escribe el reporte al final de la semana.'],
+    correctIndex: 0,
+    explanation: "'Reporta cualquier condición insegura de inmediato' reinforces a safety-first culture — OSHA requires prompt hazard reporting.",
+  },
+];
+
+const wh3Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Check the label before you pack it'?",
+    options: ['Revisa la etiqueta antes de empacarlo.', 'Pega la etiqueta después de empacar.', 'No necesitas revisar la etiqueta.', 'Entrega el artículo sin etiqueta.'],
+    correctIndex: 0,
+    explanation: "'Revisa la etiqueta antes de empacarlo' prevents mispicks — label verification is a critical quality step in every pick-and-pack operation.",
+  },
+  {
+    question: "Which phrase means 'Scan the barcode before placing in the bin'?",
+    options: ['Escanea el código de barras antes de colocarlo en el contenedor.', 'Escanea el código de barras al final del turno.', 'No necesitas escanear artículos pequeños.', 'El código de barras lo escanea el sistema automáticamente.'],
+    correctIndex: 0,
+    explanation: "'Escanea el código de barras antes de colocarlo en el contenedor' ensures every item is digitally tracked before it moves.",
+  },
+  {
+    question: "How do you ask 'Is this order complete?'",
+    options: ['¿Está completo este pedido?', '¿Es correcto el número de pedido?', '¿Ya empacaste los artículos del pedido?', '¿Cuántos pedidos te quedan?'],
+    correctIndex: 0,
+    explanation: "'¿Está completo este pedido?' is the order completeness check question — used before sealing, labeling, or staging for shipment.",
+  },
+  {
+    question: "'Número de pedido' means:",
+    options: ['Box number', 'Order number', 'Bin number', 'Item count'],
+    correctIndex: 1,
+    explanation: "'Número de pedido' = order number — workers need to recognize this term to match picks to the correct fulfillment record.",
+  },
+  {
+    question: "How do you say 'The quantity is wrong — check the pick list again'?",
+    options: ['La cantidad está mal — revisa la lista de recogida otra vez.', 'La cantidad está bien — continúa.', 'El artículo no está en la lista.', 'Reporta el problema al cliente.'],
+    correctIndex: 0,
+    explanation: "'La cantidad está mal — revisa la lista de recogida otra vez' corrects a picking error before it reaches packing — preventing shipping mistakes.",
+  },
+  {
+    question: "Which phrase means 'Seal the box with tape before scanning'?",
+    options: ['Sella la caja con cinta antes de escanearla.', 'Deja la caja abierta para inspección.', 'Escanea la caja antes de sellarla.', 'No selles cajas en esta área.'],
+    correctIndex: 0,
+    explanation: "'Sella la caja con cinta antes de escanearla' is the correct sequence instruction — seal first, then scan for final confirmation.",
+  },
+  {
+    question: "How do you ask 'Which shelf does this item go on?'",
+    options: ['¿En qué estante va este artículo?', '¿En qué contenedor va este pedido?', '¿En qué caja va este producto?', '¿En qué zona está el supervisor?'],
+    correctIndex: 0,
+    explanation: "'¿En qué estante va este artículo?' is used during putaway tasks to confirm correct slotting location.",
+  },
+  {
+    question: "'Artículo dañado' means:",
+    options: ['Missing item', 'Damaged item', 'Expired item', 'Wrong item'],
+    correctIndex: 1,
+    explanation: "'Artículo dañado' = damaged item. Workers must identify and segregate damaged goods before they enter fulfillment.",
+  },
+  {
+    question: "How do you say 'Place fragile items on top'?",
+    options: ['Pon los artículos frágiles arriba.', 'Pon los artículos pesados arriba.', 'Mezcla los artículos en la caja.', 'Los artículos frágiles van al fondo.'],
+    correctIndex: 0,
+    explanation: "'Pon los artículos frágiles arriba' prevents breakage during transit — a key packing instruction for mixed-content orders.",
+  },
+  {
+    question: "Which phrase means 'Double-check the order before sending it out'?",
+    options: ['Verifica dos veces el pedido antes de enviarlo.', 'Envía el pedido sin revisarlo.', 'El sistema verifica automáticamente.', 'Solo verifica si el cliente lo pide.'],
+    correctIndex: 0,
+    explanation: "'Verifica dos veces el pedido antes de enviarlo' is the final accuracy checkpoint — reducing returns and mis-shipments.",
+  },
+];
+
+const wh4Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Your shift starts at 6 AM'?",
+    options: ['Tu turno empieza a las 6 de la mañana.', 'Tu turno empieza a las 6 de la tarde.', 'Tu turno es de noche.', 'Tu turno cambia esta semana.'],
+    correctIndex: 0,
+    explanation: "'Tu turno empieza a las 6 de la mañana' is the most direct shift-start communication — reduces tardiness and confusion.",
+  },
+  {
+    question: "Which phrase means 'Speed is important but accuracy comes first'?",
+    options: ['La velocidad es importante pero la precisión es lo primero.', 'Trabaja más rápido que ayer.', 'La precisión no importa si trabajas rápido.', 'Haz todo lo que puedas antes de las 10.'],
+    correctIndex: 0,
+    explanation: "'La velocidad es importante pero la precisión es lo primero' sets the quality-over-speed principle — critical for reducing order errors.",
+  },
+  {
+    question: "How do you ask 'Did you finish your assigned tasks?'",
+    options: ['¿Terminaste tus tareas asignadas?', '¿Empezaste tus tareas de mañana?', '¿Tienes tareas extra para hoy?', '¿Tu supervisor te dio nuevas tareas?'],
+    correctIndex: 0,
+    explanation: "'¿Terminaste tus tareas asignadas?' is the end-of-shift completeness check — used before releasing workers or reassigning tasks.",
+  },
+  {
+    question: "'Hora extra' means:",
+    options: ['Break time', 'Overtime', 'Shift change', 'Clock-in time'],
+    correctIndex: 1,
+    explanation: "'Hora extra' = overtime. Workers need to understand this term when asked to stay beyond their scheduled shift.",
+  },
+  {
+    question: "How do you say 'You are working in zone three today'?",
+    options: ['Hoy trabajas en la zona tres.', 'Hoy trabajas en la zona uno.', 'Tu zona cambió para el turno de la tarde.', 'No hay asignación de zona hoy.'],
+    correctIndex: 0,
+    explanation: "'Hoy trabajas en la zona tres' communicates daily zone assignments — essential for large-floor operations with multiple work areas.",
+  },
+  {
+    question: "Which phrase means 'Please correct this mistake before continuing'?",
+    options: ['Por favor, corrige este error antes de continuar.', 'Puedes corregirlo al final del turno.', 'El supervisor corregirá el error.', 'El sistema detectará el error automáticamente.'],
+    correctIndex: 0,
+    explanation: "'Por favor, corrige este error antes de continuar' addresses mistakes in real time — preventing downstream fulfillment errors.",
+  },
+  {
+    question: "How do you ask 'Do you need more time to finish?'",
+    options: ['¿Necesitas más tiempo para terminar?', '¿Terminaste antes de lo esperado?', '¿Cuántos artículos te quedan?', '¿Tu compañero puede ayudarte?'],
+    correctIndex: 0,
+    explanation: "'¿Necesitas más tiempo para terminar?' checks in with workers before reassigning — supporting completion without rushing.",
+  },
+  {
+    question: "'Reunión de equipo' means:",
+    options: ['Safety inspection', 'Team meeting', 'Shift assignment', 'Equipment check'],
+    correctIndex: 1,
+    explanation: "'Reunión de equipo' = team meeting. Common at shift start for briefings, productivity goals, and safety reminders.",
+  },
+  {
+    question: "How do you say 'Stay focused on your area'?",
+    options: ['Mantente enfocado en tu área.', 'Ayuda a tus compañeros en otras zonas.', 'Puedes moverte libremente por el almacén.', 'Trabaja en el área que prefieras.'],
+    correctIndex: 0,
+    explanation: "'Mantente enfocado en tu área' directs workers to stay in their assigned zone — maintaining productivity and reducing congestion.",
+  },
+  {
+    question: "Which phrase means 'Good work today — thank you'?",
+    options: ['Buen trabajo hoy — gracias.', 'Tienes que mejorar para mañana.', 'Reporta al supervisor antes de salir.', 'Llega más temprano mañana.'],
+    correctIndex: 0,
+    explanation: "'Buen trabajo hoy — gracias' is a positive closing phrase — small recognition phrases improve retention and morale significantly.",
+  },
+];
+
+const wh5Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Call 911 immediately'?",
+    options: ['Llama al 911 de inmediato.', 'Espera a que llegue el supervisor.', 'Busca el botiquín de primeros auxilios.', 'Avisa al equipo de seguridad.'],
+    correctIndex: 0,
+    explanation: "'Llama al 911 de inmediato' is the first emergency instruction — never delay in a life-threatening situation.",
+  },
+  {
+    question: "Which phrase means 'Someone is injured — do not move them'?",
+    options: ['Alguien está lesionado — no lo muevas.', 'Alguien está cansado — déjalo descansar.', 'Alguien se fue a casa por enfermedad.', 'Alguien necesita un descanso.'],
+    correctIndex: 0,
+    explanation: "'Alguien está lesionado — no lo muevas' is a critical first-response instruction — moving an injured person can worsen the injury.",
+  },
+  {
+    question: "How do you say 'Report this problem to your supervisor right away'?",
+    options: ['Reporta este problema a tu supervisor de inmediato.', 'Reporta el problema al final del turno.', 'Escribe el problema en el cuaderno.', 'El problema se resuelve solo.'],
+    correctIndex: 0,
+    explanation: "'Reporta este problema a tu supervisor de inmediato' ensures rapid escalation — critical for equipment failures and safety hazards.",
+  },
+  {
+    question: "'Equipo averiado' means:",
+    options: ['New equipment', 'Borrowed equipment', 'Broken/failed equipment', 'Heavy equipment'],
+    correctIndex: 2,
+    explanation: "'Equipo averiado' = broken or failed equipment. Workers must use this term to tag out defective machinery before it causes injury.",
+  },
+  {
+    question: "How do you say 'Stop the machine and tag it out'?",
+    options: ['Apaga la máquina y etiquétala para bloqueo.', 'Continúa usando la máquina con cuidado.', 'Avisa al técnico pero no la pares.', 'Espera a que la máquina se detenga sola.'],
+    correctIndex: 0,
+    explanation: "'Apaga la máquina y etiquétala para bloqueo' is the lockout/tagout command — OSHA requires this before any maintenance work.",
+  },
+  {
+    question: "Which phrase means 'There is a spill in aisle 7'?",
+    options: ['Hay un derrame en el pasillo 7.', 'Hay un paquete caído en el pasillo 7.', 'Hay un montacargas bloqueando el pasillo 7.', 'Hay un trabajador descansando en el pasillo 7.'],
+    correctIndex: 0,
+    explanation: "'Hay un derrame en el pasillo 7' is the standard spill alert — triggers cleanup response and slip-hazard mitigation.",
+  },
+  {
+    question: "How do you ask 'Is everyone okay?'",
+    options: ['¿Están todos bien?', '¿Están todos trabajando?', '¿Están todos en su área?', '¿Están todos listos para salir?'],
+    correctIndex: 0,
+    explanation: "'¿Están todos bien?' is the first accountability check after any incident or emergency evacuation.",
+  },
+  {
+    question: "'Salida de emergencia' means:",
+    options: ['Fire extinguisher', 'Emergency exit', 'First aid kit', 'Safety officer'],
+    correctIndex: 1,
+    explanation: "'Salida de emergencia' = emergency exit. Every worker must know this term and be able to locate all exits on their floor.",
+  },
+  {
+    question: "How do you say 'Evacuate the building now'?",
+    options: ['Evacúen el edificio ahora.', 'Regresen a sus puestos de trabajo.', 'Esperen la señal de alarma.', 'Reúnanse en la sala de descanso.'],
+    correctIndex: 0,
+    explanation: "'Evacúen el edificio ahora' is the full evacuation command — short, direct, and unambiguous.",
+  },
+  {
+    question: "Which phrase means 'The incident has been reported and recorded'?",
+    options: ['El incidente ha sido reportado y registrado.', 'El incidente no requiere documentación.', 'El incidente fue un error del trabajador.', 'El incidente no afecta las operaciones.'],
+    correctIndex: 0,
+    explanation: "'El incidente ha sido reportado y registrado' closes the incident loop — OSHA requires documentation of all workplace incidents.",
+  },
+];
+
+const wh1Phrases: KeyPhrase[] = [
+  { english: 'Pick this item and place it in the bin.', spanish: 'Recoge este artículo y ponlo en el contenedor.', context: 'Instructing a picker on a specific item placement during order fulfillment' },
+  { english: 'Follow me to your station.', spanish: 'Sígueme a tu estación.', context: 'Directing a new worker to their assigned workstation at shift start' },
+  { english: 'Do you understand the task?', spanish: '¿Entiendes la tarea?', context: 'Confirming comprehension before a worker begins an independent task' },
+  { english: 'Report to the receiving area first.', spanish: 'Preséntate primero al área de recepción.', context: 'Directing a worker to their first reporting location at the start of a shift' },
+  { english: 'Always wear your badge on the floor.', spanish: 'Siempre lleva tu gafete en el piso.', context: 'Enforcing the facility ID badge policy for floor access' },
+];
+
+const wh2Phrases: KeyPhrase[] = [
+  { english: 'Stay out of forklift lanes at all times.', spanish: 'Mantente fuera de los carriles de montacargas en todo momento.', context: 'Reinforcing pedestrian safety zones during a floor safety walkthrough' },
+  { english: 'Put on your safety vest before entering the floor.', spanish: 'Ponte el chaleco de seguridad antes de entrar al piso.', context: 'PPE checkpoint instruction before a worker enters an active warehouse floor' },
+  { english: 'This area is restricted — do not enter.', spanish: 'Esta área está restringida — no entres.', context: 'Verbal warning to a worker approaching a controlled or hazardous zone' },
+  { english: 'Hard hats are required past this point.', spanish: 'Los cascos son obligatorios más allá de este punto.', context: 'Enforcing head protection requirements at a zone boundary' },
+  { english: 'Report all hazards to your supervisor immediately.', spanish: 'Reporta todos los peligros a tu supervisor de inmediato.', context: 'Reminding workers of hazard reporting obligations during a safety briefing' },
+];
+
+const wh3Phrases: KeyPhrase[] = [
+  { english: 'Check the label before packing.', spanish: 'Revisa la etiqueta antes de empacar.', context: 'Quality control instruction at the start of a packing station task' },
+  { english: 'Scan every item before it goes in the box.', spanish: 'Escanea cada artículo antes de meterlo en la caja.', context: 'Barcode tracking instruction to ensure inventory accuracy during packing' },
+  { english: 'This order is incomplete — check the pick list.', spanish: 'Este pedido está incompleto — revisa la lista de recogida.', context: 'Flagging an order discrepancy before it is sealed and sent to shipping' },
+  { english: 'Put fragile items on top.', spanish: 'Pon los artículos frágiles arriba.', context: 'Packing instruction to prevent breakage on multi-item shipments' },
+  { english: 'Seal the box and place it on the outbound pallet.', spanish: 'Sella la caja y ponla en el palet de salida.', context: 'Final packing step instruction before the order is staged for pickup' },
+];
+
+const wh4Phrases: KeyPhrase[] = [
+  { english: 'Your zone assignment is posted by the door.', spanish: 'Tu asignación de zona está publicada junto a la puerta.', context: 'Directing workers to their daily area assignments at shift start' },
+  { english: 'Speed is important but accuracy comes first.', spanish: 'La velocidad es importante pero la precisión es lo primero.', context: 'Setting performance expectations during a team briefing' },
+  { english: 'Let me know if you need more time.', spanish: 'Avísame si necesitas más tiempo.', context: 'Checking in with a worker who is behind on their task quota' },
+  { english: 'Stay in your assigned area until I tell you otherwise.', spanish: 'Quédate en tu área asignada hasta que yo te diga lo contrario.', context: 'Maintaining zone discipline during a high-volume fulfillment period' },
+  { english: 'Good work today.', spanish: 'Buen trabajo hoy.', context: 'Closing a shift with positive reinforcement to support worker morale' },
+];
+
+const wh5Phrases: KeyPhrase[] = [
+  { english: 'Call 911 — someone is injured.', spanish: 'Llama al 911 — alguien está lesionado.', context: 'Immediate injury response command on the warehouse floor' },
+  { english: 'Stop the machine and tag it out.', spanish: 'Apaga la máquina y etiquétala para bloqueo.', context: 'Lockout/tagout command when a piece of equipment malfunctions or becomes unsafe' },
+  { english: 'Evacuate immediately — leave everything behind.', spanish: 'Evacúen de inmediato — dejen todo atrás.', context: 'Emergency evacuation command during a fire, chemical spill, or structural emergency' },
+  { english: 'There is a spill — do not enter aisle 4.', spanish: 'Hay un derrame — no entres al pasillo 4.', context: 'Hazard communication to prevent slip-and-fall injuries near an uncontained spill' },
+  { english: 'The incident has been documented.', spanish: 'El incidente ha sido documentado.', context: 'Closing statement after an incident report is filed — confirms OSHA recordkeeping compliance' },
+];
+
 export const CERT_TRACKS: CertTrack[] = [
   {
     id: 'healthcare',
@@ -1787,6 +2497,34 @@ export const CERT_TRACKS: CertTrack[] = [
       { id: 3, title: 'Trauma-Informed Approaches', questions: mentalHealthQuestions.map(q => ({ ...q })), keyPhrases: mh3Phrases },
       { id: 4, title: 'Crisis Intervention', questions: mentalHealthQuestions.map(q => ({ ...q })), keyPhrases: mh4Phrases },
       { id: 5, title: 'Recovery & Wellness Plans', questions: mentalHealthQuestions.map(q => ({ ...q })), keyPhrases: mh5Phrases },
+    ],
+  },
+  {
+    id: 'property-management',
+    title: 'Property Management',
+    description: 'Built for property managers, leasing agents, and maintenance staff who need to communicate clearly with Spanish-speaking tenants in real-world situations.',
+    icon: '🏢',
+    color: 'from-cyan-600 to-cyan-800',
+    modules: [
+      { id: 1, title: 'Tenant Communication Basics', questions: pm1Questions, keyPhrases: pm1Phrases },
+      { id: 2, title: 'Maintenance & Work Orders', questions: pm2Questions, keyPhrases: pm2Phrases },
+      { id: 3, title: 'Lease & Payment Conversations', questions: pm3Questions, keyPhrases: pm3Phrases },
+      { id: 4, title: 'Notices & Compliance', questions: pm4Questions, keyPhrases: pm4Phrases },
+      { id: 5, title: 'Conflict & Resolution', questions: pm5Questions, keyPhrases: pm5Phrases },
+    ],
+  },
+  {
+    id: 'warehouse',
+    title: 'Warehouse Operations',
+    description: 'Built for warehouse teams, supervisors, and logistics workers who need clear, fast Spanish communication on the job floor.',
+    icon: '📦',
+    color: 'from-amber-600 to-amber-800',
+    modules: [
+      { id: 1, title: 'Basic Floor Communication', questions: wh1Questions, keyPhrases: wh1Phrases },
+      { id: 2, title: 'Safety & Equipment', questions: wh2Questions, keyPhrases: wh2Phrases },
+      { id: 3, title: 'Picking & Packing', questions: wh3Questions, keyPhrases: wh3Phrases },
+      { id: 4, title: 'Team Coordination', questions: wh4Questions, keyPhrases: wh4Phrases },
+      { id: 5, title: 'Emergencies & Issues', questions: wh5Questions, keyPhrases: wh5Phrases },
     ],
   },
 ];
