@@ -1,4 +1,4 @@
-export type TrackId = 'healthcare' | 'education' | 'construction' | 'social-services' | 'mental-health' | 'property-management' | 'warehouse';
+export type TrackId = 'healthcare' | 'education' | 'construction' | 'social-services' | 'mental-health' | 'property-management' | 'warehouse' | 'hospitality';
 
 export interface QuizQuestion {
   question: string;
@@ -2428,6 +2428,361 @@ const wh5Phrases: KeyPhrase[] = [
   { english: 'The incident has been documented.', spanish: 'El incidente ha sido documentado.', context: 'Closing statement after an incident report is filed — confirms OSHA recordkeeping compliance' },
 ];
 
+const hosp1Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Welcome to our hotel'?",
+    options: ['Bienvenido a nuestro hotel.', 'Por favor espere afuera.', 'Su habitación no está lista.', 'Vuelva más tarde.'],
+    correctIndex: 0,
+    explanation: "'Bienvenido a nuestro hotel' is the standard arrival greeting that sets a warm, professional tone from the first moment.",
+  },
+  {
+    question: "Which phrase means 'How can I help you today?'",
+    options: ['¿En qué le puedo ayudar hoy?', '¿Tiene una reservación?', '¿Cuántas noches se queda?', '¿Cuál es su nombre?'],
+    correctIndex: 0,
+    explanation: "'¿En qué le puedo ayudar hoy?' is the go-to service opener for front desk and concierge interactions.",
+  },
+  {
+    question: "How do you ask 'Do you have a reservation?'",
+    options: ['¿Tiene una reservación?', '¿Necesita una llave?', '¿Ya pagó su cuenta?', '¿Quiere desayuno?'],
+    correctIndex: 0,
+    explanation: "'¿Tiene una reservación?' is the first question at check-in to locate the guest's booking in the system.",
+  },
+  {
+    question: "'Su habitación está en el tercer piso' means:",
+    options: ['Your room is on the second floor.', 'Your room is on the third floor.', 'Your room is not available.', 'Your room has been upgraded.'],
+    correctIndex: 1,
+    explanation: "'Su habitación está en el tercer piso' tells the guest their room floor — critical for first-time navigation of the property.",
+  },
+  {
+    question: "How do you say 'The elevator is to your left'?",
+    options: ['El elevador está a su izquierda.', 'El elevador está a su derecha.', 'Las escaleras están al fondo.', 'El elevador no funciona hoy.'],
+    correctIndex: 0,
+    explanation: "'El elevador está a su izquierda' provides directional guidance — one of the most common front desk phrases.",
+  },
+  {
+    question: "Which phrase means 'Enjoy your stay'?",
+    options: ['Disfrute su estadía.', 'Hasta luego.', 'Su llave está lista.', 'Regrese mañana.'],
+    correctIndex: 0,
+    explanation: "'Disfrute su estadía' is the warm send-off at the end of check-in — reinforcing a welcoming experience.",
+  },
+  {
+    question: "How do you say 'What time is check-out?'",
+    options: ['¿A qué hora es el check-out?', '¿A qué hora es el desayuno?', '¿A qué hora llega el equipaje?', '¿A qué hora cierra la piscina?'],
+    correctIndex: 0,
+    explanation: "'¿A qué hora es el check-out?' is frequently asked by guests and must be answered clearly to avoid late fees or confusion.",
+  },
+  {
+    question: "'Aquí está su llave de habitación' means:",
+    options: ['Here is your room key.', 'Your key is not ready.', 'Please return your key.', 'You need a new key.'],
+    correctIndex: 0,
+    explanation: "'Aquí está su llave de habitación' is said while handing the key card — the final step of the check-in process.",
+  },
+  {
+    question: "How do you ask 'How many guests are in your party?'",
+    options: ['¿Cuántos huéspedes vienen con usted?', '¿Cuántas noches se queda?', '¿Cuántos cuartos necesita?', '¿Cuántos equipajes trae?'],
+    correctIndex: 0,
+    explanation: "'¿Cuántos huéspedes vienen con usted?' determines room occupancy — needed for billing and safety compliance.",
+  },
+  {
+    question: "Which phrase means 'Let me know if you need anything'?",
+    options: ['Avíseme si necesita algo.', 'Llame a la recepción si tiene problemas.', 'Estamos disponibles las 24 horas.', 'Su solicitud ha sido enviada.'],
+    correctIndex: 0,
+    explanation: "'Avíseme si necesita algo' closes any service interaction with an open offer of continued assistance.",
+  },
+];
+
+const hosp2Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'We will send housekeeping to your room'?",
+    options: ['Enviaremos al servicio de limpieza a su habitación.', 'Su habitación ya fue limpiada.', 'El servicio de limpieza no está disponible.', 'Puede solicitar toallas en recepción.'],
+    correctIndex: 0,
+    explanation: "'Enviaremos al servicio de limpieza a su habitación' confirms the guest's cleaning request is being actioned.",
+  },
+  {
+    question: "Which phrase means 'We will send someone to fix it right away'?",
+    options: ['Enviaremos a alguien a repararlo de inmediato.', 'El problema será resuelto mañana.', 'Por favor llame a mantenimiento directamente.', 'Puede cambiarse a otra habitación.'],
+    correctIndex: 0,
+    explanation: "'Enviaremos a alguien a repararlo de inmediato' reassures the guest that maintenance issues will be handled promptly.",
+  },
+  {
+    question: "How do you ask 'Do you need extra towels?'",
+    options: ['¿Necesita toallas adicionales?', '¿Necesita almohadas adicionales?', '¿Necesita jabón adicional?', '¿Necesita mantas adicionales?'],
+    correctIndex: 0,
+    explanation: "'¿Necesita toallas adicionales?' is a standard amenity check offered during housekeeping or front desk interactions.",
+  },
+  {
+    question: "'El aire acondicionado no funciona' means:",
+    options: ['The air conditioning is very cold.', 'The air conditioning is not working.', 'The air conditioning has been fixed.', 'The air conditioning is on the wall.'],
+    correctIndex: 1,
+    explanation: "Recognizing 'El aire acondicionado no funciona' lets staff quickly dispatch maintenance before the guest escalates the complaint.",
+  },
+  {
+    question: "How do you say 'We will have it ready within 30 minutes'?",
+    options: ['Lo tendremos listo en 30 minutos.', 'Estará listo mañana por la mañana.', 'Puede recogerlo en recepción.', 'Por favor espere en su habitación.'],
+    correctIndex: 0,
+    explanation: "'Lo tendremos listo en 30 minutos' sets a clear time expectation — reducing follow-up calls and guest frustration.",
+  },
+  {
+    question: "Which phrase means 'The pool is open until 10 PM'?",
+    options: ['La piscina está abierta hasta las 10 PM.', 'La piscina está cerrada hoy.', 'La piscina abre a las 8 AM.', 'La piscina está disponible solo para adultos.'],
+    correctIndex: 0,
+    explanation: "'La piscina está abierta hasta las 10 PM' is a common amenity hours question guests ask at the front desk.",
+  },
+  {
+    question: "How do you say 'Room service is available 24 hours'?",
+    options: ['El servicio a la habitación está disponible las 24 horas.', 'El servicio a la habitación cierra a las 11 PM.', 'El servicio a la habitación no está incluido.', 'Puede ordenar comida en el restaurante.'],
+    correctIndex: 0,
+    explanation: "'El servicio a la habitación está disponible las 24 horas' informs guests of around-the-clock in-room dining options.",
+  },
+  {
+    question: "'Necesito más jabón y champú' means:",
+    options: ['I need more soap and shampoo.', 'I need more towels and blankets.', 'I need the room cleaned again.', 'I need an extra pillow.'],
+    correctIndex: 0,
+    explanation: "Recognizing 'Necesito más jabón y champú' lets staff fulfill a basic amenity request without escalation.",
+  },
+  {
+    question: "How do you ask 'When would you like your room cleaned?'",
+    options: ['¿Cuándo le gustaría que limpiáramos su habitación?', '¿Su habitación ya está limpia?', '¿Quiere que cambiemos las sábanas?', '¿Necesita servicio de limpieza hoy?'],
+    correctIndex: 0,
+    explanation: "'¿Cuándo le gustaría que limpiáramos su habitación?' gives guests control over their schedule — a premium service standard.",
+  },
+  {
+    question: "Which phrase means 'We will replace the linens immediately'?",
+    options: ['Cambiaremos la ropa de cama de inmediato.', 'Las sábanas se cambian cada tres días.', 'Por favor deje la ropa sucia afuera de la puerta.', 'El servicio de lavandería cuesta extra.'],
+    correctIndex: 0,
+    explanation: "'Cambiaremos la ropa de cama de inmediato' confirms fast response to a linen complaint — preserving the guest's comfort.",
+  },
+];
+
+const hosp3Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Would you like a table for two?'",
+    options: ['¿Le gustaría una mesa para dos?', '¿Tiene una reservación para cenar?', '¿Prefiere sentarse en la terraza?', '¿Cuántas personas cenan esta noche?'],
+    correctIndex: 0,
+    explanation: "'¿Le gustaría una mesa para dos?' is the restaurant host's standard seating inquiry to open a dining interaction.",
+  },
+  {
+    question: "Which phrase means 'Do you have a reservation?'",
+    options: ['¿Tiene una reservación?', '¿Cuál es su número de habitación?', '¿Prefiere el menú del día?', '¿Ya ordenó?'],
+    correctIndex: 0,
+    explanation: "'¿Tiene una reservación?' is asked at the restaurant entrance before assigning a table — especially during peak hours.",
+  },
+  {
+    question: "How do you ask 'Do you have any dietary restrictions?'",
+    options: ['¿Tiene alguna restricción alimentaria?', '¿Le gusta la comida picante?', '¿Prefiere carne o pescado?', '¿Es usted vegetariano?'],
+    correctIndex: 0,
+    explanation: "'¿Tiene alguna restricción alimentaria?' is critical before recommending dishes — ensures food safety and guest satisfaction.",
+  },
+  {
+    question: "'¿Le gustaría ver nuestra carta de vinos?' means:",
+    options: ['Would you like to see our dessert menu?', 'Would you like to see our wine list?', 'Would you like to order now?', 'Would you like some water?'],
+    correctIndex: 1,
+    explanation: "'¿Le gustaría ver nuestra carta de vinos?' invites guests to explore beverage options — a key upselling phrase in restaurant service.",
+  },
+  {
+    question: "How do you say 'Our chef recommends the grilled salmon'?",
+    options: ['Nuestro chef recomienda el salmón a la parrilla.', 'El salmón no está disponible esta noche.', 'El especial del día es la pasta.', 'Tenemos mariscos frescos hoy.'],
+    correctIndex: 0,
+    explanation: "'Nuestro chef recomienda el salmón a la parrilla' is a concierge and restaurant phrase that guides guest decisions and drives revenue.",
+  },
+  {
+    question: "Which phrase means 'I am allergic to shellfish'?",
+    options: ['Soy alérgico a los mariscos.', 'No me gusta el pescado.', 'Prefiero pollo en lugar de mariscos.', 'Los mariscos no están en el menú.'],
+    correctIndex: 0,
+    explanation: "Recognizing 'Soy alérgico a los mariscos' is a life-safety phrase — staff must relay this to the kitchen immediately.",
+  },
+  {
+    question: "How do you say 'I can make a reservation for you at 7 PM'?",
+    options: ['Puedo hacerle una reservación a las 7 PM.', 'El restaurante abre a las 7 PM.', 'Las reservaciones se hacen en línea.', 'No hay disponibilidad esta noche.'],
+    correctIndex: 0,
+    explanation: "'Puedo hacerle una reservación a las 7 PM' is the concierge's standard response to a dining booking request.",
+  },
+  {
+    question: "'¿Desea algo de postre?' means:",
+    options: ['Would you like something to drink?', 'Would you like some dessert?', 'Would you like to see the menu?', 'Would you like the check?'],
+    correctIndex: 1,
+    explanation: "'¿Desea algo de postre?' is asked after the main course — a natural upsell opportunity in any restaurant setting.",
+  },
+  {
+    question: "How do you ask 'Is everything to your satisfaction?'",
+    options: ['¿Todo está a su satisfacción?', '¿Le gustó la comida?', '¿Desea algo más?', '¿Puedo retirar su plato?'],
+    correctIndex: 0,
+    explanation: "'¿Todo está a su satisfacción?' is the quality check mid-meal — critical for catching issues before a guest leaves unhappy.",
+  },
+  {
+    question: "Which phrase means 'The kitchen is closed but we can offer room service'?",
+    options: ['La cocina está cerrada pero podemos ofrecerle servicio a la habitación.', 'El restaurante cierra a las 11 PM.', 'Por favor pida su comida antes de las 10 PM.', 'El menú de servicio a la habitación es limitado.'],
+    correctIndex: 0,
+    explanation: "'La cocina está cerrada pero podemos ofrecerle servicio a la habitación' redirects a late-night dining request professionally.",
+  },
+];
+
+const hosp4Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'I sincerely apologize for the inconvenience'?",
+    options: ['Me disculpo sinceramente por el inconveniente.', 'Lo siento, no es nuestra responsabilidad.', 'Le ofrezco un descuento por su próxima visita.', 'Hablaré con el gerente.'],
+    correctIndex: 0,
+    explanation: "'Me disculpo sinceramente por el inconveniente' is the professional apology opener that de-escalates guest complaints immediately.",
+  },
+  {
+    question: "Which phrase means 'We will resolve this immediately'?",
+    options: ['Resolveremos esto de inmediato.', 'Necesitamos investigar el problema primero.', 'Eso no es parte de nuestra política.', 'Por favor llame mañana.'],
+    correctIndex: 0,
+    explanation: "'Resolveremos esto de inmediato' communicates urgency and ownership — the two qualities guests need to hear during a complaint.",
+  },
+  {
+    question: "How do you ask 'Can you tell me more about the issue?'",
+    options: ['¿Puede contarme más sobre el problema?', '¿Cuándo ocurrió esto?', '¿Ya habló con otro miembro del personal?', '¿Tiene evidencia del problema?'],
+    correctIndex: 0,
+    explanation: "'¿Puede contarme más sobre el problema?' opens a calm investigation — showing the guest they are being taken seriously.",
+  },
+  {
+    question: "'Permítame llamar al gerente para ayudarle' means:",
+    options: ['Please wait while I find your reservation.', 'Let me call the manager to assist you.', 'I will transfer your call to another department.', 'The manager is not available right now.'],
+    correctIndex: 1,
+    explanation: "'Permítame llamar al gerente para ayudarle' is the correct escalation phrase — used when a situation exceeds front-line authority.",
+  },
+  {
+    question: "How do you say 'We would like to offer you a complimentary upgrade'?",
+    options: ['Nos gustaría ofrecerle una mejora de habitación sin costo.', 'Su queja ha sido registrada.', 'Puede solicitar un reembolso en línea.', 'Le aplicaremos un descuento en su cuenta.'],
+    correctIndex: 0,
+    explanation: "'Nos gustaría ofrecerle una mejora de habitación sin costo' is a proactive recovery offer — turning a complaint into a loyalty moment.",
+  },
+  {
+    question: "Which phrase means 'That should not have happened — I understand your frustration'?",
+    options: ['Eso no debió haber ocurrido — entiendo su frustración.', 'Lamentamos lo sucedido pero no podemos reembolsarle.', 'Ese tipo de problemas ocurren ocasionalmente.', 'Por favor revise nuestra política de quejas en el sitio web.'],
+    correctIndex: 0,
+    explanation: "'Eso no debió haber ocurrido — entiendo su frustración' validates the guest's experience without defensiveness — a key empathy phrase.",
+  },
+  {
+    question: "How do you say 'We will follow up with you within the hour'?",
+    options: ['Nos comunicaremos con usted en menos de una hora.', 'Le responderemos por correo electrónico.', 'El gerente le llamará mañana por la mañana.', 'Por favor espere en su habitación.'],
+    correctIndex: 0,
+    explanation: "'Nos comunicaremos con usted en menos de una hora' gives the guest a concrete follow-up commitment — preventing repeated complaints.",
+  },
+  {
+    question: "'¿Hay algo más que podamos hacer por usted?' means:",
+    options: ['Is there anything else we can do for you?', 'Can you describe the problem again?', 'Is your complaint resolved?', 'Would you like to speak to a manager?'],
+    correctIndex: 0,
+    explanation: "'¿Hay algo más que podamos hacer por usted?' closes a resolution interaction — confirming full satisfaction before ending the exchange.",
+  },
+  {
+    question: "How do you offer a refund professionally?",
+    options: ['Nos gustaría procesar un reembolso por los inconvenientes causados.', 'No podemos ofrecer reembolsos por política.', 'Por favor contacte a su banco directamente.', 'El reembolso tomará 30 días hábiles.'],
+    correctIndex: 0,
+    explanation: "'Nos gustaría procesar un reembolso por los inconvenientes causados' frames a refund as a gesture of goodwill — not an obligation.",
+  },
+  {
+    question: "Which phrase means 'We have noted your feedback and will improve'?",
+    options: ['Hemos tomado nota de sus comentarios y mejoraremos.', 'Sus comentarios son importantes para nosotros.', 'Por favor complete nuestra encuesta en línea.', 'Compartiremos esto con nuestro equipo.'],
+    correctIndex: 0,
+    explanation: "'Hemos tomado nota de sus comentarios y mejoraremos' closes a complaint with a commitment — showing accountability.",
+  },
+];
+
+const hosp5Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Please evacuate the building immediately'?",
+    options: ['Por favor evacúe el edificio de inmediato.', 'Permanezca en su habitación hasta nuevo aviso.', 'Diríjase a la recepción del hotel.', 'Espere las instrucciones del personal.'],
+    correctIndex: 0,
+    explanation: "'Por favor evacúe el edificio de inmediato' is the primary fire and emergency command — must be clear, fast, and unambiguous.",
+  },
+  {
+    question: "Which phrase means 'Use the stairs — do not use the elevator'?",
+    options: ['Use las escaleras — no use el elevador.', 'El elevador está disponible en emergencias.', 'Diríjase al elevador más cercano.', 'Las escaleras están bloqueadas.'],
+    correctIndex: 0,
+    explanation: "'Use las escaleras — no use el elevador' is the standard fire safety instruction — critical for guest safety during an evacuation.",
+  },
+  {
+    question: "How do you say 'Is anyone injured?'",
+    options: ['¿Hay alguien lesionado?', '¿Necesita ayuda con su equipaje?', '¿Se encuentra bien?', '¿Dónde está su habitación?'],
+    correctIndex: 0,
+    explanation: "'¿Hay alguien lesionado?' is the first responder triage question — needed to assess the situation and call for medical help.",
+  },
+  {
+    question: "'Llame al 911 de inmediato' means:",
+    options: ['Call hotel security right now.', 'Call the front desk immediately.', 'Call 911 immediately.', 'Call the manager right now.'],
+    correctIndex: 2,
+    explanation: "'Llame al 911 de inmediato' is the universal emergency services command — staff must know how to say and recognize this phrase.",
+  },
+  {
+    question: "How do you say 'Please stay calm and follow instructions'?",
+    options: ['Por favor mantenga la calma y siga las instrucciones.', 'Por favor regrese a su habitación.', 'Por favor espere en el vestíbulo.', 'Por favor no llame a nadie.'],
+    correctIndex: 0,
+    explanation: "'Por favor mantenga la calma y siga las instrucciones' is the command used to prevent panic and maintain orderly evacuation.",
+  },
+  {
+    question: "Which phrase means 'The assembly point is in the parking lot'?",
+    options: ['El punto de reunión está en el estacionamiento.', 'El punto de reunión está en el vestíbulo.', 'Por favor espere frente al hotel.', 'El punto de reunión está detrás del edificio.'],
+    correctIndex: 0,
+    explanation: "'El punto de reunión está en el estacionamiento' directs guests to the designated assembly area — key for headcounts after evacuation.",
+  },
+  {
+    question: "How do you say 'Do not re-enter the building until cleared'?",
+    options: ['No vuelva a entrar al edificio hasta recibir autorización.', 'Puede regresar a su habitación en 10 minutos.', 'El edificio está abierto de nuevo.', 'Espere la señal del bombero.'],
+    correctIndex: 0,
+    explanation: "'No vuelva a entrar al edificio hasta recibir autorización' prevents re-entry before the all-clear — a critical post-evacuation instruction.",
+  },
+  {
+    question: "'Hay un derrame de productos químicos en el tercer piso' means:",
+    options: ['There is a chemical spill on the third floor.', 'There is a gas leak on the third floor.', 'There is a fire on the third floor.', 'There is a flood on the third floor.'],
+    correctIndex: 0,
+    explanation: "Recognizing 'Hay un derrame de productos químicos' enables staff to immediately restrict access and notify emergency services.",
+  },
+  {
+    question: "How do you say 'Security has been notified'?",
+    options: ['Se ha notificado a seguridad.', 'Estamos esperando a la policía.', 'El gerente está en camino.', 'Hemos llamado a los bomberos.'],
+    correctIndex: 0,
+    explanation: "'Se ha notificado a seguridad' confirms that protective measures are already in motion — reassuring both guests and staff.",
+  },
+  {
+    question: "Which phrase means 'Please follow the emergency exit signs'?",
+    options: ['Por favor siga las señales de salida de emergencia.', 'Por favor espere junto a la puerta principal.', 'Las salidas están bloqueadas temporalmente.', 'Siga al personal hacia afuera.'],
+    correctIndex: 0,
+    explanation: "'Por favor siga las señales de salida de emergencia' reinforces wayfinding during an emergency — reducing confusion in unfamiliar spaces.",
+  },
+];
+
+const hosp1Phrases: KeyPhrase[] = [
+  { english: 'Welcome to our hotel — how can I help you?', spanish: 'Bienvenido a nuestro hotel — ¿en qué le puedo ayudar?', context: 'Opening greeting at the front desk when a guest approaches' },
+  { english: 'Your room is ready — here is your key.', spanish: 'Su habitación está lista — aquí está su llave.', context: 'Completing the check-in process and handing the guest their room key' },
+  { english: 'Check-out is at 11 AM.', spanish: 'El check-out es a las 11 de la mañana.', context: 'Informing a guest of the check-out time during check-in or when asked' },
+  { english: 'The elevator is to your right.', spanish: 'El elevador está a su derecha.', context: 'Giving directions to a guest who just received their key' },
+  { english: 'Enjoy your stay with us.', spanish: 'Disfrute su estadía con nosotros.', context: 'Warm send-off at the end of the check-in interaction' },
+];
+
+const hosp2Phrases: KeyPhrase[] = [
+  { english: 'We will send housekeeping right away.', spanish: 'Enviaremos al servicio de limpieza enseguida.', context: 'Responding to a guest request for room cleaning or fresh towels' },
+  { english: 'Maintenance will be there within 30 minutes.', spanish: 'Mantenimiento estará allí en 30 minutos.', context: 'Setting a time expectation after a repair request has been submitted' },
+  { english: 'Would you like extra pillows or blankets?', spanish: '¿Le gustaría almohadas o mantas adicionales?', context: 'Proactive amenity offer during a housekeeping or turndown interaction' },
+  { english: 'Room service is available until midnight.', spanish: 'El servicio a la habitación está disponible hasta la medianoche.', context: 'Informing a guest of room service availability when they ask about food options' },
+  { english: 'We will replace that immediately.', spanish: 'Lo reemplazaremos de inmediato.', context: 'Responding to a guest complaint about a broken or missing room item' },
+];
+
+const hosp3Phrases: KeyPhrase[] = [
+  { english: 'Do you have a reservation for dinner tonight?', spanish: '¿Tiene reservación para cenar esta noche?', context: 'Greeting a guest at the hotel restaurant entrance' },
+  { english: 'Our chef recommends the grilled chicken.', spanish: 'Nuestro chef recomienda el pollo a la parrilla.', context: 'Suggesting a dish to help a guest navigate the menu' },
+  { english: 'Do you have any food allergies?', spanish: '¿Tiene alguna alergia alimentaria?', context: 'Safety check before taking a guest order in the restaurant' },
+  { english: 'I can make a dinner reservation for 7 PM.', spanish: 'Puedo hacerle una reservación para cenar a las 7 PM.', context: 'Concierge response to a dining booking request from a hotel guest' },
+  { english: 'Would you like to see the dessert menu?', spanish: '¿Le gustaría ver el menú de postres?', context: 'Upsell offer at the end of the main course in the hotel restaurant' },
+];
+
+const hosp4Phrases: KeyPhrase[] = [
+  { english: 'I sincerely apologize for the inconvenience.', spanish: 'Me disculpo sinceramente por el inconveniente.', context: 'Opening a complaint resolution with empathy and professionalism' },
+  { english: 'We will resolve this immediately.', spanish: 'Resolveremos esto de inmediato.', context: 'Committing to fast action when a guest reports a problem' },
+  { english: 'Let me call the manager to assist you.', spanish: 'Permítame llamar al gerente para ayudarle.', context: 'Escalating a guest complaint that requires management authority' },
+  { english: 'We would like to offer you a complimentary upgrade.', spanish: 'Nos gustaría ofrecerle una mejora de habitación sin costo.', context: 'Service recovery offer after a significant guest inconvenience' },
+  { english: 'Is there anything else we can do for you?', spanish: '¿Hay algo más que podamos hacer por usted?', context: 'Closing a complaint resolution interaction to confirm full guest satisfaction' },
+];
+
+const hosp5Phrases: KeyPhrase[] = [
+  { english: 'Please evacuate the building immediately.', spanish: 'Por favor evacúe el edificio de inmediato.', context: 'Primary fire or emergency evacuation command issued to guests on the floor' },
+  { english: 'Use the stairs — do not use the elevator.', spanish: 'Use las escaleras — no use el elevador.', context: 'Fire safety instruction during an active evacuation of the hotel' },
+  { english: 'Please stay calm and follow the staff.', spanish: 'Por favor mantenga la calma y siga al personal.', context: 'Crowd management command to prevent panic during an emergency' },
+  { english: 'Is anyone injured?', spanish: '¿Hay alguien lesionado?', context: 'First-response triage question after an incident to assess medical need' },
+  { english: 'The assembly point is in the parking lot.', spanish: 'El punto de reunión está en el estacionamiento.', context: 'Directing evacuated guests to the designated safe assembly location' },
+];
+
 export const CERT_TRACKS: CertTrack[] = [
   {
     id: 'healthcare',
@@ -2525,6 +2880,20 @@ export const CERT_TRACKS: CertTrack[] = [
       { id: 3, title: 'Picking & Packing', questions: wh3Questions, keyPhrases: wh3Phrases },
       { id: 4, title: 'Team Coordination', questions: wh4Questions, keyPhrases: wh4Phrases },
       { id: 5, title: 'Emergencies & Issues', questions: wh5Questions, keyPhrases: wh5Phrases },
+    ],
+  },
+  {
+    id: 'hospitality',
+    title: 'Hospitality Services',
+    description: 'Built for hotel staff, front desk teams, and service workers who interact with Spanish-speaking guests daily.',
+    icon: '🏨',
+    color: 'from-teal-600 to-teal-800',
+    modules: [
+      { id: 1, title: 'Guest Interaction Basics', questions: hosp1Questions, keyPhrases: hosp1Phrases },
+      { id: 2, title: 'Room & Service Requests', questions: hosp2Questions, keyPhrases: hosp2Phrases },
+      { id: 3, title: 'Dining & Concierge', questions: hosp3Questions, keyPhrases: hosp3Phrases },
+      { id: 4, title: 'Problem Resolution', questions: hosp4Questions, keyPhrases: hosp4Phrases },
+      { id: 5, title: 'Safety & Emergencies', questions: hosp5Questions, keyPhrases: hosp5Phrases },
     ],
   },
 ];
