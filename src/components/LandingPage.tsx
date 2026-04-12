@@ -182,7 +182,7 @@ export default function LandingPage({
             </h1>
 
             <p className="text-slate-400 text-lg leading-relaxed mb-8 max-w-xl mx-auto">
-              Instant multilingual phrases for teachers, healthcare workers, and frontline teams. No sign-up needed.
+              Instant multilingual phrases for teachers, healthcare workers, property managers, warehouse teams, hospitality staff, agricultural crews, construction teams, and frontline teams. No sign-up needed.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -411,7 +411,7 @@ export default function LandingPage({
             </div>
 
             <p className="text-center text-slate-500 text-base mt-12">
-              Includes pre-built phrase packs for Healthcare, Construction, Education, and Community settings.
+              Includes pre-built phrase packs for Healthcare, Construction, Education, Property Management, Warehouse, Hospitality, Agriculture, and Community settings.
             </p>
           </div>
         </section>
@@ -423,7 +423,7 @@ export default function LandingPage({
               Designed for compliance teams &nbsp;&middot;&nbsp; Supports Title VI and California LEP requirements &nbsp;&middot;&nbsp; Used in the Bay Area
             </p>
             <p className="text-slate-500 text-xs font-medium mt-2 tracking-wide">
-              Used by educators, healthcare staff, and community workers.
+              Used by educators, healthcare staff, property managers, warehouse teams, hospitality staff, agricultural crews, construction teams, and community workers.
             </p>
           </div>
         </section>
@@ -435,7 +435,8 @@ export default function LandingPage({
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Certified for your organization</h2>
             <p className="text-teal-100/80 text-base mb-2">Serving multi-team organizations and compliance departments.</p>
             <p className="text-teal-100/60 text-sm mb-4">Reduce interpreter costs and improve compliance instantly.</p>
-            <p className="text-teal-100/70 text-sm mb-6">Includes Language Access Certification for staff compliance.</p>
+            <p className="text-teal-100/70 text-sm mb-3">Includes Language Access Certification for staff compliance.</p>
+            <p className="text-teal-100/60 text-sm mb-6">🎓 Certification programs available: <a href="https://LangAccess.org/certificates" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 text-teal-200 hover:text-white transition-colors">LangAccess.org/certificates</a></p>
             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-10 tracking-wide">
               <span className="w-1.5 h-1.5 rounded-full bg-teal-300 inline-block"></span>
               Certified Workforce Ready
@@ -459,7 +460,7 @@ export default function LandingPage({
           <div className="max-w-4xl mx-auto px-6 text-center">
             <p className="text-xs font-bold text-teal-400 uppercase tracking-widest mb-4">Coverage</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4 tracking-tight">Languages Supported</h2>
-            <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed mb-12">Available in five languages spoken by over 2 million Bay Area residents.</p>
+            <p className="text-slate-400 text-base max-w-lg mx-auto leading-relaxed mb-12">Available in five essential languages used across California workplaces and communities.</p>
             <div className="flex flex-wrap justify-center gap-4">
               {LANGUAGES.map(({ label, flag, bg, border, text }) => (
                 <div
