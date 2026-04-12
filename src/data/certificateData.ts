@@ -1,4 +1,4 @@
-export type TrackId = 'healthcare' | 'education' | 'construction' | 'social-services' | 'mental-health' | 'property-management' | 'warehouse' | 'hospitality';
+export type TrackId = 'healthcare' | 'education' | 'construction' | 'social-services' | 'mental-health' | 'property-management' | 'warehouse' | 'hospitality' | 'agriculture';
 
 export interface QuizQuestion {
   question: string;
@@ -2783,6 +2783,361 @@ const hosp5Phrases: KeyPhrase[] = [
   { english: 'The assembly point is in the parking lot.', spanish: 'El punto de reunión está en el estacionamiento.', context: 'Directing evacuated guests to the designated safe assembly location' },
 ];
 
+const ag1Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Start picking on this row'?",
+    options: ['Empieza a cosechar en esta fila.', 'Deja esta fila para mañana.', 'Ve a la fila siguiente.', 'Espera aquí hasta que llegue el supervisor.'],
+    correctIndex: 0,
+    explanation: "'Empieza a cosechar en esta fila' is the basic picking command that opens every harvest shift.",
+  },
+  {
+    question: "Which phrase means 'Move to the next section'?",
+    options: ['Muévete a la siguiente sección.', 'Regresa a la sección anterior.', 'Descansa en esta sección.', 'Espera en el camión.'],
+    correctIndex: 0,
+    explanation: "'Muévete a la siguiente sección' keeps crews progressing efficiently through the field without confusion.",
+  },
+  {
+    question: "How do you say 'Use this tool carefully'?",
+    options: ['Usa esta herramienta con cuidado.', 'Deja la herramienta en el suelo.', 'Guarda la herramienta en el camión.', 'Pide una herramienta nueva.'],
+    correctIndex: 0,
+    explanation: "'Usa esta herramienta con cuidado' reduces tool-related injuries — one of the leading causes of field accidents.",
+  },
+  {
+    question: "'¿Entiendes las instrucciones de hoy?' means:",
+    options: ['Did you finish work today?', 'Do you understand today\'s instructions?', 'Are you ready to go home?', 'Did you get paid today?'],
+    correctIndex: 1,
+    explanation: "'¿Entiendes las instrucciones de hoy?' confirms workers understand their daily tasks before they spread out across the field.",
+  },
+  {
+    question: "How do you say 'Line up here before we begin'?",
+    options: ['Fórmense aquí antes de que empecemos.', 'Siéntense en el camión.', 'Vayan directamente al campo.', 'Esperen afuera de la bodega.'],
+    correctIndex: 0,
+    explanation: "'Fórmensen aquí antes de que empecemos' organizes crew briefings at the start of the shift.",
+  },
+  {
+    question: "Which phrase means 'Put the full bins over there'?",
+    options: ['Pon las cajas llenas allá.', 'Deja las cajas vacías aquí.', 'Lleva las cajas al campo.', 'Abre las cajas con cuidado.'],
+    correctIndex: 0,
+    explanation: "'Pon las cajas llenas allá' is a basic sorting command used constantly at harvest collection points.",
+  },
+  {
+    question: "How do you say 'Take a 10-minute break'?",
+    options: ['Toma un descanso de 10 minutos.', 'Regresa al trabajo en 10 minutos.', 'El descanso es en una hora.', 'No hay descanso hasta las 12.'],
+    correctIndex: 0,
+    explanation: "'Toma un descanso de 10 minutos' ensures crews rest on schedule — critical in hot weather for heat illness prevention.",
+  },
+  {
+    question: "'Trabaja despacio pero con cuidado' means:",
+    options: ['Work fast and don\'t stop.', 'Work slow but be careful.', 'Stop working and wait.', 'Work only in the morning.'],
+    correctIndex: 1,
+    explanation: "'Trabaja despacio pero con cuidado' sets a quality-over-speed expectation — reducing damaged produce and worker injuries.",
+  },
+  {
+    question: "How do you ask 'Do you need more water?'",
+    options: ['¿Necesitas más agua?', '¿Tienes tu almuerzo?', '¿Cuánto tiempo tienes?', '¿Dónde está tu herramienta?'],
+    correctIndex: 0,
+    explanation: "'¿Necesitas más agua?' is a welfare check supervisors must make routinely during outdoor work in warm conditions.",
+  },
+  {
+    question: "Which phrase means 'Stay in your assigned area'?",
+    options: ['Quédate en tu área asignada.', 'Ve al área del supervisor.', 'Puedes moverte libremente.', 'Trabaja en cualquier fila.'],
+    correctIndex: 0,
+    explanation: "'Quédate en tu área asignada' maintains crew organization in large fields and prevents task duplication.",
+  },
+];
+
+const ag2Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Do not touch this machine'?",
+    options: ['No toques esta máquina.', 'Puedes usar esta máquina.', 'La máquina está lista.', 'Enciende la máquina ahora.'],
+    correctIndex: 0,
+    explanation: "'No toques esta máquina' is the first machinery safety command — prevents untrained workers from operating equipment.",
+  },
+  {
+    question: "Which phrase means 'Always wear your gloves in the field'?",
+    options: ['Siempre usa tus guantes en el campo.', 'Deja tus guantes en el camión.', 'Los guantes son opcionales hoy.', 'Usa guantes solo al cargar cajas.'],
+    correctIndex: 0,
+    explanation: "'Siempre usa tus guantes en el campo' enforces basic PPE compliance — protecting against cuts, chemicals, and abrasions.",
+  },
+  {
+    question: "How do you say 'Keep a safe distance from the tractor'?",
+    options: ['Mantén una distancia segura del tractor.', 'Puedes caminar cerca del tractor.', 'El tractor no está funcionando hoy.', 'Sigue al tractor de cerca.'],
+    correctIndex: 0,
+    explanation: "'Mantén una distancia segura del tractor' prevents the most common cause of fatal accidents on agricultural worksites.",
+  },
+  {
+    question: "'Zona de peligro — no entres' means:",
+    options: ['Danger zone — do not enter.', 'Loading zone — stand clear.', 'Restricted parking zone.', 'Equipment storage area.'],
+    correctIndex: 0,
+    explanation: "Recognizing 'Zona de peligro — no entres' allows workers to identify and avoid hazardous areas marked throughout the worksite.",
+  },
+  {
+    question: "How do you say 'Put on your hat and sunscreen'?",
+    options: ['Ponte el sombrero y protector solar.', 'Deja el sombrero en el camión.', 'El protector solar no es necesario.', 'Usa el casco amarillo.'],
+    correctIndex: 0,
+    explanation: "'Ponte el sombrero y protector solar' is a heat and UV safety instruction — mandatory in outdoor fieldwork.",
+  },
+  {
+    question: "Which phrase means 'The machine is turned off — do not restart it'?",
+    options: ['La máquina está apagada — no la reinicies.', 'La máquina está lista para usar.', 'Enciende la máquina cuando llegues.', 'La máquina necesita combustible.'],
+    correctIndex: 0,
+    explanation: "'La máquina está apagada — no la reinicies' is a lockout instruction to prevent accidental restarts during maintenance.",
+  },
+  {
+    question: "How do you ask 'Are you wearing your safety vest?'",
+    options: ['¿Estás usando tu chaleco de seguridad?', '¿Tienes tu casco puesto?', '¿Dónde están tus guantes?', '¿Tienes tu gafete de trabajo?'],
+    correctIndex: 0,
+    explanation: "'¿Estás usando tu chaleco de seguridad?' is a PPE spot-check — especially important near operating vehicles and machinery.",
+  },
+  {
+    question: "'No te acerques a las aspas del ventilador' means:",
+    options: ['Do not block the fan outlet.', 'Do not touch the fan control.', 'Do not go near the fan blades.', 'Do not turn on the fan.'],
+    correctIndex: 2,
+    explanation: "Recognizing 'No te acerques a las aspas del ventilador' prevents contact with rotating blades — a serious laceration hazard.",
+  },
+  {
+    question: "How do you say 'Report any equipment damage immediately'?",
+    options: ['Reporta cualquier daño al equipo de inmediato.', 'Repara el equipo tú mismo si puedes.', 'El daño al equipo no es urgente.', 'Espera al mecánico mañana.'],
+    correctIndex: 0,
+    explanation: "'Reporta cualquier daño al equipo de inmediato' ensures unsafe equipment is taken out of service before causing injury.",
+  },
+  {
+    question: "Which phrase means 'This area is off-limits without a supervisor'?",
+    options: ['Esta área está prohibida sin un supervisor.', 'Esta área está abierta para todos.', 'Entra solo si tienes tu equipo de seguridad.', 'Esta área está cerrada por mantenimiento.'],
+    correctIndex: 0,
+    explanation: "'Esta área está prohibida sin un supervisor' controls access to high-risk zones requiring trained oversight.",
+  },
+];
+
+const ag3Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Pick only the ripe ones'?",
+    options: ['Cosecha solo los maduros.', 'Cosecha todos los que veas.', 'Deja los maduros para mañana.', 'Corta solo los verdes.'],
+    correctIndex: 0,
+    explanation: "'Cosecha solo los maduros' is the core quality control instruction at harvest — preventing waste and ensuring product standards.",
+  },
+  {
+    question: "Which phrase means 'Sort by size — large ones here, small ones there'?",
+    options: ['Clasifica por tamaño — los grandes aquí, los pequeños allá.', 'Mezcla todos los tamaños en una caja.', 'Pon los más grandes en el camión.', 'Los pequeños se descartan hoy.'],
+    correctIndex: 0,
+    explanation: "'Clasifica por tamaño' is the standard grading command at packing stations — directly tied to product price and market acceptance.",
+  },
+  {
+    question: "How do you say 'Fill the bin to the top but do not overfill'?",
+    options: ['Llena la caja hasta arriba pero no la llenes de más.', 'Llena la caja lo más que puedas.', 'Deja la caja a la mitad.', 'No llenes las cajas hoy.'],
+    correctIndex: 0,
+    explanation: "'Llena la caja hasta arriba pero no la llenes de más' balances volume efficiency with produce protection during transport.",
+  },
+  {
+    question: "'¿Cuántas cajas has llenado hasta ahora?' means:",
+    options: ['How many workers are here?', 'How many hours have you worked?', 'How many bins have you filled so far?', 'How many rows are left?'],
+    correctIndex: 2,
+    explanation: "'¿Cuántas cajas has llenado hasta ahora?' is the standard productivity check supervisors use to track crew output.",
+  },
+  {
+    question: "How do you say 'Handle the produce gently — do not bruise it'?",
+    options: ['Maneja el producto con cuidado — no lo golpees.', 'Puedes lanzar las frutas a la caja.', 'No importa si se magullan.', 'Aprieta el producto para ver si está maduro.'],
+    correctIndex: 0,
+    explanation: "'Maneja el producto con cuidado — no lo golpees' protects product quality — bruised produce is rejected at the packinghouse.",
+  },
+  {
+    question: "Which phrase means 'Move the full bins to the loading area'?",
+    options: ['Mueve las cajas llenas al área de carga.', 'Deja las cajas llenas en el campo.', 'Las cajas llenas van al almacén.', 'Lleva las cajas vacías al camión.'],
+    correctIndex: 0,
+    explanation: "'Mueve las cajas llenas al área de carga' is the harvest handoff command — keeps product moving from field to transport.",
+  },
+  {
+    question: "How do you say 'We need to finish this row before lunch'?",
+    options: ['Necesitamos terminar esta fila antes del almuerzo.', 'Esta fila puede esperar hasta mañana.', 'Descansa ahora y termina la fila después.', 'No hay prisa hoy.'],
+    correctIndex: 0,
+    explanation: "'Necesitamos terminar esta fila antes del almuerzo' sets a clear productivity target tied to a familiar time marker.",
+  },
+  {
+    question: "'Este producto no cumple con los estándares de calidad' means:",
+    options: ['This product is ready to ship.', 'This product does not meet quality standards.', 'This product needs more time to ripen.', 'This product is certified organic.'],
+    correctIndex: 1,
+    explanation: "Recognizing 'Este producto no cumple con los estándares de calidad' allows workers to separate rejected product before it reaches packing.",
+  },
+  {
+    question: "How do you ask 'Is this row finished?'",
+    options: ['¿Está terminada esta fila?', '¿Cuándo empezaste esta fila?', '¿Cuántos trabajadores hay en esta fila?', '¿Esta fila está marcada?'],
+    correctIndex: 0,
+    explanation: "'¿Está terminada esta fila?' is the supervisor's completion check before the crew moves to the next section.",
+  },
+  {
+    question: "Which phrase means 'Stack the boxes carefully so they do not fall'?",
+    options: ['Apila las cajas con cuidado para que no se caigan.', 'Lanza las cajas al camión.', 'Pon las cajas en cualquier lugar.', 'Las cajas ya están apiladas.'],
+    correctIndex: 0,
+    explanation: "'Apila las cajas con cuidado para que no se caigan' prevents product loss and worker injury from unstable stacks at the loading area.",
+  },
+];
+
+const ag4Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Do not enter the field for 24 hours after spraying'?",
+    options: ['No entres al campo por 24 horas después de la aplicación.', 'Puedes entrar al campo una hora después del spray.', 'El campo está listo para trabajar de inmediato.', 'Espera 10 minutos antes de entrar.'],
+    correctIndex: 0,
+    explanation: "'No entres al campo por 24 horas después de la aplicación' enforces the re-entry interval — a federal pesticide safety requirement.",
+  },
+  {
+    question: "Which phrase means 'Always wear protective equipment when handling chemicals'?",
+    options: ['Siempre usa equipo de protección al manejar químicos.', 'Los guantes son opcionales con los químicos suaves.', 'Solo usa protección si el químico huele fuerte.', 'El equipo de protección es para supervisores.'],
+    correctIndex: 0,
+    explanation: "'Siempre usa equipo de protección al manejar químicos' is the non-negotiable PPE rule for pesticide and fertilizer application.",
+  },
+  {
+    question: "How do you say 'Do not eat or drink near the chemicals'?",
+    options: ['No comas ni bebas cerca de los químicos.', 'Puedes comer si usas guantes.', 'Bebe agua después de aplicar el químico.', 'Come tu almuerzo lejos de las máquinas.'],
+    correctIndex: 0,
+    explanation: "'No comas ni bebas cerca de los químicos' prevents accidental ingestion — a leading cause of farmworker pesticide poisoning.",
+  },
+  {
+    question: "'Esta área ha sido tratada con pesticidas' means:",
+    options: ['This area has been cleared for harvest.', 'This area has been treated with pesticides.', 'This area is approved for organic produce.', 'This area needs additional spraying.'],
+    correctIndex: 1,
+    explanation: "Recognizing 'Esta área ha sido tratada con pesticidas' allows workers to identify and avoid treated zones until the re-entry period expires.",
+  },
+  {
+    question: "How do you say 'Wash your hands thoroughly after contact'?",
+    options: ['Lávate las manos bien después del contacto.', 'Lávate las manos solo al terminar el turno.', 'No es necesario lavarse las manos en el campo.', 'Usa gel desinfectante en lugar de agua.'],
+    correctIndex: 0,
+    explanation: "'Lávate las manos bien después del contacto' is the post-exposure decontamination instruction — required after any pesticide contact.",
+  },
+  {
+    question: "Which phrase means 'If you feel sick after contact with chemicals, tell the supervisor immediately'?",
+    options: ['Si te sientes mal después del contacto con químicos, avisa al supervisor de inmediato.', 'Si te sientes mal, descansa hasta que pase.', 'Los síntomas de los químicos desaparecen solos.', 'Llama a tu doctor cuando llegues a casa.'],
+    correctIndex: 0,
+    explanation: "This phrase ensures immediate reporting of pesticide exposure symptoms — enabling rapid medical response before conditions worsen.",
+  },
+  {
+    question: "How do you say 'Store all chemicals in the locked cabinet'?",
+    options: ['Guarda todos los químicos en el gabinete con llave.', 'Deja los químicos en el campo después de usarlos.', 'Guarda los químicos cerca del área de comida.', 'Los químicos pueden quedarse en el camión.'],
+    correctIndex: 0,
+    explanation: "'Guarda todos los químicos en el gabinete con llave' ensures proper chemical storage — preventing unauthorized access and accidental exposure.",
+  },
+  {
+    question: "'No mezcles estos dos productos químicos' means:",
+    options: ['Do not use these chemicals outdoors.', 'Do not mix these two chemical products.', 'Do not buy these chemical products.', 'Do not apply these chemicals by hand.'],
+    correctIndex: 1,
+    explanation: "'No mezcles estos dos productos químicos' prevents dangerous chemical reactions — some mixtures produce toxic gases in the field.",
+  },
+  {
+    question: "How do you ask 'Have you read the safety label on this product?'",
+    options: ['¿Leíste la etiqueta de seguridad de este producto?', '¿Sabes cómo aplicar este producto?', '¿Tienes el permiso para usar este producto?', '¿Ya terminaste de aplicar el producto?'],
+    correctIndex: 0,
+    explanation: "'¿Leíste la etiqueta de seguridad de este producto?' confirms label comprehension — legally required training under the Worker Protection Standard.",
+  },
+  {
+    question: "Which phrase means 'Do not spray near the water source'?",
+    options: ['No rocíes cerca de la fuente de agua.', 'Puedes rociar cerca del canal de riego.', 'El agua no afecta estos químicos.', 'Rocía solo cuando no haya viento.'],
+    correctIndex: 0,
+    explanation: "'No rocíes cerca de la fuente de agua' protects irrigation systems and nearby waterways from pesticide contamination.",
+  },
+];
+
+const ag5Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'Someone is injured — call for help immediately'?",
+    options: ['Alguien está lesionado — llama pidiendo ayuda de inmediato.', 'Lleva al lesionado al camión.', 'Espera al supervisor antes de hacer nada.', 'El botiquín está en la bodega.'],
+    correctIndex: 0,
+    explanation: "'Alguien está lesionado — llama pidiendo ayuda de inmediato' is the field emergency command — fast response saves lives.",
+  },
+  {
+    question: "Which phrase means 'Are you feeling dizzy or nauseous?'",
+    options: ['¿Te sientes mareado o con náuseas?', '¿Tienes hambre o sed?', '¿Estás cansado o adolorido?', '¿Necesitas más agua o descanso?'],
+    correctIndex: 0,
+    explanation: "'¿Te sientes mareado o con náuseas?' are the primary heat exhaustion warning signs — catching them early prevents heat stroke.",
+  },
+  {
+    question: "How do you say 'Move to the shade and rest immediately'?",
+    options: ['Muévete a la sombra y descansa de inmediato.', 'Sigue trabajando en la sombra.', 'Descansa en el camión por 5 minutos.', 'Espera al supervisor en el campo.'],
+    correctIndex: 0,
+    explanation: "'Muévete a la sombra y descansa de inmediato' is the first field response to heat exhaustion — delays can lead to heat stroke.",
+  },
+  {
+    question: "'Llama al 911 — es una emergencia' means:",
+    options: ['Call the farm office — it is an emergency.', 'Call 911 — it is an emergency.', 'Call the supervisor — someone is hurt.', 'Call for water — it is very hot.'],
+    correctIndex: 1,
+    explanation: "'Llama al 911 — es una emergencia' is the universal emergency command every field worker must recognize and be able to say.",
+  },
+  {
+    question: "How do you say 'Drink water right now — you look pale'?",
+    options: ['Toma agua ahora mismo — te ves pálido.', 'Descansa aquí hasta que pase.', 'Come algo antes de seguir trabajando.', 'Siéntate en el camión y espera.'],
+    correctIndex: 0,
+    explanation: "'Toma agua ahora mismo — te ves pálido' is a direct intervention for early dehydration or heat illness in the field.",
+  },
+  {
+    question: "Which phrase means 'Stop work — there is a hazard on the field'?",
+    options: ['Paren el trabajo — hay un peligro en el campo.', 'Continúen trabajando con cuidado.', 'El peligro está controlado — sigan adelante.', 'Esperen en sus áreas hasta nuevo aviso.'],
+    correctIndex: 0,
+    explanation: "'Paren el trabajo — hay un peligro en el campo' is the all-stop command when a safety threat is identified — must be immediate and clear.",
+  },
+  {
+    question: "How do you say 'Do not move someone who may have a back or neck injury'?",
+    options: ['No muevas a alguien que pueda tener una lesión en la espalda o el cuello.', 'Carga al lesionado al camión de inmediato.', 'Ayuda al lesionado a sentarse.', 'Lleva al lesionado a la sombra.'],
+    correctIndex: 0,
+    explanation: "'No muevas a alguien que pueda tener una lesión en la espalda o el cuello' prevents paralysis from improper handling — critical first aid knowledge.",
+  },
+  {
+    question: "'El trabajador se desmayó en el campo' means:",
+    options: ['The worker slipped in the field.', 'The worker is too tired to continue.', 'The worker fainted in the field.', 'The worker left the field early.'],
+    correctIndex: 2,
+    explanation: "Recognizing 'El trabajador se desmayó en el campo' allows immediate escalation — fainting in heat conditions requires urgent medical response.",
+  },
+  {
+    question: "How do you ask 'Where does it hurt?'",
+    options: ['¿Dónde te duele?', '¿Cuándo ocurrió esto?', '¿Puedes caminar?', '¿Tomaste agua hoy?'],
+    correctIndex: 0,
+    explanation: "'¿Dónde te duele?' is the basic injury triage question — localizing pain helps supervisors assess severity and communicate with responders.",
+  },
+  {
+    question: "Which phrase means 'Stay with the injured worker until help arrives'?",
+    options: ['Quédate con el trabajador lesionado hasta que llegue la ayuda.', 'Deja al lesionado y ve a buscar al supervisor.', 'El lesionado puede esperar solo.', 'Regresa al trabajo mientras esperan la ambulancia.'],
+    correctIndex: 0,
+    explanation: "'Quédate con el trabajador lesionado hasta que llegue la ayuda' ensures the injured person is monitored and kept calm until emergency services arrive.",
+  },
+];
+
+const ag1Phrases: KeyPhrase[] = [
+  { english: 'Start picking on this row.', spanish: 'Empieza a cosechar en esta fila.', context: 'Directing a crew member to their assigned row at the start of a harvest shift' },
+  { english: 'Move to the next section when you finish.', spanish: 'Muévete a la siguiente sección cuando termines.', context: 'Keeping harvest crews progressing through the field without waiting for instruction' },
+  { english: 'Use this tool carefully.', spanish: 'Usa esta herramienta con cuidado.', context: 'Handing a worker a pruning knife, picking shears, or other sharp field tool' },
+  { english: 'Take a 10-minute break — drink water.', spanish: 'Toma un descanso de 10 minutos — toma agua.', context: 'Calling a scheduled rest break during fieldwork in warm conditions' },
+  { english: 'Do you understand today\'s instructions?', spanish: '¿Entiendes las instrucciones de hoy?', context: 'Confirming comprehension during the morning crew briefing before work begins' },
+];
+
+const ag2Phrases: KeyPhrase[] = [
+  { english: 'Do not touch this machine — it is not safe.', spanish: 'No toques esta máquina — no es segura.', context: 'Warning a worker away from malfunctioning or restricted equipment in the field' },
+  { english: 'Always wear your gloves and hat in the field.', spanish: 'Siempre usa tus guantes y sombrero en el campo.', context: 'PPE enforcement during pre-shift check before workers enter the field' },
+  { english: 'Keep a safe distance from the tractor.', spanish: 'Mantén una distancia segura del tractor.', context: 'Safety instruction given when a tractor begins operating near hand workers' },
+  { english: 'This area is a danger zone — do not enter.', spanish: 'Esta área es zona de peligro — no entres.', context: 'Verbal warning given at the boundary of a restricted or hazardous section of the worksite' },
+  { english: 'Report any equipment damage to the supervisor.', spanish: 'Reporta cualquier daño al equipo al supervisor.', context: 'End-of-shift instruction reminding workers to flag mechanical issues before the next day' },
+];
+
+const ag3Phrases: KeyPhrase[] = [
+  { english: 'Pick only the ripe ones — leave the rest.', spanish: 'Cosecha solo los maduros — deja los demás.', context: 'Quality control instruction at the start of a selective harvest task' },
+  { english: 'Fill the bin to the top but do not overfill.', spanish: 'Llena la caja hasta arriba pero no la llenes de más.', context: 'Packing instruction at the harvest collection point to balance volume and product safety' },
+  { english: 'Handle the produce gently — do not bruise it.', spanish: 'Maneja el producto con cuidado — no lo golpees.', context: 'Quality reminder given to workers sorting or transferring produce to bins' },
+  { english: 'Move the full bins to the loading area.', spanish: 'Mueve las cajas llenas al área de carga.', context: 'Harvest handoff command to keep product moving from the field to the transport vehicle' },
+  { english: 'How many bins have you filled so far?', spanish: '¿Cuántas cajas has llenado hasta ahora?', context: 'Mid-shift productivity check by the supervisor to monitor crew output' },
+];
+
+const ag4Phrases: KeyPhrase[] = [
+  { english: 'Do not enter the field for 24 hours after spraying.', spanish: 'No entres al campo por 24 horas después de la aplicación.', context: 'Re-entry interval notification posted at field entrances after pesticide application' },
+  { english: 'Always wear protective equipment when handling chemicals.', spanish: 'Siempre usa equipo de protección al manejar químicos.', context: 'PPE requirement communicated before any chemical handling task begins' },
+  { english: 'Wash your hands thoroughly before eating.', spanish: 'Lávate bien las manos antes de comer.', context: 'Decontamination reminder given before crew breaks after working near treated areas' },
+  { english: 'If you feel sick, tell the supervisor immediately.', spanish: 'Si te sientes mal, avisa al supervisor de inmediato.', context: 'Pesticide exposure response instruction included in Worker Protection Standard training' },
+  { english: 'Do not spray near the water source.', spanish: 'No rocíes cerca de la fuente de agua.', context: 'Environmental compliance instruction given to applicators working near irrigation canals' },
+];
+
+const ag5Phrases: KeyPhrase[] = [
+  { english: 'Someone is injured — call for help immediately.', spanish: 'Alguien está lesionado — llama pidiendo ayuda de inmediato.', context: 'First emergency command on the field when a worker is hurt' },
+  { english: 'Move to the shade and rest — drink water now.', spanish: 'Muévete a la sombra y descansa — toma agua ahora.', context: 'Immediate response instruction when a worker shows signs of heat exhaustion' },
+  { english: 'Call 911 — it is an emergency.', spanish: 'Llama al 911 — es una emergencia.', context: 'Escalation command for serious injuries, heat stroke, or chemical exposure in the field' },
+  { english: 'Stay with the injured worker until help arrives.', spanish: 'Quédate con el trabajador lesionado hasta que llegue la ayuda.', context: 'Post-incident instruction to ensure the injured person is not left alone before responders arrive' },
+  { english: 'Where does it hurt?', spanish: '¿Dónde te duele?', context: 'Basic injury triage question used to assess the location and severity of a field injury' },
+];
+
 export const CERT_TRACKS: CertTrack[] = [
   {
     id: 'healthcare',
@@ -2894,6 +3249,20 @@ export const CERT_TRACKS: CertTrack[] = [
       { id: 3, title: 'Dining & Concierge', questions: hosp3Questions, keyPhrases: hosp3Phrases },
       { id: 4, title: 'Problem Resolution', questions: hosp4Questions, keyPhrases: hosp4Phrases },
       { id: 5, title: 'Safety & Emergencies', questions: hosp5Questions, keyPhrases: hosp5Phrases },
+    ],
+  },
+  {
+    id: 'agriculture',
+    title: 'Agricultural Worksites',
+    description: 'Built for field workers, supervisors, and agricultural teams needing clear Spanish communication for safety and productivity.',
+    icon: '🌾',
+    color: 'from-lime-600 to-lime-800',
+    modules: [
+      { id: 1, title: 'Field Communication Basics', questions: ag1Questions, keyPhrases: ag1Phrases },
+      { id: 2, title: 'Equipment & Safety', questions: ag2Questions, keyPhrases: ag2Phrases },
+      { id: 3, title: 'Task Coordination', questions: ag3Questions, keyPhrases: ag3Phrases },
+      { id: 4, title: 'Chemicals & Compliance', questions: ag4Questions, keyPhrases: ag4Phrases },
+      { id: 5, title: 'Emergencies & Crew Support', questions: ag5Questions, keyPhrases: ag5Phrases },
     ],
   },
 ];
