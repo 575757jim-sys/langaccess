@@ -420,7 +420,7 @@ export default function LandingPage({
         <section className="w-full bg-slate-900 py-5">
           <div className="max-w-6xl mx-auto px-6 text-center">
             <p className="text-teal-500/80 text-xs font-medium leading-relaxed tracking-wide">
-              Designed for compliance teams &nbsp;&middot;&nbsp; Supports Title VI and California LEP requirements &nbsp;&middot;&nbsp; Used in the Bay Area
+              Designed for compliance teams &nbsp;&middot;&nbsp; Supports Title VI and California LEP requirements &nbsp;&middot;&nbsp; Used across California
             </p>
             <p className="text-slate-500 text-xs font-medium mt-2 tracking-wide">
               Used by educators, healthcare staff, property managers, warehouse teams, hospitality staff, agricultural crews, construction teams, and community workers.
