@@ -1,4 +1,4 @@
-export type TrackId = 'healthcare' | 'education' | 'construction' | 'social-services' | 'mental-health' | 'property-management' | 'warehouse' | 'hospitality' | 'agriculture';
+export type TrackId = 'healthcare' | 'education' | 'construction' | 'social-services' | 'mental-health' | 'property-management' | 'warehouse' | 'hospitality' | 'agriculture' | 'community-outreach';
 
 export interface QuizQuestion {
   question: string;
@@ -3138,6 +3138,361 @@ const ag5Phrases: KeyPhrase[] = [
   { english: 'Where does it hurt?', spanish: '¿Dónde te duele?', context: 'Basic injury triage question used to assess the location and severity of a field injury' },
 ];
 
+const co1Questions: QuizQuestion[] = [
+  {
+    question: "How do you ask 'Do you need help today?'",
+    options: ['¿Necesitas ayuda hoy?', '¿Dónde vives?', '¿Tienes familia aquí?', '¿Puedo ver tu identificación?'],
+    correctIndex: 0,
+    explanation: "'¿Necesitas ayuda hoy?' opens every outreach interaction — it signals safety and willingness to assist without pressure.",
+  },
+  {
+    question: "Which phrase means 'I am here to help you — you are safe'?",
+    options: ['Estoy aquí para ayudarte — estás seguro/a.', 'Tienes que esperar en la fila.', 'Necesito ver tus documentos primero.', 'Vuelve mañana con más información.'],
+    correctIndex: 0,
+    explanation: "'Estoy aquí para ayudarte — estás seguro/a' builds immediate trust — especially critical for individuals experiencing trauma or fear.",
+  },
+  {
+    question: "How do you say 'What do you need right now?'",
+    options: ['¿Qué necesitas en este momento?', '¿Cuánto tiempo llevas aquí?', '¿De dónde eres?', '¿Tienes trabajo actualmente?'],
+    correctIndex: 0,
+    explanation: "'¿Qué necesitas en este momento?' centers the conversation on the person's immediate need — the foundation of client-centered outreach.",
+  },
+  {
+    question: "'¿Hablas inglés?' means:",
+    options: ['Do you need a translator?', 'Do you speak English?', 'Where did you learn Spanish?', 'Can you read this form?'],
+    correctIndex: 1,
+    explanation: "Asking '¿Hablas inglés?' helps determine what language support is needed before proceeding with any assistance.",
+  },
+  {
+    question: "How do you say 'I speak a little Spanish — I want to help'?",
+    options: ['Hablo un poco de español — quiero ayudarte.', 'No hablo español muy bien.', 'Necesitas un intérprete profesional.', 'Habla más despacio, por favor.'],
+    correctIndex: 0,
+    explanation: "'Hablo un poco de español — quiero ayudarte' reassures clients that language differences will not be a barrier to receiving help.",
+  },
+  {
+    question: "Which phrase means 'Do you have children with you?'",
+    options: ['¿Tienes hijos contigo?', '¿Tienes familia en otro estado?', '¿Cuántos años tienes?', '¿Estás solo/a aquí?'],
+    correctIndex: 0,
+    explanation: "'¿Tienes hijos contigo?' identifies whether the client has dependents — triggering additional family-specific resources and referrals.",
+  },
+  {
+    question: "How do you say 'Are you sleeping outside tonight?'",
+    options: ['¿Estás durmiendo afuera esta noche?', '¿Tienes un lugar para quedarte?', '¿Cuándo llegaste aquí?', '¿Estás buscando trabajo?'],
+    correctIndex: 0,
+    explanation: "'¿Estás durmiendo afuera esta noche?' directly assesses immediate shelter need — the most urgent factor in outreach prioritization.",
+  },
+  {
+    question: "'¿Has comido hoy?' means:",
+    options: ['Did you sleep last night?', 'Do you have money for food?', 'Have you eaten today?', 'Are you feeling sick?'],
+    correctIndex: 2,
+    explanation: "'¿Has comido hoy?' checks for immediate food insecurity — one of the first needs assessed in outreach encounters.",
+  },
+  {
+    question: "How do you say 'You do not need to show me any documents right now'?",
+    options: ['No necesitas mostrarme ningún documento ahora mismo.', 'Necesito ver tu identificación antes de ayudarte.', 'Los documentos son obligatorios para recibir ayuda.', 'Por favor trae tus papeles mañana.'],
+    correctIndex: 0,
+    explanation: "'No necesitas mostrarme ningún documento ahora mismo' reduces fear for undocumented individuals — enabling access to basic assistance.",
+  },
+  {
+    question: "Which phrase means 'I will connect you with someone who can help more'?",
+    options: ['Te voy a conectar con alguien que puede ayudarte más.', 'Aquí no podemos ayudarte con eso.', 'Tienes que ir a otra oficina.', 'Regresa la próxima semana.'],
+    correctIndex: 0,
+    explanation: "'Te voy a conectar con alguien que puede ayudarte más' is the warm handoff phrase — maintaining trust while making a referral.",
+  },
+];
+
+const co2Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'There is a shelter available tonight'?",
+    options: ['Hay un albergue disponible esta noche.', 'El albergue está lleno esta noche.', 'El albergue abre mañana por la mañana.', 'Necesitas reservación para el albergue.'],
+    correctIndex: 0,
+    explanation: "'Hay un albergue disponible esta noche' is the most critical shelter availability phrase — used to prevent unsheltered nights.",
+  },
+  {
+    question: "Which phrase means 'You need to check in before 8pm'?",
+    options: ['Necesitas registrarte antes de las 8pm.', 'El registro es solo los lunes y miércoles.', 'Puedes llegar al albergue a cualquier hora.', 'El registro cierra a las 10pm.'],
+    correctIndex: 0,
+    explanation: "'Necesitas registrarte antes de las 8pm' communicates intake deadlines — clients who miss these windows may lose their bed assignment.",
+  },
+  {
+    question: "How do you say 'No alcohol or drugs are allowed in the shelter'?",
+    options: ['No se permite alcohol ni drogas en el albergue.', 'El albergue permite alcohol los fines de semana.', 'Las drogas recetadas están prohibidas aquí.', 'Puedes traer bebidas si las guardas en tu mochila.'],
+    correctIndex: 0,
+    explanation: "'No se permite alcohol ni drogas en el albergue' communicates a universal shelter rule — violations result in removal from the program.",
+  },
+  {
+    question: "'¿Tienes a alguien contigo?' means:",
+    options: ['Do you have a reservation here?', 'Do you have someone with you?', 'Do you have your ID with you?', 'Do you have a place to stay?'],
+    correctIndex: 1,
+    explanation: "'¿Tienes a alguien contigo?' identifies whether the person is alone or with others — affecting bed assignment and family unit placement.",
+  },
+  {
+    question: "How do you say 'Men and women sleep in separate areas'?",
+    options: ['Los hombres y las mujeres duermen en áreas separadas.', 'Las familias tienen habitaciones privadas.', 'Todos duermen en el mismo salón.', 'Las mujeres tienen prioridad en las camas.'],
+    correctIndex: 0,
+    explanation: "'Los hombres y las mujeres duermen en áreas separadas' explains basic shelter layout — essential safety information for new arrivals.",
+  },
+  {
+    question: "Which phrase means 'Showers and meals are available here'?",
+    options: ['Hay duchas y comidas disponibles aquí.', 'Solo hay duchas en el segundo piso.', 'Las comidas se sirven en otro lugar.', 'Las duchas están cerradas por mantenimiento.'],
+    correctIndex: 0,
+    explanation: "'Hay duchas y comidas disponibles aquí' orients a new client to basic services — reducing anxiety during the first shelter visit.",
+  },
+  {
+    question: "How do you say 'You can stay here for up to 30 days'?",
+    options: ['Puedes quedarte aquí hasta 30 días.', 'Solo puedes quedarte esta noche.', 'No hay límite de tiempo en este albergue.', 'La estadía máxima es de 7 días.'],
+    correctIndex: 0,
+    explanation: "'Puedes quedarte aquí hasta 30 días' sets clear expectations about program length — helping clients plan their next steps.",
+  },
+  {
+    question: "'El albergue está lleno esta noche' means:",
+    options: ['The shelter opens tonight.', 'The shelter is full tonight.', 'The shelter closes tonight.', 'The shelter has a waitlist tonight.'],
+    correctIndex: 1,
+    explanation: "Communicating 'El albergue está lleno esta noche' accurately is essential — triggering a referral to overflow or alternative shelter immediately.",
+  },
+  {
+    question: "How do you ask 'Have you stayed at a shelter before?'",
+    options: ['¿Has estado en un albergue antes?', '¿Cuándo fue la última vez que dormiste adentro?', '¿Conoces las reglas del albergue?', '¿Tienes ropa de cama contigo?'],
+    correctIndex: 0,
+    explanation: "'¿Has estado en un albergue antes?' assesses familiarity with the system — first-time clients need more detailed orientation.",
+  },
+  {
+    question: "Which phrase means 'We can help you find more permanent housing'?",
+    options: ['Podemos ayudarte a encontrar vivienda más permanente.', 'Este albergue es solo temporal.', 'Tienes que buscar vivienda por tu cuenta.', 'La vivienda permanente no está disponible ahora.'],
+    correctIndex: 0,
+    explanation: "'Podemos ayudarte a encontrar vivienda más permanente' introduces housing navigation services — the bridge from emergency shelter to stability.",
+  },
+];
+
+const co3Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'There is a food bank two blocks from here'?",
+    options: ['Hay un banco de alimentos a dos cuadras de aquí.', 'El banco de alimentos está cerrado hoy.', 'El banco de alimentos es solo para residentes.', 'Hay comida disponible en la iglesia los domingos.'],
+    correctIndex: 0,
+    explanation: "'Hay un banco de alimentos a dos cuadras de aquí' is a direct resource referral — giving a specific location reduces barriers to access.",
+  },
+  {
+    question: "Which phrase means 'Food is distributed on Tuesdays and Thursdays'?",
+    options: ['La comida se distribuye los martes y jueves.', 'La distribución de comida es solo los sábados.', 'La comida se reparte todos los días.', 'La distribución termina el viernes.'],
+    correctIndex: 0,
+    explanation: "'La comida se distribuye los martes y jueves' communicates distribution schedules — missing this information means missing a meal.",
+  },
+  {
+    question: "How do you say 'You do not need to prove income to receive food'?",
+    options: ['No necesitas comprobar ingresos para recibir comida.', 'Necesitas mostrar comprobante de ingresos.', 'Solo las familias con menos de $1,000 al mes califican.', 'La comida es solo para personas desempleadas.'],
+    correctIndex: 0,
+    explanation: "'No necesitas comprobar ingresos para recibir comida' removes a common eligibility fear — many clients assume they must prove poverty.",
+  },
+  {
+    question: "'¿Tienes alguna restricción alimentaria?' means:",
+    options: ['Do you have a food allergy or restriction?', 'Do you have enough food at home?', 'Do you need a referral for food?', 'Do you know where the food bank is?'],
+    correctIndex: 0,
+    explanation: "'¿Tienes alguna restricción alimentaria?' identifies dietary needs — important for clients with diabetes, allergies, or religious dietary requirements.",
+  },
+  {
+    question: "How do you say 'You can take enough food for your whole family'?",
+    options: ['Puedes llevar comida suficiente para toda tu familia.', 'Solo puedes llevar comida para una persona.', 'La cantidad de comida depende de tu familia.', 'La comida es solo para adultos mayores.'],
+    correctIndex: 0,
+    explanation: "'Puedes llevar comida suficiente para toda tu familia' clarifies distribution rules — preventing under-collection due to uncertainty.",
+  },
+  {
+    question: "Which phrase means 'The line starts at 9am — arrive early'?",
+    options: ['La fila empieza a las 9am — llega temprano.', 'El servicio empieza a las 12pm.', 'No hay fila — puedes llegar en cualquier momento.', 'La distribución termina en una hora.'],
+    correctIndex: 0,
+    explanation: "'La fila empieza a las 9am — llega temprano' gives actionable guidance — distribution is often first-come, first-served.",
+  },
+  {
+    question: "How do you say 'We also have hygiene products available'?",
+    options: ['También tenemos productos de higiene disponibles.', 'Los productos de higiene cuestan un dólar cada uno.', 'Los productos de higiene están en otra ubicación.', 'Los productos de higiene son solo para familias.'],
+    correctIndex: 0,
+    explanation: "'También tenemos productos de higiene disponibles' informs clients of non-food essentials — toothbrushes, soap, and pads are often critically needed.",
+  },
+  {
+    question: "'¿Cuántas personas hay en tu familia?' means:",
+    options: ['How long have you been in this city?', 'How many people are in your family?', 'How often do you visit the food bank?', 'How far do you live from here?'],
+    correctIndex: 1,
+    explanation: "'¿Cuántas personas hay en tu familia?' determines household size — directly affecting the amount of food and resources distributed.",
+  },
+  {
+    question: "How do you say 'Come back next week for more supplies'?",
+    options: ['Regresa la próxima semana para más suministros.', 'No puedes regresar hasta el mes que viene.', 'Los suministros se agotan rápidamente.', 'Llama antes de venir la próxima vez.'],
+    correctIndex: 0,
+    explanation: "'Regresa la próxima semana para más suministros' establishes continuity of care — clients need to know they can come back.",
+  },
+  {
+    question: "Which phrase means 'I can give you directions to the nearest clinic'?",
+    options: ['Puedo darte indicaciones a la clínica más cercana.', 'La clínica está demasiado lejos para caminar.', 'Necesitas seguro médico para ir a la clínica.', 'La clínica solo atiende por cita.'],
+    correctIndex: 0,
+    explanation: "'Puedo darte indicaciones a la clínica más cercana' bridges food and health referrals — outreach workers often connect both needs in one conversation.",
+  },
+];
+
+const co4Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'We can help you get an ID'?",
+    options: ['Podemos ayudarte a obtener una identificación.', 'Necesitas una identificación antes de recibir ayuda.', 'Las identificaciones solo se tramitan en el DMV.', 'No podemos ayudarte con documentos de identidad.'],
+    correctIndex: 0,
+    explanation: "'Podemos ayudarte a obtener una identificación' opens the documentation pathway — an ID is required for housing, employment, and most services.",
+  },
+  {
+    question: "Which phrase means 'Do you have any documents with you right now?'",
+    options: ['¿Tienes algún documento contigo ahora mismo?', '¿Cuándo perdiste tus documentos?', '¿Tienes una copia de tus documentos en casa?', '¿Tienes documentos del gobierno?'],
+    correctIndex: 0,
+    explanation: "'¿Tienes algún documento contigo ahora mismo?' starts the document assessment — even a partial record can help establish identity.",
+  },
+  {
+    question: "How do you say 'This organization can help you apply for benefits'?",
+    options: ['Esta organización puede ayudarte a solicitar beneficios.', 'Los beneficios no están disponibles en esta oficina.', 'Tienes que aplicar por internet tú mismo.', 'Los beneficios son solo para ciudadanos.'],
+    correctIndex: 0,
+    explanation: "'Esta organización puede ayudarte a solicitar beneficios' introduces navigation support — many clients do not know where to apply or how.",
+  },
+  {
+    question: "'¿Tienes número de Seguro Social?' means:",
+    options: ['Do you have a valid ID?', 'Do you have a Social Security number?', 'Do you have health insurance?', 'Do you have a bank account?'],
+    correctIndex: 1,
+    explanation: "'¿Tienes número de Seguro Social?' is the eligibility screening question for many government benefit programs — asked respectfully and without pressure.",
+  },
+  {
+    question: "How do you say 'I will give you a referral letter to take with you'?",
+    options: ['Te voy a dar una carta de referencia para que te lleves.', 'Tienes que escribir tu propia carta de referencia.', 'La carta de referencia tarda dos semanas.', 'No necesitas carta para ir a esa oficina.'],
+    correctIndex: 0,
+    explanation: "'Te voy a dar una carta de referencia para que te lleves' introduces the warm referral — a written letter increases the likelihood of follow-through.",
+  },
+  {
+    question: "Which phrase means 'This appointment is free — there is no cost'?",
+    options: ['Esta cita es gratis — no tiene costo.', 'La cita cuesta $10 sin seguro.', 'Tienes que pagar por la primera cita.', 'El costo depende de tus ingresos.'],
+    correctIndex: 0,
+    explanation: "'Esta cita es gratis — no tiene costo' removes the financial barrier — many clients avoid services because they assume they must pay.",
+  },
+  {
+    question: "How do you say 'I will follow up with you next week'?",
+    options: ['Me voy a comunicar contigo la próxima semana.', 'Llámame cuando necesites ayuda.', 'No podemos hacer seguimiento individual.', 'Regresa en un mes para una actualización.'],
+    correctIndex: 0,
+    explanation: "'Me voy a comunicar contigo la próxima semana' establishes follow-up accountability — a key practice in case management and outreach.",
+  },
+  {
+    question: "'¿Tienes acceso a internet o a un teléfono?' means:",
+    options: ['Do you have a computer at home?', 'Do you have access to the internet or a phone?', 'Do you know how to use a smartphone?', 'Do you have a phone number I can call?'],
+    correctIndex: 1,
+    explanation: "'¿Tienes acceso a internet o a un teléfono?' assesses connectivity — critical for digital resource access, appointment reminders, and follow-up contact.",
+  },
+  {
+    question: "How do you say 'This is the phone number for the social services office'?",
+    options: ['Este es el número de teléfono de la oficina de servicios sociales.', 'Puedes encontrar el número en internet.', 'No tengo el número de teléfono disponible.', 'Llama al 311 para más información.'],
+    correctIndex: 0,
+    explanation: "'Este es el número de teléfono de la oficina de servicios sociales' provides direct access — clients should never have to find the number themselves.",
+  },
+  {
+    question: "Which phrase means 'Keep all of your documents in a safe place'?",
+    options: ['Guarda todos tus documentos en un lugar seguro.', 'Entrega tus documentos originales a la oficina.', 'Puedes dejar tus documentos aquí.', 'No necesitas guardar copias de tus documentos.'],
+    correctIndex: 0,
+    explanation: "'Guarda todos tus documentos en un lugar seguro' is practical advice — document loss is one of the most common barriers to service access for unhoused individuals.",
+  },
+];
+
+const co5Questions: QuizQuestion[] = [
+  {
+    question: "How do you say 'I can see you are going through something difficult'?",
+    options: ['Puedo ver que estás pasando por algo difícil.', 'Tienes que calmarte antes de hablar.', 'No puedo ayudarte si estás molesto/a.', 'Por favor, espera afuera hasta que te calmes.'],
+    correctIndex: 0,
+    explanation: "'Puedo ver que estás pasando por algo difícil' validates emotional distress — acknowledgment is the first step in de-escalation.",
+  },
+  {
+    question: "Which phrase means 'You are safe here — take a deep breath'?",
+    options: ['Estás seguro/a aquí — respira profundo.', 'Necesitas calmarte o tendremos que llamar a la policía.', 'Por favor, habla más despacio.', 'No puedo ayudarte mientras estés así.'],
+    correctIndex: 0,
+    explanation: "'Estás seguro/a aquí — respira profundo' grounds the person in the present moment — a core de-escalation and trauma-informed response.",
+  },
+  {
+    question: "How do you say 'I am listening — take your time'?",
+    options: ['Te estoy escuchando — tómate tu tiempo.', 'Hay otras personas esperando — sé breve.', 'Habla más rápido por favor.', 'No tengo tiempo para escucharte ahora.'],
+    correctIndex: 0,
+    explanation: "'Te estoy escuchando — tómate tu tiempo' creates space for the person to share — rushing a distressed client escalates the situation.",
+  },
+  {
+    question: "'¿Estás pensando en hacerte daño?' means:",
+    options: ['Are you feeling angry right now?', 'Are you thinking about hurting yourself?', 'Did someone hurt you today?', 'Are you feeling unsafe here?'],
+    correctIndex: 1,
+    explanation: "'¿Estás pensando en hacerte daño?' is the direct suicide risk screening question — asking it directly does not increase risk and may save a life.",
+  },
+  {
+    question: "How do you say 'I am not going to judge you'?",
+    options: ['No te voy a juzgar.', 'Entiendo que la situación es complicada.', 'Voy a escuchar sin interrumpirte.', 'No tienes que explicar nada.'],
+    correctIndex: 0,
+    explanation: "'No te voy a juzgar' is especially important when clients share experiences of substance use, criminal history, or domestic violence — shame prevents help-seeking.",
+  },
+  {
+    question: "Which phrase means 'I need to call for help right now — please stay with me'?",
+    options: ['Necesito llamar pidiendo ayuda ahora mismo — por favor quédate conmigo.', 'Tienes que esperar aquí solo/a.', 'Voy a buscar a mi supervisor — espera afuera.', 'Llama tú mismo al 911.'],
+    correctIndex: 0,
+    explanation: "'Necesito llamar pidiendo ayuda ahora mismo — por favor quédate conmigo' is the crisis intervention phrase — keeping the person engaged while summoning support.",
+  },
+  {
+    question: "How do you say 'Is there someone you trust I can contact?'",
+    options: ['¿Hay alguien en quien confíes a quien pueda contactar?', '¿Tienes familiares que puedan ayudarte?', '¿Quieres que llame a la policía?', '¿Tienes un trabajador social asignado?'],
+    correctIndex: 0,
+    explanation: "'¿Hay alguien en quien confíes a quien pueda contactar?' identifies a safety network — a trusted contact can be part of the immediate crisis response plan.",
+  },
+  {
+    question: "'No estás solo/a — vamos a resolver esto juntos' means:",
+    options: ['You are not alone — we will figure this out together.', 'You need to solve this problem on your own.', 'There are others here with the same problem.', 'You should talk to someone else about this.'],
+    correctIndex: 0,
+    explanation: "'No estás solo/a — vamos a resolver esto juntos' counters isolation — the most effective crisis de-escalation phrases are those that affirm connection.",
+  },
+  {
+    question: "How do you say 'The crisis line number is available 24 hours'?",
+    options: ['El número de la línea de crisis está disponible las 24 horas.', 'La línea de crisis solo atiende de noche.', 'Tienes que ir en persona al centro de crisis.', 'La línea de crisis es solo para emergencias médicas.'],
+    correctIndex: 0,
+    explanation: "'El número de la línea de crisis está disponible las 24 horas' ensures clients know help is available beyond outreach hours.",
+  },
+  {
+    question: "Which phrase means 'Your feelings are valid — it is okay to ask for help'?",
+    options: ['Tus sentimientos son válidos — está bien pedir ayuda.', 'Todos tienen problemas — trata de ser fuerte.', 'No debes preocuparte tanto por esto.', 'Es mejor que hables con un profesional.'],
+    correctIndex: 0,
+    explanation: "'Tus sentimientos son válidos — está bien pedir ayuda' directly counters the stigma around mental health and help-seeking in many communities.",
+  },
+];
+
+const co1Phrases: KeyPhrase[] = [
+  { english: 'Do you need help today?', spanish: '¿Necesitas ayuda hoy?', context: 'Opening greeting used by outreach workers when approaching a new client on the street or at a service site' },
+  { english: 'I am here to help you — you are safe.', spanish: 'Estoy aquí para ayudarte — estás seguro/a.', context: 'Trust-building phrase used immediately when a client appears fearful, uncertain, or reluctant' },
+  { english: 'What do you need right now?', spanish: '¿Qué necesitas en este momento?', context: 'Client-centered intake question that prioritizes the individual\'s stated need over a standard intake checklist' },
+  { english: 'You do not need to show me any documents right now.', spanish: 'No necesitas mostrarme ningún documento ahora mismo.', context: 'Reducing fear of deportation or identification requirements that often prevent undocumented individuals from seeking help' },
+  { english: 'I will connect you with someone who can help more.', spanish: 'Te voy a conectar con alguien que puede ayudarte más.', context: 'Warm handoff phrase used when referring a client to a specialized service or case manager' },
+];
+
+const co2Phrases: KeyPhrase[] = [
+  { english: 'There is a shelter available tonight.', spanish: 'Hay un albergue disponible esta noche.', context: 'Key availability phrase used during street outreach to direct someone to emergency shelter before nightfall' },
+  { english: 'You need to check in before 8pm.', spanish: 'Necesitas registrarte antes de las 8pm.', context: 'Communicating shelter intake deadlines to prevent clients from arriving after beds are assigned' },
+  { english: 'No alcohol or drugs are allowed in the shelter.', spanish: 'No se permite alcohol ni drogas en el albergue.', context: 'Explaining shelter rules to a new arrival during orientation to prevent violations and loss of placement' },
+  { english: 'We can help you find more permanent housing.', spanish: 'Podemos ayudarte a encontrar vivienda más permanente.', context: 'Introducing housing navigation services during an initial shelter intake conversation' },
+  { english: 'Showers and meals are available here.', spanish: 'Hay duchas y comidas disponibles aquí.', context: 'Orienting a new shelter client to basic amenities during their first visit to reduce anxiety' },
+];
+
+const co3Phrases: KeyPhrase[] = [
+  { english: 'There is a food bank two blocks from here.', spanish: 'Hay un banco de alimentos a dos cuadras de aquí.', context: 'Direct resource referral made during a street outreach encounter when a client reports hunger' },
+  { english: 'Food is distributed on Tuesdays and Thursdays.', spanish: 'La comida se distribuye los martes y jueves.', context: 'Communicating the food bank distribution schedule so clients can plan their visit' },
+  { english: 'You do not need to prove income to receive food.', spanish: 'No necesitas comprobar ingresos para recibir comida.', context: 'Removing eligibility barriers for clients who assume they must qualify financially to access food assistance' },
+  { english: 'You can take enough food for your whole family.', spanish: 'Puedes llevar comida suficiente para toda tu familia.', context: 'Clarifying distribution quantities so clients do not under-collect due to uncertainty about the rules' },
+  { english: 'We also have hygiene products available.', spanish: 'También tenemos productos de higiene disponibles.', context: 'Informing clients of non-food essentials available at the distribution site such as soap, toothbrushes, and pads' },
+];
+
+const co4Phrases: KeyPhrase[] = [
+  { english: 'We can help you get an ID.', spanish: 'Podemos ayudarte a obtener una identificación.', context: 'Introducing document recovery services — an ID is required to access most housing, employment, and benefit programs' },
+  { english: 'This organization can help you apply for benefits.', spanish: 'Esta organización puede ayudarte a solicitar beneficios.', context: 'Referral phrase used when connecting a client to a benefits navigation partner for SNAP, Medi-Cal, or similar programs' },
+  { english: 'I will give you a referral letter to take with you.', spanish: 'Te voy a dar una carta de referencia para que te lleves.', context: 'Providing a warm written referral that increases the likelihood a client will follow through with a service visit' },
+  { english: 'This appointment is free — there is no cost.', spanish: 'Esta cita es gratis — no tiene costo.', context: 'Removing financial fear that prevents clients from accessing free services they assume will cost money' },
+  { english: 'Keep all of your documents in a safe place.', spanish: 'Guarda todos tus documentos en un lugar seguro.', context: 'Practical advice given after document recovery — helping clients protect their records to avoid having to restart the process' },
+];
+
+const co5Phrases: KeyPhrase[] = [
+  { english: 'I can see you are going through something difficult.', spanish: 'Puedo ver que estás pasando por algo difícil.', context: 'Opening de-escalation phrase that validates emotional distress without minimizing or dismissing the person\'s experience' },
+  { english: 'You are safe here — take a deep breath.', spanish: 'Estás seguro/a aquí — respira profundo.', context: 'Grounding phrase used when a client is in acute distress, panic, or dissociation during an outreach encounter' },
+  { english: 'I am listening — take your time.', spanish: 'Te estoy escuchando — tómate tu tiempo.', context: 'Creating space for a distressed client to share at their own pace — rushing escalates the situation' },
+  { english: 'You are not alone — we will figure this out together.', spanish: 'No estás solo/a — vamos a resolver esto juntos.', context: 'Crisis support phrase that counters isolation — one of the most effective responses to suicidal ideation and acute distress' },
+  { english: 'The crisis line number is available 24 hours.', spanish: 'El número de la línea de crisis está disponible las 24 horas.', context: 'Ensuring clients know crisis support is available beyond outreach hours — given verbally and written on a card' },
+];
+
 export const CERT_TRACKS: CertTrack[] = [
   {
     id: 'healthcare',
@@ -3263,6 +3618,20 @@ export const CERT_TRACKS: CertTrack[] = [
       { id: 3, title: 'Task Coordination', questions: ag3Questions, keyPhrases: ag3Phrases },
       { id: 4, title: 'Chemicals & Compliance', questions: ag4Questions, keyPhrases: ag4Phrases },
       { id: 5, title: 'Emergencies & Crew Support', questions: ag5Questions, keyPhrases: ag5Phrases },
+    ],
+  },
+  {
+    id: 'community-outreach',
+    title: 'Community Outreach',
+    description: 'Built for outreach workers, volunteers, and service providers helping Spanish-speaking individuals access essential resources.',
+    icon: '🤝',
+    color: 'from-teal-600 to-teal-800',
+    modules: [
+      { id: 1, title: 'Basic Assistance Communication', questions: co1Questions, keyPhrases: co1Phrases },
+      { id: 2, title: 'Shelter & Housing Support', questions: co2Questions, keyPhrases: co2Phrases },
+      { id: 3, title: 'Food & Essential Services', questions: co3Questions, keyPhrases: co3Phrases },
+      { id: 4, title: 'Documentation & Resources', questions: co4Questions, keyPhrases: co4Phrases },
+      { id: 5, title: 'Crisis & De-escalation', questions: co5Questions, keyPhrases: co5Phrases },
     ],
   },
 ];
