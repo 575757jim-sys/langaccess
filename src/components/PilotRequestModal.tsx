@@ -233,6 +233,7 @@ export default function PilotRequestModal({ onClose }: Props) {
                 </p>
               )}
 
+              <p className="text-xs text-gray-400 text-center mb-2">No commitment required. We'll contact you within 24 hours.</p>
               <button
                 type="submit"
                 disabled={submitting}
