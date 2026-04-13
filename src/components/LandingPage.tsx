@@ -416,6 +416,88 @@ export default function LandingPage({
           </div>
         </section>
 
+        {/* ── TWO WAYS LANGACCESS WORKS ── */}
+        <section className="py-24 bg-slate-50">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="text-center mb-14">
+              <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-3">Platform Overview</p>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Two Ways LangAccess Works</h2>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-8">
+              <div className="bg-white border border-slate-200 rounded-2xl p-8 flex flex-col gap-5 shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                  <MapPin className="w-6 h-6 text-green-700" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-extrabold text-slate-900 mb-3">Community Access</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">
+                    Help people in need—fast. QR cards connect individuals to food, shelter, and essential services. Ambassadors verify and update local resources in real time.
+                  </p>
+                </div>
+                <button
+                  onClick={onOpenAmbassadors}
+                  className="mt-auto inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-semibold text-sm px-5 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm self-start"
+                >
+                  Become an Ambassador
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-2xl p-8 flex flex-col gap-5 shadow-sm">
+                <div className="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center">
+                  <Award className="w-6 h-6 text-teal-700" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-extrabold text-slate-900 mb-3">Workplace Communication</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">
+                    Support teams with instant multilingual phrases and meet compliance requirements. Built for construction, healthcare, property management, and more.
+                  </p>
+                </div>
+                <button
+                  onClick={onOpenCertificates}
+                  className="mt-auto inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-500 text-white font-semibold text-sm px-5 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm self-start"
+                >
+                  Explore Certificates
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── FOR ORGANIZATIONS ── */}
+        <section className="py-20 bg-white border-t border-slate-100">
+          <div className="max-w-3xl mx-auto px-6 text-center">
+            <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-3">Enterprise</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">For Organizations</h2>
+            <p className="text-slate-500 text-base mb-8">Need more control? Customize what your QR codes show.</p>
+
+            <ul className="flex flex-col items-center gap-3 mb-10">
+              {[
+                'Add your own contact numbers and instructions',
+                'Update resources anytime without reprinting cards',
+                'Support internal communication and compliance',
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 max-w-md text-left">
+                  <span className="mt-0.5 w-5 h-5 flex-shrink-0 rounded-full bg-teal-100 flex items-center justify-center">
+                    <ChevronRight className="w-3 h-3 text-teal-700" />
+                  </span>
+                  <span className="text-slate-600 text-sm leading-relaxed">{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              onClick={() => setShowPilotModal(true)}
+              className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm"
+            >
+              Learn More
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </section>
+
         {/* ── SOCIAL PROOF BAR ── */}
         <section className="w-full bg-slate-900 py-5">
           <div className="max-w-6xl mx-auto px-6 text-center">
