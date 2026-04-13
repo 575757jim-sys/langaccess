@@ -7,11 +7,16 @@ interface Props {
 }
 
 const SECTORS = [
+  'Construction',
+  'Property Management',
+  'Warehouse Operations',
+  'Hospitality Services',
+  'Agricultural Worksites',
+  'Community Outreach',
   'Healthcare',
   'Education',
-  'Construction',
-  'Community Outreach',
   'Government / Compliance',
+  'Other / Not Listed',
 ];
 
 const STAFF_SIZES = ['1–10', '11–50', '51–200', '200+'];
