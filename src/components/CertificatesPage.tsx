@@ -132,14 +132,56 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
     setActiveQuiz(null);
   };
 
-  const handleEnroll = (trackId: TrackId) => {
-    const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string | undefined;
-    if (!stripeKey) {
-      alert('Stripe is not yet configured. Contact hello@langaccess.org to enroll.');
+  const [enrolling, setEnrolling] = useState<TrackId | null>(null);
+  const [enrollError, setEnrollError] = useState<TrackId | null>(null);
+  const [enrollDebug, setEnrollDebug] = useState<TrackId | null>(null);
+
+  const handleEnroll = async (trackId: TrackId) => {
+    console.log('Certificate enroll clicked', trackId);
+    setEnrolling(trackId);
+    setEnrollError(null);
+    setEnrollDebug(trackId);
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      setEnrolling(null);
+      setEnrollError(trackId);
       return;
     }
-    const redirectUrl = window.location.href + `?enrolled=${trackId}`;
-    window.location.href = `https://buy.stripe.com/langaccess-cert?client_reference_id=${trackId}&success_url=${encodeURIComponent(redirectUrl)}`;
+
+    try {
+      console.log('Creating Stripe checkout session for certificate', trackId);
+      const sessionId = progress.userName
+        ? btoa(progress.userName + '-' + trackId).replace(/[^a-zA-Z0-9]/g, '').slice(0, 32)
+        : crypto.randomUUID().replace(/-/g, '').slice(0, 32);
+
+      const res = await fetch(`${supabaseUrl}/functions/v1/create-cert-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+        },
+        body: JSON.stringify({
+          trackId,
+          sessionId,
+          origin: window.location.origin,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        console.log('Redirecting to Stripe for certificate enrollment', trackId);
+        window.location.href = data.url;
+      } else {
+        setEnrollError(trackId);
+      }
+    } catch {
+      setEnrollError(trackId);
+    } finally {
+      setEnrolling(null);
+    }
   };
 
   useEffect(() => {
@@ -424,10 +466,21 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                           <div>
                             <button
                               onClick={() => handleEnroll(track.id)}
-                              className={`w-full py-2.5 rounded-xl bg-gradient-to-r ${track.color} text-white font-semibold text-sm transition-opacity hover:opacity-90`}
+                              disabled={enrolling === track.id}
+                              className={`w-full py-2.5 rounded-xl bg-gradient-to-r ${track.color} text-white font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed`}
                             >
-                              Enroll — ${CERT_PRICE}
+                              {enrolling === track.id ? 'Redirecting…' : `Enroll — $${CERT_PRICE}`}
                             </button>
+                            {enrollDebug === track.id && !enrollError && (
+                              <p className="text-center text-green-600 text-xs font-medium mt-1.5">
+                                New checkout handler active
+                              </p>
+                            )}
+                            {enrollError === track.id && (
+                              <p className="text-center text-red-400 text-xs mt-1.5">
+                                Checkout unavailable. Try again or email <a href="mailto:hello@langaccess.org" className="underline">hello@langaccess.org</a>.
+                              </p>
+                            )}
                             <p className="text-center text-slate-500 text-xs mt-1.5">Less than one hour of interpreter fees</p>
                             <p className="text-center text-slate-600 text-[10px] leading-snug mt-1">Required under Title VI of the Civil Rights Act for organizations receiving federal funding.</p>
                           </div>
