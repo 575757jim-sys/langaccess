@@ -99,7 +99,7 @@ export default function PilotRequestModal({ onClose }: Props) {
             </div>
             <div>
               <h2 className="font-bold text-slate-800 text-base leading-tight">Request a Pilot Deployment</h2>
-              <p className="text-slate-400 text-xs">We'll help you set up a working system for your team.</p>
+              <p className="text-slate-400 text-xs">We'll help you set up a working system tailored to your team and workflow.</p>
             </div>
           </div>
           <button
@@ -111,6 +111,9 @@ export default function PilotRequestModal({ onClose }: Props) {
         </div>
 
         <div className="p-6 safe-bottom-padding">
+          {!submitted && (
+            <p className="text-slate-400 text-xs text-center mb-4">You're one step away from setting up LangAccess for your team.</p>
+          )}
           {submitted ? (
             <div className="flex flex-col items-center text-center py-8 gap-4">
               <div className="w-14 h-14 rounded-full bg-teal-50 flex items-center justify-center">
