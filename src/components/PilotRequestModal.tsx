@@ -98,8 +98,8 @@ export default function PilotRequestModal({ onClose }: Props) {
               <Compass className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h2 className="font-bold text-slate-800 text-base leading-tight">Request Institutional Pilot</h2>
-              <p className="text-slate-400 text-xs">Multi-team deployments &amp; compliance integration</p>
+              <h2 className="font-bold text-slate-800 text-base leading-tight">Request a Pilot Deployment</h2>
+              <p className="text-slate-400 text-xs">We'll help you set up a working system for your team.</p>
             </div>
           </div>
           <button

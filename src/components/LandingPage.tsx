@@ -471,13 +471,14 @@ export default function LandingPage({
           <div className="max-w-3xl mx-auto px-6 text-center">
             <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-3">Enterprise</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">For Organizations</h2>
-            <p className="text-slate-500 text-base mb-8">Need more control? Customize what your QR codes show.</p>
+            <p className="text-slate-500 text-base mb-2">LangAccess creates QR codes your team can use for real-time communication</p>
+            <p className="text-slate-400 text-sm mb-8">Give your team instant access to instructions, contacts, and multilingual support—updated anytime without reprinting cards.</p>
 
             <ul className="flex flex-col items-center gap-3 mb-10">
               {[
-                'Add your own contact numbers and instructions',
-                'Update resources anytime without reprinting cards',
-                'Support internal communication and compliance',
+                'Add your own emergency contacts, supervisors, and site instructions',
+                'Update what workers see instantly—no reprinting or delays',
+                'Give teams clear, multilingual instructions for safety and daily tasks',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 max-w-md text-left">
                   <span className="mt-0.5 w-5 h-5 flex-shrink-0 rounded-full bg-teal-100 flex items-center justify-center">
@@ -492,7 +493,7 @@ export default function LandingPage({
               onClick={() => setShowPilotModal(true)}
               className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-700 text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm"
             >
-              Learn More
+              Request a Pilot
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
