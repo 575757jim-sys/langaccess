@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Award, Lock, CheckCircle, ChevronRight, Download, BookOpen, Star, ShieldCheck } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { CERT_TRACKS, CERT_PRICE, CertProgress, TrackId } from '../data/certificateData';
+import { supabase } from '../lib/supabase';
 import {
   loadLocalProgress,
   saveLocalProgress,
@@ -136,32 +137,34 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
   const [enrollError, setEnrollError] = useState<TrackId | null>(null);
   const [enrollDebug, setEnrollDebug] = useState<TrackId | null>(null);
 
-  const handleEnroll = (trackId: TrackId) => {
+  const handleEnroll = async (trackId: TrackId) => {
     setEnrolling(trackId);
     setEnrollError(null);
     setEnrollDebug(trackId);
 
-    fetch("https://waxbnkwybpeqdyxdgtgsy.supabase.co/functions/v1/create-cert-checkout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": "sb_publishable_NZHSrjelka6TgTkR8qoA_uq8aFXJh",
-        "Authorization": "Bearer sb_publishable_NZHSrjelka6TgTkR8qoA_uq8aFXJh"
-      }
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        console.log("Stripe response:", data);
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          throw new Error("No checkout URL returned");
-        }
-      })
-      .catch((err) => {
-        console.error("Checkout error:", err);
-        alert("Checkout unavailable. Try again.");
+    try {
+      const { data, error } = await supabase.functions.invoke('create-cert-checkout', {
+        body: {
+          trackId,
+          price: CERT_PRICE,
+          origin: window.location.origin,
+        },
       });
+
+      if (error) throw error;
+      console.log("Stripe response:", data);
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (err) {
+      console.error("Checkout error:", err);
+      setEnrollError(trackId);
+    } finally {
+      setEnrolling(null);
+    }
   };
 
   useEffect(() => {
