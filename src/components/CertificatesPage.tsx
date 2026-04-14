@@ -136,52 +136,39 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
   const [enrollError, setEnrollError] = useState<TrackId | null>(null);
   const [enrollDebug, setEnrollDebug] = useState<TrackId | null>(null);
 
-  const handleEnroll = async (trackId: TrackId) => {
-    console.log('Certificate enroll clicked', trackId);
+  const handleEnroll = (trackId: TrackId) => {
     setEnrolling(trackId);
     setEnrollError(null);
     setEnrollDebug(trackId);
 
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      setEnrolling(null);
-      setEnrollError(trackId);
-      return;
-    }
-
-    try {
-      console.log('Creating Stripe checkout session for certificate', trackId);
-      const sessionId = progress.userName
-        ? btoa(progress.userName + '-' + trackId).replace(/[^a-zA-Z0-9]/g, '').slice(0, 32)
-        : crypto.randomUUID().replace(/-/g, '').slice(0, 32);
-
-      const res = await fetch(`${supabaseUrl}/functions/v1/create-cert-checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseAnonKey}`,
-        },
-        body: JSON.stringify({
-          trackId,
-          sessionId,
-          origin: window.location.origin,
-        }),
-      });
-
-      const data = await res.json();
-      if (data.url) {
-        console.log('Redirecting to Stripe for certificate enrollment', trackId);
-        window.location.href = data.url;
-      } else {
+    fetch("https://waxbnkwybpeqdyxdgtgsy.supabase.co/functions/v1/create-cert-checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": "sb_publishable_NZHSrjelka6TgTkR8qoA_uq8aFXJh",
+        "Authorization": "Bearer sb_publishable_NZHSrjelka6TgTkR8qoA_uq8aFXJh"
+      },
+      body: JSON.stringify({
+        trackId,
+        origin: window.location.origin,
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error("No checkout URL returned");
+        }
+      })
+      .catch(err => {
+        console.error("Checkout error:", err);
+        alert("Checkout unavailable. Try again.");
         setEnrollError(trackId);
-      }
-    } catch {
-      setEnrollError(trackId);
-    } finally {
-      setEnrolling(null);
-    }
+      })
+      .finally(() => {
+        setEnrolling(null);
+      });
   };
 
   useEffect(() => {
