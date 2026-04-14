@@ -147,27 +147,20 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
         "Content-Type": "application/json",
         "apikey": "sb_publishable_NZHSrjelka6TgTkR8qoA_uq8aFXJh",
         "Authorization": "Bearer sb_publishable_NZHSrjelka6TgTkR8qoA_uq8aFXJh"
-      },
-      body: JSON.stringify({
-        trackId,
-        origin: window.location.origin,
-      }),
+      }
     })
-      .then(res => res.json())
-      .then(data => {
+      .then(async (res) => {
+        const data = await res.json();
+        console.log("Stripe response:", data);
         if (data.url) {
           window.location.href = data.url;
         } else {
           throw new Error("No checkout URL returned");
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Checkout error:", err);
         alert("Checkout unavailable. Try again.");
-        setEnrollError(trackId);
-      })
-      .finally(() => {
-        setEnrolling(null);
       });
   };
 
