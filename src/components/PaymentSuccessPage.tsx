@@ -1,17 +1,22 @@
 import { useEffect, useState } from 'react';
 import { CheckCircle, ArrowLeft, GraduationCap } from 'lucide-react';
+import { CERT_TRACKS } from '../data/certificateData';
 
 export default function PaymentSuccessPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [enrolledTrack, setEnrolledTrack] = useState<string | null>(null);
+  const [track, setTrack] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const sid = params.get('session_id');
-    const enrolled = params.get('enrolled');
+    const t = params.get('track');
     setSessionId(sid);
-    setEnrolledTrack(enrolled);
+    setTrack(t);
+    console.log("Success page track:", t);
   }, []);
+
+  const trackData = track ? CERT_TRACKS.find(t => t.id === track) : null;
+  const trackLabel = trackData?.title ?? null;
 
   return (
     <div className="min-h-screen bg-[#0a0f1e] text-white flex flex-col items-center justify-center px-4 py-12">
@@ -29,7 +34,11 @@ export default function PaymentSuccessPage() {
           <div className="flex items-start gap-3">
             <GraduationCap className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-white font-medium text-sm mb-1">Your certificate program is ready</p>
+              <p className="text-white font-medium text-sm mb-1">
+                {trackLabel
+                  ? `Your ${trackLabel} certificate program is ready.`
+                  : 'Your certificate program is ready.'}
+              </p>
               <p className="text-slate-400 text-sm leading-relaxed">
                 Head to the Certificates page to begin your coursework and track your progress.
               </p>
@@ -47,7 +56,11 @@ export default function PaymentSuccessPage() {
         </p>
 
         <button
-          onClick={() => { window.location.href = `/certificates?enrolled=${enrolledTrack ?? 'education'}&stripe=success`; }}
+          onClick={() => {
+            window.location.href = track
+              ? `/certificates?track=${track}`
+              : '/certificates';
+          }}
           className="w-full py-3 px-6 rounded-xl bg-green-500 hover:bg-green-400 text-white font-semibold text-sm transition-colors mb-3"
         >
           Start Your Certificate

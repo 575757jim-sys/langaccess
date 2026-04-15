@@ -184,14 +184,14 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const enrolled = params.get('enrolled') as TrackId | null;
-    if (enrolled && CERT_TRACKS.find(t => t.id === enrolled)) {
+    const trackParam = (params.get('track') || params.get('enrolled')) as TrackId | null;
+    if (trackParam && CERT_TRACKS.find(t => t.id === trackParam)) {
       const updated: CertProgress = {
         ...progress,
-        purchased: { ...progress.purchased, [enrolled]: true },
+        purchased: { ...progress.purchased, [trackParam]: true },
       };
       setProgress(updated);
-      setExpandedTrack(enrolled);
+      setExpandedTrack(trackParam);
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);

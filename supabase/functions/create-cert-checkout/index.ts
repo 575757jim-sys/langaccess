@@ -37,7 +37,7 @@ Deno.serve(async (req: Request) => {
 
     const unitAmount = Math.round((price ?? 39) * 100);
     const baseUrl = origin || "https://langaccess.org";
-    const successUrl = `${baseUrl}/success?enrolled=${trackId}&stripe=success`;
+    const successUrl = `${baseUrl}/success?track=${trackId}&stripe=success`;
     const cancelUrl = `${baseUrl}/certificates`;
 
     const params = new URLSearchParams();
