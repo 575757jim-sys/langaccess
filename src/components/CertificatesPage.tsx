@@ -143,15 +143,29 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
     setEnrollDebug(trackId);
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-cert-checkout', {
-        body: {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
+      const res = await fetch(`${supabaseUrl}/functions/v1/create-cert-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+          'apikey': supabaseAnonKey,
+        },
+        body: JSON.stringify({
           trackId,
           price: CERT_PRICE,
           origin: window.location.origin,
-        },
+        }),
       });
 
-      if (error) throw error;
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`Checkout failed: ${errText}`);
+      }
+
+      const data = await res.json();
       console.log("Stripe response:", data);
 
       if (data?.url) {
