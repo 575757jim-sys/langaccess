@@ -13,8 +13,6 @@ export default function PaymentSuccessPage() {
     setEnrolledTrack(enrolled);
   }, []);
 
-  const isCertificate = !!enrolledTrack;
-
   return (
     <div className="min-h-screen bg-[#0a0f1e] text-white flex flex-col items-center justify-center px-4 py-12">
       <div className="max-w-md w-full text-center">
@@ -22,50 +20,38 @@ export default function PaymentSuccessPage() {
           <CheckCircle className="w-10 h-10 text-green-400" />
         </div>
 
-        {isCertificate ? (
-          <>
-            <h1 className="text-3xl font-bold text-white mb-3">Payment Confirmed — You're Enrolled!</h1>
-            <p className="text-slate-400 text-sm leading-relaxed mb-8">
-              You now have full access to your LangAccess Certificate program.
-            </p>
+        <h1 className="text-3xl font-bold text-white mb-3">Payment Confirmed — You're Enrolled!</h1>
+        <p className="text-slate-400 text-sm leading-relaxed mb-8">
+          You now have full access to your LangAccess Certificate program.
+        </p>
 
-            <div className="bg-[#111827] rounded-2xl border border-green-500/20 p-5 mb-8 text-left">
-              <div className="flex items-start gap-3">
-                <GraduationCap className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-white font-medium text-sm mb-1">Your certificate program is ready</p>
-                  <p className="text-slate-400 text-sm leading-relaxed">
-                    Head to the Certificates page to begin your coursework and track your progress.
-                  </p>
-                  {sessionId && (
-                    <p className="text-slate-600 text-xs mt-2 font-mono">
-                      Ref: {sessionId.slice(-12)}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => { window.location.href = `/certificates?enrolled=${enrolledTrack}&stripe=success`; }}
-              className="w-full py-3 px-6 rounded-xl bg-green-500 hover:bg-green-400 text-white font-semibold text-sm transition-colors mb-4"
-            >
-              Start Your Certificate
-            </button>
-          </>
-        ) : (
-          <>
-            <h1 className="text-3xl font-bold text-white mb-3">Payment confirmed</h1>
-            <p className="text-slate-400 text-sm leading-relaxed mb-8">
-              Your order is being processed. You'll receive a confirmation email with your order details shortly.
-            </p>
-            {sessionId && (
-              <p className="text-slate-600 text-xs mb-8 font-mono">
-                Ref: {sessionId.slice(-12)}
+        <div className="bg-[#111827] rounded-2xl border border-green-500/20 p-5 mb-6 text-left">
+          <div className="flex items-start gap-3">
+            <GraduationCap className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-white font-medium text-sm mb-1">Your certificate program is ready</p>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Head to the Certificates page to begin your coursework and track your progress.
               </p>
-            )}
-          </>
-        )}
+              {sessionId && (
+                <p className="text-slate-600 text-xs mt-2 font-mono">
+                  Ref: {sessionId.slice(-12)}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <p className="text-slate-500 text-xs mb-6">
+          If you do not see your access immediately, refresh the certificate page.
+        </p>
+
+        <button
+          onClick={() => { window.location.href = `/certificates?enrolled=${enrolledTrack ?? 'education'}&stripe=success`; }}
+          className="w-full py-3 px-6 rounded-xl bg-green-500 hover:bg-green-400 text-white font-semibold text-sm transition-colors mb-3"
+        >
+          Start Your Certificate
+        </button>
 
         <button
           onClick={() => { window.location.href = '/'; }}
