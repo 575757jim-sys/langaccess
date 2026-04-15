@@ -62,7 +62,13 @@ export default function PaymentSuccessPage() {
         )}
 
         <button
-          onClick={() => { window.location.href = '/certificates'; }}
+          onClick={() => {
+            const dest = track
+              ? `/certificates?track=${track}&enrolled=1`
+              : '/certificates';
+            console.log("Success page: routing to", dest);
+            window.location.href = dest;
+          }}
           className="w-full py-3 px-6 rounded-xl bg-green-500 hover:bg-green-400 text-white font-semibold text-sm transition-colors mb-2"
         >
           Go to Certificates Page

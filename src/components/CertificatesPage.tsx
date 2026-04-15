@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Award, Lock, CheckCircle, ChevronRight, Download, BookOpen, Star, ShieldCheck } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { CERT_TRACKS, CERT_PRICE, CertProgress, TrackId } from '../data/certificateData';
@@ -62,13 +62,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
   const [expandedTrack, setExpandedTrack] = useState<TrackId | null>(null);
   const [certGenerated, setCertGenerated] = useState<TrackId | null>(null);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const track = params.get('track') || params.get('enrolled');
-    if (track) {
-      setExpandedTrack(track as TrackId);
-    }
-  }, []);
+  const trackRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     loadProgressFromSupabase().then(remote => {
@@ -192,19 +186,45 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const trackParam = (params.get('track') || params.get('enrolled')) as TrackId | null;
-    const fromStripe = params.get('purchased') === '1';
+    const trackParam = params.get('track') as TrackId | null;
+    const isEnrolled = params.get('enrolled') === '1';
+
+    console.log("Certificates page: detected URL params — track:", trackParam, "enrolled:", isEnrolled);
+
     if (trackParam && CERT_TRACKS.find(t => t.id === trackParam)) {
-      if (fromStripe) {
-        const updated: CertProgress = {
-          ...progress,
-          purchased: { ...progress.purchased, [trackParam]: true },
-        };
-        setProgress(updated);
-        saveLocalProgress(updated);
+      if (isEnrolled) {
+        setProgress(prev => {
+          const updated: CertProgress = {
+            ...prev,
+            purchased: { ...prev.purchased, [trackParam]: true },
+          };
+          saveLocalProgress(updated);
+          console.log("Certificates page: marked track purchased:", trackParam);
+          return updated;
+        });
       }
       setExpandedTrack(trackParam);
+      console.log("Certificates page: selected track:", trackParam);
       window.history.replaceState({}, '', window.location.pathname);
+      setTimeout(() => {
+        const el = trackRefs.current[trackParam];
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+    } else {
+      loadProgressFromSupabase().then(remote => {
+        const purchasedTracks = Object.keys(remote.purchased || {}).filter(
+          k => (remote.purchased as Record<string, boolean>)[k]
+        ) as TrackId[];
+        if (purchasedTracks.length > 0) {
+          const fallbackTrack = purchasedTracks[0];
+          console.log("Certificates page: no URL params, falling back to Supabase purchased track:", fallbackTrack);
+          setExpandedTrack(fallbackTrack);
+          setTimeout(() => {
+            const el = trackRefs.current[fallbackTrack];
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 300);
+        }
+      });
     }
   }, []);
 
@@ -364,6 +384,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
             return (
               <div
                 key={track.id}
+                ref={el => { trackRefs.current[track.id] = el; }}
                 className="bg-[#111827] rounded-2xl border border-white/10 overflow-hidden flex flex-col hover:border-white/20 transition-colors"
               >
                 <div className={`bg-gradient-to-br ${track.color} p-6`}>
