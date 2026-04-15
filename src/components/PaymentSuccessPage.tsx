@@ -55,17 +55,22 @@ export default function PaymentSuccessPage() {
           If you do not see your access immediately, refresh the certificate page.
         </p>
 
+        {trackLabel && (
+          <p className="text-green-400/80 text-xs font-medium mb-4">
+            Purchased track: {trackLabel}
+          </p>
+        )}
+
         <button
-          onClick={() => {
-            console.log("Routing to track:", track);
-            window.location.href = track
-              ? `/certificates?track=${track}`
-              : '/certificates';
-          }}
-          className="w-full py-3 px-6 rounded-xl bg-green-500 hover:bg-green-400 text-white font-semibold text-sm transition-colors mb-3"
+          onClick={() => { window.location.href = '/certificates'; }}
+          className="w-full py-3 px-6 rounded-xl bg-green-500 hover:bg-green-400 text-white font-semibold text-sm transition-colors mb-2"
         >
-          Start Your Certificate
+          Go to Certificates Page
         </button>
+
+        <p className="text-slate-500 text-xs mb-4">
+          On the Certificates page, select your purchased track to continue.
+        </p>
 
         <button
           onClick={() => { window.location.href = '/'; }}
