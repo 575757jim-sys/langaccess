@@ -14,6 +14,7 @@ import {
 } from '../utils/certPersistence';
 import CertQuizEngine from './CertQuizEngine';
 import SEO from './SEO';
+import { getSessionId } from '../utils/sessionId';
 
 interface Props {
   onBack: () => void;
@@ -147,6 +148,9 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+      const appSessionId = getSessionId();
+
+      console.log("Payment button clicked — track:", trackId, "appSessionId:", appSessionId);
 
       const res = await fetch(`${supabaseUrl}/functions/v1/create-cert-checkout`, {
         method: 'POST',
@@ -157,9 +161,8 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
         },
         body: JSON.stringify({
           trackId,
-          track: trackId,
           price: CERT_PRICE,
-          origin: window.location.origin,
+          sessionId: appSessionId,
         }),
       });
 
@@ -169,7 +172,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
       }
 
       const data = await res.json();
-      console.log("Stripe response:", data);
+      console.log("Checkout URL returned from backend:", data?.url);
 
       if (data?.url) {
         window.location.href = data.url;
@@ -188,8 +191,18 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
     const params = new URLSearchParams(window.location.search);
     const trackParam = params.get('track') as TrackId | null;
     const isEnrolled = params.get('enrolled') === '1';
+    const stripeSessionId = params.get('session_id');
 
-    console.log("Certificates page: detected URL params — track:", trackParam, "enrolled:", isEnrolled);
+    console.log("Certificates page: detected URL params — track:", trackParam, "enrolled:", isEnrolled, "session_id:", stripeSessionId);
+
+    const openTrack = (id: TrackId, delay = 150) => {
+      setExpandedTrack(id);
+      console.log("Certificates page: enrolled track selected:", id);
+      setTimeout(() => {
+        const el = trackRefs.current[id];
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, delay);
+    };
 
     if (trackParam && CERT_TRACKS.find(t => t.id === trackParam)) {
       if (isEnrolled) {
@@ -199,17 +212,33 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
             purchased: { ...prev.purchased, [trackParam]: true },
           };
           saveLocalProgress(updated);
-          console.log("Certificates page: marked track purchased:", trackParam);
+          console.log("Certificates page: marked track purchased locally:", trackParam);
           return updated;
         });
+
+        if (stripeSessionId) {
+          supabase
+            .from('certificate_purchases')
+            .select('track_id')
+            .eq('stripe_session_id', stripeSessionId)
+            .maybeSingle()
+            .then(({ data }) => {
+              const verifiedTrack = (data?.track_id || trackParam) as TrackId;
+              console.log("Certificates page: Supabase verification — verified track:", verifiedTrack);
+              setProgress(prev => {
+                const updated: CertProgress = {
+                  ...prev,
+                  purchased: { ...prev.purchased, [verifiedTrack]: true },
+                };
+                saveLocalProgress(updated);
+                return updated;
+              });
+              openTrack(verifiedTrack);
+            });
+        }
       }
-      setExpandedTrack(trackParam);
-      console.log("Certificates page: selected track:", trackParam);
-      window.history.replaceState({}, '', window.location.pathname);
-      setTimeout(() => {
-        const el = trackRefs.current[trackParam];
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 150);
+
+      openTrack(trackParam);
     } else {
       loadProgressFromSupabase().then(remote => {
         const purchasedTracks = Object.keys(remote.purchased || {}).filter(
@@ -217,12 +246,16 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
         ) as TrackId[];
         if (purchasedTracks.length > 0) {
           const fallbackTrack = purchasedTracks[0];
-          console.log("Certificates page: no URL params, falling back to Supabase purchased track:", fallbackTrack);
-          setExpandedTrack(fallbackTrack);
-          setTimeout(() => {
-            const el = trackRefs.current[fallbackTrack];
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 300);
+          console.log("Certificates page: no URL params — Supabase fallback track:", fallbackTrack);
+          setProgress(prev => {
+            const updated: CertProgress = {
+              ...prev,
+              purchased: { ...prev.purchased, ...(remote.purchased || {}) } as Record<TrackId, boolean>,
+            };
+            saveLocalProgress(updated);
+            return updated;
+          });
+          openTrack(fallbackTrack, 300);
         }
       });
     }
