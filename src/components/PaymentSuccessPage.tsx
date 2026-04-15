@@ -12,7 +12,7 @@ export default function PaymentSuccessPage() {
     const t = params.get('track');
     setSessionId(sid);
     setTrack(t);
-    console.log("Success page track:", t);
+    console.log("Success page: detected track:", t, "session_id:", sid);
   }, []);
 
   const trackData = track ? CERT_TRACKS.find(t => t.id === track) : null;
@@ -63,9 +63,11 @@ export default function PaymentSuccessPage() {
 
         <button
           onClick={() => {
-            const dest = track
-              ? `/certificates?track=${track}&enrolled=1`
-              : '/certificates';
+            let dest = '/certificates';
+            if (track) {
+              dest = `/certificates?track=${track}&enrolled=1`;
+              if (sessionId) dest += `&session_id=${sessionId}`;
+            }
             console.log("Success page: routing to", dest);
             window.location.href = dest;
           }}
