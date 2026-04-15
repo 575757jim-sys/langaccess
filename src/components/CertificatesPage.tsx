@@ -59,7 +59,13 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
   const [activeQuiz, setActiveQuiz] = useState<QuizState>(null);
   const [namePrompt, setNamePrompt] = useState<NamePromptState>(null);
   const [nameInput, setNameInput] = useState('');
-  const [expandedTrack, setExpandedTrack] = useState<TrackId | null>(null);
+  const [expandedTrack, setExpandedTrack] = useState<TrackId | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const t = (params.get('track') || params.get('enrolled')) as TrackId | null;
+    const valid = t && CERT_TRACKS.find(ct => ct.id === t) ? t : null;
+    console.log("Certificates page track:", valid);
+    return valid;
+  });
   const [certGenerated, setCertGenerated] = useState<TrackId | null>(null);
 
   useEffect(() => {
