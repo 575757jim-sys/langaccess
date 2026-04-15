@@ -191,6 +191,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
         purchased: { ...progress.purchased, [enrolled]: true },
       };
       setProgress(updated);
+      setExpandedTrack(enrolled);
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
