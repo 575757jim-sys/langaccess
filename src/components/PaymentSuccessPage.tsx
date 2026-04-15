@@ -57,8 +57,9 @@ export default function PaymentSuccessPage() {
 
         <button
           onClick={() => {
+            console.log("Routing to track:", track);
             window.location.href = track
-              ? `/certificates?track=${track}&purchased=1`
+              ? `/certificates?track=${track}`
               : '/certificates';
           }}
           className="w-full py-3 px-6 rounded-xl bg-green-500 hover:bg-green-400 text-white font-semibold text-sm transition-colors mb-3"
