@@ -538,7 +538,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                   )}
 
                   <div className="mt-auto space-y-2">
-                    {completed && certId ? (
+                    {purchased && completed && certId ? (
                       <button
                         onClick={() => generatePDF(track.id)}
                         className="w-full py-2.5 rounded-xl bg-green-500 hover:bg-green-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"

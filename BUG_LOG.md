@@ -121,3 +121,41 @@ Use this format for every certificate-related bug fix:
 8. Confirm no unexpected UI or styling changes on any page
 ### Status
 - fixed
+
+## 2026-04-16 (Risk #4 Fix — Missing Enroll Button on Construction and Social Services)
+### Symptom
+- On the /certificates catalog page, certain tracks (confirmed: Construction, Social Services) showed only a "Download Certificate" button with no "Start Free Module" or "Enroll — $39" button
+- This violated the core rule: every unpaid track must always show Start Free Module and Enroll — $39
+### Root Cause
+- Exact file: src/components/CertificatesPage.tsx
+- Exact condition: line 541 (pre-fix) — `{completed && certId ? (` — the Download Certificate branch fired whenever `completed === true` AND `certId` was set, with no check on whether the track was actually purchased
+- `completed` is derived from `completedModules` (which persists even for free/unpaid completions)
+- `certId` is populated from `certificate_records` even for unpaid completions (certPersistence.ts correctly still reads certIds from that table)
+- Why Construction and Social Services specifically: these were the tracks where the user had previously completed all 5 modules without purchasing (possible during development/testing), so both `completed` and `certId` were set in their session
+- The condition `completed && certId` was true → the Download-only branch rendered → both "Start Free Module" and "Enroll — $39" were hidden
+### Files Changed
+- src/components/CertificatesPage.tsx
+### Fix Applied
+- Changed `{completed && certId ? (` to `{purchased && completed && certId ? (` at the card footer branch (line 541)
+- Download Certificate now only appears when the track is verified as purchased AND completed AND has a certId
+- All unpaid tracks — regardless of their completedModules or certIds state — now always fall through to the Start Free Module + Enroll — $39 branch
+### Manual Test
+#### From TEST_CHECKLIST_CERTIFICATES.md Section A — Catalog Page
+1. Open /certificates
+2. Confirm every unpaid track shows: Start Free Module + Enroll — $39 (specifically verify Construction and Social Services)
+3. Confirm no "Download Certificate" button appears on any unpaid track
+#### Section B — Free Module
+4. Open an unpaid track; confirm only module 1 is available, modules 2–5 remain locked
+#### Section E — Paid Unlock
+5. Complete a Stripe test payment (card: 4242 4242 4242 4242) for one track
+6. Return to /certificates — confirm Download Certificate appears only on the paid+completed track
+7. Confirm all other tracks still show Start Free Module + Enroll — $39
+#### Specific regression for Construction and Social Services
+8. Open /certificates with no payment — confirm Construction card shows "Start Free Module" and "Enroll — $39"
+9. Open /certificates with no payment — confirm Social Services card shows "Start Free Module" and "Enroll — $39"
+10. Neither card should show "Download Certificate" unless that track is both purchased and all 5 modules are passed
+#### Section G — Regression Check
+11. Confirm styling/layout did not change unexpectedly
+12. Confirm unrelated pages still work
+### Status
+- fixed
