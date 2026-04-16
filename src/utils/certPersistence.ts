@@ -54,7 +54,6 @@ export async function loadProgressFromSupabase(): Promise<Partial<CertProgress>>
     if (certRows?.length) {
       for (const row of certRows) {
         (result.certIds as Record<string, string>)[row.track_id] = row.cert_id;
-        (result.purchased as Record<string, boolean>)[row.track_id] = true;
       }
     }
 

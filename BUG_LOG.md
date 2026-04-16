@@ -91,3 +91,33 @@ Use this format for every certificate-related bug fix:
 7. Confirm all other tracks are unaffected
 ### Status
 - fixed
+
+## 2026-04-16 (Risk #3 Fix)
+### Symptom
+- A user who completed all 5 modules of a track (earning a certificate) but never paid would see modules 2–5 unlocked on return, because certificate_records were incorrectly elevating the "purchased" flag
+- The purchased state was contaminated by completion data, violating the architecture rule: purchased = certificate_purchases only; completed = certificate_records only
+### Root Cause
+- Exact file: src/utils/certPersistence.ts
+- Exact lines (before fix): inside the certRows loop, line 57 set `result.purchased[row.track_id] = true` while iterating certificate_records
+- certificate_records represents earned completion certificates, not verified payment; writing purchased from it allowed completion to bypass the paywall
+### Files Changed
+- src/utils/certPersistence.ts
+### Fix Applied
+- Removed the single line `(result.purchased as Record<string, boolean>)[row.track_id] = true;` from the certificate_records loop
+- The loop still runs and still populates result.certIds correctly
+- purchased state is now set exclusively by the certificate_purchases loop
+### Manual Test Steps (based on TEST_CHECKLIST_CERTIFICATES.md)
+#### Section B — Verify free-only session cannot unlock paid modules
+1. Open /certificates in a fresh browser session (no prior payment)
+2. Choose any track and complete module 1 (free module) and pass the quiz
+3. Return to /certificates — confirm modules 2–5 still show locked for that track (Enroll — $39 still visible)
+#### Section E — Verify purchase correctly unlocks
+4. Click Enroll — $39 on any track and complete a Stripe test payment (card: 4242 4242 4242 4242)
+5. Return to /certificates — confirm all 5 modules are unlocked for the purchased track only
+#### Section F — Wrong-track protection
+6. Confirm that completing module 1 on Track B (without paying) does not unlock Track B modules 2–5
+#### Regression
+7. Confirm /certificates catalog still shows Start Free Module + Enroll — $39 on all unpaid tracks
+8. Confirm no unexpected UI or styling changes on any page
+### Status
+- fixed
