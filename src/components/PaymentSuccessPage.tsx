@@ -73,8 +73,10 @@ export default function PaymentSuccessPage() {
       let dest = `/certificates?track=${verifiedTrack}&enrolled=1`;
       if (sessionId) dest += `&session_id=${sessionId}`;
       window.location.href = dest;
-    } else if (sessionId && selectedNavTrack) {
-      window.location.href = `/certificates?session_id=${sessionId}&enrolled=1`;
+    } else if (selectedNavTrack) {
+      let dest = `/certificates?track=${selectedNavTrack}&enrolled=1`;
+      if (sessionId) dest += `&session_id=${sessionId}`;
+      window.location.href = dest;
     } else if (sessionId) {
       window.location.href = `/certificates?session_id=${sessionId}&enrolled=1`;
     } else {
@@ -108,15 +110,24 @@ export default function PaymentSuccessPage() {
               Your payment was received. Go to the Certificates page — your purchased track will unlock automatically once our system confirms the payment. This usually takes a few seconds.
             </p>
             <div className="grid grid-cols-2 gap-2">
-              {CERT_TRACKS.map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => setSelectedNavTrack(t.id)}
-                  className={`px-3 py-2.5 rounded-xl bg-gradient-to-br ${t.color} text-white text-xs font-semibold text-left transition-opacity ${selectedNavTrack === t.id ? 'ring-2 ring-white/50' : 'hover:opacity-90'}`}
-                >
-                  {t.title}
-                </button>
-              ))}
+              {CERT_TRACKS.map(t => {
+                const dest = sessionId
+                  ? `/certificates?track=${t.id}&enrolled=1&session_id=${sessionId}`
+                  : `/certificates?track=${t.id}&enrolled=1`;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => {
+                      console.log('[PaymentSuccess] navigating to:', dest);
+                      setSelectedNavTrack(t.id);
+                      window.location.href = dest;
+                    }}
+                    className={`px-3 py-2.5 rounded-xl bg-gradient-to-br ${t.color} text-white text-xs font-semibold text-left transition-opacity ${selectedNavTrack === t.id ? 'ring-2 ring-white/50' : 'hover:opacity-90'}`}
+                  >
+                    {t.title}
+                  </button>
+                );
+              })}
             </div>
             <p className="text-slate-600 text-xs mt-3">Selecting a track above only navigates you to that section — it does not unlock it.</p>
           </div>
