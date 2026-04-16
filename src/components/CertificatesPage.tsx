@@ -207,70 +207,41 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
 
     const validTrackParam = trackParam && CERT_TRACKS.find(t => t.id === trackParam) ? trackParam : null;
 
-    if (validTrackParam) {
-      if (isEnrolled) {
-        setProgress(prev => {
-          const updated: CertProgress = {
-            ...prev,
-            purchased: { ...prev.purchased, [validTrackParam]: true },
-          };
-          saveLocalProgress(updated);
-          console.log("Certificates page: marked track purchased locally:", validTrackParam);
-          return updated;
-        });
-
-        if (stripeSessionId) {
-          supabase
-            .from('certificate_purchases')
-            .select('track_id')
-            .eq('stripe_session_id', stripeSessionId)
-            .maybeSingle()
-            .then(({ data }) => {
-              const verifiedTrack = (data?.track_id || validTrackParam) as TrackId;
-              console.log("Certificates page: Supabase verification — verified track:", verifiedTrack);
-              setProgress(prev => {
-                const updated: CertProgress = {
-                  ...prev,
-                  purchased: { ...prev.purchased, [verifiedTrack]: true },
-                };
-                saveLocalProgress(updated);
-                return updated;
-              });
-              openTrack(verifiedTrack);
-            });
-        }
-      }
-
-      openTrack(validTrackParam);
-    } else if (isEnrolled && stripeSessionId) {
-      console.log("Certificates page: no valid track param — looking up by stripe_session_id:", stripeSessionId);
+    if (isEnrolled && stripeSessionId) {
       supabase
         .from('certificate_purchases')
         .select('track_id')
         .eq('stripe_session_id', stripeSessionId)
         .maybeSingle()
         .then(({ data }) => {
-          const resolvedTrack = data?.track_id as TrackId | undefined;
-          console.log("Certificates page: resolved track from stripe_session_id:", resolvedTrack);
-          if (resolvedTrack && CERT_TRACKS.find(t => t.id === resolvedTrack)) {
+          const resolvedTrack = (data?.track_id || null) as TrackId | null;
+          const trackToUnlock: TrackId | null = resolvedTrack && CERT_TRACKS.find(t => t.id === resolvedTrack)
+            ? resolvedTrack
+            : null;
+          if (trackToUnlock) {
             setProgress(prev => {
               const updated: CertProgress = {
                 ...prev,
-                purchased: { ...prev.purchased, [resolvedTrack]: true },
+                purchased: { ...prev.purchased, [trackToUnlock]: true },
               };
               saveLocalProgress(updated);
               return updated;
             });
-            openTrack(resolvedTrack, 300);
+            openTrack(trackToUnlock, 300);
           } else {
             setShowRecovery(true);
+            if (validTrackParam) openTrack(validTrackParam, 300);
           }
         })
         .catch(() => {
           setShowRecovery(true);
+          if (validTrackParam) openTrack(validTrackParam, 300);
         });
     } else if (isEnrolled && !stripeSessionId) {
       setShowRecovery(true);
+      if (validTrackParam) openTrack(validTrackParam, 150);
+    } else if (validTrackParam) {
+      openTrack(validTrackParam);
     } else {
       loadProgressFromSupabase().then(remote => {
         const purchasedTracks = Object.keys(remote.purchased || {}).filter(
@@ -436,31 +407,12 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
 
         {showRecovery && (
           <div className="mb-8 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5">
-            <p className="text-amber-300 font-semibold text-sm mb-1">Payment received — select your track to unlock it</p>
-            <p className="text-slate-400 text-xs mb-4">Your payment was successful but we couldn't automatically detect which track you purchased. Select the correct track below to unlock full access.</p>
-            <div className="flex flex-wrap gap-2">
-              {CERT_TRACKS.map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => {
-                    setProgress(prev => {
-                      const updated: CertProgress = { ...prev, purchased: { ...prev.purchased, [t.id]: true } };
-                      saveLocalProgress(updated);
-                      return updated;
-                    });
-                    setExpandedTrack(t.id);
-                    setShowRecovery(false);
-                    setTimeout(() => {
-                      const el = trackRefs.current[t.id];
-                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 150);
-                  }}
-                  className="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-sm font-medium transition-colors"
-                >
-                  {t.title}
-                </button>
-              ))}
-            </div>
+            <p className="text-amber-300 font-semibold text-sm mb-1">Enrollment confirmation pending</p>
+            <p className="text-slate-400 text-xs leading-relaxed">
+              Your payment was received but we couldn't automatically verify which track you purchased. Your track will unlock automatically once our payment system finishes processing — this usually takes a few seconds. If your access isn't restored after refreshing, email us at{' '}
+              <a href="mailto:hello@langaccess.org" className="text-amber-300 underline">hello@langaccess.org</a>{' '}
+              with your payment confirmation and we'll unlock it for you right away.
+            </p>
           </div>
         )}
 

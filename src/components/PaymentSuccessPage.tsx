@@ -15,22 +15,18 @@ function markTrackPurchasedLocally(trackId: TrackId) {
 
 export default function PaymentSuccessPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [track, setTrack] = useState<string | null>(null);
+  const [verifiedTrack, setVerifiedTrack] = useState<string | null>(null);
   const [resolving, setResolving] = useState(false);
-  const [needsTrackSelect, setNeedsTrackSelect] = useState(false);
+  const [unverified, setUnverified] = useState(false);
+  const [selectedNavTrack, setSelectedNavTrack] = useState<TrackId | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const sid = params.get('session_id');
     const t = params.get('track');
-
-    const isValidTrack = t ? !!CERT_TRACKS.find(ct => ct.id === t) : false;
     setSessionId(sid);
 
-    if (isValidTrack) {
-      markTrackPurchasedLocally(t as TrackId);
-      setTrack(t);
-    } else if (sid) {
+    if (sid) {
       setResolving(true);
       supabase
         .from('certificate_purchases')
@@ -41,39 +37,49 @@ export default function PaymentSuccessPage() {
           const resolved = data?.track_id ?? null;
           if (resolved && CERT_TRACKS.find(ct => ct.id === resolved)) {
             markTrackPurchasedLocally(resolved as TrackId);
-            setTrack(resolved);
+            setVerifiedTrack(resolved);
+          } else if (t && CERT_TRACKS.find(ct => ct.id === t)) {
+            markTrackPurchasedLocally(t as TrackId);
+            setVerifiedTrack(t);
           } else {
-            setNeedsTrackSelect(true);
+            setUnverified(true);
           }
           setResolving(false);
         })
         .catch(() => {
-          setNeedsTrackSelect(true);
+          if (t && CERT_TRACKS.find(ct => ct.id === t)) {
+            markTrackPurchasedLocally(t as TrackId);
+            setVerifiedTrack(t);
+          } else {
+            setUnverified(true);
+          }
           setResolving(false);
         });
+    } else if (t && CERT_TRACKS.find(ct => ct.id === t)) {
+      markTrackPurchasedLocally(t as TrackId);
+      setVerifiedTrack(t);
     } else {
-      setNeedsTrackSelect(true);
+      setUnverified(true);
     }
   }, []);
 
-  const handleSelectTrack = (trackId: TrackId) => {
-    markTrackPurchasedLocally(trackId);
-    setTrack(trackId);
-    setNeedsTrackSelect(false);
-  };
-
-  const trackData = track ? CERT_TRACKS.find(ct => ct.id === (track as TrackId)) : null;
+  const trackData = verifiedTrack
+    ? CERT_TRACKS.find(ct => ct.id === (verifiedTrack as TrackId))
+    : null;
   const trackLabel = trackData?.title ?? null;
 
   const handleGoToCertificates = () => {
-    let dest = '/certificates';
-    if (track && CERT_TRACKS.find(ct => ct.id === (track as TrackId))) {
-      dest = `/certificates?track=${track}&enrolled=1`;
+    if (verifiedTrack) {
+      let dest = `/certificates?track=${verifiedTrack}&enrolled=1`;
       if (sessionId) dest += `&session_id=${sessionId}`;
+      window.location.href = dest;
+    } else if (sessionId && selectedNavTrack) {
+      window.location.href = `/certificates?session_id=${sessionId}&enrolled=1`;
     } else if (sessionId) {
-      dest = `/certificates?session_id=${sessionId}&enrolled=1`;
+      window.location.href = `/certificates?session_id=${sessionId}&enrolled=1`;
+    } else {
+      window.location.href = '/certificates';
     }
-    window.location.href = dest;
   };
 
   return (
@@ -95,25 +101,28 @@ export default function PaymentSuccessPage() {
           </div>
         )}
 
-        {!resolving && needsTrackSelect && (
+        {!resolving && unverified && (
           <div className="bg-[#111827] rounded-2xl border border-amber-500/30 p-5 mb-6 text-left">
-            <p className="text-amber-300 font-semibold text-sm mb-1">Select the track you purchased</p>
-            <p className="text-slate-400 text-xs mb-4">Your payment was successful. Tap the track you purchased to unlock it now.</p>
+            <p className="text-amber-300 font-semibold text-sm mb-1">Enrollment pending confirmation</p>
+            <p className="text-slate-400 text-xs mb-4">
+              Your payment was received. Go to the Certificates page — your purchased track will unlock automatically once our system confirms the payment. This usually takes a few seconds.
+            </p>
             <div className="grid grid-cols-2 gap-2">
               {CERT_TRACKS.map(t => (
                 <button
                   key={t.id}
-                  onClick={() => handleSelectTrack(t.id)}
-                  className={`px-3 py-2.5 rounded-xl bg-gradient-to-br ${t.color} text-white text-xs font-semibold text-left hover:opacity-90 transition-opacity`}
+                  onClick={() => setSelectedNavTrack(t.id)}
+                  className={`px-3 py-2.5 rounded-xl bg-gradient-to-br ${t.color} text-white text-xs font-semibold text-left transition-opacity ${selectedNavTrack === t.id ? 'ring-2 ring-white/50' : 'hover:opacity-90'}`}
                 >
                   {t.title}
                 </button>
               ))}
             </div>
+            <p className="text-slate-600 text-xs mt-3">Selecting a track above only navigates you to that section — it does not unlock it.</p>
           </div>
         )}
 
-        {!resolving && !needsTrackSelect && (
+        {!resolving && verifiedTrack && (
           <div className="bg-[#111827] rounded-2xl border border-green-500/20 p-5 mb-6 text-left">
             <div className="flex items-start gap-3">
               <GraduationCap className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
@@ -139,8 +148,7 @@ export default function PaymentSuccessPage() {
         {!resolving && (
           <button
             onClick={handleGoToCertificates}
-            disabled={needsTrackSelect}
-            className="w-full py-3 px-6 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-sm transition-colors mb-6 flex items-center justify-center gap-2"
+            className="w-full py-3 px-6 rounded-xl bg-green-500 hover:bg-green-400 text-white font-semibold text-sm transition-colors mb-6 flex items-center justify-center gap-2"
           >
             Go to Certificates Page
           </button>
