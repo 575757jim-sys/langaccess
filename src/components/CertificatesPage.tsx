@@ -68,23 +68,18 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
 
   useEffect(() => {
     loadProgressFromSupabase().then(remote => {
+      const hasRemoteActivity =
+        Object.keys(remote.moduleScores || {}).length > 0 ||
+        Object.keys(remote.certIds || {}).length > 0 ||
+        Object.keys(remote.purchased || {}).length > 0;
+      if (!hasRemoteActivity) return;
       setProgress(prev => {
-        const hasRemoteActivity =
-          Object.keys(remote.moduleScores || {}).length > 0 ||
-          Object.keys(remote.certIds || {}).length > 0 ||
-          Object.keys(remote.purchased || {}).length > 0;
         const merged: CertProgress = {
           userName: remote.userName || prev.userName,
-          purchased: (remote.purchased || {}) as Record<TrackId, boolean>,
-          moduleScores: hasRemoteActivity
-            ? { ...prev.moduleScores, ...(remote.moduleScores || {}) }
-            : prev.moduleScores,
-          completedModules: hasRemoteActivity
-            ? { ...prev.completedModules, ...(remote.completedModules || {}) }
-            : prev.completedModules,
-          certIds: hasRemoteActivity
-            ? { ...prev.certIds, ...(remote.certIds || {}) } as Record<TrackId, string>
-            : prev.certIds,
+          purchased: { ...prev.purchased, ...(remote.purchased || {}) } as Record<TrackId, boolean>,
+          moduleScores: { ...prev.moduleScores, ...(remote.moduleScores || {}) },
+          completedModules: { ...prev.completedModules, ...(remote.completedModules || {}) },
+          certIds: { ...prev.certIds, ...(remote.certIds || {}) } as Record<TrackId, string>,
         };
         saveLocalProgress(merged);
         return merged;
@@ -227,36 +222,51 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
       openTrack(trackToUnlock, 300);
     };
 
-    const lookupPurchaseBySessionAndTrack = (trackToCheck: TrackId) => {
+    const lookupPurchaseBySessionAndTrack = async (trackToCheck: TrackId) => {
       const appSessionId = getSessionId();
       console.log('[CertificatesPage] selected track:', trackToCheck);
       console.log('[CertificatesPage] app session id:', appSessionId);
       console.log('[CertificatesPage] purchase query input — session_id:', appSessionId, 'track_id:', trackToCheck);
-      supabase
-        .from('certificate_purchases')
-        .select('track_id')
-        .eq('session_id', appSessionId)
-        .eq('track_id', trackToCheck)
-        .limit(1)
-        .maybeSingle()
-        .then(({ data }) => {
-          console.log('[CertificatesPage] purchase query result:', data);
+
+      const MAX_ATTEMPTS = 5;
+      const RETRY_DELAY_MS = 1500;
+
+      for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        try {
+          const { data, error } = await supabase
+            .from('certificate_purchases')
+            .select('track_id')
+            .eq('session_id', appSessionId)
+            .eq('track_id', trackToCheck)
+            .limit(1)
+            .maybeSingle();
+
+          console.log(`[CertificatesPage] purchase query result (attempt ${attempt}/${MAX_ATTEMPTS}):`, data, error || '');
           const found = !!data?.track_id;
-          console.log('[CertificatesPage] unlock decision:', found ? 'GRANTED — unlocking all 5 modules' : 'DENIED — no matching paid record');
+
           if (found) {
+            console.log('[CertificatesPage] unlock decision: GRANTED — unlocking all 5 modules');
             applyVerifiedPurchase(trackToCheck);
-          } else {
-            console.log('[CertificatesPage] card footer state: LOCKED (first module free, Enroll button shown)');
-            setShowRecovery(true);
-            openTrack(trackToCheck, 300);
+            return;
           }
-        })
-        .catch((err) => {
-          console.log('[CertificatesPage] purchase query error:', err);
-          console.log('[CertificatesPage] card footer state: LOCKED (first module free, Enroll button shown)');
-          setShowRecovery(true);
-          openTrack(trackToCheck, 300);
-        });
+
+          console.log(`[CertificatesPage] unlock decision: not found yet (attempt ${attempt}/${MAX_ATTEMPTS})`);
+
+          if (attempt < MAX_ATTEMPTS) {
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+          }
+        } catch (err) {
+          console.log(`[CertificatesPage] purchase query error (attempt ${attempt}/${MAX_ATTEMPTS}):`, err);
+          if (attempt < MAX_ATTEMPTS) {
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
+          }
+        }
+      }
+
+      console.log('[CertificatesPage] unlock decision: DENIED after all attempts — no matching paid record');
+      console.log('[CertificatesPage] card footer state: LOCKED (first module free, Enroll button shown)');
+      setShowRecovery(true);
+      openTrack(trackToCheck, 300);
     };
 
     if (isEnrolled && validTrackParam) {

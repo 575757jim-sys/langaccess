@@ -171,3 +171,51 @@ Use this format for every certificate-related bug fix:
 13. Confirm unrelated pages still work
 ### Status
 - fixed
+
+## 2026-04-16 (Post-Payment Unlock — modules 2–5 remain locked after successful payment)
+### Symptom
+- After paying for Education (or any track), user lands on /certificates?track=education&enrolled=1
+- Correct track opens and scrolls into view
+- All modules 2–5 remain locked — purchased is false
+- Start Free Module shows, Enroll — $39 shows again as if not purchased
+### Root Cause — Two compounding issues
+#### Issue A: Supabase sync useEffect wipes purchase set by URL-params useEffect (race condition from previous session's fix)
+- Two useEffects fire on mount simultaneously
+- The URL-params useEffect calls lookupPurchaseBySessionAndTrack → applyVerifiedPurchase → sets purchased[education]=true
+- The Supabase sync useEffect (from previous fix) was changed to ALWAYS call setProgress with purchased = remote.purchased
+- If the Supabase sync useEffect resolves AFTER applyVerifiedPurchase has already run, and the DB has no certificate_purchases row yet (webhook timing), it sets purchased = {} — wiping the unlock
+#### Issue B: Stripe webhook timing — certificate_purchases row may not exist yet when the first lookup fires
+- Stripe webhook fires asynchronously after payment; can take 1–10 seconds
+- lookupPurchaseBySessionAndTrack queries certificate_purchases immediately on page load
+- If webhook has not yet written the row, data=null, lookup returns DENIED, user sees locked modules
+- No retry was attempted — it showed showRecovery immediately and gave up
+### Exact Files Changed
+- src/components/CertificatesPage.tsx only
+### Fix A — Supabase sync useEffect (lines 69–88)
+- Restored merge behavior: purchased = { ...prev.purchased, ...remote.purchased } (merges on top, never replaces)
+- Re-added early return if no remote activity — only runs setProgress when Supabase has real data
+- This ensures applyVerifiedPurchase cannot be undone by the Supabase sync running later
+### Fix B — lookupPurchaseBySessionAndTrack retry loop (lines 225–270)
+- Converted to async function with a retry loop: up to 5 attempts, 1500ms between each (total max ~7.5s wait)
+- On each attempt: queries certificate_purchases by session_id + track_id
+- If found: calls applyVerifiedPurchase immediately and returns
+- If not found after all attempts: shows showRecovery and opens track (existing fallback behavior preserved)
+- Console logs report attempt number, query inputs, and result on every attempt
+### Manual Test Steps
+1. Open /certificates
+2. Find Education track — confirm it shows Start Free Module + Enroll — $39 (not yet purchased)
+3. Click Enroll — $39 — complete Stripe test checkout (card: 4242 4242 4242 4242)
+4. Land on /success?track=education&session_id=cs_xxx
+5. Click "Go to Certificates Page"
+6. Land on /certificates?track=education&enrolled=1&session_id=cs_xxx
+7. Open DevTools > Console — confirm [CertificatesPage] logs show:
+   - selected track: education
+   - app session id: (UUID)
+   - purchase query input with matching session_id and track_id
+   - attempt 1 or later: purchase query result with data.track_id = 'education'
+   - unlock decision: GRANTED
+8. Education card: confirm all 5 module dots are blue/unlocked, modules 2–5 are clickable
+9. Construction card: confirm still shows Start Free Module + Enroll — $39 (not unlocked)
+10. Social Services card: same — still locked
+### Status
+- fixed
