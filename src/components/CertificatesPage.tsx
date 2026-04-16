@@ -204,15 +204,17 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
       }, delay);
     };
 
-    if (trackParam && CERT_TRACKS.find(t => t.id === trackParam)) {
+    const validTrackParam = trackParam && CERT_TRACKS.find(t => t.id === trackParam) ? trackParam : null;
+
+    if (validTrackParam) {
       if (isEnrolled) {
         setProgress(prev => {
           const updated: CertProgress = {
             ...prev,
-            purchased: { ...prev.purchased, [trackParam]: true },
+            purchased: { ...prev.purchased, [validTrackParam]: true },
           };
           saveLocalProgress(updated);
-          console.log("Certificates page: marked track purchased locally:", trackParam);
+          console.log("Certificates page: marked track purchased locally:", validTrackParam);
           return updated;
         });
 
@@ -223,7 +225,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
             .eq('stripe_session_id', stripeSessionId)
             .maybeSingle()
             .then(({ data }) => {
-              const verifiedTrack = (data?.track_id || trackParam) as TrackId;
+              const verifiedTrack = (data?.track_id || validTrackParam) as TrackId;
               console.log("Certificates page: Supabase verification — verified track:", verifiedTrack);
               setProgress(prev => {
                 const updated: CertProgress = {
@@ -238,7 +240,29 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
         }
       }
 
-      openTrack(trackParam);
+      openTrack(validTrackParam);
+    } else if (isEnrolled && stripeSessionId) {
+      console.log("Certificates page: no valid track param — looking up by stripe_session_id:", stripeSessionId);
+      supabase
+        .from('certificate_purchases')
+        .select('track_id')
+        .eq('stripe_session_id', stripeSessionId)
+        .maybeSingle()
+        .then(({ data }) => {
+          const resolvedTrack = data?.track_id as TrackId | undefined;
+          console.log("Certificates page: resolved track from stripe_session_id:", resolvedTrack);
+          if (resolvedTrack && CERT_TRACKS.find(t => t.id === resolvedTrack)) {
+            setProgress(prev => {
+              const updated: CertProgress = {
+                ...prev,
+                purchased: { ...prev.purchased, [resolvedTrack]: true },
+              };
+              saveLocalProgress(updated);
+              return updated;
+            });
+            openTrack(resolvedTrack, 300);
+          }
+        });
     } else {
       loadProgressFromSupabase().then(remote => {
         const purchasedTracks = Object.keys(remote.purchased || {}).filter(
