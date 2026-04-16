@@ -122,40 +122,52 @@ Use this format for every certificate-related bug fix:
 ### Status
 - fixed
 
-## 2026-04-16 (Risk #4 Fix — Missing Enroll Button on Construction and Social Services)
+## 2026-04-16 (Incomplete diagnosis — superseded by entry below)
+### Note
+- The `purchased && completed && certId` fix was correct but insufficient
+- The actual root cause was a separate, deeper issue: see next entry
+
+## 2026-04-16 (Root Cause Fix — purchased:true persisting in localStorage, hiding Enroll button)
 ### Symptom
-- On the /certificates catalog page, certain tracks (confirmed: Construction, Social Services) showed only a "Download Certificate" button with no "Start Free Module" or "Enroll — $39" button
-- This violated the core rule: every unpaid track must always show Start Free Module and Enroll — $39
+- Construction and Social Services showed "Start Free Module" but NOT "Enroll — $39"
+- No "Download Certificate" button visible either
+- The `purchased && completed && certId` guard (from the prior fix) correctly blocked Download, so the else branch ran
+- But inside the else branch, "Enroll — $39" is inside `{!purchased && ...}` — it only renders when `purchased === false`
+- `purchased` was `true` for these two tracks → Start Free Module rendered, Enroll did not
 ### Root Cause
 - Exact file: src/components/CertificatesPage.tsx
-- Exact condition: line 541 (pre-fix) — `{completed && certId ? (` — the Download Certificate branch fired whenever `completed === true` AND `certId` was set, with no check on whether the track was actually purchased
-- `completed` is derived from `completedModules` (which persists even for free/unpaid completions)
-- `certId` is populated from `certificate_records` even for unpaid completions (certPersistence.ts correctly still reads certIds from that table)
-- Why Construction and Social Services specifically: these were the tracks where the user had previously completed all 5 modules without purchasing (possible during development/testing), so both `completed` and `certId` were set in their session
-- The condition `completed && certId` was true → the Download-only branch rendered → both "Start Free Module" and "Enroll — $39" were hidden
+- Exact JSX branch: lines 567–589 (pre-fix), `{!purchased && (<div>...<button>Enroll — $39</button>...</div>)}`
+- Exact boolean condition: `purchased === true` for construction and social-services
+- Why `purchased` was true: a previous development/testing session had written `purchased: { construction: true, 'social-services': true }` into localStorage via `saveLocalProgress()`. On each page load, `loadLocalProgress()` (line 59) reads this stale value immediately as initial state. `purchased` is `true` before Supabase runs.
+- Why Start Free Module still appeared: it is rendered unconditionally inside the else branch — no `!purchased` guard on it. Only the Enroll block is wrapped in `{!purchased && ...}`.
+- Why Supabase didn't fix it: the first `useEffect` only ran `setProgress` if `remote.moduleScores` or `remote.certIds` had entries — `remote.purchased` was empty (no DB records), so the `if` guard prevented the merge entirely. Stale localStorage `purchased: true` was never cleared.
+- Why Construction and Social Services specifically: these were the only tracks that had `purchased: true` written to localStorage during prior development sessions. Other tracks did not.
 ### Files Changed
-- src/components/CertificatesPage.tsx
+- src/components/CertificatesPage.tsx only
 ### Fix Applied
-- Changed `{completed && certId ? (` to `{purchased && completed && certId ? (` at the card footer branch (line 541)
-- Download Certificate now only appears when the track is verified as purchased AND completed AND has a certId
-- All unpaid tracks — regardless of their completedModules or certIds state — now always fall through to the Start Free Module + Enroll — $39 branch
-### Manual Test
-#### From TEST_CHECKLIST_CERTIFICATES.md Section A — Catalog Page
+- Rewrote the first `useEffect` Supabase sync (lines 69–93)
+- `purchased` is now always replaced with `remote.purchased` (Supabase is authoritative for purchase state)
+- `moduleScores`, `completedModules`, and `certIds` are merged only when there is remote activity (unchanged behavior for those fields)
+- `setProgress` now always runs after Supabase responds, not only when moduleScores/certIds are non-empty
+- Stale `purchased: true` values in localStorage are cleared as soon as the Supabase response arrives
+- Diagnostic console logs added for construction and social-services to expose `purchased`, `completed`, `certId`, `expandedTrack`, `showRecovery`, and which footer branch fires
+### Manual Test Steps — Construction and Social Services
 1. Open /certificates
-2. Confirm every unpaid track shows: Start Free Module + Enroll — $39 (specifically verify Construction and Social Services)
-3. Confirm no "Download Certificate" button appears on any unpaid track
+2. Open browser DevTools > Console; look for [DIAG] construction and [DIAG] social-services lines
+3. Confirm both log `purchased: false` and `footer branch: START+ENROLL`
+4. Confirm Construction card shows both "Start Free Module" AND "Enroll — $39"
+5. Confirm Social Services card shows both "Start Free Module" AND "Enroll — $39"
+6. Confirm no "Download Certificate" button on either card
+#### Section A — All Tracks
+7. Confirm every other unpaid track also shows Start Free Module + Enroll — $39
 #### Section B — Free Module
-4. Open an unpaid track; confirm only module 1 is available, modules 2–5 remain locked
-#### Section E — Paid Unlock
-5. Complete a Stripe test payment (card: 4242 4242 4242 4242) for one track
-6. Return to /certificates — confirm Download Certificate appears only on the paid+completed track
-7. Confirm all other tracks still show Start Free Module + Enroll — $39
-#### Specific regression for Construction and Social Services
-8. Open /certificates with no payment — confirm Construction card shows "Start Free Module" and "Enroll — $39"
-9. Open /certificates with no payment — confirm Social Services card shows "Start Free Module" and "Enroll — $39"
-10. Neither card should show "Download Certificate" unless that track is both purchased and all 5 modules are passed
+8. Open any unpaid track > Start Free Module; confirm modules 2–5 remain locked
+#### Section E — Paid Unlock (regression)
+9. If able to test payment: complete Stripe checkout for one track, return to /certificates
+10. Confirm Download Certificate appears only on the purchased+completed track
+11. Confirm all other tracks still show Start Free Module + Enroll — $39
 #### Section G — Regression Check
-11. Confirm styling/layout did not change unexpectedly
-12. Confirm unrelated pages still work
+12. Confirm styling/layout did not change unexpectedly
+13. Confirm unrelated pages still work
 ### Status
 - fixed

@@ -68,19 +68,27 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
 
   useEffect(() => {
     loadProgressFromSupabase().then(remote => {
-      if (Object.keys(remote.moduleScores || {}).length > 0 || Object.keys(remote.certIds || {}).length > 0) {
-        setProgress(prev => {
-          const merged: CertProgress = {
-            userName: remote.userName || prev.userName,
-            purchased: { ...prev.purchased, ...(remote.purchased || {}) } as Record<TrackId, boolean>,
-            moduleScores: { ...prev.moduleScores, ...(remote.moduleScores || {}) },
-            completedModules: { ...prev.completedModules, ...(remote.completedModules || {}) },
-            certIds: { ...prev.certIds, ...(remote.certIds || {}) } as Record<TrackId, string>,
-          };
-          saveLocalProgress(merged);
-          return merged;
-        });
-      }
+      setProgress(prev => {
+        const hasRemoteActivity =
+          Object.keys(remote.moduleScores || {}).length > 0 ||
+          Object.keys(remote.certIds || {}).length > 0 ||
+          Object.keys(remote.purchased || {}).length > 0;
+        const merged: CertProgress = {
+          userName: remote.userName || prev.userName,
+          purchased: (remote.purchased || {}) as Record<TrackId, boolean>,
+          moduleScores: hasRemoteActivity
+            ? { ...prev.moduleScores, ...(remote.moduleScores || {}) }
+            : prev.moduleScores,
+          completedModules: hasRemoteActivity
+            ? { ...prev.completedModules, ...(remote.completedModules || {}) }
+            : prev.completedModules,
+          certIds: hasRemoteActivity
+            ? { ...prev.certIds, ...(remote.certIds || {}) } as Record<TrackId, string>
+            : prev.certIds,
+        };
+        saveLocalProgress(merged);
+        return merged;
+      });
     });
   }, []);
 
@@ -538,6 +546,15 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                   )}
 
                   <div className="mt-auto space-y-2">
+                    {(track.id === 'construction' || track.id === 'social-services') && console.log(
+                      '[DIAG]', track.id,
+                      '| purchased:', purchased,
+                      '| completed:', completed,
+                      '| certId:', certId,
+                      '| expandedTrack:', expandedTrack,
+                      '| showRecovery:', showRecovery,
+                      '| footer branch:', purchased && completed && certId ? 'DOWNLOAD' : purchased ? 'START-ONLY (purchased, not complete)' : 'START+ENROLL'
+                    )}
                     {purchased && completed && certId ? (
                       <button
                         onClick={() => generatePDF(track.id)}
