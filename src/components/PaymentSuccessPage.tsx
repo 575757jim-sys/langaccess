@@ -2,6 +2,17 @@ import { useEffect, useState } from 'react';
 import { CheckCircle, ArrowLeft, GraduationCap, Loader2 } from 'lucide-react';
 import { CERT_TRACKS, TrackId } from '../data/certificateData';
 import { supabase } from '../lib/supabase';
+import { loadLocalProgress, saveLocalProgress } from '../utils/certPersistence';
+
+function markTrackPurchasedLocally(trackId: TrackId) {
+  const progress = loadLocalProgress();
+  const updated = {
+    ...progress,
+    purchased: { ...progress.purchased, [trackId]: true },
+  };
+  saveLocalProgress(updated);
+  console.log("Success page: wrote purchase to localStorage for track:", trackId);
+}
 
 export default function PaymentSuccessPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -17,6 +28,7 @@ export default function PaymentSuccessPage() {
     const isValidTrack = t ? !!CERT_TRACKS.find(ct => ct.id === t) : false;
 
     if (isValidTrack) {
+      markTrackPurchasedLocally(t as TrackId);
       setSessionId(sid);
       setTrack(t);
     } else if (sid) {
@@ -30,6 +42,9 @@ export default function PaymentSuccessPage() {
         .then(({ data }) => {
           const resolved = data?.track_id ?? null;
           console.log("Success page: resolved track from DB:", resolved, "(URL had:", t, ")");
+          if (resolved && CERT_TRACKS.find(ct => ct.id === resolved)) {
+            markTrackPurchasedLocally(resolved as TrackId);
+          }
           setTrack(resolved);
           setResolving(false);
         })
