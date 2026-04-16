@@ -35,6 +35,22 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    const VALID_TRACK_IDS = [
+      'healthcare', 'education', 'construction', 'social-services',
+      'mental-health', 'property-management', 'warehouse', 'hospitality',
+      'agriculture', 'community-outreach'
+    ];
+
+    if (!VALID_TRACK_IDS.includes(trackId)) {
+      console.error("[create-cert-checkout] INVALID trackId received:", trackId, "— rejecting checkout");
+      return new Response(JSON.stringify({ error: `Invalid trackId: "${trackId}". Must be a valid certificate track.` }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log("Creating checkout for track:", trackId);
+
     const unitAmount = Math.round((price ?? 39) * 100);
     const baseUrl = "https://langaccess.org";
 
