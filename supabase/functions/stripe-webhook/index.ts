@@ -211,13 +211,21 @@ Deno.serve(async (req: Request) => {
         const customerEmail = session.customer_details?.email as string | undefined;
         const sessionId = meta.session_id;
 
+        console.log("[Webhook] cert purchase path — trackId:", trackId || "(missing)", "sessionId:", sessionId || "(missing)", "stripe_session:", session.id);
+
         if (trackId && sessionId) {
-          await supabase.from("certificate_purchases").upsert({
+          console.log("[Webhook] inserting certificate_purchases row — session_id:", sessionId, "track_id:", trackId);
+          const { error: upsertError } = await supabase.from("certificate_purchases").upsert({
             session_id: sessionId,
             track_id: trackId,
             stripe_session_id: session.id,
             purchased_at: new Date().toISOString(),
           }, { onConflict: "stripe_session_id" });
+          if (upsertError) {
+            console.error("[Webhook] certificate_purchases upsert FAILED:", JSON.stringify(upsertError));
+          } else {
+            console.log("[Webhook] certificate_purchases upsert SUCCESS — row written");
+          }
 
           if (customerEmail) {
             const supabaseUrl = Deno.env.get("SUPABASE_URL")!;

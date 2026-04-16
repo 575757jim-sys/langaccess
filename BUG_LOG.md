@@ -172,6 +172,34 @@ Use this format for every certificate-related bug fix:
 ### Status
 - fixed
 
+## 2026-04-16 (Stripe webhook silent skip — certificate_purchases never written)
+### Symptom
+- Real Stripe test payment completes successfully
+- User lands on /certificates?track=education&enrolled=1 — track opens correctly
+- Modules 2–5 remain locked; purchased is false
+- `select * from certificate_purchases` returns zero rows immediately after payment
+### Root Cause
+- Exact file: supabase/functions/stripe-webhook/index.ts
+- Exact condition: line 214 (pre-fix) — `if (trackId && sessionId)` guard silently skips the entire upsert when either value is missing
+- Primary suspected cause: STRIPE_WEBHOOK_SECRET in deployed secrets does not match the signing secret for the registered Stripe webhook endpoint, so signature verification fails at line 171 and returns HTTP 400 before reaching the insert block — OR the webhook endpoint URL is not registered in the Stripe dashboard at all
+- Secondary possibility: if signature passes, `meta.session_id` could be undefined if Stripe is not forwarding metadata (confirmed to be sent correctly by checkout function)
+- No error was logged in either failure path — the webhook returned 400 silently (signature mismatch) or skipped the insert silently (missing sessionId)
+### Files Changed
+- supabase/functions/stripe-webhook/index.ts
+### Fix Applied
+- Added explicit `console.log` and `console.error` around the upsert (lines 214–228 post-fix):
+  - Logs `trackId`, `sessionId`, and `stripe_session` values before the guard so missing values are visible
+  - Logs "inserting certificate_purchases row" when the guard passes
+  - Logs upsert SUCCESS or FAILED with the full Supabase error object
+- Redeployed edge function
+- This is a diagnostic fix only — no logic was changed
+### Manual Test (3 steps)
+1. In the Stripe Dashboard > Developers > Webhooks: confirm the webhook endpoint URL is exactly `<SUPABASE_URL>/functions/v1/stripe-webhook` and that the signing secret shown there matches what is stored as `STRIPE_WEBHOOK_SECRET` in Supabase edge function secrets
+2. Complete a fresh Stripe test payment (card 4242 4242 4242 4242), then open Supabase Dashboard > Edge Functions > stripe-webhook > Logs — confirm you see `[Webhook] cert purchase path` log lines; if you see `Invalid signature` in the 400 response, the webhook secret is mismatched and must be re-synced
+3. After confirming the webhook fires and logs "upsert SUCCESS", run `select * from certificate_purchases` in Supabase SQL Editor — confirm one row exists; then visit /certificates?track=<trackId>&enrolled=1 and confirm modules 2–5 are unlocked
+### Status
+- diagnostic fix deployed — root cause confirmation pending webhook log inspection
+
 ## 2026-04-16 (Post-Payment Unlock — modules 2–5 remain locked after successful payment)
 ### Symptom
 - After paying for Education (or any track), user lands on /certificates?track=education&enrolled=1
