@@ -207,39 +207,75 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
 
     const validTrackParam = trackParam && CERT_TRACKS.find(t => t.id === trackParam) ? trackParam : null;
 
+    const applyVerifiedPurchase = (trackToUnlock: TrackId) => {
+      console.log('[CertificatesPage] unlock decision: GRANTED for track:', trackToUnlock);
+      setProgress(prev => {
+        const updated: CertProgress = {
+          ...prev,
+          purchased: { ...prev.purchased, [trackToUnlock]: true },
+        };
+        saveLocalProgress(updated);
+        return updated;
+      });
+      openTrack(trackToUnlock, 300);
+    };
+
     if (isEnrolled && stripeSessionId) {
+      console.log('[CertificatesPage] selected track id:', trackParam);
+      console.log('[CertificatesPage] purchase lookup by stripe_session_id:', stripeSessionId);
       supabase
         .from('certificate_purchases')
         .select('track_id')
         .eq('stripe_session_id', stripeSessionId)
         .maybeSingle()
         .then(({ data }) => {
+          console.log('[CertificatesPage] purchase lookup result (stripe):', data);
           const resolvedTrack = (data?.track_id || null) as TrackId | null;
           const trackToUnlock: TrackId | null = resolvedTrack && CERT_TRACKS.find(t => t.id === resolvedTrack)
             ? resolvedTrack
             : null;
           if (trackToUnlock) {
-            setProgress(prev => {
-              const updated: CertProgress = {
-                ...prev,
-                purchased: { ...prev.purchased, [trackToUnlock]: true },
-              };
-              saveLocalProgress(updated);
-              return updated;
-            });
-            openTrack(trackToUnlock, 300);
+            applyVerifiedPurchase(trackToUnlock);
           } else {
+            console.log('[CertificatesPage] unlock decision: stripe lookup found no record — showing recovery');
             setShowRecovery(true);
             if (validTrackParam) openTrack(validTrackParam, 300);
           }
         })
         .catch(() => {
+          console.log('[CertificatesPage] unlock decision: stripe lookup error — showing recovery');
           setShowRecovery(true);
           if (validTrackParam) openTrack(validTrackParam, 300);
         });
     } else if (isEnrolled && !stripeSessionId) {
-      setShowRecovery(true);
-      if (validTrackParam) openTrack(validTrackParam, 150);
+      const appSessionId = getSessionId();
+      console.log('[CertificatesPage] selected track id:', trackParam);
+      console.log('[CertificatesPage] purchase lookup by app session_id:', appSessionId, 'track:', trackParam);
+      supabase
+        .from('certificate_purchases')
+        .select('track_id')
+        .eq('session_id', appSessionId)
+        .eq('track_id', trackParam ?? '')
+        .maybeSingle()
+        .then(({ data }) => {
+          console.log('[CertificatesPage] purchase lookup result (app session):', data);
+          const resolvedTrack = (data?.track_id || null) as TrackId | null;
+          const trackToUnlock: TrackId | null = resolvedTrack && CERT_TRACKS.find(t => t.id === resolvedTrack)
+            ? resolvedTrack
+            : null;
+          if (trackToUnlock) {
+            applyVerifiedPurchase(trackToUnlock);
+          } else {
+            console.log('[CertificatesPage] unlock decision: app session lookup found no record — showing recovery');
+            setShowRecovery(true);
+            if (validTrackParam) openTrack(validTrackParam, 150);
+          }
+        })
+        .catch(() => {
+          console.log('[CertificatesPage] unlock decision: app session lookup error — showing recovery');
+          setShowRecovery(true);
+          if (validTrackParam) openTrack(validTrackParam, 150);
+        });
     } else if (validTrackParam) {
       openTrack(validTrackParam);
     } else {
