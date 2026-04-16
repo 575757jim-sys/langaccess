@@ -67,3 +67,27 @@ Use this format for every certificate-related bug fix:
 9. Confirm all other unpaid tracks still show Enroll — $39
 ### Status
 - fixed
+
+## 2026-04-16 (Risk #2 Fix)
+### Symptom
+- Clicking "Enroll" on the Agricultural Worksites certificate track returned a 400 error from the checkout edge function
+- Stripe checkout session was never created for that track; users could not purchase it
+### Root Cause
+- Exact file: supabase/functions/create-cert-checkout/index.ts
+- Exact condition: VALID_TRACK_IDS array contained the string "agriculture" — the frontend sends "agricultural-worksites" (the canonical ID from certificateData.ts and PROJECT_CONTEXT.md)
+- Why it happened: ID was set incorrectly during initial function authorship; the validation guard then rejected every checkout attempt for that track
+### Files Changed
+- supabase/functions/create-cert-checkout/index.ts
+### Fix Applied
+- Changed "agriculture" to "agricultural-worksites" in VALID_TRACK_IDS (line 41)
+- Redeployed edge function
+### Manual Test
+1. Navigate to /certificates and select the Agricultural Worksites track
+2. Click Enroll — $39
+3. Confirm the Stripe checkout page opens (no 400 error, no "Invalid trackId" error in browser console)
+4. Complete the Stripe test payment
+5. Confirm redirect to /success?track=agricultural-worksites&session_id=...
+6. Confirm CertificatesPage unlocks modules 2–5 for Agricultural Worksites
+7. Confirm all other tracks are unaffected
+### Status
+- fixed

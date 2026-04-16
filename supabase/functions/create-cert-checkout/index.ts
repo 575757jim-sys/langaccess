@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
     const VALID_TRACK_IDS = [
       'healthcare', 'education', 'construction', 'social-services',
       'mental-health', 'property-management', 'warehouse', 'hospitality',
-      'agriculture', 'community-outreach'
+      'agricultural-worksites', 'community-outreach'
     ];
 
     if (!VALID_TRACK_IDS.includes(trackId)) {
