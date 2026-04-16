@@ -219,33 +219,40 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
       openTrack(trackToUnlock, 300);
     };
 
-    const lookupPurchaseByTrack = (trackToCheck: TrackId) => {
+    const lookupPurchaseBySessionAndTrack = (trackToCheck: TrackId) => {
+      const appSessionId = getSessionId();
       console.log('[CertificatesPage] selected track:', trackToCheck);
-      console.log('[CertificatesPage] purchase lookup query: track_id =', trackToCheck);
+      console.log('[CertificatesPage] app session id:', appSessionId);
+      console.log('[CertificatesPage] purchase query input — session_id:', appSessionId, 'track_id:', trackToCheck);
       supabase
         .from('certificate_purchases')
         .select('track_id')
+        .eq('session_id', appSessionId)
         .eq('track_id', trackToCheck)
         .limit(1)
         .maybeSingle()
         .then(({ data }) => {
-          console.log('[CertificatesPage] purchase lookup result:', data);
+          console.log('[CertificatesPage] purchase query result:', data);
           const found = !!data?.track_id;
-          console.log('[CertificatesPage] unlock decision:', found ? 'GRANTED' : 'DENIED (no purchase record)');
+          console.log('[CertificatesPage] unlock decision:', found ? 'GRANTED — unlocking all 5 modules' : 'DENIED — no matching paid record');
           if (found) {
             applyVerifiedPurchase(trackToCheck);
           } else {
+            console.log('[CertificatesPage] card footer state: LOCKED (first module free, Enroll button shown)');
+            setShowRecovery(true);
             openTrack(trackToCheck, 300);
           }
         })
         .catch((err) => {
-          console.log('[CertificatesPage] purchase lookup error:', err);
+          console.log('[CertificatesPage] purchase query error:', err);
+          console.log('[CertificatesPage] card footer state: LOCKED (first module free, Enroll button shown)');
+          setShowRecovery(true);
           openTrack(trackToCheck, 300);
         });
     };
 
     if (isEnrolled && validTrackParam) {
-      lookupPurchaseByTrack(validTrackParam);
+      lookupPurchaseBySessionAndTrack(validTrackParam);
     } else if (validTrackParam) {
       openTrack(validTrackParam);
     } else {
@@ -541,6 +548,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                       </button>
                     ) : (
                       <>
+                        {console.log('[CertificatesPage] card footer rendering —', track.id, purchased ? 'PURCHASED (Enroll hidden)' : 'LOCKED (Start Free + Enroll shown)')}
                         <button
                           onClick={() => handleStartModule(track.id, 1)}
                           className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-sm transition-colors"
