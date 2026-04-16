@@ -39,8 +39,8 @@ export default function PaymentSuccessPage() {
             markTrackPurchasedLocally(resolved as TrackId);
             setVerifiedTrack(resolved);
           } else if (t && CERT_TRACKS.find(ct => ct.id === t)) {
-            markTrackPurchasedLocally(t as TrackId);
             setVerifiedTrack(t);
+            setUnverified(true);
           } else {
             setUnverified(true);
           }
@@ -48,16 +48,14 @@ export default function PaymentSuccessPage() {
         })
         .catch(() => {
           if (t && CERT_TRACKS.find(ct => ct.id === t)) {
-            markTrackPurchasedLocally(t as TrackId);
             setVerifiedTrack(t);
-          } else {
-            setUnverified(true);
           }
+          setUnverified(true);
           setResolving(false);
         });
     } else if (t && CERT_TRACKS.find(ct => ct.id === t)) {
-      markTrackPurchasedLocally(t as TrackId);
       setVerifiedTrack(t);
+      setUnverified(true);
     } else {
       setUnverified(true);
     }
