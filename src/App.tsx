@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { AuthProvider } from './context/AuthContext';
+import AccountPage from './components/AccountPage';
+import SignInModal from './components/SignInModal';
 import HomeScreen from './components/HomeScreen';
 import LandingPage from './components/LandingPage';
 import PhrasesScreen from './components/PhrasesScreen';
@@ -96,6 +99,10 @@ function getPaymentCancelPath(): boolean {
   return window.location.pathname === '/cancel';
 }
 
+function getAccountPath(): boolean {
+  return window.location.pathname === '/account';
+}
+
 function AppInner() {
   const qrSlug = getQRSlug();
   const isHelpPath = getHelpPath();
@@ -113,6 +120,7 @@ function AppInner() {
   const [toastDismissed, setToastDismissed] = useState(false);
   const [talkTogetherPending, setTalkTogetherPending] = useState(false);
   const [jobSiteTalkPending, setJobSiteTalkPending] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
 
   const { updateAvailable, applyUpdate, checkForUpdates } = useUpdateManager();
 
@@ -393,6 +401,7 @@ function AppInner() {
         onOpenCertificates={() => setView('certificates')}
         onOpenAmbassadors={() => setView('ambassadors')}
         onCheckForUpdates={checkForUpdates}
+        onOpenSignIn={() => setShowSignIn(true)}
       />
     );
   };
@@ -410,6 +419,8 @@ function AppInner() {
     <>
       {renderView()}
 
+      {showSignIn && <SignInModal onClose={() => setShowSignIn(false)} />}
+
       <UpdateToast
         visible={showToast}
         onRefresh={applyUpdate}
@@ -422,7 +433,7 @@ function AppInner() {
   );
 }
 
-function App() {
+function AppRoutes() {
   if (getPaymentSuccessPath()) {
     return <PaymentSuccessPage />;
   }
@@ -435,7 +446,19 @@ function App() {
     return <PublicOrderPage />;
   }
 
+  if (getAccountPath()) {
+    return <AccountPage />;
+  }
+
   return <AppInner />;
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
 }
 
 export default App;

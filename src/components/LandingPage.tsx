@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Languages, Heart, GraduationCap, HardHat, Compass, Award, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Wifi, Menu, X, MapPin, Loader2, Building2, Warehouse, Hotel, Leaf } from 'lucide-react';
+import { Languages, Heart, GraduationCap, HardHat, Compass, Award, FileText, MessageSquarePlus, RefreshCw, ChevronRight, Volume2, Zap, Shield, Wifi, Menu, X, MapPin, Loader2, Building2, Warehouse, Hotel, Leaf, CircleUser as UserCircle2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { playAudioFromGesture } from '../utils/speech';
 import { Sector } from '../data/phrases';
 import SEO from './SEO';
@@ -42,6 +43,7 @@ interface LandingPageProps {
   onOpenCertificates?: () => void;
   onOpenAmbassadors?: () => void;
   onCheckForUpdates?: () => void;
+  onOpenSignIn?: () => void;
 }
 
 export default function LandingPage({
@@ -52,7 +54,9 @@ export default function LandingPage({
   onOpenCertificates,
   onOpenAmbassadors,
   onCheckForUpdates,
+  onOpenSignIn,
 }: LandingPageProps) {
+  const { user } = useAuth();
   const [showPilotModal, setShowPilotModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [demoPlaying, setDemoPlaying] = useState(false);
@@ -118,9 +122,26 @@ export default function LandingPage({
               <span className="text-slate-300">|</span>
               <button className="hover:text-slate-700 transition-colors">Tiếng Việt</button>
             </div>
+            {user ? (
+              <button
+                onClick={() => { window.location.href = '/account'; }}
+                className="flex items-center gap-1.5 border border-slate-200 hover:border-slate-300 text-slate-700 hover:text-slate-900 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+              >
+                <UserCircle2 className="w-4 h-4 text-teal-600" />
+                Account
+              </button>
+            ) : (
+              <button
+                onClick={onOpenSignIn}
+                className="flex items-center gap-1.5 border border-slate-200 hover:border-teal-400 text-slate-700 hover:text-teal-700 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+              >
+                Sign In
+              </button>
+            )}
+
             <button
               onClick={onGetStarted}
-              className="flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
+              className="hidden sm:flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm"
             >
               Get Started Free
               <ChevronRight className="w-3.5 h-3.5" />
@@ -159,6 +180,22 @@ export default function LandingPage({
               Get Started Free
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
+            {user ? (
+              <button
+                onClick={() => { window.location.href = '/account'; closeMobileMenu(); }}
+                className="w-full text-left px-3 py-2.5 rounded-lg text-sm text-teal-700 hover:bg-teal-50 transition-colors font-medium flex items-center gap-2"
+              >
+                <UserCircle2 className="w-4 h-4" />
+                Account
+              </button>
+            ) : (
+              <button
+                onClick={() => { onOpenSignIn?.(); closeMobileMenu(); }}
+                className="w-full text-left px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium"
+              >
+                Sign In
+              </button>
+            )}
           </div>
         )}
       </header>
