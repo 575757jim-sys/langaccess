@@ -62,6 +62,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
   const [nameInput, setNameInput] = useState('');
   const [expandedTrack, setExpandedTrack] = useState<TrackId | null>(null);
   const [certGenerated, setCertGenerated] = useState<TrackId | null>(null);
+  const [showRecovery, setShowRecovery] = useState(false);
 
   const trackRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -261,8 +262,15 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
               return updated;
             });
             openTrack(resolvedTrack, 300);
+          } else {
+            setShowRecovery(true);
           }
+        })
+        .catch(() => {
+          setShowRecovery(true);
         });
+    } else if (isEnrolled && !stripeSessionId) {
+      setShowRecovery(true);
     } else {
       loadProgressFromSupabase().then(remote => {
         const purchasedTracks = Object.keys(remote.purchased || {}).filter(
@@ -425,6 +433,36 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
             LangAccess generates audit-ready compliance records that demonstrate your organization meets Title VI language access obligations.
           </p>
         </div>
+
+        {showRecovery && (
+          <div className="mb-8 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5">
+            <p className="text-amber-300 font-semibold text-sm mb-1">Payment received — select your track to unlock it</p>
+            <p className="text-slate-400 text-xs mb-4">Your payment was successful but we couldn't automatically detect which track you purchased. Select the correct track below to unlock full access.</p>
+            <div className="flex flex-wrap gap-2">
+              {CERT_TRACKS.map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => {
+                    setProgress(prev => {
+                      const updated: CertProgress = { ...prev, purchased: { ...prev.purchased, [t.id]: true } };
+                      saveLocalProgress(updated);
+                      return updated;
+                    });
+                    setExpandedTrack(t.id);
+                    setShowRecovery(false);
+                    setTimeout(() => {
+                      const el = trackRefs.current[t.id];
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 150);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-sm font-medium transition-colors"
+                >
+                  {t.title}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-16">
           {CERT_TRACKS.map((track) => {
