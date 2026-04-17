@@ -194,98 +194,45 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const trackParam = params.get('track') as TrackId | null;
-    const isEnrolled = params.get('enrolled') === '1';
-
-    console.log("Certificates page: detected URL params — track:", trackParam, "enrolled:", isEnrolled);
+    const validTrackParam = trackParam && CERT_TRACKS.find(t => t.id === trackParam) ? trackParam : null;
 
     const openTrack = (id: TrackId, delay = 150) => {
       setExpandedTrack(id);
-      console.log("Certificates page: enrolled track selected:", id);
       setTimeout(() => {
         const el = trackRefs.current[id];
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, delay);
     };
 
-    const validTrackParam = trackParam && CERT_TRACKS.find(t => t.id === trackParam) ? trackParam : null;
+    if (validTrackParam) {
+      openTrack(validTrackParam);
+    }
 
-    const applyVerifiedPurchase = (trackToUnlock: TrackId) => {
-      console.log('[CertificatesPage] unlock decision: GRANTED for track:', trackToUnlock);
-      setProgress(prev => {
-        const updated: CertProgress = {
-          ...prev,
-          purchased: { ...prev.purchased, [trackToUnlock]: true },
-        };
-        saveLocalProgress(updated);
-        return updated;
-      });
-      openTrack(trackToUnlock, 300);
-    };
-
-    const lookupPurchaseForTrack = async (trackToCheck: TrackId) => {
-      console.log('[CertificatesPage] selected track:', trackToCheck);
-
-      const MAX_ATTEMPTS = 5;
-      const RETRY_DELAY_MS = 1500;
-
-      for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-        try {
-          const { data, error } = await supabase
-            .from('certificate_purchases')
-            .select('track_id')
-            .eq('track_id', trackToCheck)
-            .order('purchased_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-          console.log(`[CertificatesPage] purchase query result (attempt ${attempt}/${MAX_ATTEMPTS}):`, data, error || '');
-
-          if (data?.track_id) {
-            console.log('[CertificatesPage] unlock decision: GRANTED — unlocking all 5 modules');
-            applyVerifiedPurchase(trackToCheck);
-            return;
-          }
-
-          console.log(`[CertificatesPage] unlock decision: not found yet (attempt ${attempt}/${MAX_ATTEMPTS})`);
-
-          if (attempt < MAX_ATTEMPTS) {
-            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
-          }
-        } catch (err) {
-          console.log(`[CertificatesPage] purchase query error (attempt ${attempt}/${MAX_ATTEMPTS}):`, err);
-          if (attempt < MAX_ATTEMPTS) {
-            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
-          }
-        }
-      }
-
-      console.log('[CertificatesPage] unlock decision: DENIED after all attempts — no matching paid record');
-      setShowRecovery(true);
-      openTrack(trackToCheck, 300);
-    };
-
-    const applyAllPurchases = async () => {
+    (async () => {
       const { data } = await supabase
         .from('certificate_purchases')
-        .select('*')
-        .order('purchased_at', { ascending: false })
-        .limit(1);
+        .select('track_id')
+        .order('purchased_at', { ascending: false });
 
       if (data && data.length > 0) {
-        const trackId = data[0].track_id as TrackId;
-        console.log('[CertificatesPage] on-load purchase found — unlocking track:', trackId);
-        applyVerifiedPurchase(trackId);
+        const purchasedTrackIds = [...new Set(data.map(r => r.track_id as TrackId))];
+        console.log('[CertificatesPage] on-load purchases found:', purchasedTrackIds);
+        setProgress(prev => {
+          const purchasedUpdate = purchasedTrackIds.reduce(
+            (acc, id) => ({ ...acc, [id]: true }),
+            {} as Record<TrackId, boolean>
+          );
+          const updated: CertProgress = {
+            ...prev,
+            purchased: { ...prev.purchased, ...purchasedUpdate },
+          };
+          saveLocalProgress(updated);
+          return updated;
+        });
+        const mostRecent = data[0].track_id as TrackId;
+        openTrack(mostRecent, 300);
       }
-    };
-
-    if (isEnrolled && validTrackParam) {
-      lookupPurchaseForTrack(validTrackParam);
-    } else if (validTrackParam) {
-      openTrack(validTrackParam);
-      applyAllPurchases();
-    } else {
-      applyAllPurchases();
-    }
+    })();
   }, []);
 
   const generatePDF = (trackId: TrackId) => {
