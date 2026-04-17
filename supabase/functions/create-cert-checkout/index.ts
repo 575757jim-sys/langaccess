@@ -21,15 +21,17 @@ Deno.serve(async (req: Request) => {
     }
 
     const body = await req.json();
-    const { trackId, price, sessionId, origin } = body as {
-      trackId: string;
+    const { track, price, sessionId, origin } = body as {
+      track: string;
       price?: number;
       sessionId?: string;
       origin?: string;
     };
 
-    if (!trackId) {
-      return new Response(JSON.stringify({ error: "trackId is required" }), {
+    console.log("[create-cert-checkout] track received:", track);
+
+    if (!track) {
+      return new Response(JSON.stringify({ error: "track is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -38,17 +40,18 @@ Deno.serve(async (req: Request) => {
     const VALID_TRACK_IDS = [
       'healthcare', 'education', 'construction', 'social-services',
       'mental-health', 'property-management', 'warehouse', 'hospitality',
-      'agricultural-worksites', 'community-outreach'
+      'agricultural-worksites', 'agriculture', 'community-outreach'
     ];
 
-    if (!VALID_TRACK_IDS.includes(trackId)) {
-      console.error("[create-cert-checkout] INVALID trackId received:", trackId, "— rejecting checkout");
-      return new Response(JSON.stringify({ error: `Invalid trackId: "${trackId}". Must be a valid certificate track.` }), {
+    if (!VALID_TRACK_IDS.includes(track)) {
+      console.error("[create-cert-checkout] INVALID track received:", track, "— rejecting checkout");
+      return new Response(JSON.stringify({ error: `Invalid track: "${track}". Must be a valid certificate track.` }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    const trackId = track;
     console.log("Creating checkout for track:", trackId);
 
     const unitAmount = Math.round((price ?? 39) * 100);

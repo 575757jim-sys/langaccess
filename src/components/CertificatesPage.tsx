@@ -164,7 +164,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
           'apikey': supabaseAnonKey,
         },
         body: JSON.stringify({
-          trackId,
+          track: trackId,
           price: CERT_PRICE,
           sessionId: appSessionId,
         }),
