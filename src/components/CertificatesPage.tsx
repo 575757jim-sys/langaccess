@@ -14,7 +14,7 @@ import {
 } from '../utils/certPersistence';
 import CertQuizEngine from './CertQuizEngine';
 import SEO from './SEO';
-import { getSessionId, adoptSessionIdFromUrl } from '../utils/sessionId';
+import { getSessionId, SESSION_STORAGE_KEY } from '../utils/sessionId';
 
 interface Props {
   onBack: () => void;
@@ -209,11 +209,13 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
     }
 
     (async () => {
-      adoptSessionIdFromUrl();
+      const appSession = params.get('app_session');
+      if (appSession) {
+        localStorage.setItem(SESSION_STORAGE_KEY, appSession);
+      }
+      console.log('Using session_id:', getSessionId());
       const appSessionId = getSessionId();
       const urlStripeSessionId = params.get('session_id');
-
-      console.log('[CertificatesPage] session_id used in Certificates query:', appSessionId, 'urlStripeSessionId:', urlStripeSessionId);
 
       const { data: sessionRows, error: sessionErr } = await supabase
         .from('certificate_purchases')

@@ -3,7 +3,7 @@ import { CheckCircle, ArrowLeft, GraduationCap, Loader2 } from 'lucide-react';
 import { CERT_TRACKS, TrackId } from '../data/certificateData';
 import { supabase } from '../lib/supabase';
 import { loadLocalProgress, saveLocalProgress } from '../utils/certPersistence';
-import { adoptSessionIdFromUrl, getSessionId } from '../utils/sessionId';
+import { getSessionId, SESSION_STORAGE_KEY } from '../utils/sessionId';
 
 function markTrackPurchasedLocally(trackId: TrackId) {
   const progress = loadLocalProgress();
@@ -22,9 +22,12 @@ export default function PaymentSuccessPage() {
   const [selectedNavTrack, setSelectedNavTrack] = useState<TrackId | null>(null);
 
   useEffect(() => {
-    adoptSessionIdFromUrl();
-    console.log('[PaymentSuccess] current app session_id:', getSessionId());
     const params = new URLSearchParams(window.location.search);
+    const appSession = params.get('app_session');
+    if (appSession) {
+      localStorage.setItem(SESSION_STORAGE_KEY, appSession);
+    }
+    console.log('Using session_id:', getSessionId());
     const sid = params.get('session_id');
     const t = params.get('track');
     setSessionId(sid);
