@@ -209,14 +209,46 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
     }
 
     (async () => {
-      const { data } = await supabase
+      const appSessionId = getSessionId();
+      const urlStripeSessionId = params.get('session_id');
+
+      console.log('[CertificatesPage] reading certificate_purchases — appSessionId:', appSessionId, 'urlStripeSessionId:', urlStripeSessionId);
+
+      const { data: sessionRows, error: sessionErr } = await supabase
         .from('certificate_purchases')
-        .select('track_id')
+        .select('track_id, session_id, stripe_session_id, purchased_at')
+        .eq('session_id', appSessionId)
         .order('purchased_at', { ascending: false });
 
-      if (data && data.length > 0) {
-        const purchasedTrackIds = [...new Set(data.map(r => r.track_id as TrackId))];
-        console.log('[CertificatesPage] on-load purchases found:', purchasedTrackIds);
+      if (sessionErr) {
+        console.error('[CertificatesPage] certificate_purchases session query error:', sessionErr);
+      }
+      console.log('[CertificatesPage] rows matched by session_id:', sessionRows);
+
+      let rows = sessionRows ?? [];
+
+      if (rows.length === 0 && urlStripeSessionId) {
+        const { data: stripeRows } = await supabase
+          .from('certificate_purchases')
+          .select('track_id, session_id, stripe_session_id, purchased_at')
+          .eq('stripe_session_id', urlStripeSessionId)
+          .order('purchased_at', { ascending: false });
+        console.log('[CertificatesPage] rows matched by stripe_session_id fallback:', stripeRows);
+        if (stripeRows && stripeRows.length > 0) rows = stripeRows;
+      }
+
+      if (rows.length === 0) {
+        const { data: allRows } = await supabase
+          .from('certificate_purchases')
+          .select('track_id, session_id, stripe_session_id, purchased_at')
+          .order('purchased_at', { ascending: false });
+        console.log('[CertificatesPage] rows from global fallback scan:', allRows);
+        if (allRows && allRows.length > 0) rows = allRows;
+      }
+
+      if (rows.length > 0) {
+        const purchasedTrackIds = [...new Set(rows.map(r => r.track_id as TrackId))];
+        console.log('[CertificatesPage] derived purchased tracks:', purchasedTrackIds);
         setProgress(prev => {
           const purchasedUpdate = purchasedTrackIds.reduce(
             (acc, id) => ({ ...acc, [id]: true }),
@@ -226,11 +258,14 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
             ...prev,
             purchased: { ...prev.purchased, ...purchasedUpdate },
           };
+          console.log('[CertificatesPage] final unlock state used by UI:', updated.purchased);
           saveLocalProgress(updated);
           return updated;
         });
-        const mostRecent = data[0].track_id as TrackId;
+        const mostRecent = rows[0].track_id as TrackId;
         openTrack(mostRecent, 300);
+      } else {
+        console.log('[CertificatesPage] no certificate_purchases rows found via session, stripe_session, or global scan');
       }
     })();
   }, []);
