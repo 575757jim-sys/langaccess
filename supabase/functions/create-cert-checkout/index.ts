@@ -57,8 +57,9 @@ Deno.serve(async (req: Request) => {
     const unitAmount = Math.round((price ?? 39) * 100);
     const baseUrl = "https://langaccess.org";
 
-    const successUrl = `${baseUrl}/success?track=${trackId}&session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${baseUrl}/certificates?track=${trackId}&canceled=1`;
+    const appSessionParam = sessionId ? `&app_session=${encodeURIComponent(sessionId)}` : "";
+    const successUrl = `${baseUrl}/success?track=${trackId}&session_id={CHECKOUT_SESSION_ID}${appSessionParam}`;
+    const cancelUrl = `${baseUrl}/certificates?track=${trackId}&canceled=1${appSessionParam}`;
 
     console.log("[create-cert-checkout] trackId:", trackId);
     console.log("[create-cert-checkout] success_url:", successUrl);

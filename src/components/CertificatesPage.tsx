@@ -14,7 +14,7 @@ import {
 } from '../utils/certPersistence';
 import CertQuizEngine from './CertQuizEngine';
 import SEO from './SEO';
-import { getSessionId } from '../utils/sessionId';
+import { getSessionId, adoptSessionIdFromUrl } from '../utils/sessionId';
 
 interface Props {
   onBack: () => void;
@@ -154,7 +154,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
       const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
       const appSessionId = getSessionId();
 
-      console.log("Payment button clicked — track:", trackId, "appSessionId:", appSessionId);
+      console.log("Payment button clicked — track:", trackId, "session_id used in checkout:", appSessionId);
 
       const res = await fetch(`${supabaseUrl}/functions/v1/create-cert-checkout`, {
         method: 'POST',
@@ -209,10 +209,11 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
     }
 
     (async () => {
+      adoptSessionIdFromUrl();
       const appSessionId = getSessionId();
       const urlStripeSessionId = params.get('session_id');
 
-      console.log('[CertificatesPage] reading certificate_purchases — appSessionId:', appSessionId, 'urlStripeSessionId:', urlStripeSessionId);
+      console.log('[CertificatesPage] session_id used in Certificates query:', appSessionId, 'urlStripeSessionId:', urlStripeSessionId);
 
       const { data: sessionRows, error: sessionErr } = await supabase
         .from('certificate_purchases')
