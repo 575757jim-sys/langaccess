@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Award, Lock, CheckCircle, ChevronRight, Download, BookOpen, Star, ShieldCheck, Search, Mail, X, FileText, RefreshCw, Infinity as InfinityIcon } from 'lucide-react';
+import { ArrowLeft, Award, Lock, CheckCircle, ChevronRight, Download, BookOpen, Star, ShieldCheck, Search, Mail, X, FileText, RefreshCw, Infinity as InfinityIcon, Scissors } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { CERT_TRACKS, CERT_PRICE, CertProgress, TrackId } from '../data/certificateData';
 import { generatePocketPhrasePDF } from '../utils/generatePocketPhrasePDF';
+import { generateFlashcardPDF } from '../utils/generateFlashcardPDF';
 import { supabase } from '../lib/supabase';
 import {
   loadLocalProgress,
@@ -742,6 +743,13 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                           <FileText className="w-4 h-4" />
                           Download Pocket Phrase PDF
                         </button>
+                        <button
+                          onClick={() => generateFlashcardPDF(track, progress.userName)}
+                          className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Scissors className="w-4 h-4" />
+                          Download Printable Flashcards
+                        </button>
                         {(() => {
                           const issued = new Date();
                           const verifyUrl = `${window.location.origin}/verify?id=${encodeURIComponent(certId)}`;
@@ -796,13 +804,22 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                           {purchased ? (completedCount > 0 ? 'Continue Course' : 'Start Module 1') : 'Start Free Module'}
                         </button>
                         {purchased && (
-                          <button
-                            onClick={() => generatePocketPhrasePDF(track, progress.userName)}
-                            className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 font-medium text-sm transition-colors flex items-center justify-center gap-2"
-                          >
-                            <FileText className="w-4 h-4" />
-                            Download Pocket Phrase PDF
-                          </button>
+                          <>
+                            <button
+                              onClick={() => generatePocketPhrasePDF(track, progress.userName)}
+                              className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 font-medium text-sm transition-colors flex items-center justify-center gap-2"
+                            >
+                              <FileText className="w-4 h-4" />
+                              Download Pocket Phrase PDF
+                            </button>
+                            <button
+                              onClick={() => generateFlashcardPDF(track, progress.userName)}
+                              className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 font-medium text-sm transition-colors flex items-center justify-center gap-2"
+                            >
+                              <Scissors className="w-4 h-4" />
+                              Download Printable Flashcards
+                            </button>
+                          </>
                         )}
                         {!purchased && (
                           <div>
@@ -845,6 +862,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
               { label: 'Instant Certificate', desc: 'Pass all modules and download your printable PDF certificate immediately.', highlight: false },
               { label: 'Verifiable Records', desc: 'Every certificate is stored in our database and verifiable at langaccess.org/verify.', highlight: true },
               { label: 'Pocket Phrase PDF', desc: 'Download a printable pocket reference with every key phrase from your track, organized by module.', highlight: false },
+              { label: 'Printable Flashcards', desc: 'Fold-and-cut Spanish flashcards drawn from your curriculum. Print on cardstock and quiz yourself anywhere.', highlight: false },
               { label: '30-Day Refresher', desc: 'We automatically email you a 5-minute spaced-repetition refresher 30 days after completion so the language sticks.', highlight: false },
               { label: 'Future Updates Free', desc: 'Your $39 is lifetime access. Every new phrase, module, and resource we add to your track is included — forever.', highlight: true },
             ].map(item => (
