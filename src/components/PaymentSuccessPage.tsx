@@ -27,15 +27,49 @@ export default function PaymentSuccessPage() {
     if (appSession) {
       localStorage.setItem(SESSION_STORAGE_KEY, appSession);
     }
-    console.log('Using session_id:', getSessionId());
+    const currentAppSession = getSessionId();
+    console.log('Using session_id:', currentAppSession);
     const sid = params.get('session_id');
     const t = params.get('track');
     setSessionId(sid);
 
-    const dest = t
-      ? `/certificates?track=${t}&enrolled=1${sid ? `&session_id=${sid}` : ''}`
-      : `/certificates${sid ? `?session_id=${sid}&enrolled=1` : ''}`;
-    window.location.replace(dest);
+    const buildDest = () =>
+      t
+        ? `/certificates?track=${t}&enrolled=1${sid ? `&session_id=${sid}` : ''}`
+        : `/certificates${sid ? `?session_id=${sid}&enrolled=1` : ''}`;
+
+    (async () => {
+      if (sid) {
+        try {
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+          const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+          console.log('[PaymentSuccess] calling verify-cert-session for stripe_session:', sid);
+          const resp = await fetch(`${supabaseUrl}/functions/v1/verify-cert-session`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${supabaseAnonKey}`,
+              apikey: supabaseAnonKey,
+            },
+            body: JSON.stringify({
+              stripe_session_id: sid,
+              app_session: currentAppSession,
+            }),
+          });
+          const data = await resp.json().catch(() => ({}));
+          console.log('[PaymentSuccess] verify-cert-session result:', data);
+          if (data?.verified && data?.track_id) {
+            markTrackPurchasedLocally(data.track_id as TrackId);
+          }
+        } catch (err) {
+          console.error('[PaymentSuccess] verify-cert-session error:', err);
+        }
+      }
+      if (t) {
+        markTrackPurchasedLocally(t as TrackId);
+      }
+      window.location.replace(buildDest());
+    })();
   }, []);
 
   const trackData = verifiedTrack
