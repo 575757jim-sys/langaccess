@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ArrowLeft, Eye, X, ChevronDown, ChevronUp, Plus, Trash2, Volume2, Loader2, Filter, Download, ShieldAlert, Users, MessageSquare, HardHat, Star, Maximize2, Mic, MicOff, Share2, Monitor, Award } from 'lucide-react';
 import { Language, Sector, languageData, CustomPhrase, Phrase } from '../data/phrases';
 import { Subcategory, subcategoryPhrases, outreachPhrases, hospitalityPhrases, warehousePhrases, propertyManagementPhrases, agriculturePhrases, PhraseGroup } from '../data/subcategories';
@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase';
 import { logInteraction } from '../utils/interactionLog';
 import { loadFavorites, addFavorite, removeFavorite, linkFavoritesToEmail, FavoritePhrase } from '../utils/favorites';
 import { addExploredPhrase } from '../utils/educationMastery';
+import { recordMasteryEvent } from '../utils/masteryTracking';
 import PointAndSpeak from './PointAndSpeak';
 import FavoritesPanel from './FavoritesPanel';
 import ResponseModePanel from './ResponseModePanel';
@@ -89,6 +90,25 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
   useEffect(() => {
     loadFavorites().then(setFavorites);
   }, []);
+
+  useEffect(() => {
+    const toRecord: string[] = [];
+    for (const group of phraseGroups) {
+      for (const p of group.phrases) {
+        const id = p.english;
+        if (!id || seenMasteryRef.current.has(id)) continue;
+        seenMasteryRef.current.add(id);
+        toRecord.push(id);
+      }
+    }
+    if (toRecord.length === 0) return;
+    const timer = setTimeout(() => {
+      toRecord.forEach(id => {
+        recordMasteryEvent({ phraseId: id, level: 1, sector, language });
+      });
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [phraseGroups, sector, language]);
 
   useEffect(() => {
     if (!newEnglish.trim() || !showAddForm) return;
@@ -194,6 +214,8 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
     };
   };
 
+  const seenMasteryRef = useRef<Set<string>>(new Set());
+
   const handlePlay = useCallback((text: string, key: string, english?: string) => {
     setLoadingAudioKey(key);
     playAudioFromGesture(text, language);
@@ -204,6 +226,12 @@ export default function PhrasesScreen({ language, sector, subcategory, onBack, o
       subcategory,
       phraseEnglish: english || text,
       phraseTranslation: text,
+    });
+    recordMasteryEvent({
+      phraseId: english || text,
+      level: 2,
+      sector,
+      language,
     });
     setResponsePanelKey(key);
 
