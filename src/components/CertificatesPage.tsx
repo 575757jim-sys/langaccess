@@ -549,7 +549,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                           onClick={() => handleStartModule(track.id, 1)}
                           className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-sm transition-colors"
                         >
-                          Start Free Module
+                          {purchased ? (completedCount > 0 ? 'Continue Course' : 'Start Module 1') : 'Start Free Module'}
                         </button>
                         {!purchased && (
                           <div>
