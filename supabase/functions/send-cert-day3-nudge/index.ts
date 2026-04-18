@@ -84,10 +84,35 @@ Deno.serve(async (req: Request) => {
     const rows = due || [];
     let sent = 0;
     let skipped = 0;
+    let suppressed = 0;
     const errors: Array<{ id: string; error: string }> = [];
+
+    const candidateEmails = Array.from(
+      new Set(rows.map((r) => (r.email || "").trim().toLowerCase()).filter(Boolean)),
+    );
+    const suppressedSet = new Set<string>();
+    if (candidateEmails.length > 0) {
+      const { data: suppressions } = await supabase
+        .from("email_suppressions")
+        .select("email")
+        .in("email", candidateEmails);
+      for (const s of suppressions || []) {
+        if (s.email) suppressedSet.add(s.email);
+      }
+    }
 
     for (const row of rows) {
       try {
+        const normalized = (row.email || "").trim().toLowerCase();
+        if (suppressedSet.has(normalized)) {
+          await supabase
+            .from("certificate_day3_nudges")
+            .update({ bounced_at: new Date().toISOString() })
+            .eq("id", row.id);
+          suppressed += 1;
+          continue;
+        }
+
         if (row.session_id) {
           const { data: progress } = await supabase
             .from("certificate_progress")
@@ -146,7 +171,7 @@ Deno.serve(async (req: Request) => {
     }
 
     return new Response(
-      JSON.stringify({ processed: rows.length, sent, skipped, errors }),
+      JSON.stringify({ processed: rows.length, sent, skipped, suppressed, errors }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
