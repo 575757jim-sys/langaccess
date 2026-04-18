@@ -1,7 +1,14 @@
 import { useState, useMemo } from 'react';
-import { CheckCircle, XCircle, ChevronRight, Award } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronRight, Award, Volume2, Loader2 } from 'lucide-react';
 import { CertModule, QuizQuestion, PASS_THRESHOLD } from '../data/certificateData';
 import QuizPhrasePreview from './QuizPhrasePreview';
+import { playAudioFromGesture, unlockAudioContext } from '../utils/speech';
+
+const SPANISH_CHAR_REGEX = /[¿¡ñÑáéíóúÁÉÍÓÚüÜ]/;
+
+function looksSpanish(text: string): boolean {
+  return SPANISH_CHAR_REGEX.test(text);
+}
 
 interface Props {
   module: CertModule;
@@ -41,6 +48,21 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<boolean[]>([]);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [speakingIdx, setSpeakingIdx] = useState<number | null>(null);
+  const [speakingStem, setSpeakingStem] = useState(false);
+
+  const handleSpeak = (text: string, idx: number | 'stem', e: React.MouseEvent) => {
+    e.stopPropagation();
+    unlockAudioContext();
+    if (idx === 'stem') {
+      setSpeakingStem(true);
+      setTimeout(() => setSpeakingStem(false), 3000);
+    } else {
+      setSpeakingIdx(idx);
+      setTimeout(() => setSpeakingIdx(prev => (prev === idx ? null : prev)), 3000);
+    }
+    playAudioFromGesture(text, 'spanish');
+  };
 
   const shuffled = useMemo(() => shuffleQuestions(module.questions), [module]);
   const questions: ShuffledQuestion[] = shuffled;
@@ -154,7 +176,28 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
         </div>
 
         <p className="text-xs text-slate-500 mb-2">Question {currentIndex + 1} of {totalQuestions}</p>
-        <h3 className="text-lg font-semibold text-white mb-5 leading-snug">{current.question}</h3>
+        <div className="flex items-start gap-2 mb-5">
+          <h3 className="text-lg font-semibold text-white leading-snug flex-1">{current.question}</h3>
+          {looksSpanish(current.question) && (
+            <button
+              type="button"
+              onClick={(e) => handleSpeak(current.question, 'stem', e)}
+              disabled={speakingStem}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all mt-0.5 ${
+                speakingStem
+                  ? 'bg-blue-500/20 text-blue-400'
+                  : 'bg-white/5 text-slate-400 hover:bg-blue-500/20 hover:text-blue-400'
+              }`}
+              aria-label="Listen to question in Spanish"
+            >
+              {speakingStem ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Volume2 className="w-3.5 h-3.5" />
+              )}
+            </button>
+          )}
+        </div>
 
         <div className="space-y-3 mb-5">
           {current.options.map((opt, idx) => {
@@ -178,12 +221,37 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
                 <span className="w-6 h-6 rounded-full border border-current flex-shrink-0 flex items-center justify-center text-xs font-bold">
                   {String.fromCharCode(65 + idx)}
                 </span>
-                <span className="text-sm leading-snug">{opt}</span>
+                <span className="text-sm leading-snug flex-1">{opt}</span>
+                {looksSpanish(opt) && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => handleSpeak(opt, idx, e)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleSpeak(opt, idx, e as unknown as React.MouseEvent);
+                      }
+                    }}
+                    aria-label={`Listen to ${opt}`}
+                    className={`w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 transition-all ${
+                      speakingIdx === idx
+                        ? 'bg-blue-500/20 text-blue-400'
+                        : 'bg-white/5 text-slate-400 hover:bg-blue-500/20 hover:text-blue-400'
+                    }`}
+                  >
+                    {speakingIdx === idx ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Volume2 className="w-3.5 h-3.5" />
+                    )}
+                  </span>
+                )}
                 {selected !== null && idx === current.shuffledCorrectIndex && (
-                  <CheckCircle className="w-4 h-4 text-green-400 ml-auto flex-shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
                 )}
                 {selected !== null && idx === selected && idx !== current.shuffledCorrectIndex && (
-                  <XCircle className="w-4 h-4 text-red-400 ml-auto flex-shrink-0" />
+                  <XCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
                 )}
               </button>
             );
