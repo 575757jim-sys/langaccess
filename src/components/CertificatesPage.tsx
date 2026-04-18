@@ -243,6 +243,10 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
       if (rows.length > 0) {
         const purchasedTrackIds = [...new Set(rows.map(r => r.track_id as TrackId))];
         console.log('[CertificatesPage] derived purchased tracks:', purchasedTrackIds);
+        console.log(
+          '[CertificatesPage] final purchased boolean for education:',
+          purchasedTrackIds.includes('education' as TrackId)
+        );
         setProgress(prev => {
           const purchasedUpdate = purchasedTrackIds.reduce(
             (acc, id) => ({ ...acc, [id]: true }),
@@ -253,6 +257,10 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
             purchased: { ...prev.purchased, ...purchasedUpdate },
           };
           console.log('[CertificatesPage] final unlock state used by UI:', updated.purchased);
+          console.log(
+            '[CertificatesPage] purchased.education committed to state:',
+            !!updated.purchased['education' as TrackId]
+          );
           saveLocalProgress(updated);
           return updated;
         });
@@ -260,6 +268,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
         openTrack(mostRecent, 300);
       } else {
         console.log('[CertificatesPage] no certificate_purchases rows found via session, stripe_session, or global scan');
+        console.log('[CertificatesPage] final purchased boolean for education: false');
       }
     })();
   }, []);
