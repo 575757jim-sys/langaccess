@@ -182,9 +182,15 @@ Deno.serve(async (req: Request) => {
           continue;
         }
 
+        const body = await res.json().catch(() => ({} as { id?: string }));
+        const resendId = (body as { id?: string }).id || null;
+
         await supabase
           .from("certificate_first_wins")
-          .update({ sent_at: new Date().toISOString() })
+          .update({
+            sent_at: new Date().toISOString(),
+            resend_email_id: resendId,
+          })
           .eq("id", row.id);
         sent += 1;
       } catch (err) {

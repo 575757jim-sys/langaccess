@@ -319,10 +319,14 @@ Deno.serve(async (req: Request) => {
             });
 
             try {
-              const sevenDaysOut = new Date();
+              const now = new Date();
+              const sevenDaysOut = new Date(now);
               sevenDaysOut.setDate(sevenDaysOut.getDate() + 7);
+              const threeDaysOut = new Date(now);
+              threeDaysOut.setDate(threeDaysOut.getDate() + 3);
               const customerName =
                 (session.customer_details?.name as string | undefined) || "";
+
               const { error: firstWinErr } = await supabase
                 .from("certificate_first_wins")
                 .upsert(
@@ -342,18 +346,32 @@ Deno.serve(async (req: Request) => {
                   "[Webhook] certificate_first_wins upsert FAILED:",
                   firstWinErr.message,
                 );
-              } else {
-                console.log(
-                  "[Webhook] certificate_first_wins scheduled for",
-                  sevenDaysOut.toISOString(),
-                  "track:",
-                  trackId,
+              }
+
+              const { error: day3Err } = await supabase
+                .from("certificate_day3_nudges")
+                .upsert(
+                  {
+                    session_id: effectiveSessionId,
+                    stripe_session_id: session.id,
+                    email: customerEmail,
+                    user_name: customerName,
+                    track_id: trackId,
+                    track_title: trackId,
+                    scheduled_at: threeDaysOut.toISOString(),
+                  },
+                  { onConflict: "stripe_session_id" },
+                );
+              if (day3Err) {
+                console.error(
+                  "[Webhook] certificate_day3_nudges upsert FAILED:",
+                  day3Err.message,
                 );
               }
-            } catch (firstWinEx) {
+            } catch (scheduleEx) {
               console.error(
-                "[Webhook] certificate_first_wins upsert THREW:",
-                firstWinEx instanceof Error ? firstWinEx.message : String(firstWinEx),
+                "[Webhook] lifecycle email schedule THREW:",
+                scheduleEx instanceof Error ? scheduleEx.message : String(scheduleEx),
               );
             }
           }

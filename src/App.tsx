@@ -21,6 +21,7 @@ import PublicOrderPage from './components/PublicOrderPage';
 import QRScanPage from './components/QRScanPage';
 import PaymentSuccessPage from './components/PaymentSuccessPage';
 import PaymentCancelPage from './components/PaymentCancelPage';
+import AdminEmailsPage from './components/AdminEmailsPage';
 import UpdateToast from './components/UpdateToast';
 import DebugOverlay from './components/DebugOverlay';
 import InstallBanner from './components/InstallBanner';
@@ -101,6 +102,10 @@ function getPaymentCancelPath(): boolean {
 
 function getAccountPath(): boolean {
   return window.location.pathname === '/account';
+}
+
+function getAdminEmailsPath(): boolean {
+  return window.location.pathname === '/admin/emails';
 }
 
 function AppInner() {
@@ -448,6 +453,10 @@ function AppRoutes() {
 
   if (getAccountPath()) {
     return <AccountPage />;
+  }
+
+  if (getAdminEmailsPath()) {
+    return <AdminEmailsPage />;
   }
 
   return <AppInner />;
