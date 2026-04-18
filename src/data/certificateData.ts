@@ -35,6 +35,7 @@ export const STORAGE_KEY = 'langaccess_certificates';
 
 export interface CertProgress {
   userName: string;
+  userEmail?: string;
   purchased: Record<TrackId, boolean>;
   moduleScores: Record<string, number>;
   completedModules: Record<string, boolean>;

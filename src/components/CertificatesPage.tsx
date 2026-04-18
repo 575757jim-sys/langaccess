@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Award, Lock, CheckCircle, ChevronRight, Download, BookOpen, Star, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Award, Lock, CheckCircle, ChevronRight, Download, BookOpen, Star, ShieldCheck, Search, Mail, X } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { CERT_TRACKS, CERT_PRICE, CertProgress, TrackId } from '../data/certificateData';
 import { supabase } from '../lib/supabase';
@@ -11,6 +11,8 @@ import {
   saveCertificateRecord,
   isTrackComplete,
   generateCertId,
+  findCertificatesByEmail,
+  CertLookupRow,
 } from '../utils/certPersistence';
 import CertQuizEngine from './CertQuizEngine';
 import SEO from './SEO';
@@ -60,9 +62,15 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
   const [activeQuiz, setActiveQuiz] = useState<QuizState>(null);
   const [namePrompt, setNamePrompt] = useState<NamePromptState>(null);
   const [nameInput, setNameInput] = useState('');
+  const [emailInput, setEmailInput] = useState('');
   const [expandedTrack, setExpandedTrack] = useState<TrackId | null>(null);
   const [certGenerated, setCertGenerated] = useState<TrackId | null>(null);
   const [showRecovery, setShowRecovery] = useState(false);
+  const [showLookup, setShowLookup] = useState(false);
+  const [lookupEmail, setLookupEmail] = useState('');
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupResults, setLookupResults] = useState<CertLookupRow[] | null>(null);
+  const [lookupError, setLookupError] = useState<string | null>(null);
 
   const trackRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -102,7 +110,12 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nameInput.trim() || !namePrompt) return;
-    const updated = { ...progress, userName: nameInput.trim() };
+    const trimmedEmail = emailInput.trim().toLowerCase();
+    const updated = {
+      ...progress,
+      userName: nameInput.trim(),
+      userEmail: trimmedEmail || progress.userEmail,
+    };
     setProgress(updated);
     setNamePrompt(null);
     setActiveQuiz({ trackId: namePrompt.trackId, moduleId: 1 });
@@ -131,7 +144,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
       updated.certIds = { ...updated.certIds, [trackId]: certId };
       const track = CERT_TRACKS.find(t => t.id === trackId);
       if (track) {
-        await saveCertificateRecord(progress.userName, trackId, track.title, certId);
+        await saveCertificateRecord(progress.userName, trackId, track.title, certId, progress.userEmail);
       }
     }
 
@@ -140,6 +153,81 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
 
   const handleQuizClose = () => {
     setActiveQuiz(null);
+  };
+
+  const handleLookupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = lookupEmail.trim();
+    if (!email) return;
+    setLookupLoading(true);
+    setLookupError(null);
+    setLookupResults(null);
+    try {
+      const rows = await findCertificatesByEmail(email);
+      setLookupResults(rows);
+      if (rows.length === 0) {
+        setLookupError('No certificates found for this email.');
+      }
+    } catch {
+      setLookupError('Lookup failed. Please try again.');
+    } finally {
+      setLookupLoading(false);
+    }
+  };
+
+  const handleRestoreCerts = () => {
+    if (!lookupResults || lookupResults.length === 0) return;
+    setProgress(prev => {
+      const certIds = { ...prev.certIds } as Record<TrackId, string>;
+      const purchased = { ...prev.purchased } as Record<TrackId, boolean>;
+      const completedModules = { ...prev.completedModules };
+      const moduleScores = { ...prev.moduleScores };
+      let userName = prev.userName;
+
+      for (const row of lookupResults) {
+        certIds[row.trackId] = row.certId;
+        purchased[row.trackId] = true;
+        if (!userName && row.userName) userName = row.userName;
+        const track = CERT_TRACKS.find(t => t.id === row.trackId);
+        if (track) {
+          for (const m of track.modules) {
+            const key = `${row.trackId}-${m.id}`;
+            completedModules[key] = true;
+            if (moduleScores[key] === undefined) moduleScores[key] = 1;
+          }
+        }
+      }
+
+      const updated: CertProgress = {
+        ...prev,
+        userName,
+        userEmail: lookupEmail.trim().toLowerCase(),
+        certIds,
+        purchased,
+        completedModules,
+        moduleScores,
+      };
+      saveLocalProgress(updated);
+      return updated;
+    });
+    setShowLookup(false);
+    setLookupResults(null);
+    setLookupEmail('');
+    if (lookupResults[0]) {
+      const id = lookupResults[0].trackId;
+      setExpandedTrack(id);
+      setTimeout(() => {
+        const el = trackRefs.current[id];
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 200);
+    }
+  };
+
+  const closeLookup = () => {
+    setShowLookup(false);
+    setLookupResults(null);
+    setLookupError(null);
+    setLookupEmail('');
   };
 
   const [enrolling, setEnrolling] = useState<TrackId | null>(null);
@@ -358,15 +446,26 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
               <p className="text-xs text-slate-500">Professional Spanish Communication</p>
             </div>
           </div>
-          {onVerify && (
+          <div className="flex items-center gap-2">
             <button
-              onClick={onVerify}
+              onClick={() => setShowLookup(true)}
               className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-green-400 transition-colors border border-white/10 hover:border-green-500/30 rounded-lg px-3 py-2"
             >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Verify Certificate
+              <Search className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">My Certificates</span>
+              <span className="sm:hidden">My Certs</span>
             </button>
-          )}
+            {onVerify && (
+              <button
+                onClick={onVerify}
+                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-green-400 transition-colors border border-white/10 hover:border-green-500/30 rounded-lg px-3 py-2"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Verify Certificate</span>
+                <span className="sm:hidden">Verify</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -658,12 +757,22 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
               placeholder="Full name"
               required
               autoFocus
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-green-500/50 mb-4 text-sm"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-green-500/50 mb-3 text-sm"
             />
+            <input
+              type="email"
+              value={emailInput}
+              onChange={e => setEmailInput(e.target.value)}
+              placeholder="Email (recommended, to restore later)"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-green-500/50 mb-2 text-sm"
+            />
+            <p className="text-slate-500 text-xs mb-4 leading-relaxed">
+              Adding your email lets you recover your certificates from any device.
+            </p>
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => setNamePrompt(null)}
+                onClick={() => { setNamePrompt(null); setEmailInput(''); }}
                 className="flex-1 py-3 rounded-xl border border-white/10 text-slate-400 hover:text-white transition-colors text-sm"
               >
                 Cancel
@@ -676,6 +785,81 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {showLookup && (
+        <div className="fixed inset-0 bg-[#0a0f1e]/95 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#111827] rounded-2xl shadow-2xl max-w-md w-full p-6 border border-white/10 relative">
+            <button
+              type="button"
+              onClick={closeLookup}
+              className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-2 mb-2">
+              <Mail className="w-5 h-5 text-green-400" />
+              <h2 className="text-xl font-bold text-white">Find my certificates</h2>
+            </div>
+            <p className="text-slate-400 text-sm mb-5 leading-relaxed">
+              Enter the email you used when you earned your certificates. We'll restore them to this device.
+            </p>
+            <form onSubmit={handleLookupSubmit} className="space-y-3">
+              <input
+                type="email"
+                value={lookupEmail}
+                onChange={e => setLookupEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+                autoFocus
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-green-500/50 text-sm"
+              />
+              <button
+                type="submit"
+                disabled={lookupLoading}
+                className="w-full py-3 rounded-xl bg-green-500 hover:bg-green-400 disabled:opacity-60 text-white font-semibold text-sm transition-colors"
+              >
+                {lookupLoading ? 'Searching…' : 'Search'}
+              </button>
+            </form>
+
+            {lookupError && (
+              <p className="mt-4 text-sm text-amber-400">{lookupError}</p>
+            )}
+
+            {lookupResults && lookupResults.length > 0 && (
+              <div className="mt-5">
+                <p className="text-slate-300 text-sm font-semibold mb-2">
+                  Found {lookupResults.length} certificate{lookupResults.length > 1 ? 's' : ''}:
+                </p>
+                <ul className="space-y-2 mb-4 max-h-64 overflow-y-auto">
+                  {lookupResults.map(r => (
+                    <li
+                      key={r.certId}
+                      className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/5"
+                    >
+                      <Award className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-sm font-medium truncate">{r.trackTitle}</p>
+                        <p className="text-slate-500 text-xs">
+                          {r.userName} · Issued {new Date(r.issuedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                        </p>
+                        <p className="text-slate-600 text-[10px] mt-0.5 font-mono truncate">{r.certId}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={handleRestoreCerts}
+                  className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors"
+                >
+                  Restore to this device
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

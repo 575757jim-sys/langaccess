@@ -152,6 +152,36 @@ export async function verifyCertificate(certId: string): Promise<{
   }
 }
 
+export interface CertLookupRow {
+  certId: string;
+  trackId: TrackId;
+  trackTitle: string;
+  userName: string;
+  issuedAt: string;
+}
+
+export async function findCertificatesByEmail(email: string): Promise<CertLookupRow[]> {
+  const normalized = email.trim().toLowerCase();
+  if (!normalized) return [];
+  try {
+    const { data, error } = await supabase
+      .from('certificate_records')
+      .select('cert_id, track_id, track_title, user_name, issued_at')
+      .ilike('email', normalized)
+      .order('issued_at', { ascending: false });
+    if (error || !data) return [];
+    return data.map(r => ({
+      certId: r.cert_id as string,
+      trackId: r.track_id as TrackId,
+      trackTitle: r.track_title as string,
+      userName: r.user_name as string,
+      issuedAt: r.issued_at as string,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function isTrackPurchasedOnServer(trackId: TrackId): Promise<boolean> {
   const sessionId = getSessionId();
   try {
