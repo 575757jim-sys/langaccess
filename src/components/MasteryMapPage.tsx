@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Eye, Headphones, Mic, ClipboardCheck, CheckCircle2, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Eye, Headphones, Mic, ClipboardCheck, CheckCircle2, TrendingUp, Share2 } from 'lucide-react';
 import {
   loadMasteryRows,
   summarizeMastery,
@@ -7,6 +7,7 @@ import {
   MasteryLevel,
   MasteryRow,
 } from '../utils/masteryTracking';
+import ShareableMasteryCard from './ShareableMasteryCard';
 
 interface Props {
   onBack?: () => void;
@@ -31,6 +32,7 @@ const LEVEL_COLORS: Record<MasteryLevel, { bg: string; text: string; ring: strin
 export default function MasteryMapPage({ onBack }: Props) {
   const [rows, setRows] = useState<MasteryRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showShareCard, setShowShareCard] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -64,6 +66,14 @@ export default function MasteryMapPage({ onBack }: Props) {
             <TrendingUp className="w-5 h-5 text-emerald-600" />
             <span className="text-lg font-semibold text-slate-900">Your Mastery Map</span>
           </div>
+          <div className="flex-1" />
+          <button
+            onClick={() => setShowShareCard(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-all active:scale-95"
+          >
+            <Share2 className="w-4 h-4" />
+            <span className="hidden sm:inline">Share</span>
+          </button>
         </div>
       </header>
 
@@ -183,6 +193,8 @@ export default function MasteryMapPage({ onBack }: Props) {
           )}
         </div>
       </main>
+
+      {showShareCard && <ShareableMasteryCard onClose={() => setShowShareCard(false)} />}
     </div>
   );
 }
