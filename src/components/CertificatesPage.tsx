@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Award, Lock, CheckCircle, ChevronRight, Download, BookOpen, Star, ShieldCheck, Search, Mail, X } from 'lucide-react';
+import { ArrowLeft, Award, Lock, CheckCircle, ChevronRight, Download, BookOpen, Star, ShieldCheck, Search, Mail, X, FileText, RefreshCw, Infinity as InfinityIcon } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { CERT_TRACKS, CERT_PRICE, CertProgress, TrackId } from '../data/certificateData';
+import { generatePocketPhrasePDF } from '../utils/generatePocketPhrasePDF';
 import { supabase } from '../lib/supabase';
 import {
   loadLocalProgress,
@@ -622,13 +623,23 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                   <p className="text-green-300 text-xs mt-2">50 unique questions across 5 workplace modules. Pass at 80% to earn your certificate.</p>
                   <div className="flex items-center gap-4 mt-4 text-sm">
                     <span className="text-white/80">5 modules</span>
-                    <span className="text-white/80">${CERT_PRICE} full access</span>
+                    <span className="text-white/80">${CERT_PRICE} lifetime access</span>
                   </div>
-                  {!purchased && (
-                    <span className="inline-block mt-3 bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                      First Module Free
+                  <div className="flex flex-wrap items-center gap-2 mt-3">
+                    {!purchased && (
+                      <span className="inline-block bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                        First Module Free
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1 bg-black/30 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                      <InfinityIcon className="w-3 h-3" />
+                      Future updates free
                     </span>
-                  )}
+                    <span className="inline-flex items-center gap-1 bg-black/30 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                      <RefreshCw className="w-3 h-3" />
+                      30-day refresher
+                    </span>
+                  </div>
                 </div>
 
                 <div className="p-4 flex-1 flex flex-col">
@@ -724,6 +735,13 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                           <Download className="w-4 h-4" />
                           {certGenerated === track.id ? 'Downloaded!' : 'Download Certificate'}
                         </button>
+                        <button
+                          onClick={() => generatePocketPhrasePDF(track, progress.userName)}
+                          className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+                        >
+                          <FileText className="w-4 h-4" />
+                          Download Pocket Phrase PDF
+                        </button>
                         {(() => {
                           const issued = new Date();
                           const verifyUrl = `${window.location.origin}/verify?id=${encodeURIComponent(certId)}`;
@@ -777,6 +795,15 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                         >
                           {purchased ? (completedCount > 0 ? 'Continue Course' : 'Start Module 1') : 'Start Free Module'}
                         </button>
+                        {purchased && (
+                          <button
+                            onClick={() => generatePocketPhrasePDF(track, progress.userName)}
+                            className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 font-medium text-sm transition-colors flex items-center justify-center gap-2"
+                          >
+                            <FileText className="w-4 h-4" />
+                            Download Pocket Phrase PDF
+                          </button>
+                        )}
                         {!purchased && (
                           <div>
                             <button
@@ -815,8 +842,11 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             {[
               { label: '5 Modules', desc: 'Each track includes 5 focused modules covering real workplace scenarios.', highlight: false },
-              { label: 'Instant Certificate', desc: 'Pass all modules and download your PDF certificate immediately.', highlight: false },
+              { label: 'Instant Certificate', desc: 'Pass all modules and download your printable PDF certificate immediately.', highlight: false },
               { label: 'Verifiable Records', desc: 'Every certificate is stored in our database and verifiable at langaccess.org/verify.', highlight: true },
+              { label: 'Pocket Phrase PDF', desc: 'Download a printable pocket reference with every key phrase from your track, organized by module.', highlight: false },
+              { label: '30-Day Refresher', desc: 'We automatically email you a 5-minute spaced-repetition refresher 30 days after completion so the language sticks.', highlight: false },
+              { label: 'Future Updates Free', desc: 'Your $39 is lifetime access. Every new phrase, module, and resource we add to your track is included — forever.', highlight: true },
             ].map(item => (
               <div key={item.label} className={`text-left p-4 rounded-xl border ${item.highlight ? 'bg-green-500/5 border-green-500/20' : 'bg-white/3 border-white/5'}`}>
                 {item.highlight ? (

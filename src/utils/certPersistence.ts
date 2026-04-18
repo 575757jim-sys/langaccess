@@ -125,6 +125,21 @@ export async function saveCertificateRecord(
       email: email || null,
     }, { onConflict: 'cert_id' });
   } catch { /* non-blocking */ }
+
+  if (email) {
+    try {
+      const thirtyDaysOut = new Date();
+      thirtyDaysOut.setDate(thirtyDaysOut.getDate() + 30);
+      await supabase.from('certificate_refreshers').upsert({
+        cert_id: certId,
+        email,
+        user_name: userName,
+        track_id: trackId,
+        track_title: trackTitle,
+        scheduled_at: thirtyDaysOut.toISOString(),
+      }, { onConflict: 'cert_id' });
+    } catch { /* non-blocking */ }
+  }
 }
 
 export async function verifyCertificate(certId: string): Promise<{
