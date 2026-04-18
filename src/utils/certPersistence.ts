@@ -152,6 +152,41 @@ export async function verifyCertificate(certId: string): Promise<{
   }
 }
 
+export async function getCompletionEmailSentAt(certId: string): Promise<string | null> {
+  try {
+    const { data } = await supabase
+      .from('certificate_records')
+      .select('completion_email_sent_at')
+      .eq('cert_id', certId)
+      .maybeSingle();
+    return (data?.completion_email_sent_at as string | null) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function markCompletionEmailSent(certId: string): Promise<void> {
+  try {
+    await supabase
+      .from('certificate_records')
+      .update({ completion_email_sent_at: new Date().toISOString() })
+      .eq('cert_id', certId);
+  } catch { /* non-blocking */ }
+}
+
+export async function lookupCertificateEmail(certId: string): Promise<string | null> {
+  try {
+    const { data } = await supabase
+      .from('certificate_records')
+      .select('email')
+      .eq('cert_id', certId)
+      .maybeSingle();
+    return (data?.email as string | null) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export interface CertLookupRow {
   certId: string;
   trackId: TrackId;
