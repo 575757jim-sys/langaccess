@@ -240,15 +240,6 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
         if (stripeRows && stripeRows.length > 0) rows = stripeRows;
       }
 
-      if (rows.length === 0) {
-        const { data: allRows } = await supabase
-          .from('certificate_purchases')
-          .select('track_id, session_id, stripe_session_id, purchased_at')
-          .order('purchased_at', { ascending: false });
-        console.log('[CertificatesPage] rows from global fallback scan:', allRows);
-        if (allRows && allRows.length > 0) rows = allRows;
-      }
-
       if (rows.length > 0) {
         const purchasedTrackIds = [...new Set(rows.map(r => r.track_id as TrackId))];
         console.log('[CertificatesPage] derived purchased tracks:', purchasedTrackIds);
