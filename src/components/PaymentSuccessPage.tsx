@@ -32,39 +32,10 @@ export default function PaymentSuccessPage() {
     const t = params.get('track');
     setSessionId(sid);
 
-    if (sid) {
-      setResolving(true);
-      supabase
-        .from('certificate_purchases')
-        .select('track_id')
-        .eq('stripe_session_id', sid)
-        .maybeSingle()
-        .then(({ data }) => {
-          const resolved = data?.track_id ?? null;
-          if (resolved && CERT_TRACKS.find(ct => ct.id === resolved)) {
-            markTrackPurchasedLocally(resolved as TrackId);
-            setVerifiedTrack(resolved);
-          } else if (t && CERT_TRACKS.find(ct => ct.id === t)) {
-            setVerifiedTrack(t);
-            setUnverified(true);
-          } else {
-            setUnverified(true);
-          }
-          setResolving(false);
-        })
-        .catch(() => {
-          if (t && CERT_TRACKS.find(ct => ct.id === t)) {
-            setVerifiedTrack(t);
-          }
-          setUnverified(true);
-          setResolving(false);
-        });
-    } else if (t && CERT_TRACKS.find(ct => ct.id === t)) {
-      setVerifiedTrack(t);
-      setUnverified(true);
-    } else {
-      setUnverified(true);
-    }
+    const dest = t
+      ? `/certificates?track=${t}&enrolled=1${sid ? `&session_id=${sid}` : ''}`
+      : `/certificates${sid ? `?session_id=${sid}&enrolled=1` : ''}`;
+    window.location.replace(dest);
   }, []);
 
   const trackData = verifiedTrack
