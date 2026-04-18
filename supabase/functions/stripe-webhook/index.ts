@@ -137,7 +137,16 @@ Deno.serve(async (req: Request) => {
     const body = await req.text();
     const sig = req.headers.get("stripe-signature");
 
+    console.log("[Webhook] request received — body bytes:", body.length, "has_signature:", !!sig);
+
+    let preParsedType = "(unparsed)";
+    try {
+      preParsedType = JSON.parse(body)?.type || "(no type)";
+    } catch { /* ignore */ }
+    console.log("[Webhook] pre-verify event.type:", preParsedType);
+
     if (!sig) {
+      console.error("[Webhook] REJECT — missing stripe-signature header");
       return new Response(JSON.stringify({ error: "Missing stripe-signature header" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -169,11 +178,23 @@ Deno.serve(async (req: Request) => {
       .join("");
 
     if (hex !== v1) {
+      console.error(
+        "[Webhook] SIGNATURE VERIFICATION FAILED — expected_prefix:",
+        hex.slice(0, 8),
+        "received_prefix:",
+        (v1 || "").slice(0, 8),
+        "timestamp:",
+        timestamp,
+        "event.type:",
+        preParsedType
+      );
       return new Response(JSON.stringify({ error: "Invalid signature" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    console.log("[Webhook] signature verified OK — event.type:", preParsedType);
 
     const event = JSON.parse(body);
 
@@ -213,10 +234,23 @@ Deno.serve(async (req: Request) => {
 
         console.log("[Webhook] cert purchase path — trackId:", trackId || "(missing)", "sessionId:", sessionId || "(missing)", "stripe_session:", session.id);
 
-        if (trackId && sessionId) {
-          console.log("[Webhook] inserting certificate_purchases row — session_id:", sessionId, "track_id:", trackId);
+        if (trackId) {
+          const effectiveSessionId = sessionId || session.id;
+          if (!sessionId) {
+            console.warn(
+              "[Webhook] cert branch — metadata.session_id missing; falling back to stripe session.id for session_id column"
+            );
+          }
+          console.log(
+            "[Webhook] inserting certificate_purchases row — session_id:",
+            effectiveSessionId,
+            "track_id:",
+            trackId,
+            "stripe_session_id:",
+            session.id
+          );
           const { error: upsertError } = await supabase.from("certificate_purchases").upsert({
-            session_id: sessionId,
+            session_id: effectiveSessionId,
             track_id: trackId,
             stripe_session_id: session.id,
             purchased_at: new Date().toISOString(),
@@ -224,7 +258,7 @@ Deno.serve(async (req: Request) => {
           if (upsertError) {
             console.error("[Webhook] certificate_purchases upsert FAILED:", JSON.stringify(upsertError));
           } else {
-            console.log("[Webhook] certificate_purchases upsert SUCCESS — row written");
+            console.log("[Webhook] certificate_purchases upsert SUCCESS — row written for track:", trackId);
           }
 
           if (customerEmail) {
@@ -242,6 +276,11 @@ Deno.serve(async (req: Request) => {
               }),
             });
           }
+        } else {
+          console.error(
+            "[Webhook] cert branch SKIPPED — client_reference_id (trackId) missing on completed checkout session:",
+            session.id
+          );
         }
       }
     }
