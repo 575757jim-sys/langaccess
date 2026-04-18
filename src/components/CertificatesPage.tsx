@@ -112,12 +112,14 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
     if (!activeQuiz) return;
     const { trackId, moduleId } = activeQuiz;
     const key = `${trackId}-${moduleId}`;
+    const prevScore = progress.moduleScores[key];
+    const bestScore = typeof prevScore === 'number' ? Math.max(prevScore, score) : score;
     const updated: CertProgress = {
       ...progress,
-      moduleScores: { ...progress.moduleScores, [key]: score },
+      moduleScores: { ...progress.moduleScores, [key]: bestScore },
       completedModules: {
         ...progress.completedModules,
-        ...(passed ? { [key]: true } : {}),
+        ...(passed || progress.completedModules[key] ? { [key]: true } : {}),
       },
     };
 
@@ -544,13 +546,40 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                       '| footer branch:', purchased && completed && certId ? 'DOWNLOAD' : purchased ? 'START-ONLY (purchased, not complete)' : 'START+ENROLL'
                     )}
                     {purchased && completed && certId ? (
-                      <button
-                        onClick={() => generatePDF(track.id)}
-                        className="w-full py-2.5 rounded-xl bg-green-500 hover:bg-green-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        {certGenerated === track.id ? 'Downloaded!' : 'Download Certificate'}
-                      </button>
+                      <>
+                        <button
+                          onClick={() => generatePDF(track.id)}
+                          className="w-full py-2.5 rounded-xl bg-green-500 hover:bg-green-400 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+                        >
+                          <Download className="w-4 h-4" />
+                          {certGenerated === track.id ? 'Downloaded!' : 'Download Certificate'}
+                        </button>
+                        {(() => {
+                          const issued = new Date();
+                          const verifyUrl = `${window.location.origin}/verify?id=${encodeURIComponent(certId)}`;
+                          const params = new URLSearchParams({
+                            startTask: 'CERTIFICATION_NAME',
+                            name: `LangAccess ${track.title} Certificate`,
+                            organizationName: 'LangAccess',
+                            issueYear: String(issued.getFullYear()),
+                            issueMonth: String(issued.getMonth() + 1),
+                            certId: certId,
+                            certUrl: verifyUrl,
+                          });
+                          const linkedInUrl = `https://www.linkedin.com/profile/add?${params.toString()}`;
+                          return (
+                            <a
+                              href={linkedInUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full py-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#0959ab] text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
+                            >
+                              <Award className="w-4 h-4" />
+                              Add to LinkedIn
+                            </a>
+                          );
+                        })()}
+                      </>
                     ) : (
                       <>
                         {console.log('[CertificatesPage] card footer rendering —', track.id, purchased ? 'PURCHASED (Enroll hidden)' : 'LOCKED (Start Free + Enroll shown)')}

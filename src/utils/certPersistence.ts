@@ -81,13 +81,26 @@ export async function saveModuleResult(
 ): Promise<void> {
   const sessionId = getSessionId();
   try {
+    const { data: existing } = await supabase
+      .from('certificate_progress')
+      .select('score, passed')
+      .eq('session_id', sessionId)
+      .eq('track_id', trackId)
+      .eq('module_id', moduleId)
+      .maybeSingle();
+
+    const bestScore = existing && typeof existing.score === 'number'
+      ? Math.max(existing.score, score)
+      : score;
+    const bestPassed = (existing?.passed === true) || passed;
+
     await supabase.from('certificate_progress').upsert({
       session_id: sessionId,
       user_name: userName,
       track_id: trackId,
       module_id: moduleId,
-      score,
-      passed,
+      score: bestScore,
+      passed: bestPassed,
       completed_at: new Date().toISOString(),
     }, { onConflict: 'session_id,track_id,module_id' });
   } catch { /* non-blocking */ }
