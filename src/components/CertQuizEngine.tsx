@@ -60,8 +60,7 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
       setSelected(null);
       setShowExplanation(false);
     } else {
-      const finalAnswers = [...answers, selected === current.shuffledCorrectIndex];
-      const score = finalAnswers.filter(Boolean).length / totalQuestions;
+      const score = answers.filter(Boolean).length / totalQuestions;
       const passed = score >= PASS_THRESHOLD;
       onComplete(score, passed);
       setPhase('result');
