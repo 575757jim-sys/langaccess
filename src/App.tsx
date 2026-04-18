@@ -22,6 +22,9 @@ import QRScanPage from './components/QRScanPage';
 import PaymentSuccessPage from './components/PaymentSuccessPage';
 import PaymentCancelPage from './components/PaymentCancelPage';
 import AdminEmailsPage from './components/AdminEmailsPage';
+import MasteryMapPage from './components/MasteryMapPage';
+import SelfAssessmentPage from './components/SelfAssessmentPage';
+import ScenarioChainsPage from './components/ScenarioChainsPage';
 import UpdateToast from './components/UpdateToast';
 import DebugOverlay from './components/DebugOverlay';
 import InstallBanner from './components/InstallBanner';
@@ -457,6 +460,18 @@ function AppRoutes() {
 
   if (getAdminEmailsPath()) {
     return <AdminEmailsPage />;
+  }
+
+  if (window.location.pathname === '/learn/mastery') {
+    return <MasteryMapPage />;
+  }
+
+  if (window.location.pathname === '/learn/assessment') {
+    return <SelfAssessmentPage />;
+  }
+
+  if (window.location.pathname === '/learn/scenarios') {
+    return <ScenarioChainsPage />;
   }
 
   return <AppInner />;
