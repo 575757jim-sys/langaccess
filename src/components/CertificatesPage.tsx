@@ -145,6 +145,29 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
       const track = CERT_TRACKS.find(t => t.id === trackId);
       if (track) {
         await saveCertificateRecord(progress.userName, trackId, track.title, certId, progress.userEmail);
+        if (progress.userEmail) {
+          try {
+            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+            const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+            await fetch(`${supabaseUrl}/functions/v1/send-cert-completion-email`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabaseAnonKey}`,
+                'apikey': supabaseAnonKey,
+              },
+              body: JSON.stringify({
+                email: progress.userEmail,
+                trackId,
+                type: 'certificate',
+                userName: progress.userName,
+                certId,
+              }),
+            });
+          } catch (err) {
+            console.error('[CertificatesPage] completion email failed:', err);
+          }
+        }
       }
     }
 
