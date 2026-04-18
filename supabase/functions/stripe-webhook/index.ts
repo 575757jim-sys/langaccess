@@ -235,30 +235,72 @@ Deno.serve(async (req: Request) => {
         console.log("[Webhook] cert purchase path — trackId:", trackId || "(missing)", "sessionId:", sessionId || "(missing)", "stripe_session:", session.id);
 
         if (trackId) {
-          const effectiveSessionId = sessionId || session.id;
-          if (!sessionId) {
-            console.warn(
-              "[Webhook] cert branch — metadata.session_id missing; falling back to stripe session.id for session_id column"
-            );
-          }
+          const appSessionFallback = (meta.app_session || "").trim() || null;
+          const effectiveSessionId = sessionId || appSessionFallback;
+
           console.log(
-            "[Webhook] inserting certificate_purchases row — session_id:",
-            effectiveSessionId,
-            "track_id:",
+            "[Webhook] cert upsert decision — trackId:",
             trackId,
+            "metadata.session_id:",
+            sessionId || "(missing)",
+            "metadata.app_session:",
+            appSessionFallback || "(missing)",
             "stripe_session_id:",
-            session.id
+            session.id,
+            "effective_session_id:",
+            effectiveSessionId || "(none)"
           );
-          const { error: upsertError } = await supabase.from("certificate_purchases").upsert({
-            session_id: effectiveSessionId,
-            track_id: trackId,
-            stripe_session_id: session.id,
-            purchased_at: new Date().toISOString(),
-          }, { onConflict: "stripe_session_id" });
-          if (upsertError) {
-            console.error("[Webhook] certificate_purchases upsert FAILED:", JSON.stringify(upsertError));
+
+          if (!effectiveSessionId) {
+            console.error(
+              "[Webhook] cert upsert SKIPPED — no session_id available (metadata.session_id and metadata.app_session both missing). stripe_session_id:",
+              session.id,
+              "track_id:",
+              trackId
+            );
           } else {
-            console.log("[Webhook] certificate_purchases upsert SUCCESS — row written for track:", trackId);
+            console.log(
+              "[Webhook] cert upsert RUNNING — session_id:",
+              effectiveSessionId,
+              "track_id:",
+              trackId,
+              "stripe_session_id:",
+              session.id,
+              "source:",
+              sessionId ? "metadata.session_id" : "metadata.app_session"
+            );
+            try {
+              const { error: upsertError } = await supabase.from("certificate_purchases").upsert({
+                session_id: effectiveSessionId,
+                track_id: trackId,
+                stripe_session_id: session.id,
+                purchased_at: new Date().toISOString(),
+              }, { onConflict: "stripe_session_id" });
+              if (upsertError) {
+                console.error(
+                  "[Webhook] certificate_purchases upsert FAILED — code:",
+                  (upsertError as { code?: string }).code || "(none)",
+                  "message:",
+                  upsertError.message,
+                  "details:",
+                  JSON.stringify(upsertError)
+                );
+              } else {
+                console.log(
+                  "[Webhook] certificate_purchases upsert SUCCESS — track_id:",
+                  trackId,
+                  "session_id:",
+                  effectiveSessionId,
+                  "stripe_session_id:",
+                  session.id
+                );
+              }
+            } catch (upsertEx) {
+              console.error(
+                "[Webhook] certificate_purchases upsert THREW exception:",
+                upsertEx instanceof Error ? upsertEx.message : String(upsertEx)
+              );
+            }
           }
 
           if (customerEmail) {
