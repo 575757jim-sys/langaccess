@@ -12,6 +12,9 @@ import {
   isTrackComplete,
   generateCertId,
   findCertificatesByEmail,
+  getCompletionEmailSentAt,
+  markCompletionEmailSent,
+  lookupCertificateEmail,
   CertLookupRow,
 } from '../utils/certPersistence';
 import CertQuizEngine from './CertQuizEngine';
@@ -71,6 +74,7 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupResults, setLookupResults] = useState<CertLookupRow[] | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
+  const [resendState, setResendState] = useState<Record<string, 'idle' | 'sending' | 'sent' | 'error'>>({});
 
   const trackRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -146,26 +150,32 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
       if (track) {
         await saveCertificateRecord(progress.userName, trackId, track.title, certId, progress.userEmail);
         if (progress.userEmail) {
-          try {
-            const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-            const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-            await fetch(`${supabaseUrl}/functions/v1/send-cert-completion-email`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${supabaseAnonKey}`,
-                'apikey': supabaseAnonKey,
-              },
-              body: JSON.stringify({
-                email: progress.userEmail,
-                trackId,
-                type: 'certificate',
-                userName: progress.userName,
-                certId,
-              }),
-            });
-          } catch (err) {
-            console.error('[CertificatesPage] completion email failed:', err);
+          const alreadySentAt = await getCompletionEmailSentAt(certId);
+          if (!alreadySentAt) {
+            try {
+              const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+              const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+              const res = await fetch(`${supabaseUrl}/functions/v1/send-cert-completion-email`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${supabaseAnonKey}`,
+                  'apikey': supabaseAnonKey,
+                },
+                body: JSON.stringify({
+                  email: progress.userEmail,
+                  trackId,
+                  type: 'certificate',
+                  userName: progress.userName,
+                  certId,
+                }),
+              });
+              if (res.ok) {
+                await markCompletionEmailSent(certId);
+              }
+            } catch (err) {
+              console.error('[CertificatesPage] completion email failed:', err);
+            }
           }
         }
       }
@@ -176,6 +186,44 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
 
   const handleQuizClose = () => {
     setActiveQuiz(null);
+  };
+
+  const handleResendEmail = async (trackId: TrackId, certId: string) => {
+    const track = CERT_TRACKS.find(t => t.id === trackId);
+    if (!track) return;
+
+    const email = progress.userEmail || (await lookupCertificateEmail(certId));
+    if (!email) {
+      setResendState(s => ({ ...s, [certId]: 'error' }));
+      return;
+    }
+
+    setResendState(s => ({ ...s, [certId]: 'sending' }));
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+      const res = await fetch(`${supabaseUrl}/functions/v1/send-cert-completion-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+          'apikey': supabaseAnonKey,
+        },
+        body: JSON.stringify({
+          email,
+          trackId,
+          type: 'certificate',
+          userName: progress.userName,
+          certId,
+        }),
+      });
+      if (!res.ok) throw new Error('Send failed');
+      await markCompletionEmailSent(certId);
+      setResendState(s => ({ ...s, [certId]: 'sent' }));
+    } catch (err) {
+      console.error('[CertificatesPage] resend email failed:', err);
+      setResendState(s => ({ ...s, [certId]: 'error' }));
+    }
   };
 
   const handleLookupSubmit = async (e: React.FormEvent) => {
@@ -699,6 +747,24 @@ export default function CertificatesPage({ onBack, onVerify }: Props) {
                               <Award className="w-4 h-4" />
                               Add to LinkedIn
                             </a>
+                          );
+                        })()}
+                        {(() => {
+                          const state = resendState[certId] || 'idle';
+                          const label =
+                            state === 'sending' ? 'Sending...' :
+                            state === 'sent' ? 'Email sent' :
+                            state === 'error' ? 'Send failed - try again' :
+                            'Resend certificate email';
+                          return (
+                            <button
+                              onClick={() => handleResendEmail(track.id, certId)}
+                              disabled={state === 'sending' || state === 'sent'}
+                              className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              <Mail className="w-4 h-4" />
+                              {label}
+                            </button>
                           );
                         })()}
                       </>
