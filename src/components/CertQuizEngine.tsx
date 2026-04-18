@@ -73,7 +73,22 @@ export default function CertQuizEngine({ module, trackTitle, onComplete, onClose
     if (selected !== null) return;
     setSelected(idx);
     setShowExplanation(true);
-    setAnswers(prev => [...prev, idx === current.shuffledCorrectIndex]);
+    const isCorrect = idx === current.shuffledCorrectIndex;
+    setAnswers(prev => [...prev, isCorrect]);
+
+    if (!isCorrect) {
+      const correctText = current.options[current.shuffledCorrectIndex];
+      if (looksSpanish(correctText)) {
+        unlockAudioContext();
+        setSpeakingIdx(current.shuffledCorrectIndex);
+        setTimeout(() => {
+          setSpeakingIdx(prev => (prev === current.shuffledCorrectIndex ? null : prev));
+        }, 3000);
+        setTimeout(() => {
+          playAudioFromGesture(correctText, 'spanish');
+        }, 350);
+      }
+    }
   };
 
   const handleNext = () => {
